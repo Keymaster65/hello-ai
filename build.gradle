@@ -1,0 +1,107 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '4.1.0'
+    id 'io.spring.dependency-management' version '1.1.7'
+    id 'nu.studer.jooq' version '10.2.1'
+    id 'jacoco'
+}
+
+group = 'io.github.keymaster65'
+version = '0.0.1-SNAPSHOT'
+description = 'Recipe management backend'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+// Align the jOOQ runtime managed by Spring Boot with the version used for code generation.
+ext['jooq.version'] = '3.21.6'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-jooq'
+    // Spring Boot 4 provides Flyway auto-configuration in a dedicated module.
+    implementation 'org.springframework.boot:spring-boot-flyway'
+    implementation 'org.flywaydb:flyway-database-postgresql'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // Code generation: DDLDatabase reads the Flyway scripts, so no live DB is required at build time.
+    jooqGenerator 'org.jooq:jooq-meta-extensions:3.21.6'
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        // jqwik brings its own JUnit Platform engine; keep vintage out of the way.
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    // Spring Boot 4 ships the @WebMvcTest slice in a dedicated module.
+    testImplementation 'org.springframework.boot:spring-boot-webmvc-test'
+    testImplementation 'net.jqwik:jqwik:1.9.3'
+    testImplementation 'io.zonky.test:embedded-postgres:2.1.0'
+    testImplementation enforcedPlatform('io.zonky.test.postgres:embedded-postgres-binaries-bom:16.4.0')
+}
+
+jooq {
+    version = '3.21.6'
+    configurations {
+        main {
+            generateSchemaSourceOnCompilation = true
+            generationTool {
+                logging = org.jooq.meta.jaxb.Logging.WARN
+                generator {
+                    name = 'org.jooq.codegen.JavaGenerator'
+                    database {
+                        name = 'org.jooq.meta.extensions.ddl.DDLDatabase'
+                        properties {
+                            property {
+                                key = 'scripts'
+                                value = 'src/main/resources/db/migration/*.sql'
+                            }
+                            property {
+                                key = 'sort'
+                                value = 'flyway'
+                            }
+                            property {
+                                key = 'defaultNameCase'
+                                value = 'lower'
+                            }
+                            property {
+                                key = 'unqualifiedSchema'
+                                value = 'none'
+                            }
+                        }
+                    }
+                    generate {
+                        records = true
+                        pojos = false
+                        daos = false
+                        deprecated = false
+                        fluentSetters = true
+                    }
+                    target {
+                        packageName = 'io.github.keymaster65.helloai.adapter.out.persistence.jooq'
+                        directory = layout.buildDirectory.dir('generated-src/jooq/main').get().asFile.absolutePath
+                    }
+                }
+            }
+        }
+    }
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+    finalizedBy tasks.named('jacocoTestReport')
+}
+
+tasks.named('jacocoTestReport') {
+    dependsOn tasks.named('test')
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
