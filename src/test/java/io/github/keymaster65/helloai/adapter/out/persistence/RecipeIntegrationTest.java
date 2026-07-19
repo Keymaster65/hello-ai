@@ -38,7 +38,7 @@ class RecipeIntegrationTest {
     static {
         try {
             embeddedPostgres = EmbeddedPostgres.builder().start();
-        } catch (Throwable t) {
+        } catch (Throwable _) {
             embeddedPostgres = null;
         }
     }
