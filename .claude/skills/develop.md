@@ -1,4 +1,4 @@
-# Skill: Develop – Session-Protokoll pflegen (claudeLog.md)
+# Skill: Develop – Entwicklungsleitfaden
 
 ## Zweck
 Aktiviere diesen Skill in **jeder** Entwicklungs-Session, damit das
@@ -36,6 +36,28 @@ kurzen Zusammenfassung der durchgeführten Aktionen/Ergebnisse.
 - <Was wurde getan>
 - <Ergebnis / Nachweis (z. B. Commit-Hash, Testergebnis)>
 ```
+
+## Commits
+- **Author = Claude:** Beim Committen wird als Git-**Author** Claude gesetzt,
+  nicht der bisherige Nutzer. Konkret pro Commit:
+  ```
+  git commit --author="Claude <noreply@anthropic.com>" -m "<Message>"
+  ```
+  (alternativ dauerhaft via `git config user.name "Claude"` /
+  `git config user.email "noreply@anthropic.com"`).
+- **Commit-Message:** Als Betreff wird eine **kurze, einzeilige** Message
+  vorgeschlagen (imperativ, ca. ≤ 50 Zeichen). In den Folgezeilen ergänzt
+  der Assistent eine **kurze Zusammenfassung des Commit-Inhalts** (1–3 Sätze
+  bzw. Stichpunkte). Aufbau:
+  ```
+  <kurze Betreffzeile>
+
+  <kurze Zusammenfassung des Inhalts>
+
+  Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
+  ```
+- Zusätzlich weiterhin den Trailer im Commit-Body:
+  `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>`.
 
 ## Hinweise
 - Prompt-Text möglichst **wörtlich** übernehmen (in Anführungszeichen).

@@ -6,6 +6,41 @@ Datum: 2026-07-19
 
 ---
 
+## 17. Prompt: „commit!"
+
+**Aktionen:**
+- Diesen Eintrag zuerst oben ins Log ergänzt (Regel „erst Log, dann Commit").
+- Offene Änderungen (`.claude/skills/develop.md`, `docs/log/claudeLog.md`) committet
+  mit Author = Claude, kurzer Betreffzeile + Inhaltszusammenfassung im Body.
+
+---
+
+## 16. Prompt: „Erweitere in develop.md so, dass als Commit-Message eine kurze Zeile vorgeschlagen wird. Dieser wird von dir eine kurze Zusammenfassung des Inhaltes das Commits in der Commit-Message ergänzt."
+
+**Aktionen:**
+- Abschnitt „## Commits" in `.claude/skills/develop.md` um die Message-Konvention erweitert:
+  kurze, einzeilige Betreffzeile (imperativ, ≤ ~50 Zeichen) + darunter eine
+  kurze Zusammenfassung des Commit-Inhalts (1–3 Sätze/Stichpunkte), inkl. Aufbau-Beispiel.
+
+---
+
+## 15. Prompt: „Ändere den Titel in develop.md so, dass er nicht auch das Session-Protokoll beschränkt ist."
+
+**Aktionen:**
+- Titel in `.claude/skills/develop.md` von „Skill: Develop – Session-Protokoll pflegen (claudeLog.md)" auf den breiteren „Skill: Develop – Entwicklungsleitfaden" geändert.
+
+---
+
+## 14. Prompt: „Ergänze in develop.md, dass beim commit Claude als Author verwendet wird!"
+
+**Aktionen:**
+- In `.claude/skills/develop.md` einen Abschnitt „## Commits" ergänzt:
+  Git-**Author** = Claude (`git commit --author="Claude <noreply@anthropic.com>"`),
+  zusätzlich weiterhin der `Co-Authored-By`-Trailer.
+- Diesen Eintrag oben ins Log ergänzt (noch nicht committet).
+
+---
+
 ## 13. Prompt: „Ja, committe das mit deiner vorgeschlagenen Message und in den nächsten Zeilen ein kurze Zusammenfassung!"
 
 **Aktionen:**
