@@ -38,6 +38,12 @@ kurzen Zusammenfassung der durchgeführten Aktionen/Ergebnisse.
 ```
 
 ## Commits
+- **Test vor Commit (Pflicht):** Vor **jedem** Commit muss ein **erfolgreicher**
+  Testlauf vorliegen. Erst `gradle test` (grün) ausführen, dann committen.
+  Schlägt der Test fehl, wird **nicht** committet, sondern zuerst die Ursache behoben.
+  ```
+  ./gradlew test --no-daemon -g /tmp/gradle-home   # muss BUILD SUCCESSFUL liefern
+  ```
 - **Author = Claude:** Beim Committen wird als Git-**Author** Claude gesetzt,
   nicht der bisherige Nutzer. Konkret pro Commit:
   ```
@@ -45,6 +51,10 @@ kurzen Zusammenfassung der durchgeführten Aktionen/Ergebnisse.
   ```
   (alternativ dauerhaft via `git config user.name "Claude"` /
   `git config user.email "noreply@anthropic.com"`).
+- **Message-Bestätigung (Pflicht):** Die vorgeschlagene Commit-Message wird
+  dem Nutzer **im Prompt vorgelegt und muss von ihm bestätigt werden**, bevor
+  committet wird. Ohne Bestätigung erfolgt **kein** Commit; bei Änderungswunsch
+  wird die Message angepasst und erneut zur Bestätigung vorgelegt.
 - **Commit-Message:** Als Betreff wird eine **kurze, einzeilige** Message
   vorgeschlagen (imperativ, ca. ≤ 50 Zeichen). In den Folgezeilen ergänzt
   der Assistent eine **kurze Zusammenfassung des Commit-Inhalts** (1–3 Sätze

@@ -6,6 +6,34 @@ Datum: 2026-07-19
 
 ---
 
+## 20. Prompt: „Ja!" (Bestätigung, die uncommitteten develop.md-Änderungen zu committen)
+
+**Aktionen:**
+- Neuen Skill-Ablauf angewandt: Log ergänzt → `gradle test` ausgeführt (grün) →
+  Message bestätigt → committet (Author = Claude).
+- Commit `Add pre-commit rules to develop skill` mit `.claude/skills/develop.md`
+  und `docs/log/claudeLog.md`.
+
+---
+
+## 19. Prompt: „Erweitere develop.md so, dass vor dem commit die message im Prompt bestätigt werden muß."
+
+**Aktionen:**
+- Abschnitt „## Commits" in `.claude/skills/develop.md` um die Pflichtregel ergänzt:
+  die vorgeschlagene Commit-Message muss dem Nutzer im Prompt vorgelegt und von
+  ihm bestätigt werden; ohne Bestätigung kein Commit.
+
+---
+
+## 18. Prompt: „Erweitere develop.md so, dass vor dem commit ein erfolgreicher test durchgeführt wird!"
+
+**Aktionen:**
+- Abschnitt „## Commits" in `.claude/skills/develop.md` um die Pflichtregel ergänzt:
+  vor jedem Commit muss `gradle test` grün (BUILD SUCCESSFUL) sein; bei Fehlschlag
+  wird nicht committet, sondern zuerst die Ursache behoben.
+
+---
+
 ## 17. Prompt: „commit!"
 
 **Aktionen:**
