@@ -30,6 +30,8 @@ und testbaren Code nach Best Practices und modernen Java-Standards.
 ## Skills
 - **Architektur** → siehe `.claude/skills/architecture.md`
 - **Tests** → siehe `.claude/skills/testing.md`
+- **Develop / Session-Protokoll** → siehe `.claude/skills/develop.md`
+  (pflegt `docs/log/claudeLog.md` fortlaufend – in **jeder** Session aktiv)
 
 ## Workflow
 1. Aufgabe & Kontext verstehen

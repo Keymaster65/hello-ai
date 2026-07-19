@@ -6,6 +6,23 @@ Datum: 2026-07-19
 
 ---
 
+## 13. Prompt: „Ja, committe das mit deiner vorgeschlagenen Message und in den nächsten Zeilen ein kurze Zusammenfassung!"
+
+**Aktionen:**
+- Diesen Eintrag zuerst oben ins Log ergänzt (Regel „erst Log, dann Commit").
+- `.claude/skills/develop.md`, `CLAUDE.md` und `docs/log/claudeLog.md` committet mit Message `Add develop skill for claudeLog maintenance` + kurzer Zusammenfassung im Body.
+
+---
+
+## 12. Prompt: „Erzeuge einen neuen Skill develop.md, der zur Pflege des claudeLog.md in zukünftigen Sessions führt."
+
+**Aktionen:**
+- Bestehendes Skill-Format geprüft (`.claude/skills/architecture.md`, `testing.md`).
+- Neuen Skill `.claude/skills/develop.md` angelegt: Zweck, Wann-anwenden, Format (absteigend, neue Einträge oben), Ablauf pro Prompt, Vorlage und Hinweise zur `claudeLog.md`-Pflege.
+- In `CLAUDE.md` unter „## Skills" verlinkt, damit der Skill in künftigen Sessions geladen/aktiv wird.
+
+---
+
 ## 11. Prompt: „Committe den Stand mit der message \"Add claudeLog.md\" aber erst nachdem claudeLog.md aktualisiert wurde!"
 
 **Aktionen:**
