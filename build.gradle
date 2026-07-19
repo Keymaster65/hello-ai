@@ -27,13 +27,13 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-jooq'
-    // Spring Boot 4 provides Flyway auto-configuration in a dedicated module.
-    implementation 'org.springframework.boot:spring-boot-flyway'
-    implementation 'org.flywaydb:flyway-database-postgresql'
+    // Spring Boot 4 provides Liquibase auto-configuration in a dedicated module.
+    implementation 'org.springframework.boot:spring-boot-liquibase'
+    implementation 'org.liquibase:liquibase-core'
     runtimeOnly 'org.postgresql:postgresql'
 
-    // Code generation: DDLDatabase reads the Flyway scripts, so no live DB is required at build time.
-    jooqGenerator 'org.jooq:jooq-meta-extensions:3.21.6'
+    // Code generation: LiquibaseDatabase interprets the changelog in-memory, so no live DB is required at build time.
+    jooqGenerator 'org.jooq:jooq-meta-extensions-liquibase:3.21.6'
 
     testImplementation('org.springframework.boot:spring-boot-starter-test') {
         // jqwik brings its own JUnit Platform engine; keep vintage out of the way.
@@ -56,16 +56,24 @@ jooq {
                 generator {
                     name = 'org.jooq.codegen.JavaGenerator'
                     database {
-                        name = 'org.jooq.meta.extensions.ddl.DDLDatabase'
+                        name = 'org.jooq.meta.extensions.liquibase.LiquibaseDatabase'
                         properties {
+                            // Resolve the changelog (and its relative includes) from the resources root.
+                            property {
+                                key = 'rootPath'
+                                value = "${project.projectDir}/src/main/resources"
+                            }
                             property {
                                 key = 'scripts'
-                                value = 'src/main/resources/db/migration/*.sql'
+                                value = 'db/changelog/db.changelog-master.xml'
                             }
+                            // Keep Liquibase's own bookkeeping tables out of the generated code.
                             property {
-                                key = 'sort'
-                                value = 'flyway'
+                                key = 'includeLiquibaseTypes'
+                                value = 'false'
                             }
+                            // Fold unquoted names to lower case so the generated names match
+                            // PostgreSQL at runtime (see ADR 0004).
                             property {
                                 key = 'defaultNameCase'
                                 value = 'lower'

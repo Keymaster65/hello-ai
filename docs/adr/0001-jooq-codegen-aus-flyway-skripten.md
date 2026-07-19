@@ -1,7 +1,12 @@
 # 0001 – jOOQ-Codegenerierung aus Flyway-Skripten (DDLDatabase)
 
-Status: akzeptiert
+Status: abgelöst durch [ADR 0004](0004-liquibase-statt-flyway.md) (2026-07-18)
 Datum: 2026-07-18
+
+> **Hinweis:** Das Grundprinzip (Codegen ohne laufende DB, Migrationsskripte als
+> Single Source of Truth) gilt weiterhin. Ausschließlich das eingesetzte
+> Migrationswerkzeug wurde von Flyway/`DDLDatabase` auf Liquibase/`LiquibaseDatabase`
+> umgestellt – siehe ADR 0004.
 
 | Abschnitt    | Inhalt |
 |--------------|--------|

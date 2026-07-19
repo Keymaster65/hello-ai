@@ -4,7 +4,7 @@ Backend zur Verwaltung von Rezepten über eine REST-API mit Persistenz in Postgr
 
 ## Tech-Stack
 - Java 25, Spring Boot 4.1
-- jOOQ (typsicherer SQL-Zugriff), Flyway (Migrationen), PostgreSQL
+- jOOQ (typsicherer SQL-Zugriff), Liquibase (Migrationen), PostgreSQL
 - Tests: JUnit 5, Mockito, AssertJ, jqwik, JaCoCo
 
 ## Architektur
@@ -19,9 +19,9 @@ Hexagonal / Clean Architecture (`io.github.keymaster65.helloai`):
 | `domain`                    | Domänenmodell (Records)                         |
 | `bootstrap`                 | Spring-Boot-Einstiegspunkt                      |
 
-Der jOOQ-Code wird beim Build aus den Flyway-Skripten generiert
-(`org.jooq.meta.extensions.ddl.DDLDatabase`) – es wird dafür **keine laufende
-Datenbank** benötigt.
+Der jOOQ-Code wird beim Build aus dem Liquibase-Changelog generiert
+(`org.jooq.meta.extensions.liquibase.LiquibaseDatabase`) – es wird dafür **keine
+laufende Datenbank** benötigt.
 
 ## REST-API
 
@@ -59,7 +59,7 @@ Nicht gefundene Rezepte liefern `404`, Validierungsfehler `400` (jeweils als
 
 ## Datenbank
 Drei Tabellen (`recipe`, `ingredient`, `preparation_step`), verwaltet über
-Flyway-Migrationen in `src/main/resources/db/migration`. Zutaten und Schritte
+Liquibase-Changelogs in `src/main/resources/db/changelog`. Zutaten und Schritte
 werden mit `ON DELETE CASCADE` an das Rezept gebunden.
 
 Konfiguration über Umgebungsvariablen (Defaults für lokale Entwicklung):

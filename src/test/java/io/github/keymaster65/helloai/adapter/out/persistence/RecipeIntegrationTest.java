@@ -22,7 +22,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
 /**
- * Full-stack persistence integration test: real PostgreSQL (embedded, no Docker), Flyway
+ * Full-stack persistence integration test: real PostgreSQL (embedded, no Docker), Liquibase
  * migrations and the jOOQ repository via the {@link RecipeService}.
  *
  * <p>In an environment with Docker this would typically use Testcontainers; here the
