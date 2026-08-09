@@ -6,6 +6,50 @@ Datum: 2026-07-19
 
 ---
 
+## 38. Prompt: „Führe alle Tests aus und starte neu." / „Ja, zieh die @Valid-Warnung nach" / „Ja, führ die durch und dann commit"
+
+**Aktionen:**
+- Komplette DoD-Kette gefahren: `gradle clean build` (23 Java + 24 Vitest),
+  `gradle systemtest` 13/13, `gradle e2eTest` 5/5 – zusammen **65 Tests grün**.
+  `RecipeIntegrationTest` lief mit, wurde also nicht übersprungen.
+- App neu gestartet und per Smoke-Test geprüft (SPA, API, Swagger UI, OpenAPI).
+- Dabei im Log die Deprecation-Warnung **HV000271** entdeckt und gemeldet.
+- Auf Zuruf behoben: `@Valid List<X>` → `List<@Valid X>` in `RecipeRequest`.
+  Da die verschachtelte Validierung **von keinem Test abgedeckt** war, zwei Tests in
+  `RecipeControllerTest` ergänzt, die auch die Feldpfade prüfen (`ingredients[1].name`,
+  `steps[0].instruction`).
+- Laufzeit-Nachweis nach Neustart: POST mit Zutaten/Schritten (201) und mit leerem
+  Zutatennamen (400) – **0 Treffer** für HV000271 im Log. Verbleibende WARNs sind nur
+  die springdoc-Hinweise zu offenen `/v3/api-docs`- und `/swagger-ui.html`-Endpunkten.
+- Nach der Änderung erneut `systemtest` (13/13) und `e2eTest` (5/5) grün.
+- Nebenbefund zur Werkzeugnutzung: `pkill -f "<muster>"` traf mehrfach die eigene
+  Shell-Kommandozeile und brach die Kette ab; Abhilfe ist der Bracket-Trick
+  (`pkill -f "[r]ecipe-…"`) bzw. `kill <PID>`.
+
+---
+
+## 37. Prompt: „Erstlle zu den e2eTests entsprechende Filme zur Testdurchführung die das mit im build-Verzeuchnis erzeugt werden."
+
+**Aktionen:**
+- `video: { mode: 'on', size: … }` in `playwright.config.ts`: **jeder** Test wird aufgezeichnet,
+  nicht nur Fehlschläge – die Videos sollen die Durchführung dokumentieren.
+- Alle E2E-Artefakte ins Gradle-Build-Verzeichnis verlegt: `outputDir` →
+  `build/e2e/test-results`, HTML-Report → `build/e2e/report`. Begründung: `gradle clean`
+  räumt dort ohnehin auf und `/build/` ist bereits in `.gitignore` – keine zusätzliche
+  Aufräum-Logik nötig. Konsequenz: die Report-Pfade in README und `CLAUDE.md` mussten
+  mitgeändert werden.
+- Erster Lauf ergab 5 Videos (je ~60–180 KB, gültiges WebM). Beim Extrahieren eines Frames
+  fiel ein eigener Fehler auf: Videogröße 1280×720 passte nicht zum Viewport 1280×800,
+  die Seite wurde mit grauem Rand eingepasst. Auf 1280×800 korrigiert und per Frame
+  gegengeprüft – jetzt formatfüllend.
+- Alte Artefaktordner `frontend/playwright-report/` und `frontend/test-results/` entfernt.
+- ADR 0008 um einen Abschnitt „Artefakte" (Tabelle, Begründung für `build/`, Preis von
+  ~0,5 MB Video pro Lauf) ergänzt; README um eine Artefakt-Tabelle mit den Öffnen-Befehlen.
+- Verifiziert: `tsc --noEmit` sauber, `gradle clean e2eTest` grün (5/5), nach `clean`
+  werden Videos und Report neu erzeugt.
+
+---
+
 ## 36. Prompt: „commit" / „Ja"
 
 **Aktionen:**

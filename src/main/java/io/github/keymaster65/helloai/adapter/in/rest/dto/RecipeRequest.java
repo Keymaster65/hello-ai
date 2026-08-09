@@ -37,9 +37,11 @@ public record RecipeRequest(
         @Schema(description = "Difficulty level", example = "MEDIUM")
         @NotNull Difficulty difficulty,
 
+        // @Valid belongs on the type argument, not on the container: the latter is deprecated
+        // in Bean Validation (HV000271).
         @Schema(description = "Ingredients of the recipe")
-        @Valid List<IngredientDto> ingredients,
+        List<@Valid IngredientDto> ingredients,
 
         @Schema(description = "Preparation steps; their order in this list defines the position")
-        @Valid List<PreparationStepDto> steps) {
+        List<@Valid PreparationStepDto> steps) {
 }

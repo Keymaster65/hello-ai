@@ -77,6 +77,31 @@ class RecipeControllerTest {
     }
 
     @Test
+    void shouldReturn400_whenNestedIngredientIsInvalid() throws Exception {
+        String body = """
+                {"title":"Pancakes","difficulty":"EASY",
+                 "ingredients":[{"name":"Mehl"},{"name":"  "}],"steps":[]}
+                """;
+
+        mockMvc.perform(post("/api/recipes").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("ingredients[1].name"));
+    }
+
+    @Test
+    void shouldReturn400_whenNestedStepIsInvalid() throws Exception {
+        String body = """
+                {"title":"Pancakes","difficulty":"EASY",
+                 "ingredients":[],"steps":[{"instruction":""}]}
+                """;
+
+        mockMvc.perform(post("/api/recipes").contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.fieldErrors[0].field").value("steps[0].instruction"));
+    }
+
+    @Test
     void shouldReturn404_whenRecipeNotFound() throws Exception {
         when(recipeService.getById(99L)).thenThrow(new RecipeNotFoundException(99L));
 
