@@ -18,19 +18,52 @@ kurzen Zusammenfassung der durchgeführten Aktionen/Ergebnisse.
 - **Sortierung: chronologisch absteigend – neuester Eintrag oben.**
 - Neue Einträge **immer vorne** einfügen (direkt unter dem Header,
   vor dem bisher obersten Eintrag). Nummerierung fortlaufend hochzählen.
+- Direkt unter der Überschrift eine **Kennzahlenzeile** mit **Dauer** und
+  **Tokenanzahl** (siehe unten).
 - Je Eintrag ein `**Aktionen:**`-Block (bzw. `**Antwort:**` bei reinen
   Fragen) mit knapper Stichpunkt-Zusammenfassung von Tun und Ergebnis.
 
+## Dauer und Tokenanzahl
+Beides ist dem Assistenten **nicht** direkt bekannt – es steht aber im Transkript, das
+Claude Code je Session unter `~/.claude/projects/<projekt>/<session>.jsonl` schreibt:
+Jeder Eintrag trägt einen Zeitstempel, jede Assistant-Nachricht ihre `usage`.
+`docs/log/turn-stats.py` liest das aus:
+
+```bash
+python3 docs/log/turn-stats.py --log-line   # fertige Zeile für den Eintrag
+python3 docs/log/turn-stats.py -n 5         # Übersicht der letzten fünf Turns
+```
+
+Ergebnis (Beispiel):
+
+```markdown
+_Dauer: 2:29 · Tokens: 20.829 out, 17.048 in (neu), 9.915.499 gesamt_
+```
+
+- **Dauer** = Wanduhrzeit von der Ankunft des Prompts bis zur letzten Antwort,
+  inklusive Wartezeit auf Werkzeuge und Builds.
+- **out** = generierte Tokens, **in (neu)** = nicht aus dem Cache gelesene Eingabe,
+  **gesamt** = alles inklusive Cache-Reads (das, was abgerechnet wird).
+- **Zahlen niemals schätzen.** Ist das Transkript nicht lesbar, wird das im Eintrag
+  vermerkt (`Dauer/Tokens: nicht ermittelbar`) statt geraten.
+- **Systematische Untererfassung:** Gemessen wird bis zum Schreiben des Eintrags; die
+  abschließende Antwort des Turns fehlt darin zwangsläufig. Die Werte sind damit eine
+  Untergrenze – nicht schönrechnen, sondern so verstehen.
+
 ## Ablauf pro Prompt
 1. Nutzer-Prompt beantworten / Aufgabe umsetzen.
-2. Neuen Abschnitt oben in `docs/log/claudeLog.md` einfügen:
+2. `python3 docs/log/turn-stats.py --log-line` ausführen.
+3. Neuen Abschnitt oben in `docs/log/claudeLog.md` einfügen:
    - Überschrift mit fortlaufender Nummer und Original-Prompt.
+   - Kennzahlenzeile aus Schritt 2.
    - Stichpunkte zu Aktionen/Ergebnissen (Commits, Tests, Dateien, Entscheidungen).
-3. Log-Aktualisierung vor Turn-Ende sicherstellen.
+4. Log-Aktualisierung vor Turn-Ende sicherstellen.
 
 ## Vorlage
 ```markdown
 ## <N>. Prompt: „<Original-Prompt>"
+
+_Dauer: <m:ss> · Tokens: <out> out, <in> in (neu), <gesamt> gesamt_
 
 **Aktionen:**
 - <Was wurde getan>

@@ -6,6 +6,49 @@ Datum: 2026-07-19
 
 ---
 
+## 56. Prompt: „commit" / „Ja, so committen"
+
+_Dauer: 31s · Tokens: 3.089 out, 1.483 in (neu), 2.973.757 gesamt_
+
+**Aktionen:**
+- Erster Praxiseinsatz des Skripts deckte eine Lücke auf: Wird es ganz früh im Turn
+  aufgerufen, ist noch keine Assistant-Nachricht im Transkript und die Ausgabe lautete
+  `Dauer: 0s · Tokens: 0` – eine Falschaussage. `log_line()` meldet diesen Fall jetzt
+  ausdrücklich als „noch nicht ermittelbar".
+- Vorbedingung: reine Doku- und Werkzeugänderung, kein Produktionscode – letzter grüner
+  Lauf (`clean build` 30 Java + 24 Vitest, `systemtest` 13/13, `e2eTest` 7/7) gilt weiter.
+- Diesen Eintrag zuerst ergänzt, dann committet (Author = Claude):
+  `Log duration and token count per prompt`.
+
+---
+
+## 55. Prompt: „Ergänze Dauer und Tokenanzahl immer im claudeLog.md"
+
+_Dauer: 3:06 · Tokens: 22.916 out, 20.689 in (neu), 12.862.286 gesamt_
+
+**Aktionen:**
+- Ausgangsproblem benannt: Dauer ist messbar, den eigenen Tokenverbrauch kenne ich als
+  Assistent **nicht** – geschätzte Zahlen in einem dauerhaften Protokoll wären wertlos.
+- Quelle gefunden: Claude Code schreibt je Session ein Transkript unter
+  `~/.claude/projects/<projekt>/<session>.jsonl`; jeder Eintrag trägt `timestamp`, jede
+  Assistant-Nachricht ihre `usage` (input, output, cache_creation, cache_read).
+- `docs/log/turn-stats.py` angelegt: gruppiert das Transkript in Turns (Grenze = echter
+  Nutzer-Prompt, erkannt daran, dass `message.content` ein String ist – Tool-Ergebnisse und
+  Skill-Injektionen sind Listen), summiert die Tokens und rechnet die Dauer aus.
+  `--log-line` liefert die fertige Markdown-Zeile, `-n` eine Übersicht.
+- Gegenprobe der Plausibilität an bekannten Turns: der Modul-Split (Eintrag 53) kommt auf
+  37:48 und 50.604 Output-Tokens, die kurzen Commit-Turns auf 20–45 s und ~1.200–1.700.
+- `.claude/skills/develop.md` erweitert: Kennzahlenzeile ist Teil des Formats, neuer
+  Abschnitt „Dauer und Tokenanzahl", Schritt 2 im Ablauf, angepasste Vorlage.
+  Ausdrücklich festgehalten: **Zahlen nie schätzen** – ist das Transkript nicht lesbar,
+  wird „nicht ermittelbar" vermerkt.
+- Ebenfalls dokumentiert, weil systematisch: Gemessen wird bis zum Schreiben des Eintrags,
+  die abschließende Antwort fehlt darin zwangsläufig. Die Werte sind eine **Untergrenze**.
+- Bestandseinträge bleiben ohne Kennzahlen – die Daten ließen sich zwar nachrechnen, aber
+  das Log dokumentiert, was zum jeweiligen Zeitpunkt bekannt war.
+
+---
+
 ## 54. Prompt: „commit" / „Ja, so committen"
 
 **Aktionen:**
