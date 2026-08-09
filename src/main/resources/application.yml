@@ -11,5 +11,17 @@ spring:
   jooq:
     sql-dialect: POSTGRES
 
+springdoc:
+  api-docs:
+    # Machine-readable contract (OpenAPI 3.1, JSON) – also served as YAML under /v3/api-docs.yaml
+    path: /v3/api-docs
+    version: openapi_3_1
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    display-request-duration: true
+  default-produces-media-type: application/json
+
 server:
   port: 80

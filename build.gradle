@@ -27,6 +27,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-jooq'
+    // OpenAPI 3.1 documentation + Swagger UI; the 3.x line is the one built against Spring Boot 4.
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0'
     // Spring Boot 4 provides Liquibase auto-configuration in a dedicated module.
     implementation 'org.springframework.boot:spring-boot-liquibase'
     implementation 'org.liquibase:liquibase-core'

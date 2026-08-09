@@ -1,5 +1,6 @@
 package io.github.keymaster65.helloai.adapter.in.rest;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 /**
@@ -10,10 +11,12 @@ import java.util.List;
  * @param message      human-readable description
  * @param fieldErrors  per-field validation errors (empty unless a validation failed)
  */
+@Schema(name = "ErrorResponse", description = "Uniform error payload")
 public record ErrorResponse(
-        int status,
-        String error,
-        String message,
+        @Schema(description = "HTTP status code", example = "404") int status,
+        @Schema(description = "Short, machine-readable error label", example = "NOT_FOUND") String error,
+        @Schema(description = "Human-readable description", example = "Recipe 42 not found") String message,
+        @Schema(description = "Per-field validation errors; empty unless a validation failed")
         List<FieldError> fieldErrors) {
 
     public static ErrorResponse of(int status, String error, String message) {
@@ -26,6 +29,9 @@ public record ErrorResponse(
      * @param field   name of the offending field
      * @param message validation message
      */
-    public record FieldError(String field, String message) {
+    @Schema(name = "FieldError", description = "A single field-level validation error")
+    public record FieldError(
+            @Schema(description = "Name of the offending field", example = "title") String field,
+            @Schema(description = "Validation message", example = "must not be blank") String message) {
     }
 }

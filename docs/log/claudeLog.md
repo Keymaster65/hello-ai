@@ -6,6 +6,42 @@ Datum: 2026-07-19
 
 ---
 
+## 22. Prompt: „commite das"
+
+**Aktionen:**
+- Vorbedingung erfüllt: `./gradlew clean build` war grün (23 Tests), Message war bestätigt.
+- Alle 14 Dateien committet (Author = Claude): Commit `8c57ae0`
+  „Add springdoc-openapi 3.1 and ADR 0005".
+- Co-Authored-By-Trailer auf „Claude Opus 5 (1M context)" gesetzt (statt 4.8),
+  passend zum tatsächlich genutzten Modell.
+
+---
+
+## 21. Prompt: „Add newest swagger to application and add this for future as ADR."
+
+**Aktionen:**
+- Aktuellste springdoc-Version über Maven Central ermittelt: **3.1.0** – die 3.x-Linie
+  ist gegen Spring Boot 4.1.0 gebaut (2.x zielt auf Boot 3) und bringt Swagger UI 5.32.11.
+- `build.gradle`: `org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0` ergänzt.
+- `application.yml`: `springdoc`-Block (OpenAPI 3.1 unter `/v3/api-docs`,
+  UI unter `/swagger-ui.html`, Sortierung, Default-Media-Type).
+- Neu `bootstrap/OpenApiConfig.java`: `OpenAPI`-Bean mit Titel/Beschreibung/Lizenz;
+  Version aus `spring.application.version` mit Fallback.
+- `RecipeController` mit `@Tag`, `@Operation`, `@ApiResponse(s)`, `@Parameter` annotiert;
+  DTOs (`RecipeRequest`, `RecipeResponse`, `IngredientDto`, `PreparationStepDto`,
+  `PreparationStepResponse`) und `ErrorResponse` mit `@Schema` inkl. Beispielen.
+- Neu `OpenApiDocumentationTest` (4 Tests): Dokument-Metadaten, alle fünf Operationen,
+  Schemata/`required`-Felder sowie Auslieferung der Swagger UI. Läuft ohne DB
+  (`spring.liquibase.enabled=false`).
+- `docs/adr/0005-springdoc-openapi-und-swagger-ui.md` angelegt (Kontext, Optionen,
+  Entscheidung, Konsequenzen) inkl. Regel für die Zukunft: neue Endpunkte werden im
+  selben Commit annotiert; Contract gehört zur Definition of Done.
+- README um Tech-Stack-Eintrag, Abschnitt „API-Dokumentation (OpenAPI / Swagger)"
+  und den neuen Testtyp ergänzt.
+- `./gradlew test` grün: 23 Tests, 0 Fehler, 0 übersprungen (inkl. der 4 neuen).
+
+---
+
 ## 20. Prompt: „Ja!" (Bestätigung, die uncommitteten develop.md-Änderungen zu committen)
 
 **Aktionen:**
