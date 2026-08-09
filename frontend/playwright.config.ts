@@ -10,10 +10,16 @@ import { existsSync, readdirSync } from 'node:fs'
  * already deployed instance instead and starts nothing.
  *
  * <p>The application needs a reachable PostgreSQL, exactly like `bootRun`.
+ *
+ * <p>All artefacts – videos of every run, plus traces and screenshots of failures – are written
+ * to `build/e2e/` of the root project, together with the HTML report that links them.
  */
 const externalBaseUrl = process.env.E2E_BASE_URL?.trim()
 const port = Number(process.env.E2E_PORT ?? 8080)
 const baseURL = externalBaseUrl || `http://localhost:${port}`
+
+/** Relative to this config, i.e. the Gradle build directory of the root project. */
+const ARTEFACT_DIR = '../build/e2e'
 
 function bootJar(): string {
   const libs = '../build/libs'
@@ -34,13 +40,19 @@ export default defineConfig({
   workers: 1,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
-  // Always write the HTML report to playwright-report/ – locally it is just as useful as in CI.
-  // `open: 'never'` keeps it from launching a browser on a failed run.
-  reporter: [['list'], ['html', { open: 'never' }]],
+  // All artefacts land under the Gradle build directory, so `gradle clean` removes them and
+  // nothing needs an extra .gitignore entry.
+  outputDir: `${ARTEFACT_DIR}/test-results`,
+  // Always write the HTML report – locally it is just as useful as in CI. `open: 'never'`
+  // keeps it from launching a browser on a failed run.
+  reporter: [['list'], ['html', { open: 'never', outputFolder: `${ARTEFACT_DIR}/report` }]],
   use: {
     baseURL,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
+    // Every run is recorded, not just failures: the videos document the test execution itself.
+    // The size must match the viewport below, otherwise the page is letterboxed into the frame.
+    video: { mode: 'on', size: { width: 1280, height: 800 } },
   },
   projects: [
     {

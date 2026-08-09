@@ -156,10 +156,21 @@ cd frontend && npm run dev
   Contract-Details bleiben in den Systemtests. Benötigt eine erreichbare PostgreSQL.
   Siehe [ADR 0008](docs/adr/0008-playwright-fuer-e2e-tests.md).
 
-  Ergebnisse nach jedem Lauf: HTML-Report unter `frontend/playwright-report/index.html`
-  (`cd frontend && npx playwright show-report`). Bei Fehlschlägen liegen zusätzlich
-  Screenshot und Trace unter `frontend/test-results/<test>/`; den Trace öffnet
-  `npx playwright show-trace test-results/<test>/trace.zip`.
+  Alle Artefakte liegen unter **`build/e2e/`** und werden damit von `gradle clean` mit
+  entfernt:
+
+  | Artefakt | Ort | Wann |
+  |---|---|---|
+  | **Video der Durchführung** (WebM, 1280×800) | `build/e2e/test-results/<test>/video.webm` | jeder Test, jeder Lauf |
+  | HTML-Report (verlinkt die Videos) | `build/e2e/report/index.html` | jeder Lauf |
+  | Screenshot | `build/e2e/test-results/<test>/` | nur bei Fehlschlag |
+  | Trace | `build/e2e/test-results/<test>/trace.zip` | nur bei Fehlschlag |
+
+  ```bash
+  cd frontend
+  npx playwright show-report ../build/e2e/report      # Report inkl. eingebetteter Videos
+  npx playwright show-trace ../build/e2e/test-results/<test>/trace.zip
+  ```
 - **System** (`src/systemtest/java`, Task `systemtest`): Black-Box-Tests gegen die
   **laufende** Anwendung, ausschließlich über HTTP. Ohne `-Psystemtest.baseUrl`
   startet die Suite die Anwendung selbst auf einem freien Port (embedded PostgreSQL),

@@ -59,7 +59,7 @@ Sprache. Welche Rolle gilt, ergibt sich aus der bearbeiteten Datei bzw. Aufgabe.
   (gegen laufende Instanz: `gradle systemtest -Psystemtest.baseUrl=http://localhost:8080`)
 - E2E-Tests: `gradle e2eTest` – benötigt eine erreichbare PostgreSQL
   (gegen laufende Instanz: `gradle e2eTest -Pe2e.baseUrl=http://localhost:8080`)
-  Ergebnisse: `frontend/playwright-report/index.html`
+  Ergebnisse inkl. Videos jedes Laufs: `build/e2e/` (Report: `build/e2e/report/index.html`)
 
 ## Definition of Done
 - [ ] Code kompiliert (`gradle clean build --test`)

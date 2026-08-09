@@ -39,3 +39,23 @@ Navigation Liste → Detail → zurück.
   „Schritt 1 entfernen" – ein Query, der im Vitest-Test grün ist, kann in E2E mehrdeutig sein.
 - Testdaten pro Lauf eindeutig benennen (Suffix) und im `finally` wieder entfernen; die
   Datenbank ist geteilt, deshalb läuft die Suite mit `workers: 1`.
+
+## Artefakte
+
+Jeder Lauf wird **als Video aufgezeichnet** (`video: 'on'`, WebM, 1280×800) – nicht nur
+Fehlschläge, denn die Aufzeichnung soll die Durchführung dokumentieren, nicht nur die
+Diagnose. Die Videogröße muss dem Viewport entsprechen, sonst wird die Seite mit grauen
+Rändern in den Frame eingepasst. Sämtliche Artefakte landen unter **`build/e2e/`** des Root-Projekts
+(`outputDir` bzw. `outputFolder` des HTML-Reporters):
+
+| Artefakt | Ort | Wann |
+|---|---|---|
+| Video | `build/e2e/test-results/<test>/video.webm` | jeder Test |
+| HTML-Report | `build/e2e/report/index.html` | jeder Lauf |
+| Screenshot, Trace | `build/e2e/test-results/<test>/` | nur bei Fehlschlag |
+
+Begründung für `build/`: Das Verzeichnis wird von `gradle clean` ohnehin geleert und ist
+bereits über `.gitignore` ausgeschlossen – es braucht also weder Aufräum-Logik noch
+zusätzliche Ignore-Einträge. **Preis:** rund 0,5 MB Video pro Lauf (plus eine Kopie im
+Report, der die Videos einbettet); auf CI-Runnern sollte das Verzeichnis daher als
+Build-Artefakt archiviert und nicht dauerhaft aufbewahrt werden.
