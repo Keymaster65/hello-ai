@@ -56,6 +56,8 @@ _Stand (Session, 68 Prompts): 4:04:54 · 764.504 out · 289.620.079 gesamt_
 - **Der Stand gilt je Session.** Das Transkript umfasst nur die laufende Session; Prompts
   aus früheren Sessions sind darin nicht enthalten. Deshalb steht die Prompt-Zahl der
   Session in der Zeile – sie weicht bewusst von der Nummer des Log-Eintrags ab.
+  Da nach jedem Commit `/clear` läuft (siehe „Commits"), umfasst eine Session in der Regel
+  genau die Arbeit **seit dem letzten Commit**; der Stand springt dort auf null zurück.
 
 ## Ablauf pro Prompt
 1. Nutzer-Prompt beantworten / Aufgabe umsetzen.
@@ -107,6 +109,16 @@ _Stand (Session, <k> Prompts): <h:mm:ss> · <out> out · <gesamt> gesamt_
   ```
 - Zusätzlich weiterhin den Trailer im Commit-Body:
   `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>`.
+- **`/clear` nach jedem Commit (Pflicht):** Ein Commit schließt eine Arbeitseinheit ab –
+  der Kontext der nächsten beginnt leer. Nach jedem erfolgreichen Commit fordert der
+  Assistent den Nutzer als **letzte Zeile der Antwort** auf, `/clear` einzugeben.
+  `/clear` ist ein Client-Befehl von Claude Code und kann **nicht** vom Assistenten oder
+  von einem Hook ausgelöst werden; die Aufforderung ist deshalb der verbindliche Teil.
+  Zwei Konsequenzen, die daraus folgen:
+  - Alles, was nach dem Commit noch gebraucht wird, muss **vorher** in einer Datei stehen
+    (`docs/log/claudeLog.md`, ADR, README) – nicht nur im Gesprächsverlauf.
+  - `/clear` startet ein neues Transkript, damit beginnt der **Stand** der Kennzahlen bei
+    null (siehe „Dauer und Tokenanzahl"). Das ist gewollt und kein Messfehler.
 
 ## Hinweise
 - Prompt-Text möglichst **wörtlich** übernehmen (in Anführungszeichen).

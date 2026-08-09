@@ -6,6 +6,48 @@ Datum: 2026-07-19
 
 ---
 
+## 70. Prompt: „commit"
+
+_Delta: 10s · 2.148 out · 18 in (neu) · 181.503 gesamt_
+_Stand (Session, 4 Prompts): 1:38 · 16.921 out · 1.153.574 gesamt_
+
+**Aktionen:**
+- Vorbedingung: reine Regel-/Doku-Änderung (`develop.md`, `claudeLog.md`), kein Code –
+  der letzte grüne Lauf aus Eintrag 68 (`clean build` 30 Java + 24 Vitest,
+  `systemtest` 15/15, `e2eTest` 9/9) gilt weiter.
+- Commit-Body auf **Deutsch** geschrieben statt wie im Vorschlag auf Englisch: Alle
+  bisherigen Commits führen einen englischen Betreff mit deutschem Fließtext, und
+  `CLAUDE.md` verlangt deutsche Kommunikation. Der Betreff blieb unverändert.
+- Diesen Eintrag zuerst ergänzt, dann committet (Author = Claude):
+  `Clear the context after each commit`.
+- Erste Anwendung der neuen Regel: Die Antwort endet mit der Aufforderung zum `/clear`.
+
+---
+
+## 69. Prompt: „/clear" / „Do /clear after each commit"
+
+_Delta: 31s · 4.639 out · 105.339 in (neu) · 337.591 gesamt_
+_Stand (Session, 3 Prompts): 31s · 4.639 out · 337.591 gesamt_
+
+**Aktionen:**
+- Regel in `.claude/skills/develop.md`, Abschnitt „Commits", aufgenommen: Nach **jedem**
+  Commit fordert der Assistent als letzte Zeile der Antwort zum `/clear` auf.
+- **Grenze benannt statt umgangen:** `/clear` ist ein Client-Befehl von Claude Code.
+  Weder der Assistent noch ein Hook (`PostToolUse`, `Stop`, …) kann den Kontext leeren –
+  die Aufforderung an den Nutzer ist deshalb der verbindliche Teil der Regel, nicht eine
+  Notlösung. Ein Hook könnte allenfalls an die Regel erinnern, sie nicht ausführen.
+- Zwei Konsequenzen mitdokumentiert, weil sie sonst später als Fehler auffallen:
+  - Alles, was den Commit überdauern soll, muss **vorher** in einer Datei stehen
+    (Log, ADR, README) – nach `/clear` ist der Gesprächsverlauf weg.
+  - `/clear` startet ein neues Transkript, also beginnt der **Stand** der Kennzahlen bei
+    null. Direkt an diesem Eintrag sichtbar: 3 Prompts statt 89 wie in Eintrag 68.
+    Im Abschnitt „Dauer und Tokenanzahl" ergänzt – eine Session umfasst künftig in der
+    Regel genau die Arbeit seit dem letzten Commit.
+- Kein Code angefasst, reine Regel-/Doku-Änderung; der letzte grüne Lauf aus Eintrag 68
+  (`clean build` 30 Java + 24 Vitest, `systemtest` 15/15, `e2eTest` 9/9) gilt weiter.
+
+---
+
 ## 68. Prompt: „commit" / „start" / „commit"
 
 _Delta: 2:41 · 7.381 out · 9.185 in (neu) · 15.814.811 gesamt_
