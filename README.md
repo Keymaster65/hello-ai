@@ -1,4 +1,4 @@
-# Recipe Backend
+# Recipes
 
 Rezeptverwaltung: Spring-Boot-Backend mit REST-API und PostgreSQL, dazu ein
 React-Frontend, das dieses Backend als **BFF** (Backend for Frontend) nutzt –
@@ -31,7 +31,7 @@ erzwungen, nicht nur dokumentiert
 ```
 
 ```
-recipe-backend/
+recipes/
 ├── build.gradle.kts            nur Plugin-Deklarationen (apply false)
 ├── settings.gradle.kts
 ├── modules/
@@ -49,7 +49,7 @@ recipe-backend/
 Ein Modul sieht nur, was es deklariert: Ein Import aus einer äußeren Schicht **compiliert
 nicht**. Die gewohnten Befehle bleiben unverändert, weil Gradle einen Task-Namen an jedes
 Modul weiterleitet, das ihn kennt. Das Artefakt liegt in
-`modules/backend/bootstrap/build/libs/recipe-backend-<version>.jar`.
+`modules/backend/bootstrap/build/libs/recipes-<version>.jar`.
 
 ## Architektur
 Hexagonal / Clean Architecture (`io.github.keymaster65.helloai`, ein Modul je Schicht):
@@ -78,7 +78,7 @@ Origin aus: kein CORS, ein Deployable. Siehe
 | Modus       | URL                     | Womit                                        |
 |-------------|-------------------------|----------------------------------------------|
 | Entwicklung | <http://localhost:5173> | `npm run dev` (proxyt `/api` auf Port 8080)  |
-| Produktion  | <http://localhost:8080> | `java -jar modules/backend/bootstrap/build/libs/recipe-backend-*.jar`  |
+| Produktion  | <http://localhost:8080> | `java -jar modules/backend/bootstrap/build/libs/recipes-*.jar`  |
 
 Die TypeScript-Typen stammen aus dem OpenAPI-Contract und liegen eingecheckt in
 `modules/frontend/src/api/schema.d.ts`. Nach API-Änderungen neu erzeugen:

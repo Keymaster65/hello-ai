@@ -8,7 +8,7 @@ plugins {
 description = "Spring Boot entry point – wires the layers and produces the deployable"
 
 // Keep the artifact name independent of the module name (see ADR 0011).
-val artifactName = "recipe-backend"
+val artifactName = "recipes"
 
 // Black-box tests against a running application, run via `./gradlew systemtest`.
 testSets {

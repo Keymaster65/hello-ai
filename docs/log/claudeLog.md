@@ -6,6 +6,46 @@ Datum: 2026-07-19
 
 ---
 
+## 64. Prompt: „commit" / „Ja, so committen"
+
+_Delta: 5s · 155 out · 11 in (neu) · 711.988 gesamt_
+_Stand (Session, 80 Prompts): 5:11:10 · 902.175 out · 408.398.997 gesamt_
+
+**Aktionen:**
+- Vorbedingung erfüllt (nach der Umbenennung gemessen): `./gradlew clean build` grün
+  (30 Java + 24 Vitest), `./gradlew systemtest` 13/13, `./gradlew e2eTest` 7/7 –
+  inklusive des neuen Artefaktnamens `recipes-0.0.1-SNAPSHOT.jar`.
+- Diesen Eintrag zuerst ergänzt, dann committet (Author = Claude):
+  `Rename the project to recipes`.
+
+---
+
+## 63. Prompt: „Ändere dem Projektnamen von \"recipe-backend\" auf \"receipes"
+
+_Delta: 13:59 · 9.671 out · 1.396.550 in (neu) · 10.608.423 gesamt_
+_Stand (Session, 78 Prompts): 5:10:19 · 899.904 out · 404.841.951 gesamt_
+
+**Aktionen:**
+- **Rückfrage vor der Umsetzung:** „receipes" ist keine englische Vokabel und wich von
+  allem Bestehenden ab (Datenbank `recipes`, REST-Pfad `/api/recipes`, Tabelle `recipe`).
+  Da der Name in Artefaktnamen und `spring.application.name` einfließt, wäre eine spätere
+  Korrektur ein zweiter Durchlauf gewesen. Entscheidung des Nutzers: **`recipes`**.
+- Operative Stellen geändert:
+  - `settings.gradle.kts`: `rootProject.name = "recipes"`
+  - `modules/backend/bootstrap/build.gradle.kts`: `artifactName = "recipes"`
+  - `application.yml`: `spring.application.name: recipes`
+  - `README.md`: Titel, Strukturbaum, Jar-Pfade
+  - `CLAUDE.md`: Platzhalter `[Projektname]` durch `recipes` ersetzt
+- ADRs und ältere Log-Einträge **nicht** umgeschrieben – sie dokumentieren den Stand ihrer
+  Entstehung (Konvention aus ADR 0009).
+- Kein ADR angelegt: eine Umbenennung ist keine Architekturentscheidung.
+- Verifiziert: `./gradlew projects` meldet `Root project 'recipes'`, `clean build` grün
+  (30 Java + 24 Vitest), Artefakt heißt jetzt `recipes-0.0.1-SNAPSHOT.jar` und enthält die
+  drei Modul-Jars, `systemtest` 13/13, `e2eTest` 7/7. Die Playwright-Konfiguration brauchte
+  **keine** Anpassung – sie filtert auf `*.jar` ohne `-plain` statt auf einen festen Namen.
+
+---
+
 ## 62. Prompt: „Was soll modules-broken?" / „commit"
 
 _Delta: 32s · 1.000 out · 2.496 in (neu) · 2.086.775 gesamt_

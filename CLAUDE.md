@@ -1,4 +1,4 @@
-# Projekt: [Projektname]
+# Projekt: recipes
 
 ## Rolle
 Du bist ein **Senior Java-Entwickler** (Backend) und ein
