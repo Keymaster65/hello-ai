@@ -58,6 +58,8 @@ dependencies {
     // Spring Boot 4 ships the @WebMvcTest slice in a dedicated module.
     testImplementation("org.springframework.boot:spring-boot-webmvc-test")
     testImplementation("net.jqwik:jqwik:1.9.3")
+    // Enforces the layering rule from .claude/skills/architecture.md (see ADR 0012).
+    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.0")
     testImplementation("io.zonky.test:embedded-postgres:2.1.0")
     testImplementation(enforcedPlatform("io.zonky.test.postgres:embedded-postgres-binaries-bom:16.4.0"))
 

@@ -28,6 +28,10 @@ bootstrap → adapter  →  application  →  domain
 ```
 Abhängigkeiten zeigen nach innen. Controller kennt keine Entities direkt.
 
+Diese Regel ist **ausführbar**: `LayeredArchitectureTest` (ArchUnit) prüft sie in
+`./gradlew test` – siehe [ADR 0012](../../docs/adr/0012-archunit-fuer-die-schichtenregel.md).
+Wird eine Schicht umbenannt oder ein Paket ergänzt, ist der Test mitzuziehen.
+
 ## Checkliste vor Implementierung
 1. Welche Schicht ist betroffen?
 2. Gibt es ein Interface für den Service/Repository?

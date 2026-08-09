@@ -10,7 +10,7 @@ beides wird als **ein** Artefakt aus derselben Origin ausgeliefert.
 - Java 25, Spring Boot 4.1
 - jOOQ (typsicherer SQL-Zugriff), Liquibase (Migrationen), PostgreSQL
 - springdoc-openapi 3.1 (OpenAPI 3.1 + Swagger UI)
-- Tests: JUnit 5, Mockito, AssertJ, jqwik, JaCoCo
+- Tests: JUnit 5, Mockito, AssertJ, jqwik, ArchUnit, JaCoCo
 
 **Frontend** (`frontend/`)
 - TypeScript 5.9, React 19, Vite 8
@@ -173,6 +173,10 @@ cd frontend && npm run dev
 ```
 
 ## Tests
+- **Architektur** (`LayeredArchitectureTest`): ArchUnit erzwingt
+  `bootstrap → adapter → application → domain`, die Framework-Freiheit des
+  Domänenmodells und „Ports sind Interfaces". Siehe
+  [ADR 0012](docs/adr/0012-archunit-fuer-die-schichtenregel.md).
 - **Unit** (`RecipeServiceImplTest`): Geschäftslogik mit Mockito/AssertJ.
 - **Property-based** (`RecipeRestMapperPropertyTest`): Mapper-Invarianten mit jqwik.
 - **Web-Slice** (`RecipeControllerTest`): REST-Schicht mit `@WebMvcTest`.

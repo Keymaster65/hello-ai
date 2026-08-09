@@ -6,6 +6,48 @@ Datum: 2026-07-19
 
 ---
 
+## 52. Prompt: „commit" / „Ja, so committen"
+
+**Aktionen:**
+- Vor dem Stagen geprüft, dass der temporäre `ArchViolationProbe` wirklich entfernt ist –
+  im Domänenpaket liegen nur die vier echten Records.
+- Vorbedingung erfüllt: `./gradlew clean build` grün (30 Java + 24 Vitest),
+  `./gradlew systemtest` 13/13, `./gradlew e2eTest` 7/7.
+- Diesen Eintrag zuerst ergänzt, dann committet (Author = Claude):
+  `Enforce the layering rule with ArchUnit`.
+
+---
+
+## 51. Prompt: „Ergänze archunit Test für die \"Schichten & Abhängigkeitsregel\""
+
+**Aktionen:**
+- `com.tngtech.archunit:archunit-junit5:1.5.0` als `testImplementation` ergänzt.
+- Neu `backend/src/test/java/.../architecture/LayeredArchitectureTest.java` mit fünf Regeln:
+  - `layeredArchitecture()` über die vier Schichten Domain/Application/Adapter/Bootstrap
+    mit `mayOnlyBeAccessedByLayers` bzw. `mayNotBeAccessedByAnyLayer`.
+  - zwei explizite Negativregeln für `domain` und `application` – liefern deutlichere
+    Fehlermeldungen als die Sammelregel.
+  - Framework-Freiheit des Domänenmodells (Spring, jOOQ, Jakarta, Swagger, Jackson,
+    Liquibase) – das war bisher überhaupt nicht geprüft.
+  - „Ports sind Interfaces".
+- Tests per `ImportOption.DoNotIncludeTests` aus der Analyse ausgenommen: Testcode darf in
+  jede Schicht greifen, und die Systemtests starten die App bewusst über `bootstrap`.
+- **Gegenprobe, dass die Regeln greifen:** temporären Record `ArchViolationProbe` im
+  Domänenpaket angelegt, der einen REST-DTO referenziert → `:backend:test` schlägt fehl,
+  `layers_are_respected` und `domain_does_not_depend_on_outer_layers` melden je drei
+  Verstöße mit Fundstelle. Probe wieder entfernt.
+- Bewusst **nicht** umgesetzt: „Controller kennt keine Entities direkt" als Regel über
+  Methodensignaturen. ArchUnit sieht Bytecode; Abhängigkeiten in generischen Typargumenten
+  (`ResponseEntity<RecipeResponse>`) sind dort nicht zuverlässig sichtbar – die Regel wäre
+  eine Scheinprüfung. Im ADR als Einschränkung dokumentiert.
+- `docs/adr/0012-archunit-fuer-die-schichtenregel.md` angelegt; README (Tech-Stack + Testarten)
+  und `.claude/skills/architecture.md` ergänzt – die Regel dort ist jetzt als ausführbar
+  markiert und verweist auf den Test.
+- Verifiziert: `./gradlew clean build` grün mit jetzt **30** Java-Tests (5 davon ArchUnit)
+  und 24 Vitest, `./gradlew systemtest` 13/13, `./gradlew e2eTest` 7/7.
+
+---
+
 ## 50. Prompt: „commit" / „commit" (Bestätigung der vorgelegten Message)
 
 **Aktionen:**
