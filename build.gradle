@@ -118,6 +118,68 @@ jooq {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Frontend (React/Vite in frontend/), built into the Boot jar – see ADR 0007.
+// Use -PskipFrontend to keep the Java-only inner loop fast.
+// ---------------------------------------------------------------------------
+def frontendDir = file('frontend')
+def npmExecutable = System.getProperty('os.name').toLowerCase().contains('windows') ? 'npm.cmd' : 'npm'
+def frontendEnabled = !providers.gradleProperty('skipFrontend').isPresent()
+
+tasks.register('npmInstall', Exec) {
+    group = 'frontend'
+    description = 'Installs the frontend dependencies (npm ci).'
+    onlyIf { frontendEnabled }
+    workingDir = frontendDir
+    commandLine npmExecutable, 'ci', '--no-audit', '--no-fund'
+    inputs.file("$frontendDir/package.json")
+    inputs.file("$frontendDir/package-lock.json")
+    outputs.dir("$frontendDir/node_modules")
+}
+
+def frontendSources = {
+    inputs.file("$frontendDir/package.json")
+    inputs.file("$frontendDir/vite.config.ts")
+    inputs.file("$frontendDir/tsconfig.json")
+    inputs.file("$frontendDir/index.html")
+    inputs.dir("$frontendDir/src")
+}
+
+tasks.register('frontendBuild', Exec) {
+    group = 'frontend'
+    description = 'Type-checks and bundles the frontend (vite build).'
+    onlyIf { frontendEnabled }
+    dependsOn tasks.named('npmInstall')
+    workingDir = frontendDir
+    commandLine npmExecutable, 'run', 'build'
+    configure frontendSources
+    outputs.dir("$frontendDir/dist")
+}
+
+tasks.register('frontendTest', Exec) {
+    group = 'verification'
+    description = 'Runs the frontend unit tests (vitest).'
+    onlyIf { frontendEnabled }
+    dependsOn tasks.named('npmInstall')
+    workingDir = frontendDir
+    commandLine npmExecutable, 'run', 'test'
+    configure frontendSources
+    outputs.upToDateWhen { false }
+}
+
+// The bundle is served by Spring Boot from the classpath, so the SPA and the API
+// share one origin and one deployable artifact.
+tasks.named('processResources') {
+    dependsOn tasks.named('frontendBuild')
+    from("$frontendDir/dist") {
+        into 'static'
+    }
+}
+
+tasks.named('check') {
+    dependsOn tasks.named('frontendTest')
+}
+
 tasks.named('test') {
     useJUnitPlatform()
     finalizedBy tasks.named('jacocoTestReport')

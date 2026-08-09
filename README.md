@@ -1,12 +1,21 @@
 # Recipe Backend
 
-Backend zur Verwaltung von Rezepten über eine REST-API mit Persistenz in PostgreSQL.
+Rezeptverwaltung: Spring-Boot-Backend mit REST-API und PostgreSQL, dazu ein
+React-Frontend, das dieses Backend als **BFF** (Backend for Frontend) nutzt –
+beides wird als **ein** Artefakt aus derselben Origin ausgeliefert.
 
 ## Tech-Stack
+
+**Backend**
 - Java 25, Spring Boot 4.1
 - jOOQ (typsicherer SQL-Zugriff), Liquibase (Migrationen), PostgreSQL
 - springdoc-openapi 3.1 (OpenAPI 3.1 + Swagger UI)
 - Tests: JUnit 5, Mockito, AssertJ, jqwik, JaCoCo
+
+**Frontend** (`frontend/`)
+- TypeScript 5.9, React 19, Vite 8
+- Tests: Vitest 4, Testing Library
+- API-Typen aus dem OpenAPI-Contract generiert (`openapi-typescript`)
 
 ## Architektur
 Hexagonal / Clean Architecture (`io.github.keymaster65.helloai`):
@@ -23,6 +32,30 @@ Hexagonal / Clean Architecture (`io.github.keymaster65.helloai`):
 Der jOOQ-Code wird beim Build aus dem Liquibase-Changelog generiert
 (`org.jooq.meta.extensions.liquibase.LiquibaseDatabase`) – es wird dafür **keine
 laufende Datenbank** benötigt.
+
+## Frontend (BFF-Setup)
+
+Das React-Frontend liegt in `frontend/` und spricht ausschließlich **relative**
+`/api`-Pfade an. Gradle baut es (`frontendBuild`) und packt das Bundle nach
+`static/` ins Boot-Jar – Spring Boot liefert damit SPA und API aus derselben
+Origin aus: kein CORS, ein Deployable. Siehe
+[ADR 0007](docs/adr/0007-react-frontend-mit-backend-als-bff.md).
+
+| Modus       | URL                     | Womit                                        |
+|-------------|-------------------------|----------------------------------------------|
+| Entwicklung | <http://localhost:5173> | `npm run dev` (proxyt `/api` auf Port 8080)  |
+| Produktion  | <http://localhost:8080> | `java -jar build/libs/recipe-backend-*.jar`  |
+
+Die TypeScript-Typen stammen aus dem OpenAPI-Contract und liegen eingecheckt in
+`frontend/src/api/schema.d.ts`. Nach API-Änderungen neu erzeugen:
+
+```bash
+cd frontend && npm run generate:api   # benötigt ein laufendes Backend auf :8080
+```
+
+> **Hinweis:** Im Contract sind die Felder der Response-DTOs sämtlich optional,
+> weil springdoc `required` nur aus der Bean-Validation ableitet und die auf
+> Responses nicht greift. Im Frontend müssen sie daher abgesichert werden.
 
 ## REST-API
 
@@ -88,10 +121,17 @@ docker run --name recipes-db -e POSTGRES_DB=recipes \
 
 ## Befehle
 ```bash
-./gradlew clean build   # kompilieren + alle Tests + JaCoCo-Report
-./gradlew test          # nur Tests
+./gradlew clean build   # Frontend + Backend, alle Tests, JaCoCo-Report
+./gradlew test          # nur Java-Tests
+./gradlew frontendTest  # nur Vitest
 ./gradlew systemtest    # Systemtests gegen die laufende Anwendung
 ./gradlew bootRun       # Anwendung starten (benötigt laufende PostgreSQL)
+
+# Ohne Node/npm bzw. für die schnelle Java-Schleife:
+./gradlew build -PskipFrontend
+
+# Frontend-Entwicklung mit HMR (Backend muss auf :8080 laufen):
+cd frontend && npm run dev
 
 # Systemtests gegen eine bereits laufende/deployte Instanz:
 ./gradlew systemtest -Psystemtest.baseUrl=http://localhost:8080
@@ -103,6 +143,8 @@ docker run --name recipes-db -e POSTGRES_DB=recipes \
 - **Web-Slice** (`RecipeControllerTest`): REST-Schicht mit `@WebMvcTest`.
 - **Contract** (`OpenApiDocumentationTest`): prüft, dass `/v3/api-docs` alle
   Operationen und Schemata beschreibt und die Swagger UI ausgeliefert wird.
+- **Frontend** (`frontend/src/**/*.test.tsx`, Task `frontendTest`): Vitest +
+  Testing Library für API-Client, Komponenten und die Zusammenschaltung in `App`.
 - **System** (`src/systemtest/java`, Task `systemtest`): Black-Box-Tests gegen die
   **laufende** Anwendung, ausschließlich über HTTP. Ohne `-Psystemtest.baseUrl`
   startet die Suite die Anwendung selbst auf einem freien Port (embedded PostgreSQL),

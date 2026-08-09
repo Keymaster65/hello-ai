@@ -6,6 +6,50 @@ Datum: 2026-07-19
 
 ---
 
+## 28. Prompt: „Commit" / „Ja, so committen"
+
+**Aktionen:**
+- Vor dem Stagen per `git add -A --dry-run` geprüft, dass `frontend/node_modules/`
+  und `frontend/dist/` ausgeschlossen sind, `package-lock.json` aber mitkommt.
+- Vorbedingung erfüllt: letzter grüner `gradle clean build` (Frontend-Build,
+  24 Vitest, 23 Java-Tests) und `gradle systemtest` (12/12); seither nur Doku geändert.
+- Message vorgelegt und bestätigt bekommen; diesen Eintrag zuerst ergänzt, dann
+  alle 24 Dateien committet (Author = Claude):
+  `Add React frontend using the backend as BFF`.
+
+---
+
+## 27. Prompt: „Erstelle ein Frontend, welches das Backend als BFF verwendet." (+ Zwischenfrage „Mit welcher URL kann ich auf das Frontend zugreifen?")
+
+**Aktionen:**
+- Drei Entscheidungen vorab abgefragt; gewählt: Gradle-integriert ins Boot-Jar,
+  API-Typen aus OpenAPI generiert, volles CRUD.
+- Neues `frontend/` (React 19, Vite 8, TypeScript 5.9, Vitest 4):
+  - `src/api/schema.d.ts` per `openapi-typescript` aus `/v3/api-docs` generiert (eingecheckt),
+    `src/api/recipes.ts` als typisierter Client mit `ApiError` inkl. Feldfehler-Zugriff.
+  - `App` (Ansichts-State statt Router), `RecipeList`, `RecipeDetail`, `RecipeForm`
+    mit dynamischen Zutaten/Schritten und Inline-Anzeige der Backend-Validierungsfehler.
+  - 24 Vitest-Tests (Client, Komponenten, Zusammenschaltung).
+- Gradle-Anbindung ohne Drittanbieter-Plugin: `npmInstall`, `frontendBuild`, `frontendTest`
+  als `Exec`-Tasks mit Inputs/Outputs; `processResources` kopiert `frontend/dist` nach
+  `static/`; `check` hängt an `frontendTest`; `-PskipFrontend` für die Java-Schleife.
+- `FrontendSystemTest` (3 Tests) sichert das BFF-Setup: SPA unter `/`, alle von
+  `index.html` referenzierten Assets erreichbar, API und SPA auf derselben Origin.
+- Zwei Korrekturen unterwegs: TypeScript 7.0.2 nicht nutzbar (`openapi-typescript`
+  verlangt `peer typescript@^5.x`) → auf 5.9.3 gepinnt; ein eigener Testfehler
+  (dasselbe `Response`-Objekt für mehrere `fetch`-Aufrufe – Body nur einmal lesbar).
+- `docs/adr/0007-react-frontend-mit-backend-als-bff.md` angelegt; README um Frontend-Abschnitt,
+  Befehle und Testart erweitert.
+- Befund für später dokumentiert: Response-DTOs haben im Contract **keine** Pflichtfelder,
+  da springdoc `required` nur aus Bean-Validation ableitet – im Frontend abgesichert.
+- Verifiziert: `gradle clean build` grün (Frontend-Build + 24 Vitest + 23 Java-Tests),
+  `gradle systemtest` grün (12/12), Boot-Jar enthält `BOOT-INF/classes/static/`,
+  `http://localhost:8080/` liefert die SPA, `/api/recipes` und `/v3/api-docs` weiterhin 200.
+- Zwischenfrage beantwortet: Dev unter <http://localhost:5173> (Vite, Proxy verifiziert),
+  Produktion unter <http://localhost:8080>.
+
+---
+
 ## 26. Prompt: „Commit des aktuellen Standes." / „Ja, so committen"
 
 **Aktionen:**
