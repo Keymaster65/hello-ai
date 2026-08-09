@@ -6,6 +6,69 @@ Datum: 2026-07-19
 
 ---
 
+## 77. Prompt: „warte auf den build und committe dann"
+
+_Delta: 1:13 · 9.322 out · 1.644.108 gesamt_
+_Stand (Session, 5 Prompts): 10:09 · 53.111 out · 4.974.240 gesamt_
+
+**Aktionen:**
+- Auf das Ende des DoD-Laufs gewartet (9m 8s): `BUILD SUCCESSFUL`.
+- Definition of Done erfüllt: `clean build` grün (31 Java-Tests, 0 Fehler – einer mehr
+  als zuvor, nämlich die neue Zwiebel-Regel; Vitest lief im `build` mit, Frontend
+  unverändert), `systemtest` 15/15, `e2eTest` 9/9.
+- Log ergänzt (Einträge 75–77), dann committet (Author = Claude):
+  `Check the architecture as onion rings too`.
+- Kein Hash im Eintrag: Er entstünde erst mit dem Commit, der genau diesen Text enthält –
+  dieselbe Begründung wie in Eintrag 74.
+
+---
+
+## 76. Prompt: „commit"
+
+_Delta: 1:28 · 7.333 out · 764.087 gesamt_
+_Stand (Session, 4 Prompts): 8:56 · 43.789 out · 3.330.132 gesamt_
+
+**Aktionen:**
+- **Nicht** committet: Der DoD-Lauf lief noch (Gradle-Daemon aktiv, e2e-Artefakte wurden
+  gerade geschrieben). Ein Commit vor grüner Definition of Done wäre ein Regelverstoß
+  gegen `.claude/skills/develop.md`.
+- Stattdessen die Commit-Message vorgelegt; vom Nutzer bestätigt.
+- Abweichung beim Trailer benannt und bewusst entschieden: `develop.md` schreibt
+  `Claude Opus 4.8 (1M context)` vor, diese Session läuft auf **Opus 5**. Der Nutzer hat
+  die zutreffende Angabe bestätigt – der Skill-Text ist an dieser Stelle veraltet.
+
+---
+
+## 75. Prompt: „Ergänze einen archunit Test mit onionArchitecture()"
+
+_Delta: 7:28 · 36.456 out · 2.566.045 gesamt_
+_Stand (Session, 3 Prompts): 7:28 · 36.456 out · 2.566.045 gesamt_
+
+**Aktionen:**
+- `OnionArchitectureTest` in `modules/backend/bootstrap/src/test/.../architecture/`
+  angelegt: eine Regel `rings_are_respected` auf Basis von `onionArchitecture()`.
+  Ringe: `..domain..` als *domain model*, `..application..` (Ports + Services) als
+  *application service*, dazu drei Adapter `rest`, `persistence`, `bootstrap`.
+- `withOptionalLayers(true)` gesetzt – es gibt keinen *domain service*-Ring, die Domäne
+  ist reines Modell. Ohne das Flag scheitert ArchUnit am leeren Ring statt an einer
+  Abhängigkeit.
+- Vor dem Schreiben geprüft, wie `onionArchitecture()` in ArchUnit 1.5.0 tatsächlich
+  arbeitet (Bytecode der `Architectures$OnionArchitecture`): sie delegiert an
+  `layeredArchitecture()` mit `consideringAllDependencies` – deshalb muss `bootstrap`
+  ein eigener Ring sein und darf nicht unbenannt bleiben.
+- **Wirksamkeit nachgewiesen** (Maßstab aus ADR 0012): Temporärer Record im REST-Adapter,
+  der den generierten jOOQ-Code des Persistenz-Adapters anfasst → `rings_are_respected`
+  meldet 5 Verstöße, während die 5 Regeln aus `LayeredArchitectureTest` **grün bleiben**
+  (6 Tests, 1 Fehler). Damit ist belegt, dass die Regel eine echte Lücke schließt: Die
+  Schichtensicht kennt nur *eine* Schicht `..adapter..`. Probe wieder entfernt.
+- Nebenbefund aus der Fehlermeldung: ArchUnit sieht generische Typargumente in Feldern,
+  Parametern und Rückgabetypen sehr wohl. Die Einschränkung in ADR 0012 ist enger zu
+  fassen als dort formuliert – als Nachtrag in ADR 0019 festgehalten.
+- Doku: [ADR 0019](../adr/0019-onion-architecture-regel-in-archunit.md) neu,
+  `README.md` und `.claude/skills/architecture.md` um die zweite Sicht ergänzt.
+
+---
+
 ## 74. Prompt: „commit"
 
 _Delta: 28s · 2.212 out · 2.309 in (neu) · 401.386 gesamt_

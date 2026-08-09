@@ -209,6 +209,10 @@ cd modules/frontend && npm run dev
   `bootstrap → adapter → application → domain`, die Framework-Freiheit des
   Domänenmodells und „Ports sind Interfaces". Siehe
   [ADR 0012](docs/adr/0012-archunit-fuer-die-schichtenregel.md).
+- **Architektur** (`OnionArchitectureTest`): dieselbe Struktur als Zwiebelschalen –
+  ergänzt, was die Schichtensicht nicht ausdrücken kann: REST- und Persistenz-Adapter
+  kennen einander nicht. Siehe
+  [ADR 0019](docs/adr/0019-onion-architecture-regel-in-archunit.md).
 - **Unit** (`RecipeServiceImplTest`): Geschäftslogik mit Mockito/AssertJ.
 - **Property-based** (`RecipeRestMapperPropertyTest`): Mapper-Invarianten mit jqwik.
 - **Web-Slice** (`RecipeControllerTest`): REST-Schicht mit `@WebMvcTest`.

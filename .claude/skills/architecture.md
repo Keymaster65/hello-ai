@@ -40,6 +40,10 @@ Diese Regel ist **doppelt abgesichert**:
    Modulgrenzen nicht sehen: Framework-Freiheit des Domänenmodells und „Ports sind
    Interfaces"; siehe
    [ADR 0012](../../docs/adr/0012-archunit-fuer-die-schichtenregel.md).
+   `OnionArchitectureTest` beschreibt dieselbe Struktur als Zwiebelschalen und schließt
+   die Lücke der Schichtensicht: **Adapter kennen einander nicht** – der REST-Adapter
+   greift nicht am Port vorbei auf die Persistenz zu. Siehe
+   [ADR 0019](../../docs/adr/0019-onion-architecture-regel-in-archunit.md).
 
 Fehlt einer Klasse eine Abhängigkeit, ist das ein Hinweis auf einen Schichtverstoß –
 nicht die Aufforderung, sie im Buildskript zu ergänzen.
