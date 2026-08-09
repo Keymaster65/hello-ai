@@ -6,6 +6,51 @@ Datum: 2026-07-19
 
 ---
 
+## 24. Prompt: „Commit des aktuellen Standes." / „Ja, so committen"
+
+**Aktionen:**
+- Vorbedingung geprüft: seit dem letzten grünen Lauf (`gradle clean build` mit 23 Tests,
+  `gradle systemtest` 9/9) hatte sich nur `docs/log/claudeLog.md` geändert – kein Code.
+- Commit-Message vorgelegt und bestätigt bekommen.
+- Diesen Eintrag zuerst ergänzt (Regel „erst Log, dann Commit"), dann alle 8 Dateien
+  committet (Author = Claude): `Add systemtest source set and ADR 0006`
+  – `build.gradle`, `CLAUDE.md`, `README.md`, ADR 0006, die drei Systemtest-Klassen
+  und das Log.
+
+---
+
+## 23. Prompt: „Ergänze ein ADR zur Verwendung des \"unbroken-dome/gradle-testsets-plugin\" und ergänze damit Systemtest mit gradle Task \"systemtest\", mit denen die Swagger AI der gestarteten Anwenung getestet wird. Die Durchführung der \"systemtest\" Task wir in der DoD ergänzt!"
+
+**Aktionen:**
+- Plugin-Kompatibilität vorab in einem Wegwerf-Projekt geprüft: `org.unbroken-dome.test-sets`
+  **4.1.0** (letzter Release 09/2023) läuft mit **Gradle 9.6.1** – Task wird angelegt,
+  Source-Set kompiliert, Tests laufen.
+- `build.gradle`: Plugin ergänzt, `testSets { systemtest }`, eigene `systemtest*`-Dependencies
+  (JUnit, AssertJ, Zonky) und `tasks.named('systemtest')` mit `useJUnitPlatform()` und
+  Property-Durchreichung `-Psystemtest.baseUrl`. Bewusst **nicht** an `check`/`build` gehängt.
+- Neues Source-Set `src/systemtest/java`:
+  - `RunningApplication`: zwei Modi – extern (`-Psystemtest.baseUrl`) gegen eine deployte
+    Instanz, sonst Selbst-Hosting auf freiem Port gegen embedded PostgreSQL (`@EnabledIf`-Guard).
+  - `HttpProbe`: JDK-`HttpClient` ohne Redirect-Folgen + Jackson-3-Parsing.
+  - `SwaggerSystemTest` (9 Tests): OpenAPI-Metadaten, alle Operationen samt Statuscodes,
+    DTO-Schemata inkl. `required` und „keine Domain-Typen im Contract", YAML-Variante,
+    Swagger-UI-Redirect/Assets, `configUrl` → eigener Contract statt Petstore, sowie
+    Abgleich Contract gegen tatsächliches Verhalten (200/404/400).
+- Fehler gefunden und behoben: `SpringApplicationBuilder.properties(...)` landet in
+  `defaultProperties` und wird von `application.yml` (`server.port: 80`) überstimmt – die
+  Testinstanz startete auf Port 80 gegen die falsche DB. Fix: Übergabe als
+  Command-Line-Argumente (`--server.port=…`).
+- `docs/adr/0006-testsets-plugin-und-systemtests.md` angelegt; enthält als Konsequenz
+  offen den Wartungsstand des Plugins und `jvm-test-suite` als Migrationspfad.
+- `CLAUDE.md`: DoD um „Systemtests grün (`gradle systemtest`)" erweitert, Workflow-Schritt 5
+  und Befehlsliste ergänzt. README um Befehle und Testart erweitert.
+- Verifiziert: `gradle clean build` grün (23 Tests, systemtest bleibt separat),
+  `gradle systemtest` grün (9/9, selbst-gehostet, 49 s) und
+  `gradle systemtest -Psystemtest.baseUrl=http://localhost:8080` grün gegen eine aus
+  `bootJar` gestartete Instanz (9/9, 22 s, keine zweite Instanz gestartet).
+
+---
+
 ## 22. Prompt: „commite das"
 
 **Aktionen:**

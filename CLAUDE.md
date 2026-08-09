@@ -38,14 +38,18 @@ und testbaren Code nach Best Practices und modernen Java-Standards.
 2. Plan vorstellen (bei größeren Änderungen)
 3. Implementieren
 4. Tests schreiben & mit `gradle test` ausführen
-5. Zusammenfassung geben
+5. Systemtests mit `gradle systemtest` ausführen
+6. Zusammenfassung geben
 
 ## Nützliche Befehle
 - Build: `gradle clean build`
 - Tests: `gradle test`
+- Systemtests: `gradle systemtest`
+  (gegen laufende Instanz: `gradle systemtest -Psystemtest.baseUrl=http://localhost:8080`)
 
 ## Definition of Done
 - [ ] Code kompiliert (`gradle clean build --test`)
 - [ ] Tests grün (`gradle test`)
+- [ ] **Systemtests grün (`gradle systemtest`)** – prüfen die laufende Anwendung über HTTP
 - [ ] Keine kritischen Warnungen/Linter-Fehler
 - [ ] Architektur- und Test-Prinzipien eingehalten

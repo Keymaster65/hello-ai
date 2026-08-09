@@ -3,6 +3,8 @@ plugins {
     id 'org.springframework.boot' version '4.1.0'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'nu.studer.jooq' version '10.2.1'
+    // Separate source sets for additional test types (see ADR 0006).
+    id 'org.unbroken-dome.test-sets' version '4.1.0'
     id 'jacoco'
 }
 
@@ -21,6 +23,11 @@ ext['jooq.version'] = '3.21.6'
 
 repositories {
     mavenCentral()
+}
+
+// Black-box tests against a running application (src/systemtest/java), run via `gradle systemtest`.
+testSets {
+    systemtest
 }
 
 dependencies {
@@ -46,6 +53,14 @@ dependencies {
     testImplementation 'net.jqwik:jqwik:1.9.3'
     testImplementation 'io.zonky.test:embedded-postgres:2.1.0'
     testImplementation enforcedPlatform('io.zonky.test.postgres:embedded-postgres-binaries-bom:16.4.0')
+
+    // System tests talk to the application over HTTP only; the JDK HttpClient is enough.
+    // Spring is needed solely to boot the application when no external instance is given.
+    systemtestImplementation 'org.junit.jupiter:junit-jupiter'
+    systemtestImplementation 'org.assertj:assertj-core'
+    systemtestImplementation 'io.zonky.test:embedded-postgres:2.1.0'
+    systemtestImplementation enforcedPlatform('io.zonky.test.postgres:embedded-postgres-binaries-bom:16.4.0')
+    systemtestRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
 jooq {
@@ -106,6 +121,17 @@ jooq {
 tasks.named('test') {
     useJUnitPlatform()
     finalizedBy tasks.named('jacocoTestReport')
+}
+
+tasks.named('systemtest') {
+    useJUnitPlatform()
+    // Run against an already deployed instance with -Psystemtest.baseUrl=http://host:port;
+    // without it the task boots the application itself on a free port.
+    systemProperty 'systemtest.baseUrl', providers.gradleProperty('systemtest.baseUrl').getOrElse('')
+    shouldRunAfter tasks.named('test')
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
 }
 
 tasks.named('jacocoTestReport') {

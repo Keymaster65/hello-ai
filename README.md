@@ -90,7 +90,11 @@ docker run --name recipes-db -e POSTGRES_DB=recipes \
 ```bash
 ./gradlew clean build   # kompilieren + alle Tests + JaCoCo-Report
 ./gradlew test          # nur Tests
+./gradlew systemtest    # Systemtests gegen die laufende Anwendung
 ./gradlew bootRun       # Anwendung starten (benötigt laufende PostgreSQL)
+
+# Systemtests gegen eine bereits laufende/deployte Instanz:
+./gradlew systemtest -Psystemtest.baseUrl=http://localhost:8080
 ```
 
 ## Tests
@@ -99,6 +103,11 @@ docker run --name recipes-db -e POSTGRES_DB=recipes \
 - **Web-Slice** (`RecipeControllerTest`): REST-Schicht mit `@WebMvcTest`.
 - **Contract** (`OpenApiDocumentationTest`): prüft, dass `/v3/api-docs` alle
   Operationen und Schemata beschreibt und die Swagger UI ausgeliefert wird.
+- **System** (`src/systemtest/java`, Task `systemtest`): Black-Box-Tests gegen die
+  **laufende** Anwendung, ausschließlich über HTTP. Ohne `-Psystemtest.baseUrl`
+  startet die Suite die Anwendung selbst auf einem freien Port (embedded PostgreSQL),
+  mit der Property läuft sie gegen eine deployte Instanz. Siehe
+  [ADR 0006](docs/adr/0006-testsets-plugin-und-systemtests.md).
 - **Integration** (`RecipeIntegrationTest`): kompletter Stack gegen ein echtes
   PostgreSQL. Genutzt wird **embedded PostgreSQL (Zonky)**, das ohne Docker
   auskommt; in Umgebungen mit Docker lässt sich stattdessen Testcontainers
