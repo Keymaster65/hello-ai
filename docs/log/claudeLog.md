@@ -6,6 +6,50 @@ Datum: 2026-07-19
 
 ---
 
+## 34. Prompt: „Wo finde ich die Ergebnisse der Playwrite Tests?" / „Ja, ändern und dann committen"
+
+**Antwort/Aktionen:**
+- Ist-Zustand offengelegt: Der HTML-Reporter war an `process.env.CI` gebunden, lokal gab es
+  also nur die Konsolenausgabe. Persistent lagen nur `test-results/.last-run.json` sowie –
+  ausschließlich bei Fehlschlägen – Screenshot, `trace.zip` und `error-context.md`.
+- Report zur Demonstration einmalig erzeugt und Pfade genannt
+  (`npx playwright show-report`, `npx playwright show-trace …`).
+- Auf eigenen Vorschlag hin die `CI`-Bedingung entfernt: Der HTML-Report wird jetzt bei
+  **jedem** Lauf nach `frontend/playwright-report/` geschrieben (`open: 'never'`).
+- Verifiziert: `tsc --noEmit` sauber, `npx playwright test` 5/5 grün, Report (≈510 KB)
+  wird erzeugt. README um die Fundorte der Ergebnisse ergänzt.
+- Anschließend mit der zuvor bestätigten Message committet (Author = Claude).
+
+---
+
+## 33. Prompt: „Setze die Playwright-Suite um"
+
+**Aktionen:**
+- `@playwright/test` 1.62.1 + `@types/node` als devDependencies; passenden Chromium-Build
+  installiert (der vorherige Feasibility-Check hatte eine andere Playwright-Version).
+- `frontend/playwright.config.ts`: `webServer` startet das **Boot-Jar** (Jar-Pfad wird zur
+  Laufzeit aufgelöst, mit klarer Fehlermeldung falls `bootJar` fehlt), wartet auf
+  `/api/recipes`; `E2E_BASE_URL` schaltet auf eine bereits laufende Instanz um.
+  `workers: 1` und `fullyParallel: false`, weil die Datenbank geteilt ist.
+- `frontend/e2e/recipes.spec.ts` mit 5 Flows: CRUD-Lebenszyklus komplett über die UI,
+  Abbruch des Löschens am `confirm`, Backend-Validierungsfehler am Feld, Navigation
+  Liste→Detail→zurück, sowie der Nachweis, dass alle API-Calls dieselbe Origin nutzen.
+  Testdaten pro Lauf eindeutig benannt und im `finally` entfernt.
+- Gradle-Task `e2eTest` (hängt an `bootJar`), `-Pe2e.baseUrl` wird als `E2E_BASE_URL`
+  durchgereicht. Bewusst **nicht** an `check` gehängt (langsamste Schicht, braucht DB).
+- Drei Fehler in meinen eigenen Locators gefunden und behoben – alle drei gehen auf
+  Playwrights **Teilstring-Matching** von Accessible Names zurück (Testing Library matcht
+  exakt): Titel-Button vs. „… löschen"-Button, `getByLabel('Schritt 1')` vs.
+  „Schritt 1 entfernen", und ein umbenannter Titel, der den alten als Teilstring enthielt.
+  Als Regel in ADR 0008 aufgenommen.
+- ADR 0008 auf „akzeptiert und umgesetzt" gesetzt und um die gelernten Regeln ergänzt;
+  README um Befehle, Testart und Playwright im Tech-Stack erweitert.
+- Verifiziert: `tsc --noEmit` sauber, `gradle clean build` grün (24 Vitest + 23 Java-Tests),
+  `gradle systemtest` 13/13, `gradle e2eTest` 5/5 – sowohl selbst-gestartet (29 s) als auch
+  gegen eine laufende Instanz via `-Pe2e.baseUrl` (19 s, nachweislich ohne zweite Instanz).
+
+---
+
 ## 32. Prompt: „commit" / „commit" (Bestätigung der vorgelegten Message)
 
 **Aktionen:**

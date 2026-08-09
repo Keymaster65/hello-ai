@@ -14,7 +14,7 @@ beides wird als **ein** Artefakt aus derselben Origin ausgeliefert.
 
 **Frontend** (`frontend/`)
 - TypeScript 5.9, React 19, Vite 8
-- Tests: Vitest 4, Testing Library
+- Tests: Vitest 4 + Testing Library (Komponenten), Playwright 1.62 (E2E)
 - API-Typen aus dem OpenAPI-Contract generiert (`openapi-typescript`)
 
 ## Architektur
@@ -126,10 +126,14 @@ docker run --name recipes-db -e POSTGRES_DB=recipes \
 ./gradlew test          # nur Java-Tests
 ./gradlew frontendTest  # nur Vitest
 ./gradlew systemtest    # Systemtests gegen die laufende Anwendung
+./gradlew e2eTest       # Playwright im echten Browser gegen das Boot-Jar
 ./gradlew bootRun       # Anwendung starten (benötigt laufende PostgreSQL)
 
 # Ohne Node/npm bzw. für die schnelle Java-Schleife:
 ./gradlew build -PskipFrontend
+
+# E2E gegen eine bereits laufende/deployte Instanz:
+./gradlew e2eTest -Pe2e.baseUrl=http://localhost:8080
 
 # Frontend-Entwicklung mit HMR (Backend muss auf :8080 laufen):
 cd frontend && npm run dev
@@ -146,6 +150,16 @@ cd frontend && npm run dev
   Operationen und Schemata beschreibt und die Swagger UI ausgeliefert wird.
 - **Frontend** (`frontend/src/**/*.test.tsx`, Task `frontendTest`): Vitest +
   Testing Library für API-Client, Komponenten und die Zusammenschaltung in `App`.
+- **E2E** (`frontend/e2e`, Task `e2eTest`): Playwright treibt einen echten Chromium
+  gegen das **Boot-Jar** – also gegen das ausgelieferte Artefakt inklusive der darin
+  verpackten SPA. Getestet werden ausschließlich Nutzer-Flows; Statuscodes und
+  Contract-Details bleiben in den Systemtests. Benötigt eine erreichbare PostgreSQL.
+  Siehe [ADR 0008](docs/adr/0008-playwright-fuer-e2e-tests.md).
+
+  Ergebnisse nach jedem Lauf: HTML-Report unter `frontend/playwright-report/index.html`
+  (`cd frontend && npx playwright show-report`). Bei Fehlschlägen liegen zusätzlich
+  Screenshot und Trace unter `frontend/test-results/<test>/`; den Trace öffnet
+  `npx playwright show-trace test-results/<test>/trace.zip`.
 - **System** (`src/systemtest/java`, Task `systemtest`): Black-Box-Tests gegen die
   **laufende** Anwendung, ausschließlich über HTTP. Ohne `-Psystemtest.baseUrl`
   startet die Suite die Anwendung selbst auf einem freien Port (embedded PostgreSQL),

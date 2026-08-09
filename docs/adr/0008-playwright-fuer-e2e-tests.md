@@ -1,6 +1,6 @@
 # 0008 – Playwright für End-to-End-Tests
 
-Status: akzeptiert (Umsetzung steht noch aus)
+Status: akzeptiert und umgesetzt
 Datum: 2026-08-09
 
 | Abschnitt        | Inhalt |
@@ -34,3 +34,8 @@ Navigation Liste → Detail → zurück.
   Bearbeitungsablauf schon.
 - Selektoren über `getByRole`/`getByLabel`, keine CSS-Klassen oder Test-IDs. Das hält die
   Tests an die Barrierefreiheit gekoppelt und robust gegen Umbauten am Markup.
+- **`exact: true` nicht vergessen:** Playwright matcht Accessible Names als **Teilstring**,
+  Testing Library dagegen exakt. `getByLabel('Schritt 1')` trifft deshalb auch den Button
+  „Schritt 1 entfernen" – ein Query, der im Vitest-Test grün ist, kann in E2E mehrdeutig sein.
+- Testdaten pro Lauf eindeutig benennen (Suffix) und im `finally` wieder entfernen; die
+  Datenbank ist geteilt, deshalb läuft die Suite mit `workers: 1`.

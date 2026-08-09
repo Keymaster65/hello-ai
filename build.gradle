@@ -167,6 +167,22 @@ tasks.register('frontendTest', Exec) {
     outputs.upToDateWhen { false }
 }
 
+// End-to-end tests in a real browser (see ADR 0008). Not wired into `check`: they are the
+// slowest layer and need a reachable PostgreSQL, so they stay an explicit step.
+tasks.register('e2eTest', Exec) {
+    group = 'verification'
+    description = 'Runs the Playwright end-to-end tests against the Boot jar.'
+    onlyIf { frontendEnabled }
+    dependsOn tasks.named('npmInstall'), tasks.named('bootJar')
+    workingDir = frontendDir
+    commandLine npmExecutable, 'run', 'test:e2e'
+    // With -Pe2e.baseUrl the suite runs against an already deployed instance and starts nothing.
+    environment 'E2E_BASE_URL', providers.gradleProperty('e2e.baseUrl').getOrElse('')
+    inputs.dir("$frontendDir/e2e")
+    inputs.file("$frontendDir/playwright.config.ts")
+    outputs.upToDateWhen { false }
+}
+
 // The bundle is served by Spring Boot from the classpath, so the SPA and the API
 // share one origin and one deployable artifact.
 tasks.named('processResources') {
