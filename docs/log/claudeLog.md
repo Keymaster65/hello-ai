@@ -6,6 +6,30 @@ Datum: 2026-07-19
 
 ---
 
+## 26. Prompt: „Commit des aktuellen Standes." / „Ja, so committen"
+
+**Aktionen:**
+- Nur Doku geändert (`CLAUDE.md`, Log), kein Code – der letzte grüne Lauf
+  (`gradle clean build` 23 Tests, `gradle systemtest` 9/9) bleibt gültige Vorbedingung.
+- Message vorgelegt und bestätigt bekommen; diesen Eintrag zuerst ergänzt,
+  dann committet (Author = Claude): `Add TypeScript role and frontend stack`.
+
+---
+
+## 25. Prompt: „Ergänze im Masterprompt die Rolle eines Du bist ein Senior Typescript Entwickler. Der Tech-Stack wird um vite, vitest und React."
+
+**Aktionen:**
+- `CLAUDE.md`, Abschnitt „## Rolle": um die Rolle **Senior TypeScript-Entwickler**
+  (Frontend) neben dem Senior Java-Entwickler (Backend) erweitert, inkl. Hinweis,
+  dass sich die geltende Rolle aus der bearbeiteten Datei/Aufgabe ergibt.
+- `CLAUDE.md`, Abschnitt „## Tech-Stack" in **Backend** und **Frontend** gegliedert;
+  Frontend neu mit TypeScript, Vite (Build/Dev-Server), Vitest (Testing), React (UI).
+- Bewusst **nicht** angefasst (außerhalb des Auftrags, zur Klärung vorgelegt):
+  Grundregel 6 („Moderne Java-Features nutzen") und der rein Java-bezogene Abschnitt
+  „Coding-Konventionen"; ebenso keine Versionen gepinnt.
+
+---
+
 ## 24. Prompt: „Commit des aktuellen Standes." / „Ja, so committen"
 
 **Aktionen:**
