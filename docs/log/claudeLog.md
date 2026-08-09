@@ -6,6 +6,49 @@ Datum: 2026-07-19
 
 ---
 
+## 48. Prompt: „commit" / „commit" (Bestätigung der vorgelegten Message)
+
+**Aktionen:**
+- Vorbedingung erfüllt: `./gradlew clean build` grün (23 Java + 24 Vitest),
+  `./gradlew systemtest` 13/13, `./gradlew e2eTest` 7/7; zusätzlich der Nachweis,
+  dass der generierte jOOQ-Code identisch zum Groovy-Build ist.
+- Diesen Eintrag zuerst ergänzt, dann committet (Author = Claude):
+  `Convert the build scripts to the Kotlin DSL`.
+
+---
+
+## 47. Prompt: „Verwende kotlin script für die gradle Dateien. ADR dafür erstellen."
+
+**Aktionen:**
+- `build.gradle` → `build.gradle.kts` und `settings.gradle` → `settings.gradle.kts` überführt,
+  die Groovy-Dateien entfernt (`git rm`). Inhaltlich **keine** Änderung am Build.
+- Drei Stellen ließen sich nicht mechanisch übersetzen:
+  - **jOOQ-Codegen:** statt verschachtelter Closures direkter Zugriff auf den JAXB-Baum
+    (`jooqConfiguration.apply { … properties = listOf(Property().withKey(…)) }`); die
+    Schalter heißen dort `isRecords`/`isPojos`/`isDaos`/`isFluentSetters`.
+  - **testsets-Konfigurationen:** `systemtestImplementation` entsteht erst zur
+    Konfigurationszeit, hat also keinen typsicheren Accessor → Ansprache über den
+    String-Namen `"systemtestImplementation"(…)`.
+  - **Gemeinsame Task-Inputs:** Groovys `configure <closure>` ersetzt durch die
+    Erweiterungsfunktion `fun Exec.frontendSources()`.
+- **Gleichwertigkeit bewiesen statt behauptet:** Vor dem `clean` den vom Groovy-Build
+  erzeugten jOOQ-Code gesichert und danach verglichen – `diff -r` über alle 11 Dateien
+  **ohne Unterschied**. Das war der aussagekräftigste Test, weil der jOOQ-Block die
+  komplexeste Übersetzung war.
+- Weiter verifiziert: `./gradlew clean build` grün (23 Java + 24 Vitest), Boot-Jar enthält
+  die SPA (5 Einträge unter `BOOT-INF/classes/static/`), `./gradlew systemtest` 13/13,
+  `./gradlew e2eTest` 7/7, und `-PskipFrontend` überspringt weiterhin korrekt.
+- Zwischendurch trat erneut die bekannte `java.io.IOException`-Flakiness auf (diesmal beim
+  Nachladen von `kotlin-stdlib`); Wiederholung genügte.
+- `docs/adr/0010-gradle-kotlin-dsl.md` angelegt: Kontext, Optionen, Entscheidung,
+  Konsequenzen, die drei Fallstricke und der Nachweis der Gleichwertigkeit.
+  `CLAUDE.md` im Tech-Stack auf „Gradle mit Kotlin-DSL" ergänzt.
+- ADR 0006 nennt weiterhin `build.gradle`; bleibt unverändert nach der in
+  [ADR 0009](0009-gradle-wrapper-verbindlich.md) festgehaltenen Konvention, ADRs nicht
+  nachträglich umzuschreiben.
+
+---
+
 ## 46. Prompt: „commit" / „Ja, so committen"
 
 **Aktionen:**

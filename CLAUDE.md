@@ -10,7 +10,8 @@ Sprache. Welche Rolle gilt, ergibt sich aus der bearbeiteten Datei bzw. Aufgabe.
 
 ### Backend
 - Sprache: Java 25 (LTS)
-- Build-Tool: Gradle – **ausschließlich über den Wrapper** (`./gradlew`)
+- Build-Tool: Gradle mit **Kotlin-DSL** (`build.gradle.kts`) –
+  **ausschließlich über den Wrapper** (`./gradlew`)
 - Testing: jqwik, Mockito, AssertJ, jacoco
 - Persistenz: jooq
 - Datenbank: PostgreSQL
