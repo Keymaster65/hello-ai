@@ -6,6 +6,48 @@ Datum: 2026-07-19
 
 ---
 
+## 72. Prompt: „commit"
+
+_Delta: 8s · 682 out · 8.060 in (neu) · 254.330 gesamt_
+_Stand (Session, 4 Prompts): 5:00 · 28.311 out · 2.099.579 gesamt_
+
+**Aktionen:**
+- Vorbedingung: reine Doku-Änderung an `claudeLog.md`, kein Code – der letzte grüne Lauf
+  aus Eintrag 68 (`clean build` 30 Java + 24 Vitest, `systemtest` 15/15, `e2eTest` 9/9)
+  gilt weiter.
+- Eintrag 71 und diesen Eintrag zuerst ergänzt, dann committet (Author = Claude):
+  `Log the five commits from before the log existed`.
+
+---
+
+## 71. Prompt: „Ergänze die ersten commits des Branches chronologisch umgekehrt am Ende von claudeLod.md bis zu dem Punkt, ab welchem sie schon im claudeLod.md enthalten sind"
+
+_Delta: 4:52 · 27.629 out · 105.952 in (neu) · 1.845.249 gesamt_
+_Stand (Session, 3 Prompts): 4:52 · 27.629 out · 1.845.249 gesamt_
+
+**Aktionen:**
+- Anschlusspunkt bestimmt: `git log --reverse` gegen das Log gehalten – Eintrag 1
+  („Start die Java-Anwendung!") ist Commit `c5411b2`; davor liegen fünf im Log
+  unerfasste Commits vom 18.07.2026.
+- **Rückfrage zur Nummerierung statt Raten:** Die naheliegende Renummerierung
+  (bestehende 1–70 → 6–75) hätte die internen Querverweise im Log gebrochen
+  („Eintrag 68", „Einträge 55/56", „Eintrag 53", „Eintrag 39"). Entscheidung des
+  Nutzers: ab 1 **abwärts** weiterzählen.
+- Fünf Einträge am Dateiende ergänzt, chronologisch absteigend wie der Rest:
+  - **0** `d02045e` „Wieso hast du keine ADRs erstellt?" – ADR 0001–0003 nachgeholt,
+    zwei davon als bewusste Abweichung von den Skills markiert.
+  - **-1** `13c4737` Backend-Erstellung – hexagonale Struktur, REST-CRUD, jOOQ/Flyway,
+    vier Testebenen; ohne ADRs, was direkt zu Eintrag 0 führt.
+  - **-2** `bb6db40`, **-3** `4d8be77`, **-4** `b0dd66f` – reine Nutzer-Commits ohne
+    Prompt, deshalb mit `Commit:` statt `Prompt:` überschrieben.
+- Inhalte aus den Commits selbst rekonstruiert (Diffs, ADR-Texte, `README.md`,
+  `build.gradle`), nicht aus dem Gedächtnis. Ein Hinweisblock vor den Einträgen hält fest,
+  dass sie Rekonstruktionen sind und dass es für sie **keine** Kennzahlen gibt – die
+  Transkripte dieser Turns existieren nicht mehr, geschätzt wird nicht.
+- Bestehende Zeilen blieben unangetastet: der Diff besteht ausschließlich aus Ergänzungen.
+
+---
+
 ## 70. Prompt: „commit"
 
 _Delta: 10s · 2.148 out · 18 in (neu) · 181.503 gesamt_
@@ -1223,3 +1265,99 @@ _Stand (Session, 65 Prompts): 4:02:19 · 749.991 out · 279.473.112 gesamt_
 - App per `./gradlew bootRun --no-daemon -g /tmp/gradle-home --args='--server.port=8080'` gestartet (Port 80 → 8080, kein Root).
 - Liquibase-Migration `0001-create-recipe-schema` lief durch; „Started RecipeApplication in 13.577 seconds", Tomcat auf Port 8080.
 - **Verifikation (end-to-end):** `GET /api/recipes` → `200 []`; `POST /api/recipes` (Pfannkuchen) → `201 id:1`; `GET /api/recipes` → `200` mit neuem Rezept. `/` und `/actuator/health` → `404`.
+
+---
+
+  _Die folgenden Einträge sind aus den Commits vom 18.07.2026 nachgetragen – sie liegen vor
+dem Anlegen dieses Logs (Eintrag 7) und zählen deshalb ab 1 abwärts weiter. Kennzahlen zu
+Dauer und Tokenverbrauch gibt es für sie nicht, das Transkript dieser Turns ist nicht
+erhalten. Die Aktionen sind aus den Commits rekonstruiert, nicht aus dem Gesprächsverlauf._
+
+---
+
+## 0. Prompt: „Wieso hast du keine ADRs erstellt?" (Commit `d02045e`, 18.07.2026 23:12)
+
+**Aktionen:**
+- Nachfrage als berechtigte Kritik angenommen: `architecture.md` verlangt bei größeren
+  Entscheidungen ein ADR, im Backend-Commit (Eintrag -1) fehlten sie vollständig.
+- Drei bereits getroffene Entscheidungen unter `docs/adr/` nachdokumentiert:
+  - **0001** – jOOQ-Codegen aus den Flyway-Skripten über `DDLDatabase`: Der Build braucht
+    weder laufende Datenbank noch Docker, die Migrationsskripte sind einzige Schemaquelle.
+  - **0002** – Integrationstests mit embedded PostgreSQL (Zonky) **statt Testcontainers**,
+    weil in der Umgebung kein Docker verfügbar ist; die Testklasse überspringt sich selbst,
+    wenn das native Binary nicht startet, statt den Build rot zu machen.
+  - **0003** – kein Lombok: Domäne und DTOs als `record`, Spring-Beans mit expliziter
+    Konstruktor-Injektion.
+- Zwei der drei ADRs sind ausdrücklich als **Abweichung** markiert (0002 von `testing.md`,
+  0003 vom Lombok-Beispiel in `architecture.md`) – die Skills wurden nicht stillschweigend
+  gebrochen, sondern die Abweichung samt Rückweg dokumentiert.
+- Damit entstand das Tabellenformat **Kontext / Optionen / Entscheidung / Konsequenzen**,
+  das alle späteren ADRs übernehmen.
+
+---
+
+## -1. Prompt: „Erstelle ein backend zur Verwaltung von Rezepten. Ich möchte über eine REST API Rezepte erstellen, bearbeiten und in einer postgres DB speichen können. Löschen soll auch möglich sein" (Commit `13c4737`, 18.07.2026 21:15)
+
+**Aktionen:**
+- Erste große Umsetzung: 35 Dateien, ~1.800 Zeilen. Hexagonale Struktur unter
+  `io.github.keymaster65.helloai` mit `domain`, `application.port.in/out`,
+  `application.service`, `adapter.in.rest`, `adapter.out.persistence`, `bootstrap`.
+- REST-CRUD unter `/api/recipes`: `POST` → 201, `GET` (Liste und einzeln) → 200,
+  `PUT` → 200, `DELETE` → 204. `GlobalExceptionHandler` liefert 404 und 400 einheitlich
+  als `ErrorResponse`; der Controller bleibt frei von Geschäftslogik.
+- Domäne als Records (`Recipe`, `Ingredient`, `PreparationStep`, `Difficulty`), DTOs an der
+  API-Grenze getrennt, je ein Mapper nach außen (`RecipeRestMapper`,
+  `RecipePersistenceMapper`) – Entities werden nicht exponiert.
+- Persistenz mit jOOQ (`RecipeJooqRepository`); Schema über Flyway
+  `V1__create_recipe_schema.sql` mit den Tabellen `recipe`, `ingredient`,
+  `preparation_step`, letztere per `ON DELETE CASCADE` am Rezept.
+- Gradle-Build (damals noch Groovy-DSL) mit Wrapper, Java-25-Toolchain, Spring Boot 4.1,
+  JaCoCo; jOOQ-Codegen aus den Flyway-Skripten, damit `clean build` ohne Datenbank läuft.
+- Tests auf vier Ebenen: Unit (`RecipeServiceImplTest`, Mockito/AssertJ), Property-based
+  (`RecipeRestMapperPropertyTest`, jqwik), Web-Slice (`RecipeControllerTest`,
+  `@WebMvcTest`) und Integration gegen ein echtes PostgreSQL (`RecipeIntegrationTest`,
+  Zonky embedded statt Testcontainers, weil kein Docker vorhanden ist).
+- `README.md` vom Platzhalter auf das Projekt umgeschrieben: Stack, Architektur-Tabelle,
+  API-Tabelle, Beispiel-Request, Datenbank- und Befehlsabschnitt.
+- **Offen geblieben:** kein einziges ADR, obwohl mehrere Abweichungen von den Skills nötig
+  waren (Zonky statt Testcontainers, kein Lombok). Genau das ist der Auslöser für den
+  nächsten Prompt (Eintrag 0).
+
+---
+
+## -2. Commit: „Add .gitignore" (Commit `bb6db40`, 18.07.2026 19:02)
+
+**Aktionen:**
+- Nutzer-Commit ohne Prompt: `/.idea/` in `.gitignore` ergänzt, damit die
+  IntelliJ-Projektdateien nicht im Repository landen.
+
+---
+
+## -3. Commit: „Add first AI skills" (Commit `4d8be77`, 18.07.2026 19:00)
+
+**Aktionen:**
+- Nutzer-Commit ohne Prompt: die Arbeitsgrundlage dieses Projekts angelegt –
+  `CLAUDE.md` sowie die Skills `.claude/skills/architecture.md` und
+  `.claude/skills/testing.md`.
+- `CLAUDE.md` enthält bereits Rolle (Senior Java-Entwickler), Tech-Stack
+  (Java 25, Gradle, jqwik/Mockito/AssertJ/JaCoCo, jOOQ, PostgreSQL, Spring Boot 4),
+  Grundregeln, Coding-Konventionen, Workflow und Definition of Done.
+- `architecture.md`: Hexagonal/Clean Architecture, Package-Struktur, Schichten- und
+  Abhängigkeitsregel, Beispiele, Anti-Patterns und die Pflicht zum ADR bei größeren
+  Entscheidungen. `testing.md`: Testpyramide, jqwik, Slice-Tests, Integrationstest mit
+  Testcontainers.
+- Stand von damals, den spätere Prompts nachziehen: Projektname noch `[Projektname]`
+  (bis Eintrag 63), Befehle noch `gradle` statt `./gradlew` (bis Eintrag 45), keine
+  TypeScript-Rolle (bis Eintrag 25), kein Systemtest/E2E-Teil in der DoD.
+
+---
+
+## -4. Commit: „Initial commit" (Commit `b0dd66f`, 18.07.2026 18:08)
+
+**Aktionen:**
+- Repository-Start durch den Nutzer, zwei Dateien: `README.md`
+  („hello-ai – Erster Beispielproject AI getützt entwickelt") und die
+  Java-Standard-`.gitignore` (Klassen, Logs, Archive, HotSpot-Crash-Logs).
+- Der damalige Projektname `hello-ai` steckt bis heute im Java-Package
+  `io.github.keymaster65.helloai` – die Umbenennung in Eintrag 63 hat bewusst nur
+  Build- und Laufzeitnamen erfasst, nicht die Paketstruktur.
