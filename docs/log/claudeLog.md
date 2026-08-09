@@ -6,6 +6,35 @@ Datum: 2026-07-19
 
 ---
 
+## 32. Prompt: „commit" / „commit" (Bestätigung der vorgelegten Message)
+
+**Aktionen:**
+- Reine Doku-Änderung (ADR 0008 + Log), kein Code – letzter grüner Lauf
+  (`gradle clean build`, `gradle systemtest` 13/13) bleibt gültige Vorbedingung.
+- Message vorgelegt und bestätigt bekommen; diesen Eintrag zuerst ergänzt, dann
+  committet (Author = Claude): `Add ADR 0008 for Playwright e2e tests`.
+
+---
+
+## 31. Prompt: „Welches e2e Frontend Testframework empfiehlst du?" / „Ergänze einen ADR für Playwright"
+
+**Aktionen:**
+- Empfehlung **Playwright** gegeben – und vor der Empfehlung verifiziert, dass sie in dieser
+  Umgebung trägt: Chromium Headless Shell 151 (114 MB) ließ sich ohne root und ohne Docker
+  installieren und starten. Als Nebeneffekt erstmals ein Screenshot der laufenden UI erstellt.
+- Alternativen abgewogen (Cypress, Vitest Browser Mode, WebdriverIO/Selenium, Puppeteer).
+- `docs/adr/0008-playwright-fuer-e2e-tests.md` angelegt: Kontext, Optionen, Entscheidung
+  (Tests unter `frontend/e2e/`, `webServer` startet das **Boot-Jar**, Gradle-Task `e2eTest`
+  mit `-Pe2e.baseUrl`, standardmäßig nur Chromium), Konsequenzen inkl. der offenen Risiken
+  (~115 MB Binary pro Runner, `--with-deps` braucht root, langsamste Testart).
+- Zusätzlich eine **Abgrenzungstabelle** zu Vitest und `systemtest` aufgenommen, damit E2E
+  nicht zur langsamen Zweitkopie der Systemtests wird, plus Regeln für künftige Tests
+  (nur sichtbares Verhalten, `getByRole`/`getByLabel`, keine Test-IDs).
+- Status bewusst „akzeptiert (Umsetzung steht noch aus)" – es wurde nur der ADR angefragt,
+  nicht die Implementierung.
+
+---
+
 ## 30. Prompt: „Starte die App" / „Comit"
 
 **Aktionen:**
