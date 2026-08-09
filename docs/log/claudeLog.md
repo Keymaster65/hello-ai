@@ -6,6 +6,29 @@ Datum: 2026-07-19
 
 ---
 
+## 36. Prompt: „commit" / „Ja"
+
+**Aktionen:**
+- Reine Doku-Änderung (`CLAUDE.md` + Log), kein Code – letzter grüner Lauf
+  (`gradle clean build`, `gradle systemtest` 13/13, `gradle e2eTest` 5/5) bleibt gültig.
+- Message vorgelegt und bestätigt bekommen; diesen Eintrag zuerst ergänzt, dann committet
+  (Author = Claude): `Add Playwright and e2eTest to CLAUDE.md`.
+
+---
+
+## 35. Prompt: „Ergänze Playwright und e2eTest in CLAUDE.md"
+
+**Aktionen:**
+- Tech-Stack Frontend: „Testing: Vitest (Komponenten), Playwright (E2E im echten Browser)".
+- Workflow um Schritt 6 „E2E-Tests mit `gradle e2eTest` ausführen" erweitert (Zusammenfassung
+  rückt auf 7).
+- Nützliche Befehle: `gradle e2eTest` inkl. Hinweis auf die benötigte PostgreSQL,
+  `-Pe2e.baseUrl` und den Fundort des Reports.
+- Definition of Done um „**E2E-Tests grün (`gradle e2eTest`)** – prüfen die Nutzer-Flows im
+  echten Browser" ergänzt.
+
+---
+
 ## 34. Prompt: „Wo finde ich die Ergebnisse der Playwrite Tests?" / „Ja, ändern und dann committen"
 
 **Antwort/Aktionen:**
