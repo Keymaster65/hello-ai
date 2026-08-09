@@ -38,12 +38,10 @@ kurzen Zusammenfassung der durchgeführten Aktionen/Ergebnisse.
 ```
 
 ## Commits
-- **Test vor Commit (Pflicht):** Vor **jedem** Commit muss ein **erfolgreicher**
-  Testlauf vorliegen. Erst `gradle test` (grün) ausführen, dann committen.
-  Schlägt der Test fehl, wird **nicht** committet, sondern zuerst die Ursache behoben.
-  ```
-  ./gradlew test --no-daemon -g /tmp/gradle-home   # muss BUILD SUCCESSFUL liefern
-  ```
+- **DoD vor Commit (Pflicht):** Vor **jedem** Commit muss die **Definition of Done**
+  aus `CLAUDE.md` erfüllt sein – dort stehen die verbindlichen Prüfschritte, damit sie
+  nur an **einer** Stelle gepflegt werden. Ist ein Punkt offen, wird **nicht** committet,
+  sondern zuerst die Ursache behoben.
 - **Author = Claude:** Beim Committen wird als Git-**Author** Claude gesetzt,
   nicht der bisherige Nutzer. Konkret pro Commit:
   ```
@@ -74,6 +72,11 @@ kurzen Zusammenfassung der durchgeführten Aktionen/Ergebnisse.
 - Zusammenfassungen kurz und faktenbasiert halten; keine Roh-Tool-Ausgaben.
 - Reihenfolge beachten, wenn ein Prompt „erst aktualisieren, dann committen"
   verlangt: **zuerst** das Log ergänzen, **dann** committen.
+- Bei reinen Doku-Änderungen zählt der letzte grüne Lauf weiter, solange seither
+  **kein Code** angefasst wurde. Das ist im Log-Eintrag ausdrücklich zu vermerken.
+- In dieser Umgebung startet der Gradle-Daemon sporadisch mit
+  `java.io.IOException: Input/output error`; stabil läuft es mit
+  `./gradlew <task> --no-daemon -g /tmp/gradle-home`.
 - Für eine deterministische Garantie (statt „Best Effort") kann zusätzlich ein
   `UserPromptSubmit`-Hook in `.claude/settings.json` den Roh-Prompt automatisch
   anhängen; die inhaltliche Zusammenfassung ergänzt weiterhin der Assistent.

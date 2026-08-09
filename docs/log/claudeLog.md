@@ -6,6 +6,36 @@ Datum: 2026-07-19
 
 ---
 
+## 44. Prompt: „commit" / „ja"
+
+**Aktionen:**
+- Vor dem Commit ein verirrtes `commit` am Zeilenanfang in `.claude/skills/develop.md`
+  entdeckt (zerstörte die Aufzählung unter „## Commits") und nach Rückfrage entfernt.
+- Vorbedingung: reine Doku-Änderung, kein Code – letzter grüner Lauf (`clean build`,
+  `systemtest` 13/13, `e2eTest` 7/7) gilt weiter.
+- Diesen Eintrag zuerst ergänzt, dann committet (Author = Claude):
+  `Point commit rule at the Definition of Done`.
+
+---
+
+## 43. Prompt: „Ersetze die rdundante \"Test vor Commit\" im developer Skill durch einen Bezug auf die DoD,"
+
+**Aktionen:**
+- In `.claude/skills/develop.md` den Punkt „Test vor Commit" durch „**DoD vor Commit**"
+  ersetzt: Verweis auf die Definition of Done in `CLAUDE.md` als einzige Quelle der
+  verbindlichen Prüfschritte. Die Regel selbst (kein Commit bei offenem Punkt) bleibt.
+- Die Redundanz war zudem bereits **inhaltlich veraltet**: Der Skill nannte nur
+  `gradle test`, während die DoD inzwischen vier Punkte führt (`clean build`, `test`,
+  `systemtest`, `e2eTest`) – der Verweis behebt also nicht nur Doppelpflege.
+- Zwei Informationen aus dem gelöschten Block gerettet und in „Hinweise" verschoben,
+  damit sie nicht verloren gehen: der Umgebungs-Workaround
+  `--no-daemon -g /tmp/gradle-home` gegen die sporadische Gradle-Daemon-IOException.
+- Zusätzlich (nicht beauftragt, zur Prüfung vorgelegt) die in dieser Session gelebte
+  Praxis festgehalten: Bei reinen Doku-Änderungen zählt der letzte grüne Lauf weiter,
+  sofern seither kein Code angefasst wurde – mit Vermerkpflicht im Log.
+
+---
+
 ## 42. Prompt: „commit" / „Ja, so committen"
 
 **Aktionen:**
