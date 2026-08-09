@@ -6,6 +6,54 @@ Datum: 2026-07-19
 
 ---
 
+## 68. Prompt: „commit" / „start" / „commit"
+
+_Delta: 2:41 · 7.381 out · 9.185 in (neu) · 15.814.811 gesamt_
+_Stand (Session, 89 Prompts): 6:40:04 · 1.012.570 out · 530.666.585 gesamt_
+
+**Aktionen:**
+- Beim ersten „commit" lief die Verifikationskette noch im Hintergrund – **nicht** vorschnell
+  committet, sondern das Ergebnis abgewartet: `clean build` grün (30 Java + 24 Vitest),
+  `systemtest` 15/15, `e2eTest` 9/9.
+- Anwendung gestartet (PID 2286) und die Routen einzeln geprüft: `/recipes/`, `/recipes/new`,
+  `/recipes/1`, `/recipes/1/edit` je 200; `/recipes/api/recipes` und `/recipes/v3/api-docs`
+  200, `/recipes/swagger-ui.html` 302, `/recipes/gibt-es-nicht` **404**.
+  Screenshot von `/recipes/1` bestätigt: Der direkte Aufruf einer geteilten Adresse öffnet
+  die Detailansicht mit Zutaten und Schritten.
+- Diesen Eintrag ergänzt, dann committet (Author = Claude):
+  `Add routing with an SPA fallback for shareable recipe URLs`.
+
+---
+
+## 67. Prompt: „Ergänze einen Router mit SPA-Fallback für teilbare Rezept-URLs"
+
+_Delta: 47:15 · 58.448 out · 2.362.346 in (neu) · 50.126.519 gesamt_
+_Stand (Session, 86 Prompts): 6:37:23 · 1.005.189 out · 514.851.774 gesamt_
+
+**Aktionen:**
+- `react-router` 8 eingeführt; `basename={import.meta.env.BASE_URL}` erbt den Context-Path
+  aus ADR 0016, ohne ihn zu kennen. Routen: `/`, `/new`, `/{id}` (teilbar), `/{id}/edit`.
+- `App.tsx` auf den Router reduziert, die Ladelogik in drei neue Seiten unter `src/pages/`
+  verschoben. Der Rezepttitel ist jetzt ein echtes `<a href>` statt eines Buttons –
+  Mittelklick und „in neuem Tab öffnen" funktionieren damit ohne Zusatzarbeit.
+- Serverseitig `SpaForwardingController` in `:modules:backend:adapter`: leitet **genau die
+  vier Routen** auf `forward:/index.html` weiter. Bewusst **kein** Catch-all, das API,
+  OpenAPI oder Swagger UI hätte verschatten können.
+- Tests nachgezogen: Vitest-Tests auf `getByRole('link')` umgestellt, zwei neue E2E-Tests
+  (direkter Aufruf einer geteilten Adresse; unbekannte ID meldet sich statt leer zu bleiben),
+  zwei neue Systemtests (Fallback greift / Backend bleibt unverschattet).
+- **Zwei Fallen, beide selbst hineingelaufen:**
+  1. `BrowserRouter` nutzt die echte `window.history`, die jsdom über alle Tests einer Datei
+     teilt – nach dem ersten navigierenden Test starteten die folgenden auf der falschen
+     Route und stürzten ab. Behoben mit `window.history.pushState({}, '', '/')` im `beforeEach`.
+  2. Playwrights `reuseExistingServer` verwendete die noch laufende **alte** Instanz auf Port
+     8080 – sieben E2E-Fehlschläge, die wie ein Router-Problem aussahen. Der Fehler-Screenshot
+     (Titel als `button` statt `link`) war der entscheidende Hinweis; nach dem Beenden der
+     Altinstanz liefen 9/9 grün.
+- `docs/adr/0017-router-mit-spa-fallback.md` angelegt, README und `CLAUDE.md` ergänzt.
+
+---
+
 ## 66. Prompt: „commit" / „Ja, so committen"
 
 _Delta: 6s · 155 out · 11 in (neu) · 746.115 gesamt_

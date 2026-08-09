@@ -35,7 +35,7 @@ async function removeByTitle(request: APIRequestContext, title: string): Promise
 test.describe('Struktur der Oberfläche', () => {
   test('das leere Anlegeformular entspricht der Baseline', async ({ page }) => {
     await page.goto(APP)
-    await page.getByRole('button', { name: 'Neues Rezept' }).click()
+    await page.getByRole('link', { name: 'Neues Rezept' }).click()
 
     // Data-independent: an empty form looks the same no matter what is in the database.
     await expect(page.locator('form.recipe-form')).toMatchAriaSnapshot({
@@ -64,7 +64,7 @@ test.describe('Struktur der Oberfläche', () => {
 
     try {
       await page.goto(APP)
-      await page.getByRole('button', { name: SNAPSHOT_TITLE, exact: true }).click()
+      await page.getByRole('link', { name: SNAPSHOT_TITLE, exact: true }).click()
       await expect(page.getByRole('heading', { name: SNAPSHOT_TITLE })).toBeVisible()
 
       // Scoped to the detail section: the surrounding list depends on the database content.

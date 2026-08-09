@@ -50,7 +50,7 @@ function card(page: Page, title: string) {
  * delete button carries the title in its aria-label ("<title> löschen").
  */
 function titleLink(page: Page, title: string) {
-  return page.getByRole('button', { name: title, exact: true })
+  return page.getByRole('link', { name: title, exact: true })
 }
 
 test.describe('Rezeptverwaltung', () => {
@@ -62,7 +62,7 @@ test.describe('Rezeptverwaltung', () => {
     await page.goto(APP)
 
     // Anlegen
-    await page.getByRole('button', { name: 'Neues Rezept' }).click()
+    await page.getByRole('link', { name: 'Neues Rezept' }).click()
     await page.getByLabel('Titel').fill(title)
     await page.getByLabel('Beschreibung').fill('Fluffig und schnell')
     await page.getByLabel('Portionen').fill('2')
@@ -119,7 +119,7 @@ test.describe('Rezeptverwaltung', () => {
 
   test('zeigt den Validierungsfehler des Backends am betroffenen Feld', async ({ page }) => {
     await page.goto(APP)
-    await page.getByRole('button', { name: 'Neues Rezept' }).click()
+    await page.getByRole('link', { name: 'Neues Rezept' }).click()
 
     // Leerer Titel: die Meldung stammt aus der Bean-Validation des Backends.
     await page.getByRole('button', { name: 'Speichern' }).click()
@@ -138,6 +138,8 @@ test.describe('Rezeptverwaltung', () => {
       await page.goto(APP)
       await titleLink(page, title).click()
 
+      // Die Adresse wandert mit – das ist die Voraussetzung fürs Teilen (ADR 0017).
+      await expect(page).toHaveURL(new RegExp(`${APP}${id}$`))
       await expect(page.getByRole('heading', { name: title })).toBeVisible()
       await expect(page.getByRole('heading', { name: 'Zutaten' })).toBeVisible()
       await expect(page.getByText('300 g Mehl')).toBeVisible()
@@ -149,6 +151,34 @@ test.describe('Rezeptverwaltung', () => {
     } finally {
       await deleteRecipe(request, id)
     }
+  })
+
+  test('öffnet eine geteilte Rezept-Adresse direkt', async ({ page, request }) => {
+    const title = uniqueTitle('Geteiltes Rezept')
+    const id = await createRecipe(request, title)
+
+    try {
+      // Direkter Aufruf ohne Umweg über die Liste: genau das, was ein geteilter Link tut.
+      // Ohne SPA-Fallback im Backend endete das in einem 404.
+      const response = await page.goto(`${APP}${id}`)
+      expect(response?.status()).toBe(200)
+
+      await expect(page.getByRole('heading', { name: title })).toBeVisible()
+      await expect(page.getByText('300 g Mehl')).toBeVisible()
+
+      // Auch die Bearbeiten-Adresse ist direkt aufrufbar.
+      await page.goto(`${APP}${id}/edit`)
+      await expect(page.getByRole('heading', { name: 'Rezept bearbeiten' })).toBeVisible()
+      await expect(page.getByLabel('Titel')).toHaveValue(title)
+    } finally {
+      await deleteRecipe(request, id)
+    }
+  })
+
+  test('meldet eine unbekannte Rezept-Adresse, statt leer zu bleiben', async ({ page }) => {
+    await page.goto(`${APP}999999`)
+
+    await expect(page.getByRole('alert')).toContainText('existiert nicht')
   })
 
   test('liefert SPA und API aus derselben Origin aus', async ({ page }) => {

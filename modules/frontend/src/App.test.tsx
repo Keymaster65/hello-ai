@@ -26,6 +26,9 @@ describe('App', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', fetchMock)
     fetchMock.mockReset()
+    // BrowserRouter arbeitet auf der echten window.history, die jsdom über alle Tests einer
+    // Datei teilt. Ohne Zurücksetzen startet der nächste Test auf der zuletzt besuchten Route.
+    window.history.pushState({}, '', '/')
   })
 
   afterEach(() => {
@@ -37,7 +40,7 @@ describe('App', () => {
 
     render(<App />)
 
-    expect(await screen.findByRole('button', { name: 'Pfannkuchen' })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Pfannkuchen' })).toBeInTheDocument()
     expect(fetchMock).toHaveBeenCalledWith('/api/recipes', expect.anything())
   })
 
@@ -57,7 +60,7 @@ describe('App', () => {
     )
 
     render(<App />)
-    await userEvent.click(await screen.findByRole('button', { name: 'Pfannkuchen' }))
+    await userEvent.click(await screen.findByRole('link', { name: 'Pfannkuchen' }))
 
     expect(await screen.findByRole('heading', { name: 'Pfannkuchen' })).toBeInTheDocument()
     expect(screen.getByText('300 g Mehl')).toBeInTheDocument()
@@ -69,7 +72,7 @@ describe('App', () => {
     fetchMock.mockImplementation(() => Promise.resolve(jsonResponse([])))
 
     render(<App />)
-    await userEvent.click(await screen.findByRole('button', { name: 'Neues Rezept' }))
+    await userEvent.click(await screen.findByRole('link', { name: 'Neues Rezept' }))
     await userEvent.type(screen.getByLabelText('Titel'), 'Suppe')
     await userEvent.click(screen.getByRole('button', { name: 'Speichern' }))
 
@@ -105,7 +108,7 @@ describe('App', () => {
     )
 
     render(<App />)
-    await userEvent.click(await screen.findByRole('button', { name: 'Neues Rezept' }))
+    await userEvent.click(await screen.findByRole('link', { name: 'Neues Rezept' }))
     await userEvent.click(screen.getByRole('button', { name: 'Speichern' }))
 
     expect(await screen.findByText('must not be blank')).toBeInTheDocument()

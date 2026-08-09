@@ -57,6 +57,28 @@ class FrontendSystemTest {
     }
 
     @Test
+    void shouldForwardSpaRoutesToTheIndexPage() {
+        // A shared link like /recipes/3 exists only inside the client-side router; without the
+        // forward it would end in a 404 (see ADR 0017).
+        for (String route : java.util.List.of("/new", "/3", "/3/edit")) {
+            HttpResponse<String> response = HttpProbe.get(route);
+            assertThat(response.statusCode()).as(route).isEqualTo(200);
+            assertThat(response.body()).as(route).contains("<div id=\"root\">");
+        }
+    }
+
+    @Test
+    void shouldNotLetTheSpaForwardShadowTheBackend() {
+        // The forward names the router's routes explicitly so it cannot swallow these paths.
+        assertThat(HttpProbe.get("/api/recipes").statusCode()).as("API").isEqualTo(200);
+        assertThat(HttpProbe.get("/v3/api-docs").statusCode()).as("OpenAPI").isEqualTo(200);
+        assertThat(HttpProbe.get("/swagger-ui/index.html").statusCode()).as("Swagger UI").isEqualTo(200);
+
+        // A path the router does not own stays a 404 instead of silently returning the SPA.
+        assertThat(HttpProbe.get("/gibt-es-nicht").statusCode()).isEqualTo(404);
+    }
+
+    @Test
     void shouldServeApiAndFrontendFromTheSameOrigin() {
         // The whole point of the BFF: identical origin, so the SPA can use relative /api paths.
         assertThat(HttpProbe.get("/").statusCode()).isEqualTo(200);

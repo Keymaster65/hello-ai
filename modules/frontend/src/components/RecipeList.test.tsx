@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import type { Recipe } from '../api/recipes'
@@ -21,12 +22,16 @@ const recipes: Recipe[] = [
 function renderList(overrides: Partial<Parameters<typeof RecipeList>[0]> = {}) {
   const props = {
     recipes,
-    onOpen: vi.fn(),
     onEdit: vi.fn(),
     onDelete: vi.fn(),
     ...overrides,
   }
-  render(<RecipeList {...props} />)
+  // Der Titel ist jetzt ein Link – das braucht einen Router-Kontext (ADR 0017).
+  render(
+    <MemoryRouter>
+      <RecipeList {...props} />
+    </MemoryRouter>,
+  )
   return props
 }
 
@@ -40,18 +45,17 @@ describe('RecipeList', () => {
   it('should render every recipe with its metadata', () => {
     renderList()
 
-    expect(screen.getByRole('button', { name: 'Pfannkuchen' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Carbonara' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Pfannkuchen' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Carbonara' })).toBeInTheDocument()
     expect(screen.getByText(/2 Portionen/)).toBeInTheDocument()
     expect(screen.getByText(/15 min/)).toBeInTheDocument()
   })
 
-  it('should open the recipe when its title is activated', async () => {
-    const { onOpen } = renderList()
+  it('should link to the shareable detail address', () => {
+    renderList()
 
-    await userEvent.click(screen.getByRole('button', { name: 'Pfannkuchen' }))
-
-    expect(onOpen).toHaveBeenCalledWith(1)
+    expect(screen.getByRole('link', { name: 'Pfannkuchen' })).toHaveAttribute('href', '/1')
+    expect(screen.getByRole('link', { name: 'Carbonara' })).toHaveAttribute('href', '/2')
   })
 
   it('should hand the whole recipe to the edit callback', async () => {

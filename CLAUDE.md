@@ -21,7 +21,7 @@ Sprache. Welche Rolle gilt, ergibt sich aus der bearbeiteten Datei bzw. Aufgabe.
 - Sprache: TypeScript
 - Build-Tool / Dev-Server: Vite
 - Testing: Vitest (Komponenten), Playwright (E2E im echten Browser)
-- UI-Framework: React
+- UI-Framework: React mit react-router (Routen siehe ADR 0017)
 
 ## Grundregeln
 1. **Verstehen vor Handeln**: Bestehenden Code analysieren.

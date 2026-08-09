@@ -13,7 +13,7 @@ beides wird als **ein** Artefakt aus derselben Origin ausgeliefert.
 - Tests: JUnit 5, Mockito, AssertJ, jqwik, ArchUnit, JaCoCo
 
 **Frontend** (`modules/frontend/`)
-- TypeScript 5.9, React 19, Vite 8
+- TypeScript 5.9, React 19, react-router 8, Vite 8
 - Tests: Vitest 4 + Testing Library (Komponenten), Playwright 1.62 (E2E)
 - API-Typen aus dem OpenAPI-Contract generiert (`openapi-typescript`)
 
@@ -86,6 +86,23 @@ Die TypeScript-Typen stammen aus dem OpenAPI-Contract und liegen eingecheckt in
 ```bash
 cd modules/frontend && npm run generate:api   # benötigt ein laufendes Backend auf :8080
 ```
+
+### Adressen der Oberfläche
+
+Die SPA nutzt `react-router`; die Detailansicht ist damit **teilbar**
+([ADR 0017](docs/adr/0017-router-mit-spa-fallback.md)):
+
+| Ansicht | Adresse |
+|---|---|
+| Liste | `/recipes/` |
+| Anlegen | `/recipes/new` |
+| Detail | `/recipes/{id}` |
+| Bearbeiten | `/recipes/{id}/edit` |
+
+Damit diese Adressen auch beim direkten Aufruf funktionieren, leitet
+`SpaForwardingController` sie serverseitig auf die `index.html` weiter – **explizit
+aufgezählt**, damit der Fallback API, OpenAPI und Swagger UI nicht verschatten kann.
+Eine neue Route im Frontend braucht deshalb eine Zeile in diesem Controller.
 
 Die Response-DTOs markieren die vom Domänenmodell garantierten Felder mit
 `@Schema(requiredMode = REQUIRED)`. Dadurch typisiert der Generator sie als
