@@ -6,9 +6,51 @@ Datum: 2026-07-19
 
 ---
 
+## 58. Prompt: „commit" / „commit"
+
+_Delta: 12s · 546 out · 682 in (neu) · 1.831.603 gesamt_
+_Stand (Session, 70 Prompts): 4:07:43 · 779.092 out · 302.983.291 gesamt_
+
+**Aktionen:**
+- Beim Stagen fiel `docs/log/__pycache__/` auf – Nebenprodukt des Modul-Imports beim
+  Nachrechnen der Einträge 55/56. In `.gitignore` aufgenommen und entfernt.
+- Vorbedingung: reine Doku- und Werkzeugänderung, kein Produktionscode – letzter grüner
+  Lauf (`clean build` 30 Java + 24 Vitest, `systemtest` 13/13, `e2eTest` 7/7) gilt weiter.
+- Der Fallback „noch nicht ermittelbar" griff in diesem Turn tatsächlich: Beim ersten
+  Aufruf lag noch keine Antwort im Transkript. Nach kurzem Warten lieferte das Skript
+  die Werte – der Schutz gegen Null-Werte im Protokoll bewährt sich damit im Alltag.
+- Diesen Eintrag zuerst ergänzt, dann committet (Author = Claude):
+  `Log the per-prompt delta against the running total`.
+
+---
+
+## 57. Prompt: „Ergänze Dauer und Tokenanzahl immer im claudeLog.md auch für einen Prompt als Delta zu letzten Stand."
+
+_Delta: 2:10 · 19.657 out · 12.400 in (neu) · 9.052.479 gesamt_
+_Stand (Session, 68 Prompts): 4:06:04 · 774.871 out · 295.669.556 gesamt_
+
+**Aktionen:**
+- Format auf **zwei** Zeilen erweitert: `Delta` (dieser Prompt) und `Stand` (kumuliert über
+  die Session). Der Prompt-Aufwand ist damit als Delta zum vorigen Stand lesbar.
+- `turn-stats.py` um `cumulative()`, `seconds()` und `format_seconds()` ergänzt;
+  `--log-line` gibt beide Zeilen aus, die Tabelle zwei zusätzliche Stand-Spalten.
+- Zwei bewusste Festlegungen, im Skill dokumentiert:
+  - Die **Stand-Dauer ist die Summe der Turn-Dauern**, nicht die Zeit seit Session-Beginn –
+    Wartezeit auf den Nutzer gehört nicht zum Aufwand.
+  - Der **Stand gilt je Session**: Das Transkript umfasst nur die laufende Session, Prompts
+    aus früheren Sessions fehlen. Deshalb steht die Prompt-Zahl der Session in der Zeile;
+    sie weicht bewusst von der Nummer des Log-Eintrags ab (68 vs. 57).
+- Einträge 55 und 56 auf das neue Format nachgezogen – und dabei mit den **vollständigen**
+  Turn-Werten, die rückblickend verfügbar sind. Das korrigiert die dort dokumentierte
+  Untererfassung: Eintrag 55 stand mit 3:06/22.916, tatsächlich waren es 3:42/25.154.
+- `.claude/skills/develop.md`: Format, Erläuterungen und Vorlage angepasst.
+
+---
+
 ## 56. Prompt: „commit" / „Ja, so committen"
 
-_Dauer: 31s · Tokens: 3.089 out, 1.483 in (neu), 2.973.757 gesamt_
+_Delta: 1:35 · 5.223 out · 3.663 in (neu) · 7.143.965 gesamt_
+_Stand (Session, 67 Prompts): 4:03:54 · 755.214 out · 286.617.077 gesamt_
 
 **Aktionen:**
 - Erster Praxiseinsatz des Skripts deckte eine Lücke auf: Wird es ganz früh im Turn
@@ -24,7 +66,8 @@ _Dauer: 31s · Tokens: 3.089 out, 1.483 in (neu), 2.973.757 gesamt_
 
 ## 55. Prompt: „Ergänze Dauer und Tokenanzahl immer im claudeLog.md"
 
-_Dauer: 3:06 · Tokens: 22.916 out, 20.689 in (neu), 12.862.286 gesamt_
+_Delta: 3:42 · 25.154 out · 21.955 in (neu) · 14.047.520 gesamt_
+_Stand (Session, 65 Prompts): 4:02:19 · 749.991 out · 279.473.112 gesamt_
 
 **Aktionen:**
 - Ausgangsproblem benannt: Dauer ist messbar, den eigenen Tokenverbrauch kenne ich als

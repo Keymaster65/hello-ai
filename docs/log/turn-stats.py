@@ -97,18 +97,54 @@ def total_tokens(turn: dict) -> int:
     return turn["input"] + turn["output"] + turn["cache_write"] + turn["cache_read"]
 
 
+def seconds(turn: dict) -> int:
+    if not turn["start"] or not turn["end"]:
+        return 0
+    return int((turn["end"] - turn["start"]).total_seconds())
+
+
+def format_seconds(total: int) -> str:
+    if total < 60:
+        return f"{total}s"
+    hours, rest = divmod(total, 3600)
+    minutes, secs = divmod(rest, 60)
+    return f"{hours}:{minutes:02d}:{secs:02d}" if hours else f"{minutes}:{secs:02d}"
+
+
+def cumulative(turns: list[dict], upto: int) -> dict:
+    """Stand über alle Turns dieser Session bis einschließlich Index `upto`."""
+    window = turns[: upto + 1]
+    return {
+        "seconds": sum(seconds(t) for t in window),
+        "output": sum(t["output"] for t in window),
+        "total": sum(total_tokens(t) for t in window),
+        "turns": len(window),
+    }
+
+
 def german(number: int) -> str:
     return f"{number:,}".replace(",", ".")
 
 
-def log_line(turn: dict) -> str:
-    """Die Zeile, die unter die Überschrift in claudeLog.md gehört."""
+def log_line(turns: list[dict], index: int) -> str:
+    """Die zwei Zeilen, die unter die Überschrift in claudeLog.md gehören.
+
+    `Delta` ist der Aufwand dieses einen Prompts, `Stand` der kumulierte Aufwand der
+    Session bis hierher – der Prompt ist damit als Delta zum vorigen Stand lesbar.
+    """
+    turn = turns[index]
     if turn["messages"] == 0:
         # Der Turn hat noch keine Antwort im Transkript – Nullen wären eine Falschaussage.
         return "_Dauer/Tokens: noch nicht ermittelbar (keine Antwort im Transkript)_"
+
     fresh = turn["input"] + turn["cache_write"]
-    return (f"_Dauer: {duration(turn)} · Tokens: {german(turn['output'])} out, "
-            f"{german(fresh)} in (neu), {german(total_tokens(turn))} gesamt_")
+    state = cumulative(turns, index)
+    return (
+        f"_Delta: {format_seconds(seconds(turn))} · {german(turn['output'])} out · "
+        f"{german(fresh)} in (neu) · {german(total_tokens(turn))} gesamt_\n"
+        f"_Stand (Session, {state['turns']} Prompts): {format_seconds(state['seconds'])} · "
+        f"{german(state['output'])} out · {german(state['total'])} gesamt_"
+    )
 
 
 def main() -> None:
@@ -132,16 +168,20 @@ def main() -> None:
         raise SystemExit(f"Keine Turns in {path} gefunden.")
 
     if args.log_line:
-        print(log_line(turns[-1]))
+        print(log_line(turns, len(turns) - 1))
         return
 
-    selected = turns if args.all else turns[-max(1, args.n):]
+    first = 0 if args.all else max(0, len(turns) - max(1, args.n))
     print(f"# {os.path.basename(path)} – {len(turns)} Turns\n")
-    print(f"{'#':>4}  {'Dauer':>7}  {'Tokens':>9}  {'davon out':>9}  Prompt")
-    for index, turn in enumerate(selected, start=len(turns) - len(selected) + 1):
-        prompt = " ".join(turn["prompt"].split())[:60]
-        print(f"{index:>4}  {duration(turn):>7}  {total_tokens(turn):>9,}  "
-              f"{turn['output']:>9,}  {prompt}")
+    print(f"{'#':>4}  {'Dauer':>7}  {'out':>8}  {'gesamt':>12}  "
+          f"{'Stand Dauer':>11}  {'Stand out':>10}  Prompt")
+    for index in range(first, len(turns)):
+        turn = turns[index]
+        state = cumulative(turns, index)
+        prompt = " ".join(turn["prompt"].split())[:44]
+        print(f"{index + 1:>4}  {duration(turn):>7}  {turn['output']:>8,}  "
+              f"{total_tokens(turn):>12,}  {format_seconds(state['seconds']):>11}  "
+              f"{state['output']:>10,}  {prompt}")
 
 
 if __name__ == "__main__":

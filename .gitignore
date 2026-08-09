@@ -29,6 +29,9 @@ build/
 # jqwik keeps the seeds of previously failing samples here – local state, not shared
 .jqwik-database
 
+# Bytecode-Cache des Log-Hilfsskripts
+__pycache__/
+
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*

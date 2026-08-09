@@ -18,8 +18,8 @@ kurzen Zusammenfassung der durchgeführten Aktionen/Ergebnisse.
 - **Sortierung: chronologisch absteigend – neuester Eintrag oben.**
 - Neue Einträge **immer vorne** einfügen (direkt unter dem Header,
   vor dem bisher obersten Eintrag). Nummerierung fortlaufend hochzählen.
-- Direkt unter der Überschrift eine **Kennzahlenzeile** mit **Dauer** und
-  **Tokenanzahl** (siehe unten).
+- Direkt unter der Überschrift zwei **Kennzahlenzeilen**: **Delta** (dieser Prompt) und
+  **Stand** (kumuliert über die Session) – siehe unten.
 - Je Eintrag ein `**Aktionen:**`-Block (bzw. `**Antwort:**` bei reinen
   Fragen) mit knapper Stichpunkt-Zusammenfassung von Tun und Ergebnis.
 
@@ -37,11 +37,15 @@ python3 docs/log/turn-stats.py -n 5         # Übersicht der letzten fünf Turns
 Ergebnis (Beispiel):
 
 ```markdown
-_Dauer: 2:29 · Tokens: 20.829 out, 17.048 in (neu), 9.915.499 gesamt_
+_Delta: 1:00 · 9.290 out · 3.656 in (neu) · 3.003.002 gesamt_
+_Stand (Session, 68 Prompts): 4:04:54 · 764.504 out · 289.620.079 gesamt_
 ```
 
+- **Delta** = Aufwand **dieses einen** Prompts. **Stand** = kumuliert über alle Prompts
+  der Session; der Prompt ist damit als Delta zum vorigen Stand lesbar.
 - **Dauer** = Wanduhrzeit von der Ankunft des Prompts bis zur letzten Antwort,
-  inklusive Wartezeit auf Werkzeuge und Builds.
+  inklusive Wartezeit auf Werkzeuge und Builds. Die Stand-Dauer ist die **Summe der
+  Turn-Dauern**, nicht die Zeit seit Session-Beginn – Wartezeit auf den Nutzer zählt nicht.
 - **out** = generierte Tokens, **in (neu)** = nicht aus dem Cache gelesene Eingabe,
   **gesamt** = alles inklusive Cache-Reads (das, was abgerechnet wird).
 - **Zahlen niemals schätzen.** Ist das Transkript nicht lesbar, wird das im Eintrag
@@ -49,6 +53,9 @@ _Dauer: 2:29 · Tokens: 20.829 out, 17.048 in (neu), 9.915.499 gesamt_
 - **Systematische Untererfassung:** Gemessen wird bis zum Schreiben des Eintrags; die
   abschließende Antwort des Turns fehlt darin zwangsläufig. Die Werte sind damit eine
   Untergrenze – nicht schönrechnen, sondern so verstehen.
+- **Der Stand gilt je Session.** Das Transkript umfasst nur die laufende Session; Prompts
+  aus früheren Sessions sind darin nicht enthalten. Deshalb steht die Prompt-Zahl der
+  Session in der Zeile – sie weicht bewusst von der Nummer des Log-Eintrags ab.
 
 ## Ablauf pro Prompt
 1. Nutzer-Prompt beantworten / Aufgabe umsetzen.
@@ -63,7 +70,8 @@ _Dauer: 2:29 · Tokens: 20.829 out, 17.048 in (neu), 9.915.499 gesamt_
 ```markdown
 ## <N>. Prompt: „<Original-Prompt>"
 
-_Dauer: <m:ss> · Tokens: <out> out, <in> in (neu), <gesamt> gesamt_
+_Delta: <m:ss> · <out> out · <in> in (neu) · <gesamt> gesamt_
+_Stand (Session, <k> Prompts): <h:mm:ss> · <out> out · <gesamt> gesamt_
 
 **Aktionen:**
 - <Was wurde getan>
