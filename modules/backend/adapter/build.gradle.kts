@@ -12,7 +12,7 @@ description = "Inbound REST and outbound jOOQ adapters, plus the Liquibase chang
 extra["jooq.version"] = "3.21.6"
 
 dependencies {
-    api(project(":backend:application"))
+    api(project(":modules:backend:application"))
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")

@@ -6,6 +6,70 @@ Datum: 2026-07-19
 
 ---
 
+## 62. Prompt: „Was soll modules-broken?" / „commit"
+
+_Delta: 32s · 1.000 out · 2.496 in (neu) · 2.086.775 gesamt_
+_Stand (Session, 76 Prompts): 4:54:56 · 887.409 out · 390.039.896 gesamt_
+
+**Antwort/Aktionen:**
+- Klargestellt: `modules-broken` hat **keinen Zweck** – es ist ein Rest meines eigenen
+  Wiederherstellungsversuchs (`mv modules modules-broken`), kein Projektbestandteil.
+- **Zweiter Dateiverlust, diesmal von mir ausgelöst:** Die Löschversuche
+  (`rm -rf`, `rmdir`, `find -delete`, `mv`) an `modules-broken` haben `modules/backend`
+  erneut zerstört – Operationen auf dem Phantom schlagen auf das benachbarte `modules`
+  durch. 40 Dateien fehlten im Arbeitsverzeichnis.
+- Wiederhergestellt mit `git restore --worktree -- modules/backend`. **Zweiter Fallstrick:**
+  `git restore` holt aus dem **Index**, und der enthielt die Buildskripte im Stand vor
+  meinen `sed`-Anpassungen – `:backend:application` statt `:modules:backend:application`.
+  Der Build brach mit „Project with path ':backend:application' could not be found" ab;
+  die Anpassungen mussten erneut eingetragen werden.
+- Danach `./gradlew clean build` grün, 68 Quelldateien vollständig.
+- **Entscheidung: nicht weiter anfassen.** Der Eintrag ist inert (0 Treffer in allen
+  Build-Logs, keine Git-Änderung); einzige Auswirkung ist eine Warnzeile bei `git status`.
+  Aus User Space nicht entfernbar – `rmdir` meldet „Directory not empty", `stat` gleichzeitig
+  „No such file or directory". Verschwindet erst mit Neustart der Umgebung oder per `sudo`.
+  Der belegte Schaden weiterer Versuche überwiegt den kosmetischen Nutzen.
+
+---
+
+## 61. Prompt: „Bewege die gradle Module backend und frontend als Untermodule in ein neues \"modules\""
+
+_Delta: 21:50 · 64.616 out · 82.628 in (neu) · 46.694.974 gesamt_
+_Stand (Session, 74 Prompts): 4:44:22 · 869.664 out · 372.749.163 gesamt_
+
+**Aktionen:**
+- **Vorfall im ersten Anlauf – Dateiverlust im Arbeitsverzeichnis, ohne Datenverlust:**
+  `git mv frontend modules/frontend` meldete Erfolg, das Ziel war aber **leer**;
+  `git status` zeigte 24 Einträge als `RD` (im Index umbenannt, im Arbeitsverzeichnis
+  fehlend). Der Verzeichniseintrag wurde zum **Phantom**: `cd` gelang, aber `stat`, Lesen,
+  Schreiben, `rmdir`, `rm -rf` und `mv` schlugen alle mit „No such file or directory" fehl
+  (`ls -l` zeigte `d????????? ? ? ? ?`). Erst das Umbenennen des Elternverzeichnisses löste
+  ihn auf – und nahm das bereits korrekt verschobene `backend/` mit.
+- Wiederherstellung: `git fsck` ohne beschädigte Objekte, `git reset --hard HEAD` stellte
+  alle 64 Quelldateien wieder her, Build danach grün. **Weil alles committet war, war das
+  ein Ärgernis und kein Datenverlust.**
+- Ursache eingegrenzt: `frontend/` enthielt **5836 Dateien**, überwiegend `node_modules`.
+  Nach dem Löschen der generierten Verzeichnisse blieben **24** übrig – derselbe `git mv`
+  lief dann fehlerfrei durch. Das Umbenennen großer Bäume ist auf dem Overlay-Dateisystem
+  dieser Umgebung (WSL2) offenbar nicht verlässlich.
+- Zweiter Anlauf erfolgreich: `backend/` (41 Dateien) und `frontend/` (24) nach `modules/`;
+  Projektpfade `:modules:backend:{domain,application,adapter,bootstrap}`.
+- Angepasst: `settings.gradle.kts`, Wurzel-Buildskript, drei `project(":…")`-Verweise,
+  `rootProject.file("modules/frontend")`, README, `CLAUDE.md`, Architektur-Skill.
+  Die **Playwright-Pfade blieben unverändert** – beide Bausteine wanderten zusammen, die
+  relativen Pfade zueinander stimmen weiter.
+- Verifiziert: `./gradlew clean build` grün (30 Java + 24 Vitest), Artefakt weiterhin
+  `recipe-backend-0.0.1-SNAPSHOT.jar` mit SPA und drei Modul-Jars,
+  `./gradlew systemtest` 13/13, `./gradlew e2eTest` 7/7, 68 Quelldateien unversehrt.
+- `docs/adr/0015-alle-bausteine-unter-modules.md` angelegt – mit dem Vorfall und drei
+  Regeln daraus: generierte Inhalte vor dem Verschieben löschen, Dateizahl am Ziel prüfen
+  statt dem Rückgabewert zu vertrauen, vor Umbauten committen.
+- **Offener Rest:** Im Wurzelverzeichnis liegt ein nicht entfernbarer Phantom-Eintrag
+  `modules-broken`. Git ignoriert ihn (nicht lesbar, kein Inhalt), er lässt sich aus User
+  Space aber nicht löschen und verschwindet vermutlich erst mit einem Neustart der Umgebung.
+
+---
+
 ## 60. Prompt: „commit" / „Ja, so committen"
 
 _Delta: 6s · 148 out · 11 in (neu) · 634.678 gesamt_

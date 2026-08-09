@@ -1,9 +1,11 @@
 // Root project: no sources, no shared configuration – it only aggregates.
 //
-//   :backend  – die Anwendung, ein Untermodul je Schicht (ADR 0013, ADR 0014)
-//   frontend/ – npm-Projekt, von :backend:bootstrap ins Boot-Jar gepackt
+// Alle Bausteine liegen unter `modules/` (ADR 0015):
 //
-// Die gemeinsame Konfiguration der Schichtmodule steht in `backend/build.gradle.kts`,
+//   :modules:backend   – die Anwendung, ein Untermodul je Schicht (ADR 0013, ADR 0014)
+//   modules/frontend   – npm-Projekt, von :modules:backend:bootstrap ins Boot-Jar gepackt
+//
+// Die gemeinsame Konfiguration der Schichtmodule steht in `modules/backend/build.gradle.kts`,
 // also dort, wo sie gilt. Hier stehen nur die Plugins, die auf dem Buildscript-Classpath
 // verfügbar sein müssen; angewendet werden sie in den Modulen.
 //

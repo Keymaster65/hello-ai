@@ -30,11 +30,12 @@ Abhängigkeiten zeigen nach innen. Controller kennt keine Entities direkt.
 
 Diese Regel ist **doppelt abgesichert**:
 
-1. **Vom Build erzwungen** – jede Schicht ist ein eigenes Gradle-Modul unter `:backend`
-   (`:backend:bootstrap` → `:backend:adapter` → `:backend:application` →
-   `:backend:domain`). Ein Import aus einer äußeren Schicht **compiliert nicht**; siehe
+1. **Vom Build erzwungen** – jede Schicht ist ein eigenes Gradle-Modul unter `:modules:backend`
+   (`:modules:backend:bootstrap` → `:modules:backend:adapter` → `:modules:backend:application` →
+   `:modules:backend:domain`). Ein Import aus einer äußeren Schicht **compiliert nicht**; siehe
    [ADR 0013](../../docs/adr/0013-ein-gradle-modul-je-schicht.md) und
-   [ADR 0014](../../docs/adr/0014-schichtmodule-unter-backend.md).
+   [ADR 0014](../../docs/adr/0014-schichtmodule-unter-backend.md) sowie
+   [ADR 0015](../../docs/adr/0015-alle-bausteine-unter-modules.md).
 2. **Von ArchUnit geprüft** – `LayeredArchitectureTest` sichert zusätzlich ab, was
    Modulgrenzen nicht sehen: Framework-Freiheit des Domänenmodells und „Ports sind
    Interfaces"; siehe

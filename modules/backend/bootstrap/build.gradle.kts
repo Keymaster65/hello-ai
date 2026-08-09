@@ -17,7 +17,7 @@ testSets {
 
 dependencies {
     // Only the outermost adapter layer; :application and :domain arrive transitively.
-    implementation(project(":backend:adapter"))
+    implementation(project(":modules:backend:adapter"))
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     // Spring Boot 4 provides Liquibase auto-configuration in a dedicated module.
@@ -49,7 +49,7 @@ dependencies {
 // It belongs to this module because this is where the deployable is assembled.
 // Use -PskipFrontend to keep the Java-only inner loop fast.
 // ---------------------------------------------------------------------------
-val frontendDir = rootProject.file("frontend")
+val frontendDir = rootProject.file("modules/frontend")
 val npmExecutable =
     if (System.getProperty("os.name").lowercase().contains("windows")) "npm.cmd" else "npm"
 val frontendEnabled = !providers.gradleProperty("skipFrontend").isPresent
