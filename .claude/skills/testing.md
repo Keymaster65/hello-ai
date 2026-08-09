@@ -153,7 +153,7 @@ class UserIntegrationTest {
 2. Fehlerfälle & Edge-Cases (null, leer, ungültig)?
 3. Wurde gemockt, was extern ist (Repo, API)?
 4. AssertJ für lesbare Assertions genutzt?
-5. `gradle test` grün?
+5. `./gradlew test` grün?
 6. Keine flaky Tests (Zeit/Reihenfolge)?
 
 ## Mocking-Regeln
@@ -163,7 +163,10 @@ class UserIntegrationTest {
 - `@MockBean` in Spring-Slice-Tests, `@Mock` in reinen Unit-Tests
 
 ## Nützliche Befehle
-- Alle Tests: `gradle test`
-- Einzelne Klasse: `gradle test -Dtest=UserServiceTest`
-- Einzelne Methode: `gradle test -Dtest=UserServiceTest#shouldReturnUser_whenUserExists`
-- Mit Coverage (JaCoCo): `gradle test jacoco:report`
+Immer über den Wrapper (siehe [ADR 0009](../../docs/adr/0009-gradle-wrapper-verbindlich.md)):
+
+- Alle Tests: `./gradlew test`
+- Einzelne Klasse: `./gradlew test --tests "*.UserServiceTest"`
+- Einzelne Methode: `./gradlew test --tests "*.UserServiceTest.shouldReturnUser_whenUserExists"`
+- Coverage (JaCoCo): läuft automatisch mit – `test` ist per `finalizedBy` an
+  `jacocoTestReport` gekoppelt; Report unter `build/reports/jacoco/test/html/index.html`

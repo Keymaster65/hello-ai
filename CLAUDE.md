@@ -10,7 +10,7 @@ Sprache. Welche Rolle gilt, ergibt sich aus der bearbeiteten Datei bzw. Aufgabe.
 
 ### Backend
 - Sprache: Java 25 (LTS)
-- Build-Tool: gradle
+- Build-Tool: Gradle – **ausschließlich über den Wrapper** (`./gradlew`)
 - Testing: jqwik, Mockito, AssertJ, jacoco
 - Persistenz: jooq
 - Datenbank: PostgreSQL
@@ -47,24 +47,27 @@ Sprache. Welche Rolle gilt, ergibt sich aus der bearbeiteten Datei bzw. Aufgabe.
 1. Aufgabe & Kontext verstehen
 2. Plan vorstellen (bei größeren Änderungen)
 3. Implementieren
-4. Tests schreiben & mit `gradle test` ausführen
-5. Systemtests mit `gradle systemtest` ausführen
-6. E2E-Tests mit `gradle e2eTest` ausführen
+4. Tests schreiben & mit `./gradlew test` ausführen
+5. Systemtests mit `./gradlew systemtest` ausführen
+6. E2E-Tests mit `./gradlew e2eTest` ausführen
 7. Zusammenfassung geben
 
 ## Nützliche Befehle
-- Build: `gradle clean build`
-- Tests: `gradle test`
-- Systemtests: `gradle systemtest`
-  (gegen laufende Instanz: `gradle systemtest -Psystemtest.baseUrl=http://localhost:8080`)
-- E2E-Tests: `gradle e2eTest` – benötigt eine erreichbare PostgreSQL
-  (gegen laufende Instanz: `gradle e2eTest -Pe2e.baseUrl=http://localhost:8080`)
+**Immer den Gradle-Wrapper `./gradlew` verwenden** (Windows: `gradlew.bat`), nie ein
+lokal installiertes `gradle` – siehe [ADR 0009](docs/adr/0009-gradle-wrapper-verbindlich.md).
+
+- Build: `./gradlew clean build`
+- Tests: `./gradlew test`
+- Systemtests: `./gradlew systemtest`
+  (gegen laufende Instanz: `./gradlew systemtest -Psystemtest.baseUrl=http://localhost:8080`)
+- E2E-Tests: `./gradlew e2eTest` – benötigt eine erreichbare PostgreSQL
+  (gegen laufende Instanz: `./gradlew e2eTest -Pe2e.baseUrl=http://localhost:8080`)
   Ergebnisse inkl. Videos jedes Laufs: `build/e2e/` (Report: `build/e2e/report/index.html`)
 
 ## Definition of Done
-- [ ] Code kompiliert (`gradle clean build --test`)
-- [ ] Tests grün (`gradle test`)
-- [ ] **Systemtests grün (`gradle systemtest`)** – prüfen die laufende Anwendung über HTTP
-- [ ] **E2E-Tests grün (`gradle e2eTest`)** – prüfen die Nutzer-Flows im echten Browser
+- [ ] Code kompiliert (`./gradlew clean build`)
+- [ ] Tests grün (`./gradlew test`)
+- [ ] **Systemtests grün (`./gradlew systemtest`)** – prüfen die laufende Anwendung über HTTP
+- [ ] **E2E-Tests grün (`./gradlew e2eTest`)** – prüfen die Nutzer-Flows im echten Browser
 - [ ] Keine kritischen Warnungen/Linter-Fehler
 - [ ] Architektur- und Test-Prinzipien eingehalten

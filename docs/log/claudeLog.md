@@ -6,6 +6,48 @@ Datum: 2026-07-19
 
 ---
 
+## 46. Prompt: „commit" / „Ja, so committen"
+
+**Aktionen:**
+- Vorbedingung erfüllt, alles über den Wrapper gefahren: `./gradlew clean build` grün
+  (23 Java + 24 Vitest), `./gradlew systemtest` 13/13, `./gradlew e2eTest` 7/7.
+- Message vorgelegt und bestätigt bekommen; diesen Eintrag zuerst ergänzt, dann committet
+  (Author = Claude): `Require the Gradle wrapper and pin its checksum`.
+
+---
+
+## 45. Prompt: „Verwende den gradle wrapper und ergänze ein entsprechenden ADR"
+
+**Aktionen:**
+- Ausgangslage geprüft: Der Wrapper war bereits vollständig eingecheckt
+  (`gradlew`, `gradlew.bat`, `gradle-wrapper.jar` + `.properties`, mit `.gitignore`-Ausnahme
+  für den Jar). Nur die Doku verwies uneinheitlich auf ein blankes `gradle`.
+- **Konkreter Beleg für die Relevanz:** lokal installiert ist **Gradle 9.7.0**, der Wrapper
+  pinnt **9.6.1** – `gradle test` und `./gradlew test` liefen hier also nachweislich auf
+  verschiedenen Versionen.
+- Umgestellt: `CLAUDE.md` (Tech-Stack, Workflow 4–6, Nützliche Befehle, alle vier
+  DoD-Punkte), `.claude/skills/testing.md` (Checkliste + Befehle), README-Prosa.
+- Dabei zwei sachliche Fehler in `testing.md` mit korrigiert, die in denselben Zeilen standen:
+  `-Dtest=…` und `jacoco:report` sind **Maven**-Syntax. Ersetzt durch `--tests "*.Klasse"`
+  bzw. den Hinweis, dass JaCoCo per `finalizedBy` ohnehin mitläuft.
+- Neues `docs/adr/0009-gradle-wrapper-verbindlich.md` (Kontext, Optionen, Entscheidung,
+  Konsequenzen) inkl. Regeln für die Zukunft und dem offenen Punkt, dass
+  `distributionSha256Sum` derzeit **nicht** gesetzt ist.
+- Bestehende ADRs 0006–0008 bewusst **nicht** umgeschrieben – ein ADR dokumentiert den Stand
+  seiner Entstehung; ADR 0009 vermerkt das ausdrücklich.
+- Verifiziert über den Wrapper: `./gradlew --version` → 9.6.1, `./gradlew clean build` grün
+  (23 Java + 24 Vitest), `./gradlew systemtest` 13/13, `./gradlew e2eTest` 7/7.
+- **Nachtrag auf Zuruf:** `distributionSha256Sum` ergänzt
+  (`9c0f7fae…9e14`, von `services.gradle.org` bezogen). Beidseitig verifiziert:
+  frischer `GRADLE_USER_HOME` lädt und akzeptiert die Distribution; mit verfälschter
+  Prüfsumme bricht der Wrapper mit „Verification of Gradle distribution failed!" ab.
+  Dabei festgestellt und im ADR vermerkt: Geprüft wird **nur beim Download** – bei bereits
+  entpackter Distribution läuft der Build ohne erneute Prüfung durch.
+  ADR 0009 um den Abschnitt „Integrität der Distribution" und die Regel erweitert, die
+  Prüfsumme bei jedem Versionswechsel mitzupflegen.
+
+---
+
 ## 44. Prompt: „commit" / „ja"
 
 **Aktionen:**

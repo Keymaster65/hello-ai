@@ -171,7 +171,7 @@ cd frontend && npm run dev
   (aktualisieren mit `npx playwright test --update-snapshots`). Die **Videos** sind
   Diagnose, kein erwartetes Ergebnis – sie sind nicht reproduzierbar.
 
-  Alle Artefakte liegen unter **`build/e2e/`** und werden damit von `gradle clean` mit
+  Alle Artefakte liegen unter **`build/e2e/`** und werden damit von `./gradlew clean` mit
   entfernt:
 
   | Artefakt | Ort | Wann |

@@ -1,0 +1,49 @@
+# 0009 – Gradle ausschließlich über den Wrapper
+
+Status: akzeptiert
+Datum: 2026-08-09
+
+| Abschnitt        | Inhalt |
+|------------------|--------|
+| **Kontext**      | Das Projekt bringt den Gradle-Wrapper mit (`gradlew`, `gradlew.bat`, `gradle/wrapper/`), der Gradle auf **9.6.1** festlegt. Dokumentation und Skills nannten die Aufrufe jedoch uneinheitlich: `CLAUDE.md` und `.claude/skills/testing.md` schrieben `gradle test`, README und die tatsächlichen Läufe `./gradlew test`. Ein blankes `gradle` benutzt die **lokal installierte** Version – in dieser Umgebung nachgemessen **Gradle 9.7.0**, also eine andere als die des Wrappers. Damit hängt das Build-Ergebnis davon ab, wer es startet; genau das soll der Wrapper verhindern. Verschärfend: Die Definition of Done verweist auf diese Kommandos, und `.claude/skills/develop.md` macht sie zur Commit-Vorbedingung. |
+| **Optionen**     | 1. **Wrapper verbindlich** – überall `./gradlew`, lokale Gradle-Installationen sind für das Projekt irrelevant. 2. **Lokale Installation plus Versionsprüfung** – `gradle` erlaubt, aber im Build gegen eine erwartete Version prüfen. 3. **Status quo** – beides nebeneinander stehen lassen. 4. Wrapper entfernen und die Version rein über die Toolchain-Doku regeln. |
+| **Entscheidung** | **Option 1.** Sämtliche Aufrufe laufen über `./gradlew` (Windows: `gradlew.bat`). Angepasst wurden `CLAUDE.md` (Tech-Stack, Workflow, Nützliche Befehle, Definition of Done), `.claude/skills/testing.md` und die verbliebene Prosa im README. Die Wrapper-Dateien sind eingecheckt; die `.gitignore` nimmt `gradle-wrapper.jar` ausdrücklich von der `*.jar`-Regel aus, damit der Wrapper nach einem frischen Clone sofort funktioniert. Ein Versionswechsel erfolgt **nur** über `./gradlew wrapper --gradle-version <x.y.z>` und wird als Änderung an `gradle-wrapper.properties` committet. |
+| **Konsequenzen** | **+** Reproduzierbare Builds: Jeder Clone – lokal wie CI – nutzt dieselbe Gradle-Version, unabhängig von der Entwickler-Maschine. **+** Kein lokal installiertes Gradle nötig; der Wrapper lädt die Distribution selbst. **+** Versionswechsel werden versioniert und sind im Git-Log nachvollziehbar. **+** Die Kommandos in der Definition of Done bedeuten für alle dasselbe. **+** Die Distribution ist über `distributionSha256Sum` gegen Manipulation abgesichert (siehe unten). **−** Der `gradle-wrapper.jar` liegt als Binärdatei im Repository. Das ist für den Wrapper unvermeidbar und bleibt der verbleibende Vertrauensanker: Der Jar selbst wird durch die Prüfsumme **nicht** abgedeckt. **−** Der erste Lauf nach einem Versionswechsel lädt ~100 MB nach. **−** In dieser Sandbox startet der Gradle-Daemon sporadisch mit `java.io.IOException: Input/output error`; stabil läuft `./gradlew <task> --no-daemon -g /tmp/gradle-home` (vermerkt in `.claude/skills/develop.md`). |
+
+## Integrität der Distribution
+
+`gradle-wrapper.properties` enthält die Prüfsumme der Distribution:
+
+```properties
+distributionSha256Sum=9c0f7faeeb306cb14e4279a3e084ca6b596894089a0638e68a07c945a32c9e14
+```
+
+Sie stammt von der offiziellen Quelle
+(`https://services.gradle.org/distributions/gradle-9.6.1-bin.zip.sha256`) und wurde
+beidseitig verifiziert (2026-08-09):
+
+- **Positiv:** Mit frischem `GRADLE_USER_HOME` lädt der Wrapper die Distribution herunter
+  und akzeptiert sie – die Prüfsumme ist also korrekt.
+- **Negativ:** Mit einer verfälschten Prüfsumme bricht er mit
+  `RuntimeException: Verification of Gradle distribution failed!` ab.
+
+**Wichtige Einschränkung:** Geprüft wird nur **beim Download**. Ist die Distribution im
+`GRADLE_USER_HOME` bereits entpackt, läuft der Build ohne erneute Prüfung – eine falsche
+Prüfsumme fällt auf einer Maschine mit warmem Cache also nicht auf. Die Absicherung greift
+dort, wo sie zählt: bei frischen CI-Runnern und neuen Arbeitsplätzen.
+
+## Regel für die Zukunft
+
+- In Doku, Skills, Skripten und CI-Konfigurationen steht **immer** `./gradlew`, nie `gradle`.
+- Die Gradle-Version wird ausschließlich über `./gradlew wrapper --gradle-version <x.y.z>`
+  geändert; die angepasste `gradle-wrapper.properties` gehört in denselben Commit.
+- Bei jedem Versionswechsel wird **`distributionSha256Sum` mit angepasst** – die Prüfsumme
+  gilt pro Distribution. Wird sie vergessen, schlägt der nächste frische Download fehl.
+- `gradlew`, `gradlew.bat` und `gradle/wrapper/**` bleiben im Repository. Wer die
+  `.gitignore` anfasst, muss die Ausnahmen für `gradle-wrapper.jar` erhalten.
+
+## Bestehende ADRs
+
+ADR 0006, 0007 und 0008 nennen an einzelnen Stellen noch `gradle <task>`. Sie bleiben
+**unverändert**, weil ein ADR den Stand zum Zeitpunkt der Entscheidung dokumentiert.
+Für die Aufrufform gilt ab hier dieses ADR.
