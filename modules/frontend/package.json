@@ -11,7 +11,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "generate:api": "openapi-typescript http://localhost:8080/v3/api-docs -o src/api/schema.d.ts"
+    "generate:api": "openapi-typescript http://localhost:8080/recipes/v3/api-docs -o src/api/schema.d.ts"
   },
   "dependencies": {
     "react": "^19.2.8",

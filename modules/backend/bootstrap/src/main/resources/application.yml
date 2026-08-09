@@ -25,3 +25,6 @@ springdoc:
 
 server:
   port: 80
+  servlet:
+    # Basis-URL der Anwendung: SPA, API und Swagger UI liegen unter /recipes (ADR 0016).
+    context-path: /recipes

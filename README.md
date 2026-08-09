@@ -77,8 +77,8 @@ Origin aus: kein CORS, ein Deployable. Siehe
 
 | Modus       | URL                     | Womit                                        |
 |-------------|-------------------------|----------------------------------------------|
-| Entwicklung | <http://localhost:5173> | `npm run dev` (proxyt `/api` auf Port 8080)  |
-| Produktion  | <http://localhost:8080> | `java -jar modules/backend/bootstrap/build/libs/recipes-*.jar`  |
+| Entwicklung | <http://localhost:5173/recipes/> | `npm run dev` (proxyt `/recipes/api` auf :8080) |
+| Produktion  | <http://localhost:8080/recipes/> | `java -jar modules/backend/bootstrap/build/libs/recipes-*.jar`  |
 
 Die TypeScript-Typen stammen aus dem OpenAPI-Contract und liegen eingecheckt in
 `modules/frontend/src/api/schema.d.ts`. Nach API-Änderungen neu erzeugen:
@@ -94,7 +94,7 @@ nicht-optional (`id: number` statt `id?: number`), während echte Nullable-Felde
 
 ## REST-API
 
-Basis-URL: `/api/recipes`
+Basis-URL: `/recipes/api/recipes` (Context-Path `/recipes`, siehe [ADR 0016](docs/adr/0016-context-path-recipes.md))
 
 | Methode | Pfad                | Beschreibung             | Erfolg |
 |---------|---------------------|--------------------------|--------|
@@ -108,13 +108,13 @@ Nicht gefundene Rezepte liefern `404`, Validierungsfehler `400` (jeweils als
 `ErrorResponse`).
 
 ### API-Dokumentation (OpenAPI / Swagger)
-Bei laufender Anwendung (Port `80`):
+Bei laufender Anwendung (Port `80`, Context-Path `/recipes`):
 
 | Zweck               | URL                                        |
 |---------------------|--------------------------------------------|
-| Swagger UI          | <http://localhost/swagger-ui.html>         |
-| OpenAPI 3.1 (JSON)  | <http://localhost/v3/api-docs>             |
-| OpenAPI 3.1 (YAML)  | <http://localhost/v3/api-docs.yaml>        |
+| Swagger UI          | <http://localhost/recipes/swagger-ui.html>         |
+| OpenAPI 3.1 (JSON)  | <http://localhost/recipes/v3/api-docs>             |
+| OpenAPI 3.1 (YAML)  | <http://localhost/recipes/v3/api-docs.yaml>        |
 
 Der Contract wird zur Laufzeit aus Controller-Signaturen, Bean-Validation und den
 `@Operation`/`@Schema`-Annotationen erzeugt – siehe
@@ -177,13 +177,13 @@ docker run --name recipes-db -e POSTGRES_DB=recipes \
 ./gradlew build -PskipFrontend
 
 # E2E gegen eine bereits laufende/deployte Instanz:
-./gradlew e2eTest -Pe2e.baseUrl=http://localhost:8080
+./gradlew e2eTest -Pe2e.baseUrl=http://localhost:8080   # nur Origin, ohne /recipes
 
 # Frontend-Entwicklung mit HMR (Backend muss auf :8080 laufen):
 cd modules/frontend && npm run dev
 
 # Systemtests gegen eine bereits laufende/deployte Instanz:
-./gradlew systemtest -Psystemtest.baseUrl=http://localhost:8080
+./gradlew systemtest -Psystemtest.baseUrl=http://localhost:8080   # nur Origin
 ```
 
 ## Tests

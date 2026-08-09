@@ -6,6 +6,59 @@ Datum: 2026-07-19
 
 ---
 
+## 66. Prompt: „commit" / „Ja, so committen"
+
+_Delta: 6s · 155 out · 11 in (neu) · 746.115 gesamt_
+_Stand (Session, 84 Prompts): 5:48:31 · 944.080 out · 458.740.047 gesamt_
+
+**Aktionen:**
+- Vorbedingung erfüllt (nach der Umstellung gemessen): `./gradlew clean build` grün
+  (30 Java + 24 Vitest), `./gradlew systemtest` 13/13, `./gradlew e2eTest` 7/7, dazu die
+  manuelle Prüfung der vier URLs unter `/recipes` und 404 auf dem alten Pfad.
+- Diesen Eintrag zuerst ergänzt, dann committet (Author = Claude):
+  `Serve the application under the /recipes context path`.
+
+---
+
+## 65. Prompt: „Ändere die Applikations Basis-URL auf \"recipes\"" / „retry"
+
+_Delta: 35:18 · 32.095 out · 3.567.310 in (neu) · 41.613.717 gesamt_
+_Stand (Session, 82 Prompts): 5:47:28 · 941.070 out · 455.013.588 gesamt_
+
+**Aktionen:**
+- Rückfrage gestellt, weil „Basis-URL" zwei Lesarten zuließ (Context-Path der Anwendung
+  vs. REST-Basispfad). Gewählt: **Context-Path** – SPA, API und Swagger UI liegen unter
+  `/recipes`.
+- `server.servlet.context-path: /recipes` in `application.yml`.
+- Frontend ohne absolute Pfade gehalten: `base: '/recipes/'` in `vite.config.ts`, der
+  API-Basispfad wird daraus über `import.meta.env.BASE_URL` abgeleitet. Dafür `vite/client`
+  in die tsconfig-`types` aufgenommen (`tsc` kannte `import.meta.env` sonst nicht).
+- **Fallstrick beim Dev-Proxy:** Ein Proxy auf `/recipes` würde die SPA verschlucken, die
+  Vite unter derselben Basis ausliefert. Deshalb gezielt `/recipes/api`, `/recipes/v3`
+  und `/recipes/swagger-ui`.
+- Systemtests: `RunningApplication.CONTEXT_PATH` hängt den Pfad einmal an die Basis-URL an,
+  die Tests adressieren weiter fachliche Pfade. `SwaggerSystemTest` prüft jetzt, dass
+  `configUrl` und `url` den Context-Path tragen; `FrontendSystemTest` schneidet ihn aus den
+  Asset-Referenzen, weil `HttpProbe` ihn bereits voranstellt.
+- E2E: `playwright.config.ts` exportiert `CONTEXT_PATH`, die Specs bilden daraus `APP`.
+- **Stille Bombe entschärft:** `npm run generate:api` zeigte noch auf
+  `http://localhost:8080/v3/api-docs` – jetzt 404. Auf den Context-Path korrigiert und
+  gegengeprüft: Der generierte Contract ist **unverändert**, die Umstellung betrifft nur
+  die Basis-URL, nicht die API-Struktur.
+- Beim ersten `e2eTest`-Lauf scheiterte Playwrights `webServer`: Port 8080 war von einer
+  Instanz aus einem früheren Turn belegt. Gezielt über die PID beendet (nicht `pkill -f`,
+  das trifft die eigene Kommandozeile).
+- Verifiziert an der laufenden Anwendung: `/recipes/` 200 (SPA lädt inkl. Daten, per
+  Screenshot geprüft), `/recipes/api/recipes` 200, `/recipes/swagger-ui.html` 302,
+  `/recipes/v3/api-docs` 200 – und `/api/recipes` ohne Präfix **404**, der alte Pfad ist
+  wirklich weg. Dazu `clean build` grün (30 Java + 24 Vitest), `systemtest` 13/13,
+  `e2eTest` 7/7.
+- `docs/adr/0016-context-path-recipes.md` angelegt, mit einer Tabelle der **fünf** Orte,
+  an denen der Context-Path gespiegelt wird – laufen sie auseinander, bricht nichts im
+  Build, sondern erst zur Laufzeit als 404.
+
+---
+
 ## 64. Prompt: „commit" / „Ja, so committen"
 
 _Delta: 5s · 155 out · 11 in (neu) · 711.988 gesamt_

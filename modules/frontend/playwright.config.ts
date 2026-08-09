@@ -16,7 +16,10 @@ import { existsSync, readdirSync } from 'node:fs'
  */
 const externalBaseUrl = process.env.E2E_BASE_URL?.trim()
 const port = Number(process.env.E2E_PORT ?? 8080)
+/** Origin only – the context path (ADR 0016) is part of the paths in the specs. */
 const baseURL = externalBaseUrl || `http://localhost:${port}`
+/** Must match server.servlet.context-path of the backend. */
+export const CONTEXT_PATH = '/recipes'
 
 /** Relative to this config: the build dir of :backend:bootstrap (see ADR 0013, ADR 0014). */
 const ARTEFACT_DIR = '../backend/bootstrap/build/e2e'
@@ -65,8 +68,8 @@ export default defineConfig({
     : {
         webServer: {
           command: `java -jar ${bootJar()} --server.port=${port}`,
-          // Wait for the API rather than "/" – it is the last thing to become ready.
-          url: `${baseURL}/api/recipes`,
+          // Wait for the API rather than the SPA – it is the last thing to become ready.
+          url: `${baseURL}${CONTEXT_PATH}/api/recipes`,
           reuseExistingServer: !process.env.CI,
           timeout: 120_000,
         },

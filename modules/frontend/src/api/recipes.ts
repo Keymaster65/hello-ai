@@ -35,9 +35,10 @@ export class ApiError extends Error {
   }
 }
 
-// Relative on purpose: in production the Spring Boot application serves this bundle itself,
-// during development Vite proxies the path to it. Same code, no origin configuration.
-const BASE_PATH = '/api/recipes'
+// Derived from the bundle's base URL, which mirrors the backend's context path (ADR 0016):
+// `/recipes/` in production and during development, `/` in the jsdom unit tests. The app
+// therefore never carries an absolute origin – only a path relative to where it is served.
+const BASE_PATH = `${import.meta.env.BASE_URL}api/recipes`
 
 async function send<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {

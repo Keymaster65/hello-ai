@@ -1,5 +1,10 @@
 import { expect, test, type APIRequestContext } from '@playwright/test'
 
+import { CONTEXT_PATH } from '../playwright.config'
+
+/** Basis-URL der Anwendung inklusive Context-Path, mit Schrägstrich am Ende (ADR 0016). */
+const APP = `${CONTEXT_PATH}/`
+
 /**
  * Structural regression tests: the accessibility tree of a view is compared against a committed
  * baseline (see ADR 0008).
@@ -20,16 +25,16 @@ import { expect, test, type APIRequestContext } from '@playwright/test'
 const SNAPSHOT_TITLE = 'Snapshot-Rezept'
 
 async function removeByTitle(request: APIRequestContext, title: string): Promise<void> {
-  const response = await request.get('/api/recipes')
+  const response = await request.get(`${APP}api/recipes`)
   const recipes = (await response.json()) as Array<{ id: number; title: string }>
   for (const recipe of recipes.filter((candidate) => candidate.title === title)) {
-    await request.delete(`/api/recipes/${recipe.id}`)
+    await request.delete(`${APP}api/recipes/${recipe.id}`)
   }
 }
 
 test.describe('Struktur der Oberfläche', () => {
   test('das leere Anlegeformular entspricht der Baseline', async ({ page }) => {
-    await page.goto('/')
+    await page.goto(APP)
     await page.getByRole('button', { name: 'Neues Rezept' }).click()
 
     // Data-independent: an empty form looks the same no matter what is in the database.
@@ -40,7 +45,7 @@ test.describe('Struktur der Oberfläche', () => {
 
   test('die Detailansicht entspricht der Baseline', async ({ page, request }) => {
     await removeByTitle(request, SNAPSHOT_TITLE)
-    const created = await request.post('/api/recipes', {
+    const created = await request.post(`${APP}api/recipes`, {
       data: {
         title: SNAPSHOT_TITLE,
         description: 'Fester Datensatz für den Struktur-Vergleich',
@@ -58,7 +63,7 @@ test.describe('Struktur der Oberfläche', () => {
     const id = (await created.json()).id as number
 
     try {
-      await page.goto('/')
+      await page.goto(APP)
       await page.getByRole('button', { name: SNAPSHOT_TITLE, exact: true }).click()
       await expect(page.getByRole('heading', { name: SNAPSHOT_TITLE })).toBeVisible()
 
@@ -67,7 +72,7 @@ test.describe('Struktur der Oberfläche', () => {
         name: 'recipe-detail.aria.yml',
       })
     } finally {
-      await request.delete(`/api/recipes/${id}`)
+      await request.delete(`${APP}api/recipes/${id}`)
     }
   })
 })

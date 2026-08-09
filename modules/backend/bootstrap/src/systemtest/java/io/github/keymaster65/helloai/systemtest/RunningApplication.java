@@ -26,19 +26,21 @@ final class RunningApplication {
 
     private static final String BASE_URL_PROPERTY = "systemtest.baseUrl";
 
+    /**
+     * Must match {@code server.servlet.context-path} in application.yml (see ADR 0016). It is
+     * appended here once, so the tests keep addressing plain paths such as {@code /api/recipes}.
+     */
+    static final String CONTEXT_PATH = "/recipes";
+
     private static final String BASE_URL;
     private static final boolean AVAILABLE;
 
     static {
+        // The property carries the origin (scheme://host:port); the context path is added here.
         String configured = System.getProperty(BASE_URL_PROPERTY, "").trim();
-        String resolved;
-        if (!configured.isEmpty()) {
-            resolved = trimTrailingSlash(configured);
-        } else {
-            resolved = startLocally();
-        }
-        BASE_URL = resolved;
-        AVAILABLE = resolved != null;
+        String origin = configured.isEmpty() ? startLocally() : trimTrailingSlash(configured);
+        BASE_URL = origin == null ? null : origin + CONTEXT_PATH;
+        AVAILABLE = BASE_URL != null;
     }
 
     private RunningApplication() {

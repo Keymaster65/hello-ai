@@ -1,5 +1,10 @@
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test'
 
+import { CONTEXT_PATH } from '../playwright.config'
+
+/** Basis-URL der Anwendung inklusive Context-Path, mit Schrägstrich am Ende (ADR 0016). */
+const APP = `${CONTEXT_PATH}/`
+
 /**
  * User flows through the browser (see ADR 0008). These tests assert on what a user sees –
  * status codes, JSON fields and contract details stay in the Java system tests.
@@ -16,7 +21,7 @@ function uniqueTitle(name: string): string {
 }
 
 async function createRecipe(request: APIRequestContext, title: string): Promise<number> {
-  const response = await request.post('/api/recipes', {
+  const response = await request.post(`${APP}api/recipes`, {
     data: {
       title,
       description: 'Vom E2E-Test angelegt',
@@ -32,7 +37,7 @@ async function createRecipe(request: APIRequestContext, title: string): Promise<
 }
 
 async function deleteRecipe(request: APIRequestContext, id: number): Promise<void> {
-  await request.delete(`/api/recipes/${id}`)
+  await request.delete(`${APP}api/recipes/${id}`)
 }
 
 /** Card of a recipe in the list, addressed via its title. */
@@ -54,7 +59,7 @@ test.describe('Rezeptverwaltung', () => {
     // Deliberately not a superstring of `title`: card lookup matches on contained text.
     const renamed = uniqueTitle('Crepes')
 
-    await page.goto('/')
+    await page.goto(APP)
 
     // Anlegen
     await page.getByRole('button', { name: 'Neues Rezept' }).click()
@@ -102,7 +107,7 @@ test.describe('Rezeptverwaltung', () => {
     const id = await createRecipe(request, title)
 
     try {
-      await page.goto('/')
+      await page.goto(APP)
       page.once('dialog', (dialog) => dialog.dismiss())
       await card(page, title).getByRole('button', { name: `${title} löschen` }).click()
 
@@ -113,7 +118,7 @@ test.describe('Rezeptverwaltung', () => {
   })
 
   test('zeigt den Validierungsfehler des Backends am betroffenen Feld', async ({ page }) => {
-    await page.goto('/')
+    await page.goto(APP)
     await page.getByRole('button', { name: 'Neues Rezept' }).click()
 
     // Leerer Titel: die Meldung stammt aus der Bean-Validation des Backends.
@@ -130,7 +135,7 @@ test.describe('Rezeptverwaltung', () => {
     const id = await createRecipe(request, title)
 
     try {
-      await page.goto('/')
+      await page.goto(APP)
       await titleLink(page, title).click()
 
       await expect(page.getByRole('heading', { name: title })).toBeVisible()
@@ -155,7 +160,7 @@ test.describe('Rezeptverwaltung', () => {
       }
     })
 
-    await page.goto('/')
+    await page.goto(APP)
     await expect(page.getByRole('heading', { name: 'Rezepte' })).toBeVisible()
 
     const pageOrigin = new URL(page.url()).origin

@@ -16,7 +16,13 @@ import org.junit.jupiter.api.condition.EnabledIf;
 @EnabledIf("applicationAvailable")
 class FrontendSystemTest {
 
-    private static final Pattern ASSET_REFERENCE = Pattern.compile("(?:src|href)=\"(/assets/[^\"]+)\"");
+    /**
+     * The bundle references its assets absolutely from the origin, i.e. including the context
+     * path (`/recipes/assets/…`). Only the part behind the context path is captured, because
+     * {@link HttpProbe} already prefixes it.
+     */
+    private static final Pattern ASSET_REFERENCE = Pattern.compile(
+            "(?:src|href)=\"" + Pattern.quote(RunningApplication.CONTEXT_PATH) + "(/assets/[^\"]+)\"");
 
     static boolean applicationAvailable() {
         return RunningApplication.available();

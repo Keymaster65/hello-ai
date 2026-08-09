@@ -126,12 +126,14 @@ class SwaggerSystemTest {
     @Test
     void shouldPointSwaggerUiAtThisApplicationsContract() {
         // The stock WebJar initializer points at petstore.swagger.io; springdoc has to override that
-        // via configUrl, otherwise the UI would render a foreign API.
+        // via configUrl, otherwise the UI would render a foreign API. Both values must carry the
+        // context path (ADR 0016) – otherwise the UI would look for the contract at the wrong place.
+        String contextPath = RunningApplication.CONTEXT_PATH;
         assertThat(HttpProbe.get("/swagger-ui/swagger-initializer.js").body())
-                .contains("\"configUrl\" : \"/v3/api-docs/swagger-config\"");
+                .contains("\"configUrl\" : \"" + contextPath + "/v3/api-docs/swagger-config\"");
 
         JsonNode config = HttpProbe.getJson("/v3/api-docs/swagger-config");
-        assertThat(config.path("url").asString()).isEqualTo(API_DOCS);
+        assertThat(config.path("url").asString()).isEqualTo(contextPath + API_DOCS);
     }
 
     @Test
