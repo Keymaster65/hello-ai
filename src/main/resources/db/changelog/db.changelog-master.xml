@@ -8,4 +8,5 @@
     <!-- Root changelog. The same file feeds Liquibase at runtime and jOOQ's
          LiquibaseDatabase during code generation (see ADR 0004). -->
     <include file="changes/0001-create-recipe-schema.xml" relativeToChangelogFile="true"/>
+    <include file="changes/0002-seed-fasting-recipes.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

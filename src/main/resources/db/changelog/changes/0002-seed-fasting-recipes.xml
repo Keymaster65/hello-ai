@@ -1,0 +1,480 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <!-- Seed data: the classic Buchinger therapeutic fasting cycle (Entlastungstag, Fastentage,
+         Fastenbrechen, Aufbautag). Marked with context "seed" so a deployment can skip it via
+         spring.liquibase.contexts; without a runtime context Liquibase runs it.
+
+         The identifiers are GENERATED ALWAYS, so child rows resolve their recipe via a subselect
+         on the (unique) title instead of hard-coded ids. QUOTE_ALL_OBJECTS as in changeset 0001,
+         see ADR 0004. -->
+    <changeSet id="0002-seed-fasting-recipes" author="recipe" context="seed"
+               objectQuotingStrategy="QUOTE_ALL_OBJECTS">
+
+        <preConditions onFail="MARK_RAN">
+            <!-- Only populate an empty database; never duplicate into an existing one. -->
+            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM "recipe"</sqlCheck>
+        </preConditions>
+
+
+        <!-- Entlastungstag: Reis mit gedünstetem Gemüse -->
+        <insert tableName="recipe">
+            <column name="title" value="Entlastungstag: Reis mit gedünstetem Gemüse"/>
+            <column name="description" value="Klassisches Buchinger-Heilfasten – Tag 1. Der Entlastungstag senkt die Kalorienzufuhr behutsam und stellt den Stoffwechsel auf das Fasten um."/>
+            <column name="servings" valueNumeric="1"/>
+            <column name="prep_time_minutes" valueNumeric="30"/>
+            <column name="difficulty" value="EASY"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Entlastungstag: Reis mit gedünstetem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="1"/>
+            <column name="name" value="Vollkornreis"/>
+            <column name="quantity" valueNumeric="60"/>
+            <column name="unit" value="g"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Entlastungstag: Reis mit gedünstetem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="2"/>
+            <column name="name" value="Karotten"/>
+            <column name="quantity" valueNumeric="150"/>
+            <column name="unit" value="g"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Entlastungstag: Reis mit gedünstetem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="3"/>
+            <column name="name" value="Zucchini"/>
+            <column name="quantity" valueNumeric="100"/>
+            <column name="unit" value="g"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Entlastungstag: Reis mit gedünstetem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="4"/>
+            <column name="name" value="Fenchel"/>
+            <column name="quantity" valueNumeric="100"/>
+            <column name="unit" value="g"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Entlastungstag: Reis mit gedünstetem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="5"/>
+            <column name="name" value="Olivenöl"/>
+            <column name="quantity" valueNumeric="1"/>
+            <column name="unit" value="TL"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Entlastungstag: Reis mit gedünstetem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="6"/>
+            <column name="name" value="Kräutersalz"/>
+            <column name="quantity" valueNumeric="1"/>
+            <column name="unit" value="Prise"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Entlastungstag: Reis mit gedünstetem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="7"/>
+            <column name="name" value="Petersilie"/>
+            <column name="quantity" valueNumeric="0.5"/>
+            <column name="unit" value="Bund"/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Entlastungstag: Reis mit gedünstetem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="1"/>
+            <column name="instruction" value="Reis in der doppelten Menge Wasser 30 Minuten weich garen."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Entlastungstag: Reis mit gedünstetem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="2"/>
+            <column name="instruction" value="Gemüse waschen und in mundgerechte Stücke schneiden."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Entlastungstag: Reis mit gedünstetem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="3"/>
+            <column name="instruction" value="Gemüse in wenig Wasser 10 bis 12 Minuten bissfest dünsten."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Entlastungstag: Reis mit gedünstetem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="4"/>
+            <column name="instruction" value="Mit Olivenöl und Kräutersalz abschmecken, mit Petersilie bestreuen."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Entlastungstag: Reis mit gedünstetem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="5"/>
+            <column name="instruction" value="Langsam essen und jeden Bissen gründlich kauen."/>
+        </insert>
+
+        <!-- Fastentee-Mischung -->
+        <insert tableName="recipe">
+            <column name="title" value="Fastentee-Mischung"/>
+            <column name="description" value="Klassisches Buchinger-Heilfasten. Ungesüßter Kräutertee begleitet die Fastentage und deckt einen Teil der Flüssigkeitszufuhr von täglich 2,5 bis 3 Litern."/>
+            <column name="servings" valueNumeric="4"/>
+            <column name="prep_time_minutes" valueNumeric="10"/>
+            <column name="difficulty" value="EASY"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastentee-Mischung&#x27;)"/>
+            <column name="position" valueNumeric="1"/>
+            <column name="name" value="Pfefferminzblätter"/>
+            <column name="quantity" valueNumeric="1"/>
+            <column name="unit" value="TL"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastentee-Mischung&#x27;)"/>
+            <column name="position" valueNumeric="2"/>
+            <column name="name" value="Fenchelsamen"/>
+            <column name="quantity" valueNumeric="1"/>
+            <column name="unit" value="TL"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastentee-Mischung&#x27;)"/>
+            <column name="position" valueNumeric="3"/>
+            <column name="name" value="Kamillenblüten"/>
+            <column name="quantity" valueNumeric="1"/>
+            <column name="unit" value="TL"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastentee-Mischung&#x27;)"/>
+            <column name="position" valueNumeric="4"/>
+            <column name="name" value="Brennnesselblätter"/>
+            <column name="quantity" valueNumeric="1"/>
+            <column name="unit" value="TL"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastentee-Mischung&#x27;)"/>
+            <column name="position" valueNumeric="5"/>
+            <column name="name" value="Wasser"/>
+            <column name="quantity" valueNumeric="1"/>
+            <column name="unit" value="l"/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastentee-Mischung&#x27;)"/>
+            <column name="position" valueNumeric="1"/>
+            <column name="instruction" value="Kräuter mischen und in eine Teekanne geben."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastentee-Mischung&#x27;)"/>
+            <column name="position" valueNumeric="2"/>
+            <column name="instruction" value="Mit einem Liter kochendem Wasser übergießen."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastentee-Mischung&#x27;)"/>
+            <column name="position" valueNumeric="3"/>
+            <column name="instruction" value="Acht bis zehn Minuten zugedeckt ziehen lassen, dann abseihen."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastentee-Mischung&#x27;)"/>
+            <column name="position" valueNumeric="4"/>
+            <column name="instruction" value="Ungesüßt über den Tag verteilt warm trinken."/>
+        </insert>
+
+        <!-- Buchinger Fastenbrühe -->
+        <insert tableName="recipe">
+            <column name="title" value="Buchinger Fastenbrühe"/>
+            <column name="description" value="Klassisches Buchinger-Heilfasten – die zentrale warme Mahlzeit der Fastentage. Ohne Kartoffeln (Kohlenhydrate) sowie ohne Zwiebeln, Kohl und Hülsenfrüchte, die blähend wirken."/>
+            <column name="servings" valueNumeric="4"/>
+            <column name="prep_time_minutes" valueNumeric="45"/>
+            <column name="difficulty" value="EASY"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Buchinger Fastenbrühe&#x27;)"/>
+            <column name="position" valueNumeric="1"/>
+            <column name="name" value="Karotten"/>
+            <column name="quantity" valueNumeric="200"/>
+            <column name="unit" value="g"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Buchinger Fastenbrühe&#x27;)"/>
+            <column name="position" valueNumeric="2"/>
+            <column name="name" value="Knollensellerie"/>
+            <column name="quantity" valueNumeric="150"/>
+            <column name="unit" value="g"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Buchinger Fastenbrühe&#x27;)"/>
+            <column name="position" valueNumeric="3"/>
+            <column name="name" value="Fenchel"/>
+            <column name="quantity" valueNumeric="150"/>
+            <column name="unit" value="g"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Buchinger Fastenbrühe&#x27;)"/>
+            <column name="position" valueNumeric="4"/>
+            <column name="name" value="Pastinake"/>
+            <column name="quantity" valueNumeric="100"/>
+            <column name="unit" value="g"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Buchinger Fastenbrühe&#x27;)"/>
+            <column name="position" valueNumeric="5"/>
+            <column name="name" value="Zucchini"/>
+            <column name="quantity" valueNumeric="100"/>
+            <column name="unit" value="g"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Buchinger Fastenbrühe&#x27;)"/>
+            <column name="position" valueNumeric="6"/>
+            <column name="name" value="Lorbeerblatt"/>
+            <column name="quantity" valueNumeric="1"/>
+            <column name="unit" value="Stk"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Buchinger Fastenbrühe&#x27;)"/>
+            <column name="position" valueNumeric="7"/>
+            <column name="name" value="Petersilie"/>
+            <column name="quantity" valueNumeric="1"/>
+            <column name="unit" value="Bund"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Buchinger Fastenbrühe&#x27;)"/>
+            <column name="position" valueNumeric="8"/>
+            <column name="name" value="Wasser"/>
+            <column name="quantity" valueNumeric="1.5"/>
+            <column name="unit" value="l"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Buchinger Fastenbrühe&#x27;)"/>
+            <column name="position" valueNumeric="9"/>
+            <column name="name" value="Meersalz"/>
+            <column name="quantity" valueNumeric="1"/>
+            <column name="unit" value="Prise"/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Buchinger Fastenbrühe&#x27;)"/>
+            <column name="position" valueNumeric="1"/>
+            <column name="instruction" value="Gemüse gründlich waschen und klein würfeln, nicht schälen."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Buchinger Fastenbrühe&#x27;)"/>
+            <column name="position" valueNumeric="2"/>
+            <column name="instruction" value="Mit dem Wasser aufsetzen, Lorbeerblatt zugeben."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Buchinger Fastenbrühe&#x27;)"/>
+            <column name="position" valueNumeric="3"/>
+            <column name="instruction" value="Bei kleinster Hitze 40 Minuten leise köcheln lassen."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Buchinger Fastenbrühe&#x27;)"/>
+            <column name="position" valueNumeric="4"/>
+            <column name="instruction" value="Durch ein Sieb abgießen, das Gemüse dabei gut ausdrücken."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Buchinger Fastenbrühe&#x27;)"/>
+            <column name="position" valueNumeric="5"/>
+            <column name="instruction" value="Nur die klare Brühe verwenden, sparsam salzen und schluckweise warm trinken."/>
+        </insert>
+
+        <!-- Fastensuppe mit passiertem Gemüse -->
+        <insert tableName="recipe">
+            <column name="title" value="Fastensuppe mit passiertem Gemüse"/>
+            <column name="description" value="Klassisches Buchinger-Heilfasten. Abwechslung zur klaren Brühe an den Fastentagen: das Gemüse wird mitpüriert statt abgeseiht."/>
+            <column name="servings" valueNumeric="2"/>
+            <column name="prep_time_minutes" valueNumeric="40"/>
+            <column name="difficulty" value="EASY"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastensuppe mit passiertem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="1"/>
+            <column name="name" value="Karotten"/>
+            <column name="quantity" valueNumeric="150"/>
+            <column name="unit" value="g"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastensuppe mit passiertem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="2"/>
+            <column name="name" value="Fenchel"/>
+            <column name="quantity" valueNumeric="100"/>
+            <column name="unit" value="g"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastensuppe mit passiertem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="3"/>
+            <column name="name" value="Zucchini"/>
+            <column name="quantity" valueNumeric="100"/>
+            <column name="unit" value="g"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastensuppe mit passiertem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="4"/>
+            <column name="name" value="Petersilienwurzel"/>
+            <column name="quantity" valueNumeric="80"/>
+            <column name="unit" value="g"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastensuppe mit passiertem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="5"/>
+            <column name="name" value="Wasser"/>
+            <column name="quantity" valueNumeric="800"/>
+            <column name="unit" value="ml"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastensuppe mit passiertem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="6"/>
+            <column name="name" value="Muskatnuss"/>
+            <column name="quantity" valueNumeric="1"/>
+            <column name="unit" value="Prise"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastensuppe mit passiertem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="7"/>
+            <column name="name" value="Liebstöckel"/>
+            <column name="quantity" valueNumeric="2"/>
+            <column name="unit" value="Zweige"/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastensuppe mit passiertem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="1"/>
+            <column name="instruction" value="Gemüse waschen und in gleich große Stücke schneiden."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastensuppe mit passiertem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="2"/>
+            <column name="instruction" value="In dem Wasser 25 Minuten weich kochen."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastensuppe mit passiertem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="3"/>
+            <column name="instruction" value="Liebstöckel entfernen und die Suppe fein pürieren."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastensuppe mit passiertem Gemüse&#x27;)"/>
+            <column name="position" valueNumeric="4"/>
+            <column name="instruction" value="Mit Muskatnuss abschmecken und lauwarm löffeln."/>
+        </insert>
+
+        <!-- Fastenbrechen: Gedünsteter Apfel -->
+        <insert tableName="recipe">
+            <column name="title" value="Fastenbrechen: Gedünsteter Apfel"/>
+            <column name="description" value="Klassisches Buchinger-Heilfasten – das Fastenbrechen. Traditionell wird die Fastenzeit mit einem Apfel beendet; gedünstet ist er magenschonender als roh."/>
+            <column name="servings" valueNumeric="1"/>
+            <column name="prep_time_minutes" valueNumeric="15"/>
+            <column name="difficulty" value="EASY"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastenbrechen: Gedünsteter Apfel&#x27;)"/>
+            <column name="position" valueNumeric="1"/>
+            <column name="name" value="Apfel"/>
+            <column name="quantity" valueNumeric="1"/>
+            <column name="unit" value="Stk"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastenbrechen: Gedünsteter Apfel&#x27;)"/>
+            <column name="position" valueNumeric="2"/>
+            <column name="name" value="Wasser"/>
+            <column name="quantity" valueNumeric="50"/>
+            <column name="unit" value="ml"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastenbrechen: Gedünsteter Apfel&#x27;)"/>
+            <column name="position" valueNumeric="3"/>
+            <column name="name" value="Zimt"/>
+            <column name="quantity" valueNumeric="1"/>
+            <column name="unit" value="Prise"/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastenbrechen: Gedünsteter Apfel&#x27;)"/>
+            <column name="position" valueNumeric="1"/>
+            <column name="instruction" value="Apfel waschen, vierteln und das Kerngehäuse entfernen."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastenbrechen: Gedünsteter Apfel&#x27;)"/>
+            <column name="position" valueNumeric="2"/>
+            <column name="instruction" value="Mit dem Wasser zugedeckt acht bis zehn Minuten weich dünsten."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastenbrechen: Gedünsteter Apfel&#x27;)"/>
+            <column name="position" valueNumeric="3"/>
+            <column name="instruction" value="Mit Zimt bestreuen und lauwarm essen."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Fastenbrechen: Gedünsteter Apfel&#x27;)"/>
+            <column name="position" valueNumeric="4"/>
+            <column name="instruction" value="Sehr langsam essen und gründlich kauen – der Magen ist entwöhnt."/>
+        </insert>
+
+        <!-- Aufbautag: Kartoffel-Gemüse-Suppe -->
+        <insert tableName="recipe">
+            <column name="title" value="Aufbautag: Kartoffel-Gemüse-Suppe"/>
+            <column name="description" value="Klassisches Buchinger-Heilfasten – Aufbautag nach dem Fastenbrechen. Die Kostaufbau-Tage führen die Verdauung schrittweise an normale Mahlzeiten heran."/>
+            <column name="servings" valueNumeric="2"/>
+            <column name="prep_time_minutes" valueNumeric="40"/>
+            <column name="difficulty" value="MEDIUM"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Aufbautag: Kartoffel-Gemüse-Suppe&#x27;)"/>
+            <column name="position" valueNumeric="1"/>
+            <column name="name" value="Kartoffeln"/>
+            <column name="quantity" valueNumeric="300"/>
+            <column name="unit" value="g"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Aufbautag: Kartoffel-Gemüse-Suppe&#x27;)"/>
+            <column name="position" valueNumeric="2"/>
+            <column name="name" value="Karotten"/>
+            <column name="quantity" valueNumeric="150"/>
+            <column name="unit" value="g"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Aufbautag: Kartoffel-Gemüse-Suppe&#x27;)"/>
+            <column name="position" valueNumeric="3"/>
+            <column name="name" value="Lauch"/>
+            <column name="quantity" valueNumeric="80"/>
+            <column name="unit" value="g"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Aufbautag: Kartoffel-Gemüse-Suppe&#x27;)"/>
+            <column name="position" valueNumeric="4"/>
+            <column name="name" value="Gemüsebrühe"/>
+            <column name="quantity" valueNumeric="700"/>
+            <column name="unit" value="ml"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Aufbautag: Kartoffel-Gemüse-Suppe&#x27;)"/>
+            <column name="position" valueNumeric="5"/>
+            <column name="name" value="Leinöl"/>
+            <column name="quantity" valueNumeric="1"/>
+            <column name="unit" value="TL"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Aufbautag: Kartoffel-Gemüse-Suppe&#x27;)"/>
+            <column name="position" valueNumeric="6"/>
+            <column name="name" value="Schnittlauch"/>
+            <column name="quantity" valueNumeric="0.5"/>
+            <column name="unit" value="Bund"/>
+        </insert>
+        <insert tableName="ingredient">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Aufbautag: Kartoffel-Gemüse-Suppe&#x27;)"/>
+            <column name="position" valueNumeric="7"/>
+            <column name="name" value="Kümmel"/>
+            <column name="quantity" valueNumeric="1"/>
+            <column name="unit" value="Prise"/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Aufbautag: Kartoffel-Gemüse-Suppe&#x27;)"/>
+            <column name="position" valueNumeric="1"/>
+            <column name="instruction" value="Kartoffeln schälen, Karotten und Lauch putzen, alles klein schneiden."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Aufbautag: Kartoffel-Gemüse-Suppe&#x27;)"/>
+            <column name="position" valueNumeric="2"/>
+            <column name="instruction" value="In der Gemüsebrühe mit Kümmel 20 Minuten weich kochen."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Aufbautag: Kartoffel-Gemüse-Suppe&#x27;)"/>
+            <column name="position" valueNumeric="3"/>
+            <column name="instruction" value="Etwa die Hälfte pürieren, damit die Suppe sämig wird."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Aufbautag: Kartoffel-Gemüse-Suppe&#x27;)"/>
+            <column name="position" valueNumeric="4"/>
+            <column name="instruction" value="Mit Leinöl verfeinern und mit Schnittlauch bestreut servieren."/>
+        </insert>
+        <insert tableName="preparation_step">
+            <column name="recipe_id" valueComputed="(SELECT &quot;id&quot; FROM &quot;recipe&quot; WHERE &quot;title&quot; = &#x27;Aufbautag: Kartoffel-Gemüse-Suppe&#x27;)"/>
+            <column name="position" valueNumeric="5"/>
+            <column name="instruction" value="In kleinen Portionen essen und über den Tag verteilen."/>
+        </insert>
+
+    </changeSet>
+</databaseChangeLog>

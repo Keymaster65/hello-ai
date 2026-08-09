@@ -6,6 +6,46 @@ Datum: 2026-07-19
 
 ---
 
+## 42. Prompt: „commit" / „Ja, so committen"
+
+**Aktionen:**
+- Vorbedingung erfüllt: `gradle clean build` grün, `systemtest` 13/13, `e2eTest` 7/7 –
+  jeweils gegen eine frisch migrierte Datenbank mit den Seed-Daten.
+- Beim Vorlegen der Message ausdrücklich vermerkt, dass der Commit **keine** Zuschreibung
+  an Michalsen enthält; die Rezepte sind durchgängig als Buchinger-Heilfasten ausgewiesen.
+- Diesen Eintrag zuerst ergänzt, dann committet (Author = Claude):
+  `Seed the Buchinger fasting recipes via Liquibase`.
+
+---
+
+## 41. Prompt: „Ergänze die Rezepte von Prof. Dr. Andreas Michalsen zum Heilfasten" / „Leg sie als Liquibase-Changeset an"
+
+**Aktionen:**
+- Recherchiert: Zu Michalsen persönlich sind **keine** Rezepte öffentlich belegbar; sie stehen
+  in seinen urheberrechtlich geschützten Büchern. Rezepte zu erfinden und ihm zuzuschreiben
+  wäre eine Falschzuschreibung, die dauerhaft in der Datenbank stünde. Deshalb bewusst das
+  **klassische Buchinger-Heilfasten** angelegt – die Methode, die Michalsen am Immanuel
+  Krankenhaus klinisch einsetzt – und die Herkunft in jeder Beschreibung benannt.
+- Sechs Rezepte als kompletter Zyklus: Entlastungstag, Fastentee, Fastenbrühe, Fastensuppe,
+  Fastenbrechen, Aufbautag (38 Zutaten, 27 Schritte). Fachliches Detail aus der Recherche:
+  die Fastenbrühe enthält bewusst keine Kartoffeln sowie keine Zwiebeln/Kohl/Hülsenfrüchte.
+- Auf Wunsch als Liquibase-Changeset `0002-seed-fasting-recipes.xml` verankert:
+  - `id` ist `GENERATED ALWAYS`, explizite IDs sind also nicht einfügbar – Kindzeilen
+    referenzieren ihr Rezept über einen Subselect auf den (eindeutigen) Titel.
+  - `objectQuotingStrategy="QUOTE_ALL_OBJECTS"` wie in 0001 (ADR 0004); Bezeichner im
+    Subselect explizit gequotet, damit es in PostgreSQL **und** im H2 des Codegens läuft.
+  - Precondition `onFail="MARK_RAN"` mit `SELECT COUNT(*) FROM "recipe" = 0`: befüllt nur
+    eine leere Datenbank, dupliziert nie in eine bestehende.
+  - `context="seed"` – ohne Runtime-Context läuft es, ein Deployment kann es per
+    `SPRING_LIQUIBASE_CONTEXTS` abwählen.
+  - XML skriptgesteuert aus den bereits angelegten Datensätzen erzeugt statt von Hand.
+- Verifiziert: `generateJooq` läuft mit den Inserts im H2 durch, frische PostgreSQL wird beim
+  Start korrekt befüllt (IDs 1–6, Reihenfolge und Mengen stimmen), `gradle clean build` grün,
+  `systemtest` 13/13, `e2eTest` 7/7 – die Tests vertragen den Vorbestand.
+- README um den Datenbank-Abschnitt zum Seed inkl. Abwahl-Hinweis ergänzt.
+
+---
+
 ## 40. Prompt: „commit" / „Ja, so committen"
 
 **Aktionen:**

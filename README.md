@@ -110,6 +110,16 @@ Drei Tabellen (`recipe`, `ingredient`, `preparation_step`), verwaltet über
 Liquibase-Changelogs in `src/main/resources/db/changelog`. Zutaten und Schritte
 werden mit `ON DELETE CASCADE` an das Rezept gebunden.
 
+Changeset `0002-seed-fasting-recipes` befüllt eine **leere** Datenbank mit dem
+klassischen Buchinger-Heilfastenzyklus (Entlastungstag, Fastentee, Fastenbrühe,
+Fastensuppe, Fastenbrechen, Aufbautag). Eine Precondition verhindert doppelte
+Einträge in einer bereits befüllten Datenbank. Das Changeset trägt den Context
+`seed` und lässt sich beim Deployment abwählen:
+
+```bash
+SPRING_LIQUIBASE_CONTEXTS=prod   # Schema ja, Beispieldaten nein
+```
+
 Konfiguration über Umgebungsvariablen (Defaults für lokale Entwicklung):
 `DB_URL`, `DB_USERNAME`, `DB_PASSWORD` – siehe `application.yml`.
 
