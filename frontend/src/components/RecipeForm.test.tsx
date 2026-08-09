@@ -92,7 +92,7 @@ describe('RecipeForm', () => {
   })
 
   it('should show a general alert when the backend reports no field errors', () => {
-    renderForm({ apiError: new ApiError(500, { message: 'Boom' }) })
+    renderForm({ apiError: new ApiError(500, undefined, 'Boom') })
 
     expect(screen.getByRole('alert')).toHaveTextContent('Boom')
   })

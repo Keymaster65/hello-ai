@@ -39,7 +39,7 @@ export function App() {
     setSubmitError(null)
     try {
       if (view.mode === 'edit') {
-        await recipeApi.update(view.recipe.id!, request)
+        await recipeApi.update(view.recipe.id, request)
       } else {
         await recipeApi.create(request)
       }
@@ -47,7 +47,9 @@ export function App() {
       await reload()
     } catch (cause: unknown) {
       setSubmitError(
-        cause instanceof ApiError ? cause : new ApiError(0, { message: 'Speichern fehlgeschlagen.' }),
+        cause instanceof ApiError
+          ? cause
+          : new ApiError(0, undefined, 'Speichern fehlgeschlagen.'),
       )
     } finally {
       setSubmitting(false)
@@ -59,7 +61,7 @@ export function App() {
       return
     }
     try {
-      await recipeApi.remove(recipe.id!)
+      await recipeApi.remove(recipe.id)
       await reload()
     } catch {
       setLoadError('Das Rezept konnte nicht gelöscht werden.')

@@ -119,19 +119,19 @@ export interface components {
              * @description HTTP status code
              * @example 404
              */
-            status?: number;
+            status: number;
             /**
              * @description Short, machine-readable error label
              * @example NOT_FOUND
              */
-            error?: string;
+            error: string;
             /**
              * @description Human-readable description
              * @example Recipe 42 not found
              */
-            message?: string;
+            message: string;
             /** @description Per-field validation errors; empty unless a validation failed */
-            fieldErrors?: components["schemas"]["FieldError"][];
+            fieldErrors: components["schemas"]["FieldError"][];
         };
         /** @description A single field-level validation error */
         FieldError: {
@@ -139,12 +139,12 @@ export interface components {
              * @description Name of the offending field
              * @example title
              */
-            field?: string;
+            field: string;
             /**
              * @description Validation message
              * @example must not be blank
              */
-            message?: string;
+            message: string;
         };
         /** @description A preparation step including its resolved order */
         PreparationStepResponse: {
@@ -153,12 +153,12 @@ export interface components {
              * @description 1-based order of the step
              * @example 1
              */
-            position?: number;
+            position: number;
             /**
              * @description Textual instruction
              * @example Boil the pasta
              */
-            instruction?: string;
+            instruction: string;
         };
         /** @description A persisted recipe */
         RecipeResponse: {
@@ -167,12 +167,12 @@ export interface components {
              * @description Database identifier
              * @example 1
              */
-            id?: number;
+            id: number;
             /**
              * @description Title of the recipe
              * @example Spaghetti Carbonara
              */
-            title?: string;
+            title: string;
             /**
              * @description Free-text description
              * @example Classic Roman pasta
@@ -195,11 +195,11 @@ export interface components {
              * @example MEDIUM
              * @enum {string}
              */
-            difficulty?: "EASY" | "MEDIUM" | "HARD";
+            difficulty: "EASY" | "MEDIUM" | "HARD";
             /** @description Ingredients of the recipe */
-            ingredients?: components["schemas"]["Ingredient"][];
+            ingredients: components["schemas"]["Ingredient"][];
             /** @description Preparation steps in ascending order */
-            steps?: components["schemas"]["PreparationStepResponse"][];
+            steps: components["schemas"]["PreparationStepResponse"][];
         };
     };
     responses: never;

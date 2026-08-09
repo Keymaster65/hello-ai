@@ -6,6 +6,45 @@ Datum: 2026-07-19
 
 ---
 
+## 30. Prompt: „Starte die App" / „Comit"
+
+**Aktionen:**
+- App aus dem Boot-Jar auf Port 8080 gestartet; `/` liefert die SPA, `/api/recipes` 200,
+  `/swagger-ui.html` 302. Vite-Dev-Server lief parallel auf 5173 weiter.
+- Beobachtet: Datenbestand hatte sich gegenüber dem Seeding verändert (Anlegen und
+  Löschen über die UI funktionieren bis in die PostgreSQL durch).
+- „Comit" als Bestätigung der zuvor vorgelegten Message gewertet; Arbeitsstand seit
+  dem grünen Lauf unverändert (nur App gestartet, keine Dateiänderung).
+- Diesen Eintrag zuerst ergänzt, dann die 15 Dateien committet (Author = Claude):
+  `Mark guaranteed response fields as required`.
+
+---
+
+## 29. Prompt: „Vorschlag: Ergänze @Schema(requiredMode = REQUIRED) an den Response-Records" (+ Zwischenruf „Commit")
+
+**Aktionen:**
+- Anhand des Domänenmodells geprüft, welche Felder wirklich garantiert sind
+  (`Recipe`-Konstruktor erzwingt `title`/`difficulty`, defaultet `ingredients`/`steps`
+  auf leere Listen). Nur diese als `REQUIRED` markiert:
+  - `RecipeResponse`: `id`, `title`, `difficulty`, `ingredients`, `steps`
+    (`description`, `servings`, `prepTimeMinutes` bleiben optional – echte Nullables).
+  - `PreparationStepResponse`: beide Felder. `ErrorResponse` und `FieldError`: alle Felder.
+- `IngredientDto` und `PreparationStepDto` bewusst **nicht** angefasst: sie werden von
+  Request **und** Response geteilt; dort ist `quantity`/`unit` in beide Richtungen optional.
+- Systemtest `shouldMarkGuaranteedResponseFieldsAsRequired` ergänzt – prüft sowohl die neuen
+  Pflichtfelder als auch, dass die Nullables optional bleiben.
+- Frontend nachgezogen: Typen neu generiert (`id: number` statt `id?: number`), die dadurch
+  überflüssigen `!`-Assertions und `?.`-Absicherungen entfernt, `ApiError` um einen
+  optionalen Message-Parameter erweitert (synthetische Fehler brauchen kein Fake-Payload).
+- Der schärfere Contract deckte prompt zwei unvollständige Test-Fixtures in
+  `RecipeList.test.tsx` auf (fehlende `ingredients`/`steps`) – behoben.
+- Zwischenruf „Commit" beantwortet: nicht committet, weil das Frontend zu dem Zeitpunkt
+  noch nicht compilierte; erst nach grünem Lauf.
+- Verifiziert: `tsc --noEmit` sauber, 24 Vitest grün, `gradle clean build` grün,
+  `gradle systemtest` 13/13 grün. README und ADR 0007 aktualisiert.
+
+---
+
 ## 28. Prompt: „Commit" / „Ja, so committen"
 
 **Aktionen:**

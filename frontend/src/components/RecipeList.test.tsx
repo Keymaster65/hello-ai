@@ -12,8 +12,10 @@ const recipes: Recipe[] = [
     servings: 2,
     prepTimeMinutes: 15,
     difficulty: 'EASY',
+    ingredients: [],
+    steps: [],
   },
-  { id: 2, title: 'Carbonara', difficulty: 'MEDIUM' },
+  { id: 2, title: 'Carbonara', difficulty: 'MEDIUM', ingredients: [], steps: [] },
 ]
 
 function renderList(overrides: Partial<Parameters<typeof RecipeList>[0]> = {}) {

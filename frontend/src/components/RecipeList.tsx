@@ -17,7 +17,7 @@ export function RecipeList({ recipes, onOpen, onEdit, onDelete }: RecipeListProp
       {recipes.map((recipe) => (
         <li key={recipe.id} className="recipe-card">
           <div className="recipe-card__main">
-            <button type="button" className="link" onClick={() => onOpen(recipe.id!)}>
+            <button type="button" className="link" onClick={() => onOpen(recipe.id)}>
               {recipe.title}
             </button>
             {recipe.description && <p className="muted">{recipe.description}</p>}

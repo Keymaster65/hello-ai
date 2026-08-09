@@ -53,9 +53,10 @@ Die TypeScript-Typen stammen aus dem OpenAPI-Contract und liegen eingecheckt in
 cd frontend && npm run generate:api   # benötigt ein laufendes Backend auf :8080
 ```
 
-> **Hinweis:** Im Contract sind die Felder der Response-DTOs sämtlich optional,
-> weil springdoc `required` nur aus der Bean-Validation ableitet und die auf
-> Responses nicht greift. Im Frontend müssen sie daher abgesichert werden.
+Die Response-DTOs markieren die vom Domänenmodell garantierten Felder mit
+`@Schema(requiredMode = REQUIRED)`. Dadurch typisiert der Generator sie als
+nicht-optional (`id: number` statt `id?: number`), während echte Nullable-Felder
+(`description`, `servings`, `prepTimeMinutes`) optional bleiben.
 
 ## REST-API
 

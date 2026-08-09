@@ -13,10 +13,14 @@ import java.util.List;
  */
 @Schema(name = "ErrorResponse", description = "Uniform error payload")
 public record ErrorResponse(
-        @Schema(description = "HTTP status code", example = "404") int status,
-        @Schema(description = "Short, machine-readable error label", example = "NOT_FOUND") String error,
-        @Schema(description = "Human-readable description", example = "Recipe 42 not found") String message,
-        @Schema(description = "Per-field validation errors; empty unless a validation failed")
+        @Schema(description = "HTTP status code", example = "404",
+                requiredMode = Schema.RequiredMode.REQUIRED) int status,
+        @Schema(description = "Short, machine-readable error label", example = "NOT_FOUND",
+                requiredMode = Schema.RequiredMode.REQUIRED) String error,
+        @Schema(description = "Human-readable description", example = "Recipe 42 not found",
+                requiredMode = Schema.RequiredMode.REQUIRED) String message,
+        @Schema(description = "Per-field validation errors; empty unless a validation failed",
+                requiredMode = Schema.RequiredMode.REQUIRED)
         List<FieldError> fieldErrors) {
 
     public static ErrorResponse of(int status, String error, String message) {
@@ -31,7 +35,9 @@ public record ErrorResponse(
      */
     @Schema(name = "FieldError", description = "A single field-level validation error")
     public record FieldError(
-            @Schema(description = "Name of the offending field", example = "title") String field,
-            @Schema(description = "Validation message", example = "must not be blank") String message) {
+            @Schema(description = "Name of the offending field", example = "title",
+                    requiredMode = Schema.RequiredMode.REQUIRED) String field,
+            @Schema(description = "Validation message", example = "must not be blank",
+                    requiredMode = Schema.RequiredMode.REQUIRED) String message) {
     }
 }

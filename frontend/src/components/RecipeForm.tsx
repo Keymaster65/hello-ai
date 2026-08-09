@@ -35,9 +35,8 @@ function toFormState(recipe?: Recipe): FormState {
     servings: recipe?.servings?.toString() ?? '',
     prepTimeMinutes: recipe?.prepTimeMinutes?.toString() ?? '',
     difficulty: recipe?.difficulty ?? 'MEDIUM',
-    ingredients: recipe?.ingredients?.map((i) => ({ ...i })) ?? [],
-    // Response fields are optional in the generated contract (see README): default them here.
-    steps: recipe?.steps?.map((step) => ({ instruction: step.instruction ?? '' })) ?? [],
+    ingredients: recipe?.ingredients.map((i) => ({ ...i })) ?? [],
+    steps: recipe?.steps.map((step) => ({ instruction: step.instruction })) ?? [],
   }
 }
 
@@ -84,7 +83,7 @@ export function RecipeForm({ initial, submitting, apiError, onSubmit, onCancel }
     <form onSubmit={handleSubmit} className="recipe-form" noValidate>
       <h2>{initial ? 'Rezept bearbeiten' : 'Neues Rezept'}</h2>
 
-      {apiError && !apiError.payload?.fieldErrors?.length && (
+      {apiError && !apiError.payload?.fieldErrors.length && (
         <p role="alert" className="error">
           {apiError.message}
         </p>

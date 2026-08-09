@@ -73,6 +73,24 @@ class SwaggerSystemTest {
     }
 
     @Test
+    void shouldMarkGuaranteedResponseFieldsAsRequired() {
+        JsonNode schemas = HttpProbe.getJson(API_DOCS).path("components").path("schemas");
+
+        // Guaranteed by the domain model, so generated clients may type them as non-optional.
+        assertThat(requiredOf(schemas, "RecipeResponse")).containsExactlyInAnyOrder(
+                "id", "title", "difficulty", "ingredients", "steps");
+        assertThat(requiredOf(schemas, "PreparationStepResponse"))
+                .containsExactlyInAnyOrder("position", "instruction");
+        assertThat(requiredOf(schemas, "ErrorResponse"))
+                .containsExactlyInAnyOrder("status", "error", "message", "fieldErrors");
+        assertThat(requiredOf(schemas, "FieldError")).containsExactlyInAnyOrder("field", "message");
+
+        // Nullable in the domain – must stay optional so the contract does not overpromise.
+        assertThat(requiredOf(schemas, "RecipeResponse"))
+                .doesNotContain("description", "servings", "prepTimeMinutes");
+    }
+
+    @Test
     void shouldServeOpenApiDocumentAsYaml() {
         HttpResponse<String> response = HttpProbe.get(API_DOCS + ".yaml");
 
@@ -148,5 +166,9 @@ class SwaggerSystemTest {
 
     private static List<String> responseCodes(JsonNode paths, String path, String method) {
         return List.copyOf(paths.path(path).path(method).path("responses").propertyNames());
+    }
+
+    private static List<String> requiredOf(JsonNode schemas, String schema) {
+        return schemas.path(schema).path("required").valueStream().map(JsonNode::asString).toList();
     }
 }

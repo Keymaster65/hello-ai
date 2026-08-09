@@ -66,7 +66,7 @@ export function RecipeDetail({ id, onBack, onEdit }: RecipeDetailProps) {
       </p>
 
       <h3>Zutaten</h3>
-      {recipe.ingredients && recipe.ingredients.length > 0 ? (
+      {recipe.ingredients.length > 0 ? (
         <ul>
           {recipe.ingredients.map((ingredient, index) => (
             <li key={`${ingredient.name}-${index}`}>
@@ -79,7 +79,7 @@ export function RecipeDetail({ id, onBack, onEdit }: RecipeDetailProps) {
       )}
 
       <h3>Zubereitung</h3>
-      {recipe.steps && recipe.steps.length > 0 ? (
+      {recipe.steps.length > 0 ? (
         <ol>
           {recipe.steps.map((step) => (
             <li key={step.position}>{step.instruction}</li>

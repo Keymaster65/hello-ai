@@ -18,8 +18,8 @@ export class ApiError extends Error {
   readonly status: number
   readonly payload: ErrorResponse | undefined
 
-  constructor(status: number, payload?: ErrorResponse) {
-    super(payload?.message ?? `Request failed with status ${status}`)
+  constructor(status: number, payload?: ErrorResponse, message?: string) {
+    super(message ?? payload?.message ?? `Request failed with status ${status}`)
     this.name = 'ApiError'
     this.status = status
     this.payload = payload
@@ -27,7 +27,7 @@ export class ApiError extends Error {
 
   /** Validation message for a single field, if the backend reported one. */
   fieldError(field: string): string | undefined {
-    return this.payload?.fieldErrors?.find((error) => error.field === field)?.message ?? undefined
+    return this.payload?.fieldErrors.find((error) => error.field === field)?.message
   }
 
   get isNotFound(): boolean {
