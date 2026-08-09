@@ -19,22 +19,25 @@ beides wird als **ein** Artefakt aus derselben Origin ausgeliefert.
 
 ## Projektstruktur
 
-Gradle-Multiprojekt mit **einem Modul je Schicht** – die Abhängigkeitsrichtung ist damit
-vom Build erzwungen, nicht nur dokumentiert
-(siehe [ADR 0013](docs/adr/0013-ein-gradle-modul-je-schicht.md)):
+Gradle-Multiprojekt mit **einem Modul je Schicht**, gruppiert unter `:backend` – die
+Abhängigkeitsrichtung ist damit vom Build erzwungen, nicht nur dokumentiert
+(siehe [ADR 0013](docs/adr/0013-ein-gradle-modul-je-schicht.md) und
+[ADR 0014](docs/adr/0014-schichtmodule-unter-backend.md)):
 
 ```
-:bootstrap  →  :adapter  →  :application  →  :domain
+:backend:bootstrap  →  :backend:adapter  →  :backend:application  →  :backend:domain
 ```
 
 ```
 recipe-backend/
-├── build.gradle.kts        Root – gemeinsame Konfiguration, keine Quellen
+├── build.gradle.kts        nur Plugin-Deklarationen (apply false)
 ├── settings.gradle.kts
-├── domain/                 Domänenmodell – ohne jede Produktionsabhängigkeit
-├── application/            Use Cases, Ports, Geschäftslogik
-├── adapter/                REST + jOOQ, Liquibase-Changelog, jOOQ-Codegen
-├── bootstrap/              Spring-Boot-Einstieg, application.yml, Boot-Jar,
+├── backend/
+│   ├── build.gradle.kts    gemeinsame Konfiguration der Schichten
+│   ├── domain/             Domänenmodell – ohne jede Produktionsabhängigkeit
+│   ├── application/        Use Cases, Ports, Geschäftslogik
+│   ├── adapter/            REST + jOOQ, Liquibase-Changelog, jOOQ-Codegen
+│   └── bootstrap/          Spring-Boot-Einstieg, application.yml, Boot-Jar,
 │                           Frontend-Einbindung, Systemtests
 ├── frontend/               React/Vite, wird ins Boot-Jar gepackt
 └── docs/adr/               Architekturentscheidungen
@@ -43,19 +46,19 @@ recipe-backend/
 Ein Modul sieht nur, was es deklariert: Ein Import aus einer äußeren Schicht **compiliert
 nicht**. Die gewohnten Befehle bleiben unverändert, weil Gradle einen Task-Namen an jedes
 Modul weiterleitet, das ihn kennt. Das Artefakt liegt in
-`bootstrap/build/libs/recipe-backend-<version>.jar`.
+`backend/bootstrap/build/libs/recipe-backend-<version>.jar`.
 
 ## Architektur
 Hexagonal / Clean Architecture (`io.github.keymaster65.helloai`, ein Modul je Schicht):
 
-| Modul          | Package                     | Verantwortung                                   |
-|----------------|-----------------------------|-------------------------------------------------|
-| `:adapter`     | `adapter.in.rest`           | REST-Controller, DTOs, Mapper, Fehlerbehandlung |
-| `:adapter`     | `adapter.out.persistence`   | jOOQ-Repository (+ generierter jOOQ-Code)       |
-| `:application` | `application.port.in/out`   | Use-Case- und Repository-Interfaces (Ports)     |
-| `:application` | `application.service`       | Geschäftslogik                                  |
-| `:domain`      | `domain`                    | Domänenmodell (Records)                         |
-| `:bootstrap`   | `bootstrap`                 | Spring-Boot-Einstiegspunkt                      |
+| Modul                  | Package                   | Verantwortung                                   |
+|------------------------|---------------------------|-------------------------------------------------|
+| `:backend:adapter`     | `adapter.in.rest`         | REST-Controller, DTOs, Mapper, Fehlerbehandlung |
+| `:backend:adapter`     | `adapter.out.persistence` | jOOQ-Repository (+ generierter jOOQ-Code)       |
+| `:backend:application` | `application.port.in/out` | Use-Case- und Repository-Interfaces (Ports)     |
+| `:backend:application` | `application.service`     | Geschäftslogik                                  |
+| `:backend:domain`      | `domain`                  | Domänenmodell (Records)                         |
+| `:backend:bootstrap`   | `bootstrap`               | Spring-Boot-Einstiegspunkt                      |
 
 Der jOOQ-Code wird beim Build aus dem Liquibase-Changelog generiert
 (`org.jooq.meta.extensions.liquibase.LiquibaseDatabase`) – es wird dafür **keine
@@ -72,7 +75,7 @@ Origin aus: kein CORS, ein Deployable. Siehe
 | Modus       | URL                     | Womit                                        |
 |-------------|-------------------------|----------------------------------------------|
 | Entwicklung | <http://localhost:5173> | `npm run dev` (proxyt `/api` auf Port 8080)  |
-| Produktion  | <http://localhost:8080> | `java -jar bootstrap/build/libs/recipe-backend-*.jar`  |
+| Produktion  | <http://localhost:8080> | `java -jar backend/bootstrap/build/libs/recipe-backend-*.jar`  |
 
 Die TypeScript-Typen stammen aus dem OpenAPI-Contract und liegen eingecheckt in
 `frontend/src/api/schema.d.ts`. Nach API-Änderungen neu erzeugen:
@@ -135,7 +138,7 @@ Der Contract wird zur Laufzeit aus Controller-Signaturen, Bean-Validation und de
 
 ## Datenbank
 Drei Tabellen (`recipe`, `ingredient`, `preparation_step`), verwaltet über
-Liquibase-Changelogs in `adapter/src/main/resources/db/changelog`. Zutaten und Schritte
+Liquibase-Changelogs in `backend/adapter/src/main/resources/db/changelog`. Zutaten und Schritte
 werden mit `ON DELETE CASCADE` an das Rezept gebunden.
 
 Changeset `0002-seed-fasting-recipes` befüllt eine **leere** Datenbank mit dem
@@ -203,22 +206,22 @@ cd frontend && npm run dev
   (aktualisieren mit `npx playwright test --update-snapshots`). Die **Videos** sind
   Diagnose, kein erwartetes Ergebnis – sie sind nicht reproduzierbar.
 
-  Alle Artefakte liegen unter **`bootstrap/build/e2e/`** und werden damit von `./gradlew clean` mit
+  Alle Artefakte liegen unter **`backend/bootstrap/build/e2e/`** und werden damit von `./gradlew clean` mit
   entfernt:
 
   | Artefakt | Ort | Wann |
   |---|---|---|
-  | **Video der Durchführung** (WebM, 1280×800) | `bootstrap/build/e2e/test-results/<test>/video.webm` | jeder Test, jeder Lauf |
-  | HTML-Report (verlinkt die Videos) | `bootstrap/build/e2e/report/index.html` | jeder Lauf |
-  | Screenshot | `bootstrap/build/e2e/test-results/<test>/` | nur bei Fehlschlag |
-  | Trace | `bootstrap/build/e2e/test-results/<test>/trace.zip` | nur bei Fehlschlag |
+  | **Video der Durchführung** (WebM, 1280×800) | `backend/bootstrap/build/e2e/test-results/<test>/video.webm` | jeder Test, jeder Lauf |
+  | HTML-Report (verlinkt die Videos) | `backend/bootstrap/build/e2e/report/index.html` | jeder Lauf |
+  | Screenshot | `backend/bootstrap/build/e2e/test-results/<test>/` | nur bei Fehlschlag |
+  | Trace | `backend/bootstrap/build/e2e/test-results/<test>/trace.zip` | nur bei Fehlschlag |
 
   ```bash
   cd frontend
-  npx playwright show-report ../bootstrap/build/e2e/report      # Report inkl. eingebetteter Videos
-  npx playwright show-trace ../bootstrap/build/e2e/test-results/<test>/trace.zip
+  npx playwright show-report ../backend/bootstrap/build/e2e/report      # Report inkl. eingebetteter Videos
+  npx playwright show-trace ../backend/bootstrap/build/e2e/test-results/<test>/trace.zip
   ```
-- **System** (`bootstrap/src/systemtest/java`, Task `systemtest`): Black-Box-Tests gegen die
+- **System** (`backend/bootstrap/src/systemtest/java`, Task `systemtest`): Black-Box-Tests gegen die
   **laufende** Anwendung, ausschließlich über HTTP. Ohne `-Psystemtest.baseUrl`
   startet die Suite die Anwendung selbst auf einem freien Port (embedded PostgreSQL),
   mit der Property läuft sie gegen eine deployte Instanz. Siehe

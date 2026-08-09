@@ -63,7 +63,7 @@ lokal installiertes `gradle` – siehe [ADR 0009](docs/adr/0009-gradle-wrapper-v
   (gegen laufende Instanz: `./gradlew systemtest -Psystemtest.baseUrl=http://localhost:8080`)
 - E2E-Tests: `./gradlew e2eTest` – benötigt eine erreichbare PostgreSQL
   (gegen laufende Instanz: `./gradlew e2eTest -Pe2e.baseUrl=http://localhost:8080`)
-  Ergebnisse inkl. Videos jedes Laufs: `bootstrap/build/e2e/` (Report: `bootstrap/build/e2e/report/index.html`)
+  Ergebnisse inkl. Videos jedes Laufs: `backend/bootstrap/build/e2e/` (Report: `backend/bootstrap/build/e2e/report/index.html`)
 
 ## Definition of Done
 - [ ] Code kompiliert (`./gradlew clean build`)

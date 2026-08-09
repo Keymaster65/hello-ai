@@ -17,7 +17,7 @@ testSets {
 
 dependencies {
     // Only the outermost adapter layer; :application and :domain arrive transitively.
-    implementation(project(":adapter"))
+    implementation(project(":backend:adapter"))
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     // Spring Boot 4 provides Liquibase auto-configuration in a dedicated module.

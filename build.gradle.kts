@@ -1,58 +1,15 @@
-import org.springframework.boot.gradle.plugin.SpringBootPlugin
-
-// Root project: no sources of its own. Each layer of the architecture is a module
-// (see ADR 0013):
+// Root project: no sources, no shared configuration – it only aggregates.
 //
-//     :bootstrap  →  :adapter  →  :application  →  :domain
+//   :backend  – die Anwendung, ein Untermodul je Schicht (ADR 0013, ADR 0014)
+//   frontend/ – npm-Projekt, von :backend:bootstrap ins Boot-Jar gepackt
 //
-// The dependency direction is enforced by the build itself: a module simply cannot see
-// what it does not declare. `frontend/` stays an npm project that :bootstrap bundles.
+// Die gemeinsame Konfiguration der Schichtmodule steht in `backend/build.gradle.kts`,
+// also dort, wo sie gilt. Hier stehen nur die Plugins, die auf dem Buildscript-Classpath
+// verfügbar sein müssen; angewendet werden sie in den Modulen.
 //
-// The Spring Boot plugin is only applied in :bootstrap (it is what produces the Boot jar);
-// its BOM is imported everywhere so that every module resolves the same versions.
+// Die gewohnten Kommandos funktionieren unverändert, weil Gradle einen Task-Namen an jedes
+// Projekt weiterleitet, das ihn kennt: ./gradlew clean build, test, systemtest, e2eTest.
 plugins {
     id("org.springframework.boot") version "4.1.0" apply false
     id("io.spring.dependency-management") version "1.1.7" apply false
-}
-
-subprojects {
-    apply(plugin = "java")
-    apply(plugin = "jacoco")
-    apply(plugin = "io.spring.dependency-management")
-
-    group = "io.github.keymaster65"
-    version = "0.0.1-SNAPSHOT"
-
-    repositories {
-        mavenCentral()
-    }
-
-    extensions.configure<JavaPluginExtension> {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(25)
-        }
-    }
-
-    extensions.configure<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension> {
-        imports {
-            mavenBom(SpringBootPlugin.BOM_COORDINATES)
-        }
-    }
-
-    dependencies {
-        "testImplementation"("org.assertj:assertj-core")
-        "testImplementation"("org.junit.jupiter:junit-jupiter")
-        "testRuntimeOnly"("org.junit.platform:junit-platform-launcher")
-    }
-
-    // The Spring Boot plugin adds this automatically, but it now only applies to :bootstrap.
-    // Without it, parameter names are missing from the bytecode and Spring MVC cannot bind
-    // `@PathVariable long id` – requests would fail with 400 instead of hitting the handler.
-    tasks.withType<JavaCompile>().configureEach {
-        options.compilerArgs.add("-parameters")
-    }
-
-    tasks.withType<Test>().configureEach {
-        useJUnitPlatform()
-    }
 }

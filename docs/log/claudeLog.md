@@ -6,6 +6,48 @@ Datum: 2026-07-19
 
 ---
 
+## 60. Prompt: „commit" / „Ja, so committen"
+
+_Delta: 6s · 148 out · 11 in (neu) · 634.678 gesamt_
+_Stand (Session, 73 Prompts): 4:21:47 · 803.588 out · 323.506.093 gesamt_
+
+**Aktionen:**
+- Vorbedingung erfüllt (nach der Verschiebung gemessen): `./gradlew clean build` grün
+  (30 Java + 24 Vitest), `./gradlew systemtest` 13/13, `./gradlew e2eTest` 7/7.
+- Git erkennt 39 Dateien als Umbenennung – die Historie der Schichtmodule bleibt erhalten.
+- Diesen Eintrag zuerst ergänzt, dann committet (Author = Claude):
+  `Group the layer modules under :backend`.
+
+---
+
+## 59. Prompt: „Bewege die Module \"bootstrap → adapter → application → domain\" als Untermodule in ein neues backend Modul"
+
+_Delta: 8:32 · 20.014 out · 23.315 in (neu) · 14.272.774 gesamt_
+_Stand (Session, 71 Prompts): 4:16:59 · 800.883 out · 319.704.624 gesamt_
+
+**Aktionen:**
+- Die vier Schichtmodule per `git mv` nach `backend/` verschoben (39 Umbenennungen erkannt);
+  Projektpfade lauten jetzt `:backend:domain`, `:backend:application`, `:backend:adapter`,
+  `:backend:bootstrap`.
+- **Gemeinsame Konfiguration mitverschoben:** Sie stand im Wurzelskript, betraf aber nur die
+  Schichten – jetzt in `backend/build.gradle.kts` (Toolchain, JaCoCo, Spring-BOM,
+  `-parameters`, JUnit-Platform, Test-Basisabhängigkeiten). Das Wurzelskript enthält nur
+  noch die Plugin-Deklarationen, die auf dem Buildscript-Classpath liegen müssen.
+- `:backend` ist ein reines Containermodul: kein Java-Plugin, keine Quellen – verifiziert
+  daran, dass **kein** `backend/build/`-Verzeichnis entsteht.
+- Mitgezogen, was der Compiler nicht findet: `project(":…")`-Pfade in drei Buildskripten,
+  die Playwright-Konfiguration (`../backend/bootstrap/build/{libs,e2e}`) sowie die
+  Pfadangaben in README, `CLAUDE.md` und `.claude/skills/architecture.md`.
+- Gegenprobe nach der Verschiebung wiederholt: Ein Record in `:backend:application`, der
+  einen REST-DTO importiert, **compiliert nicht**; `:backend:domain` meldet weiterhin
+  `No dependencies` auf dem Compile-Classpath.
+- Verifiziert: `./gradlew projects` zeigt `:backend` mit vier Untermodulen,
+  `./gradlew clean build` grün (30 Java + 24 Vitest), Boot-Jar unverändert benannt und mit
+  SPA sowie den drei Modul-Jars, `./gradlew systemtest` 13/13, `./gradlew e2eTest` 7/7.
+- `docs/adr/0014-schichtmodule-unter-backend.md` angelegt.
+
+---
+
 ## 58. Prompt: „commit" / „commit"
 
 _Delta: 12s · 546 out · 682 in (neu) · 1.831.603 gesamt_
