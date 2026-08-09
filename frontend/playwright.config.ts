@@ -12,17 +12,17 @@ import { existsSync, readdirSync } from 'node:fs'
  * <p>The application needs a reachable PostgreSQL, exactly like `bootRun`.
  *
  * <p>All artefacts – videos of every run, plus traces and screenshots of failures – are written
- * to `build/e2e/` of the root project, together with the HTML report that links them.
+ * to `bootstrap/build/e2e/`, together with the HTML report that links them.
  */
 const externalBaseUrl = process.env.E2E_BASE_URL?.trim()
 const port = Number(process.env.E2E_PORT ?? 8080)
 const baseURL = externalBaseUrl || `http://localhost:${port}`
 
-/** Relative to this config: the build directory of the :backend module (see ADR 0011). */
-const ARTEFACT_DIR = '../backend/build/e2e'
+/** Relative to this config: the build directory of the :bootstrap module (see ADR 0013). */
+const ARTEFACT_DIR = '../bootstrap/build/e2e'
 
 function bootJar(): string {
-  const libs = '../backend/build/libs'
+  const libs = '../bootstrap/build/libs'
   const jar = existsSync(libs)
     ? readdirSync(libs).find((file) => file.endsWith('.jar') && !file.endsWith('-plain.jar'))
     : undefined

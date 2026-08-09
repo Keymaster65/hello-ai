@@ -28,9 +28,19 @@ bootstrap → adapter  →  application  →  domain
 ```
 Abhängigkeiten zeigen nach innen. Controller kennt keine Entities direkt.
 
-Diese Regel ist **ausführbar**: `LayeredArchitectureTest` (ArchUnit) prüft sie in
-`./gradlew test` – siehe [ADR 0012](../../docs/adr/0012-archunit-fuer-die-schichtenregel.md).
-Wird eine Schicht umbenannt oder ein Paket ergänzt, ist der Test mitzuziehen.
+Diese Regel ist **doppelt abgesichert**:
+
+1. **Vom Build erzwungen** – jede Schicht ist ein eigenes Gradle-Modul
+   (`:bootstrap` → `:adapter` → `:application` → `:domain`). Ein Import aus einer äußeren
+   Schicht **compiliert nicht**; siehe
+   [ADR 0013](../../docs/adr/0013-ein-gradle-modul-je-schicht.md).
+2. **Von ArchUnit geprüft** – `LayeredArchitectureTest` sichert zusätzlich ab, was
+   Modulgrenzen nicht sehen: Framework-Freiheit des Domänenmodells und „Ports sind
+   Interfaces"; siehe
+   [ADR 0012](../../docs/adr/0012-archunit-fuer-die-schichtenregel.md).
+
+Fehlt einer Klasse eine Abhängigkeit, ist das ein Hinweis auf einen Schichtverstoß –
+nicht die Aufforderung, sie im Buildskript zu ergänzen.
 
 ## Checkliste vor Implementierung
 1. Welche Schicht ist betroffen?

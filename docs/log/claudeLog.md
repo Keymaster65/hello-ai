@@ -6,6 +6,57 @@ Datum: 2026-07-19
 
 ---
 
+## 54. Prompt: „commit" / „Ja, so committen"
+
+**Aktionen:**
+- Vor dem Stagen geprüft: Beide temporären Proben (`ArchViolationProbe`, `DirectionProbe`)
+  sind entfernt; der verbleibende `HttpProbe` ist der reguläre Systemtest-Helfer.
+  Git erkennt 35 Dateien als Umbenennung.
+- Vorbedingung erfüllt: `./gradlew clean build` grün (30 Java-Tests über drei Module,
+  24 Vitest), `./gradlew systemtest` 13/13, `./gradlew e2eTest` 7/7.
+- Diesen Eintrag zuerst ergänzt, dann committet (Author = Claude):
+  `Split the layers into one Gradle module each`.
+
+---
+
+## 53. Prompt: „Bewege bootstrap → adapter → application → domain in gradle-Module."
+
+**Aktionen:**
+- Vorab geprüft, was den Zuschnitt bestimmt: `@SpringBootApplication(scanBasePackages =
+  "io.github.keymaster65.helloai")` funktioniert modulübergreifend, und **`domain` hat null
+  Framework-Imports** – das Modul wird damit komplett abhängigkeitsfrei.
+- Vier Module per `git mv` erzeugt (Historie erhalten), `backend/` aufgelöst:
+  - `:domain` – ohne **jede** Produktionsabhängigkeit (`compileClasspath` = `No dependencies`).
+  - `:application` – `api(:domain)`, dazu nur `spring-context` und `spring-tx`.
+  - `:adapter` – `api(:application)`, Web/Validation/jOOQ/springdoc, das Liquibase-Changelog
+    und der jOOQ-Codegen.
+  - `:bootstrap` – `:adapter`, Boot-Plugin, `application.yml`, Frontend-Tasks, Systemtests,
+    Boot-Jar mit `archiveBaseName = "recipe-backend"`.
+- Gemeinsames ins Wurzelskript: Toolchain, JaCoCo, JUnit-Platform, Spring-BOM über
+  `io.spring.dependency-management`; das Boot-**Plugin** nur in `:bootstrap`.
+- Tests neu verteilt: framework-freie Tests bleiben bei ihrer Schicht
+  (`RecipeServiceImplTest` → `:application`, `RecipeRestMapperPropertyTest` → `:adapter`);
+  alles, was Spring-Context oder App-Klasse braucht, nach `:bootstrap` (Controller-Slice,
+  Contract-, Integrations- und Architekturtest, Systemtests).
+- **Regressionsfund, den nur die Tests zeigten:** Drei Controller-Tests lieferten 400 statt
+  404/204. Ursache: Das Boot-Plugin fügt `-parameters` hinzu und gilt jetzt nur in
+  `:bootstrap`; `:adapter` compilierte ohne Parameternamen, sodass `@PathVariable long id`
+  nicht mehr binden konnte. Im Wurzelskript für alle Module behoben.
+- **Gegenprobe der Struktur:** Ein Record in `:application`, der einen REST-DTO importiert,
+  **compiliert nicht** (`package … .adapter.in.rest.dto does not exist`). Die Regel ist damit
+  vom Test in den Compiler gewandert. Probe entfernt.
+- Playwright-Konfiguration auf `../bootstrap/build/{libs,e2e}` umgestellt; README um die neue
+  Projektstruktur, Modulspalte in der Architekturtabelle und Pfade ergänzt;
+  `.claude/skills/architecture.md` beschreibt die Regel jetzt als doppelt abgesichert
+  (Build + ArchUnit).
+- `docs/adr/0013-ein-gradle-modul-je-schicht.md` angelegt; es revidiert ausdrücklich die
+  in ADR 0012 getroffene Abwägung und hält die `-parameters`-Falle fest.
+- Verifiziert: `./gradlew clean build` grün (30 Java-Tests über drei Module, 24 Vitest),
+  Boot-Jar enthält SPA und die drei Modul-Jars unter `BOOT-INF/lib/`,
+  `./gradlew systemtest` 13/13, `./gradlew e2eTest` 7/7.
+
+---
+
 ## 52. Prompt: „commit" / „Ja, so committen"
 
 **Aktionen:**
