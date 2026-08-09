@@ -35,10 +35,14 @@ subprojects {
         }
     }
 
+    // `rootProject.libs`, not plain `libs`: inside `subprojects` the receiver is the
+    // submodule, and its catalog extension does not exist yet while this block runs
+    // (see ADR 0018). The configuration names stay strings because `java` is applied
+    // dynamically above, so there are no type-safe accessors in this script.
     dependencies {
-        "testImplementation"("org.assertj:assertj-core")
-        "testImplementation"("org.junit.jupiter:junit-jupiter")
-        "testRuntimeOnly"("org.junit.platform:junit-platform-launcher")
+        "testImplementation"(rootProject.libs.assertj.core)
+        "testImplementation"(rootProject.libs.junit.jupiter)
+        "testRuntimeOnly"(rootProject.libs.junit.platform.launcher)
     }
 
     // The Spring Boot plugin adds this automatically, but it now only applies to

@@ -10,9 +10,9 @@ dependencies {
 
     // Only what the layer really uses: component model and declarative transactions.
     // No web, no persistence technology.
-    implementation("org.springframework:spring-context")
-    implementation("org.springframework:spring-tx")
+    implementation(libs.spring.context)
+    implementation(libs.spring.tx)
 
-    testImplementation("org.mockito:mockito-core")
-    testImplementation("org.mockito:mockito-junit-jupiter")
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.junit.jupiter)
 }

@@ -1,0 +1,50 @@
+# Version catalog – the single place where dependency coordinates and versions live
+# (see ADR 0018). Referenced from the build scripts as `libs.<alias>`.
+#
+# Libraries without a `version` are governed by the Spring Boot BOM, which
+# `modules/backend/build.gradle.kts` imports for every module. Only what the BOM does
+# *not* manage carries a version here.
+
+[versions]
+archunit = "1.5.0"
+jooq = "3.21.6"
+jooqPlugin = "10.2.1"
+jqwik = "1.9.3"
+springBoot = "4.1.0"
+springDependencyManagement = "1.1.7"
+springdoc = "3.1.0"
+testSets = "4.1.0"
+zonkyEmbeddedPostgres = "2.1.0"
+zonkyPostgresBinaries = "16.4.0"
+
+[libraries]
+# --- Versions managed by the Spring Boot BOM -------------------------------------------
+assertj-core = { module = "org.assertj:assertj-core" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher" }
+liquibase-core = { module = "org.liquibase:liquibase-core" }
+mockito-core = { module = "org.mockito:mockito-core" }
+mockito-junit-jupiter = { module = "org.mockito:mockito-junit-jupiter" }
+postgresql = { module = "org.postgresql:postgresql" }
+spring-context = { module = "org.springframework:spring-context" }
+spring-tx = { module = "org.springframework:spring-tx" }
+spring-boot-liquibase = { module = "org.springframework.boot:spring-boot-liquibase" }
+spring-boot-starter-jooq = { module = "org.springframework.boot:spring-boot-starter-jooq" }
+spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
+spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
+spring-boot-webmvc-test = { module = "org.springframework.boot:spring-boot-webmvc-test" }
+
+# --- Versions this project pins itself --------------------------------------------------
+archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
+jooq-meta-extensions-liquibase = { module = "org.jooq:jooq-meta-extensions-liquibase", version.ref = "jooq" }
+jqwik = { module = "net.jqwik:jqwik", version.ref = "jqwik" }
+springdoc-openapi-starter-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+zonky-embedded-postgres = { module = "io.zonky.test:embedded-postgres", version.ref = "zonkyEmbeddedPostgres" }
+zonky-postgres-binaries-bom = { module = "io.zonky.test.postgres:embedded-postgres-binaries-bom", version.ref = "zonkyPostgresBinaries" }
+
+[plugins]
+jooq = { id = "nu.studer.jooq", version.ref = "jooqPlugin" }
+spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
+spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }
+test-sets = { id = "org.unbroken-dome.test-sets", version.ref = "testSets" }

@@ -34,6 +34,7 @@ erzwungen, nicht nur dokumentiert
 recipes/
 ├── build.gradle.kts            nur Plugin-Deklarationen (apply false)
 ├── settings.gradle.kts
+├── gradle/libs.versions.toml   Versionskatalog: alle Koordinaten und Versionen
 ├── modules/
 │   ├── backend/
 │   │   ├── build.gradle.kts    gemeinsame Konfiguration der Schichten

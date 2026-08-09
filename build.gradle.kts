@@ -11,7 +11,10 @@
 //
 // Die gewohnten Kommandos funktionieren unverändert, weil Gradle einen Task-Namen an jedes
 // Projekt weiterleitet, das ihn kennt: ./gradlew clean build, test, systemtest, e2eTest.
+//
+// Versions and coordinates live solely in `gradle/libs.versions.toml` (ADR 0018); the build
+// scripts reference them as `libs.<alias>`.
 plugins {
-    id("org.springframework.boot") version "4.1.0" apply false
-    id("io.spring.dependency-management") version "1.1.7" apply false
+    alias(libs.plugins.spring.boot) apply false
+    alias(libs.plugins.spring.dependency.management) apply false
 }

@@ -1,8 +1,9 @@
 plugins {
     java
+    // Version and `apply false` come from the root project, so no alias here.
     id("org.springframework.boot")
     // Separate source set for the system tests (see ADR 0006).
-    id("org.unbroken-dome.test-sets") version "4.1.0"
+    alias(libs.plugins.test.sets)
 }
 
 description = "Spring Boot entry point – wires the layers and produces the deployable"
@@ -19,29 +20,29 @@ dependencies {
     // Only the outermost adapter layer; :application and :domain arrive transitively.
     implementation(project(":modules:backend:adapter"))
 
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation(libs.spring.boot.starter.web)
     // Spring Boot 4 provides Liquibase auto-configuration in a dedicated module.
-    implementation("org.springframework.boot:spring-boot-liquibase")
-    implementation("org.liquibase:liquibase-core")
-    runtimeOnly("org.postgresql:postgresql")
+    implementation(libs.spring.boot.liquibase)
+    implementation(libs.liquibase.core)
+    runtimeOnly(libs.postgresql)
 
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+    testImplementation(libs.spring.boot.starter.test) {
         // jqwik brings its own JUnit Platform engine; keep vintage out of the way.
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     // Spring Boot 4 ships the @WebMvcTest slice in a dedicated module.
-    testImplementation("org.springframework.boot:spring-boot-webmvc-test")
-    testImplementation("io.zonky.test:embedded-postgres:2.1.0")
-    testImplementation(enforcedPlatform("io.zonky.test.postgres:embedded-postgres-binaries-bom:16.4.0"))
+    testImplementation(libs.spring.boot.webmvc.test)
+    testImplementation(libs.zonky.embedded.postgres)
+    testImplementation(enforcedPlatform(libs.zonky.postgres.binaries.bom))
     // Enforces the layering rule (see ADR 0012). It runs here because only this module sees
     // every layer on its classpath.
-    testImplementation("com.tngtech.archunit:archunit-junit5:1.5.0")
+    testImplementation(libs.archunit.junit5)
 
     // System tests talk to the application over HTTP only; the JDK HttpClient is enough.
     // Spring is needed solely to boot the application when no external instance is given.
     // The configurations are created by the testSets block above, so they are addressed by name.
-    "systemtestImplementation"("io.zonky.test:embedded-postgres:2.1.0")
-    "systemtestImplementation"(enforcedPlatform("io.zonky.test.postgres:embedded-postgres-binaries-bom:16.4.0"))
+    "systemtestImplementation"(libs.zonky.embedded.postgres)
+    "systemtestImplementation"(enforcedPlatform(libs.zonky.postgres.binaries.bom))
 }
 
 // ---------------------------------------------------------------------------

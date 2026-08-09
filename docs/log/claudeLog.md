@@ -6,6 +6,50 @@ Datum: 2026-07-19
 
 ---
 
+## 74. Prompt: „commit"
+
+_Delta: 28s · 2.212 out · 2.309 in (neu) · 401.386 gesamt_
+_Stand (Session, 4 Prompts): 23:26 · 65.323 out · 4.632.597 gesamt_
+
+**Aktionen:**
+- Definition of Done vor dem Commit erfüllt: `clean build` grün (30 Java, 24 Vitest),
+  `systemtest` 15/15, `e2eTest` 9/9 – alle Läufe aus Eintrag 73, seither keine
+  Code-Änderung.
+- Commit-Message vom Nutzer bestätigt, dann committet (Author = Claude):
+  `Move dependencies to the version catalog` (10 Dateien).
+- Diesen Eintrag nachträglich ergänzt und per `--amend` in denselben Commit übernommen,
+  damit das Log den Stand beschreibt, den der Commit enthält. Deshalb steht hier
+  ausnahmsweise **kein** Hash: Er ändert sich mit jedem Amend und wäre sofort veraltet.
+
+---
+
+## 73. Prompt: „Stelle die gradle Dependencies um auf den Versionskatalog libs.versions.toml. Ergänze ein entsprechendes ADR."
+
+_Delta: 22:16 · 58.048 out · 240.721 in (neu) · 3.842.517 gesamt_
+_Stand (Session, 3 Prompts): 22:16 · 58.048 out · 3.842.517 gesamt_
+
+**Aktionen:**
+- `gradle/libs.versions.toml` angelegt: 22 Bibliotheken und 4 Plugins. Die vom
+  Spring-Boot-BOM verwalteten Einträge stehen **ohne** Version (`{ module = "…" }`), nur
+  die selbst gepflegten Versionen (jqwik, springdoc, jOOQ, Zonky, ArchUnit, Plugins) im
+  `[versions]`-Block.
+- Alle fünf Buildskripte umgestellt: Plugins über `alias(libs.plugins.…)`, Abhängigkeiten
+  über `libs.…`. Die dreifach gepflegte jOOQ-Version im Adapter greift jetzt auf
+  `libs.versions.jooq.get()` zurück.
+- Fallstrick: `libs` ist in `subprojects { }` nicht verfügbar („Extension with name 'libs'
+  does not exist"), weil die Katalog-Erweiterung des Untermoduls erst mit dessen eigener
+  Auswertung entsteht. Gelöst mit `rootProject.libs`.
+- Auf Port 8080 lief noch eine Altinstanz aus einer früheren Sitzung; vor `e2eTest`
+  beendet (Lehre aus ADR 0017).
+- Nachweis der Gleichwertigkeit: `dependencies` für alle vier Module vorher (aus einem
+  `git worktree` auf `HEAD`) und nachher – 3.019 Zeilen, `diff` ohne Unterschied.
+- `./gradlew clean build` grün (30 Java, 24 Vitest), `systemtest` 15/15, `e2eTest` 9/9.
+- [ADR 0018](../adr/0018-versionskatalog-libs-versions-toml.md) ergänzt (Kontext, vier
+  Optionen, Entscheidung, Fallstricke, Nachweis, Regeln); README um den Katalog im
+  Projektbaum ergänzt.
+
+---
+
 ## 72. Prompt: „commit"
 
 _Delta: 8s · 682 out · 8.060 in (neu) · 254.330 gesamt_
