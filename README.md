@@ -17,8 +17,28 @@ beides wird als **ein** Artefakt aus derselben Origin ausgeliefert.
 - Tests: Vitest 4 + Testing Library (Komponenten), Playwright 1.62 (E2E)
 - API-Typen aus dem OpenAPI-Contract generiert (`openapi-typescript`)
 
+## Projektstruktur
+
+Gradle-Multiprojekt: Die Anwendung liegt im Modul **`:backend`**, der Web-Client als
+npm-Projekt in `frontend/` (siehe [ADR 0011](docs/adr/0011-backend-als-gradle-modul.md)).
+
+```
+recipe-backend/
+├── settings.gradle.kts     include("backend")
+├── build.gradle.kts        Root – ohne eigene Quellen
+├── backend/                die Anwendung (BFF)
+│   ├── build.gradle.kts
+│   └── src/{main,test,systemtest}/…
+├── frontend/               React/Vite, wird von :backend ins Boot-Jar gepackt
+└── docs/adr/               Architekturentscheidungen
+```
+
+Die gewohnten Befehle bleiben unverändert – Gradle leitet einen Task-Namen an jedes
+Projekt weiter, das ihn kennt. Das Artefakt heißt weiterhin
+`backend/build/libs/recipe-backend-<version>.jar`.
+
 ## Architektur
-Hexagonal / Clean Architecture (`io.github.keymaster65.helloai`):
+Hexagonal / Clean Architecture (`io.github.keymaster65.helloai`, Modul `:backend`):
 
 | Package                     | Verantwortung                                   |
 |-----------------------------|-------------------------------------------------|
@@ -44,7 +64,7 @@ Origin aus: kein CORS, ein Deployable. Siehe
 | Modus       | URL                     | Womit                                        |
 |-------------|-------------------------|----------------------------------------------|
 | Entwicklung | <http://localhost:5173> | `npm run dev` (proxyt `/api` auf Port 8080)  |
-| Produktion  | <http://localhost:8080> | `java -jar build/libs/recipe-backend-*.jar`  |
+| Produktion  | <http://localhost:8080> | `java -jar backend/build/libs/recipe-backend-*.jar`  |
 
 Die TypeScript-Typen stammen aus dem OpenAPI-Contract und liegen eingecheckt in
 `frontend/src/api/schema.d.ts`. Nach API-Änderungen neu erzeugen:
@@ -107,7 +127,7 @@ Der Contract wird zur Laufzeit aus Controller-Signaturen, Bean-Validation und de
 
 ## Datenbank
 Drei Tabellen (`recipe`, `ingredient`, `preparation_step`), verwaltet über
-Liquibase-Changelogs in `src/main/resources/db/changelog`. Zutaten und Schritte
+Liquibase-Changelogs in `backend/src/main/resources/db/changelog`. Zutaten und Schritte
 werden mit `ON DELETE CASCADE` an das Rezept gebunden.
 
 Changeset `0002-seed-fasting-recipes` befüllt eine **leere** Datenbank mit dem
@@ -171,22 +191,22 @@ cd frontend && npm run dev
   (aktualisieren mit `npx playwright test --update-snapshots`). Die **Videos** sind
   Diagnose, kein erwartetes Ergebnis – sie sind nicht reproduzierbar.
 
-  Alle Artefakte liegen unter **`build/e2e/`** und werden damit von `./gradlew clean` mit
+  Alle Artefakte liegen unter **`backend/build/e2e/`** und werden damit von `./gradlew clean` mit
   entfernt:
 
   | Artefakt | Ort | Wann |
   |---|---|---|
-  | **Video der Durchführung** (WebM, 1280×800) | `build/e2e/test-results/<test>/video.webm` | jeder Test, jeder Lauf |
-  | HTML-Report (verlinkt die Videos) | `build/e2e/report/index.html` | jeder Lauf |
-  | Screenshot | `build/e2e/test-results/<test>/` | nur bei Fehlschlag |
-  | Trace | `build/e2e/test-results/<test>/trace.zip` | nur bei Fehlschlag |
+  | **Video der Durchführung** (WebM, 1280×800) | `backend/build/e2e/test-results/<test>/video.webm` | jeder Test, jeder Lauf |
+  | HTML-Report (verlinkt die Videos) | `backend/build/e2e/report/index.html` | jeder Lauf |
+  | Screenshot | `backend/build/e2e/test-results/<test>/` | nur bei Fehlschlag |
+  | Trace | `backend/build/e2e/test-results/<test>/trace.zip` | nur bei Fehlschlag |
 
   ```bash
   cd frontend
-  npx playwright show-report ../build/e2e/report      # Report inkl. eingebetteter Videos
-  npx playwright show-trace ../build/e2e/test-results/<test>/trace.zip
+  npx playwright show-report ../backend/build/e2e/report      # Report inkl. eingebetteter Videos
+  npx playwright show-trace ../backend/build/e2e/test-results/<test>/trace.zip
   ```
-- **System** (`src/systemtest/java`, Task `systemtest`): Black-Box-Tests gegen die
+- **System** (`backend/src/systemtest/java`, Task `systemtest`): Black-Box-Tests gegen die
   **laufende** Anwendung, ausschließlich über HTTP. Ohne `-Psystemtest.baseUrl`
   startet die Suite die Anwendung selbst auf einem freien Port (embedded PostgreSQL),
   mit der Property läuft sie gegen eine deployte Instanz. Siehe

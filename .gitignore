@@ -21,10 +21,13 @@
 # ... but keep the Gradle wrapper jar
 !gradle/wrapper/gradle-wrapper.jar
 
-# Gradle / build output
+# Gradle / build output (root and every module)
 /.gradle/
-/build/
+build/
 !gradle-wrapper.jar
+
+# jqwik keeps the seeds of previously failing samples here – local state, not shared
+.jqwik-database
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*

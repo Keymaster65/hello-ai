@@ -6,6 +6,50 @@ Datum: 2026-07-19
 
 ---
 
+## 50. Prompt: „commit" / „commit" (Bestätigung der vorgelegten Message)
+
+**Aktionen:**
+- Beim Stagen fiel `.jqwik-database` auf: Die Wurzel-Variante war bereits eingecheckt,
+  durch den Umzug wäre eine zweite Kopie unter `backend/` hinzugekommen. Datei ist
+  lokaler jqwik-Zustand (Seeds fehlgeschlagener Samples) – in `.gitignore` aufgenommen
+  und beide Kopien per `git rm --cached` ausgetragen.
+- Vorbedingung erfüllt (nach dem Umzug gemessen): `./gradlew clean build` grün
+  (25 Java + 24 Vitest), `./gradlew systemtest` 13/13, `./gradlew e2eTest` 7/7.
+- Diesen Eintrag zuerst ergänzt, dann committet (Author = Claude):
+  `Move the BFF into the :backend module`.
+
+---
+
+## 49. Prompt: „Bewege das BFF ins gradle Modul \"backend\"."
+
+**Aktionen:**
+- Per `git mv` verschoben (Historie bleibt erhalten): `src/` → `backend/src/`,
+  `build.gradle.kts` → `backend/build.gradle.kts`. `settings.gradle.kts` bindet
+  `include("backend")` ein; neues Wurzel-Buildskript ohne Quellen und Plugins.
+- `frontend/` bleibt bewusst an der Wurzel – ein eigenes Gradle-Modul dafür wäre bei vier
+  `Exec`-Tasks reine Indirektion (im ADR als verworfene Option 3 vermerkt).
+- Angepasste Pfadabhängigkeiten:
+  - `frontendDir` → `rootProject.file("frontend")` statt `file("frontend")`.
+  - `playwright.config.ts`: Boot-Jar aus `../backend/build/libs`, Artefakte nach
+    `../backend/build/e2e`.
+  - `.gitignore`: `/build/` → `build/`, sonst wäre `backend/build/` nicht ignoriert worden.
+  - Pfadangaben in README und `CLAUDE.md` nachgezogen.
+- `archiveBaseName` explizit auf `recipe-backend` gesetzt: Sonst hätte das Artefakt nach dem
+  Modulnamen `backend-0.0.1-SNAPSHOT.jar` geheißen und Deployments sowie Doku gebrochen.
+- Der jOOQ-Codegen brauchte **keine** Änderung – `project.projectDir` und
+  `layout.buildDirectory` zeigen automatisch ins Modul.
+- Verifiziert: `./gradlew projects` zeigt `:backend`; `clean build` grün (25 Java-Tests,
+  24 Vitest), Jar heißt weiterhin `recipe-backend-0.0.1-SNAPSHOT.jar` und enthält die SPA;
+  `systemtest` 13/13, `e2eTest` 7/7 mit 7 Videos und Report unter `backend/build/e2e/`;
+  `-PskipFrontend` überspringt weiterhin korrekt.
+- Korrektur zu früheren Zusammenfassungen: Die Java-Testzahl ist seit dem `@Valid`-Commit
+  **25**, nicht 23 – die beiden neuen Controller-Tests waren in meinen Angaben nicht
+  mitgezählt.
+- `docs/adr/0011-backend-als-gradle-modul.md` angelegt; README um einen Abschnitt
+  „Projektstruktur" erweitert.
+
+---
+
 ## 48. Prompt: „commit" / „commit" (Bestätigung der vorgelegten Message)
 
 **Aktionen:**

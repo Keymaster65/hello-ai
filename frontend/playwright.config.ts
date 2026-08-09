@@ -18,11 +18,11 @@ const externalBaseUrl = process.env.E2E_BASE_URL?.trim()
 const port = Number(process.env.E2E_PORT ?? 8080)
 const baseURL = externalBaseUrl || `http://localhost:${port}`
 
-/** Relative to this config, i.e. the Gradle build directory of the root project. */
-const ARTEFACT_DIR = '../build/e2e'
+/** Relative to this config: the build directory of the :backend module (see ADR 0011). */
+const ARTEFACT_DIR = '../backend/build/e2e'
 
 function bootJar(): string {
-  const libs = '../build/libs'
+  const libs = '../backend/build/libs'
   const jar = existsSync(libs)
     ? readdirSync(libs).find((file) => file.endsWith('.jar') && !file.endsWith('-plain.jar'))
     : undefined

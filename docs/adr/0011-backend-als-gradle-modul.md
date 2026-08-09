@@ -1,0 +1,32 @@
+# 0011 – BFF als eigenes Gradle-Modul `:backend`
+
+Status: akzeptiert und umgesetzt
+Datum: 2026-08-09
+
+| Abschnitt        | Inhalt |
+|------------------|--------|
+| **Kontext**      | Bislang war das Repository ein Gradle-**Einzelprojekt**: Die Anwendung lag direkt in `src/`, das Buildskript im Wurzelverzeichnis, daneben das npm-Projekt `frontend/`. Damit vermischten sich zwei Ebenen – Repository-Wurzel und Anwendungsmodul. Beim Einzug des Frontends ([ADR 0007](0007-react-frontend-mit-backend-als-bff.md)) war ein Multiprojekt-Layout bereits als Option 3 erwogen und damals als „größte Umstellung" zurückgestellt worden. Mit gewachsenem Build (jOOQ-Codegen, drei Test-Ebenen, vier Frontend-Tasks) und der Aussicht auf weitere Module ist der Zeitpunkt gekommen, die Trennung nachzuziehen. |
+| **Optionen**     | 1. **Multiprojekt mit `:backend`** – Anwendung ins Modul, Wurzelprojekt ohne eigene Quellen. 2. **Einzelprojekt beibehalten** – kein Aufwand, aber Wurzel und Modul bleiben vermischt. 3. **Zusätzlich `:frontend` als Gradle-Modul** – würde das npm-Projekt in Gradle einhängen; ohne echten Bedarf nur mehr Indirektion. 4. Aufteilung in fachliche Module (`:domain`, `:application`, `:adapter`) – wäre eine ganz andere Entscheidung über die Architektur, nicht über das Layout. |
+| **Entscheidung** | **Option 1.** `src/` und das Buildskript sind per `git mv` nach `backend/` gewandert (Historie bleibt erhalten), `settings.gradle.kts` bindet `include("backend")` ein. Das Wurzelprojekt trägt **keine** Quellen und kein Plugin; sein Buildskript enthält nur den Kommentar zur Struktur. `frontend/` bleibt dort, wo es ist: ein npm-Projekt, das `:backend` baut und in sein Boot-Jar packt – der BFF-Charakter aus ADR 0007 bleibt damit unberührt. Option 3 wurde bewusst nicht mitgenommen: Solange nur vier `Exec`-Tasks nötig sind, wäre ein eigenes Gradle-Modul für das Frontend reine Indirektion. |
+| **Konsequenzen** | **+** Wurzel und Anwendung sind getrennt; weitere Module (etwa ein Batch-Job oder ein zweiter Adapter) lassen sich ohne Umbau ergänzen. **+** Die gewohnten Kommandos bleiben gültig, weil Gradle einen Task-Namen an jedes Projekt weiterleitet, das ihn kennt: `./gradlew clean build`, `test`, `systemtest`, `e2eTest`, `frontendTest` funktionieren unverändert – die Definition of Done musste nicht angepasst werden. **+** Der jOOQ-Codegen brauchte keine Änderung: `project.projectDir` und `layout.buildDirectory` zeigen automatisch ins Modul. **−** Alle Pfade unterhalb der Wurzel verschieben sich; angepasst werden mussten `frontendDir` (jetzt `rootProject.file("frontend")`), die Playwright-Konfiguration (Boot-Jar und Artefaktverzeichnis unter `backend/build/`), die `.gitignore` (von `/build/` auf `build/`, damit auch Modulverzeichnisse greifen) sowie die Pfadangaben in README und `CLAUDE.md`. **−** Das Artefakt hätte nach dem Modulnamen `backend-<version>.jar` geheißen; um Deployments und Dokumentation nicht zu brechen, ist `archiveBaseName` explizit auf `recipe-backend` gesetzt. **−** Gradle legt im Wurzelverzeichnis weiterhin ein `build/` an (für den Problems-Report); das ist erwartet und über die angepasste `.gitignore` abgedeckt. |
+
+## Nachweis
+
+Nach der Umstellung geprüft (2026-08-09):
+
+- `./gradlew projects` zeigt `Root project 'recipe-backend'` mit `\--- Project ':backend'`.
+- `./gradlew clean build` grün: 25 Java-Tests, 24 Vitest-Tests; das Boot-Jar heißt
+  weiterhin `recipe-backend-0.0.1-SNAPSHOT.jar` und enthält die SPA unter
+  `BOOT-INF/classes/static/`.
+- `./gradlew systemtest` 13/13, `./gradlew e2eTest` 7/7; die E2E-Artefakte (7 Videos plus
+  HTML-Report) liegen unter `backend/build/e2e/`.
+- `-PskipFrontend` überspringt weiterhin `npmInstall`, `frontendBuild` und `frontendTest`.
+
+## Regel für die Zukunft
+
+- Neue Quellen gehören in ein Modul, nicht in die Repository-Wurzel. Das Wurzelprojekt
+  bleibt frei von Quellen und Plugins.
+- Pfade in Modul-Buildskripten immer relativ zum Modul denken; auf Dateien außerhalb
+  ausdrücklich über `rootProject.file(...)` zugreifen, nie über `file("../…")`.
+- Wird ein Modul umbenannt oder hinzugefügt: prüfen, ob `archiveBaseName`, die
+  Playwright-Konfiguration und die `.gitignore` mitgezogen werden müssen.
