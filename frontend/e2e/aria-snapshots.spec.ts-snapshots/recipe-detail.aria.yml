@@ -1,0 +1,13 @@
+- heading "Snapshot-Rezept" [level=2]
+- paragraph: Fester Datensatz für den Struktur-Vergleich
+- paragraph: MEDIUM · 4 Portionen · 25 min
+- heading "Zutaten" [level=3]
+- list:
+  - listitem: 300 g Mehl
+  - listitem: 500 ml Milch
+- heading "Zubereitung" [level=3]
+- list:
+  - listitem: Teig anrühren
+  - listitem: Ausbacken
+- button "Zurück"
+- button "Bearbeiten"

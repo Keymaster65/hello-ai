@@ -6,6 +6,50 @@ Datum: 2026-07-19
 
 ---
 
+## 40. Prompt: „commit" / „Ja, so committen"
+
+**Aktionen:**
+- Vor dem Stagen geprüft, dass die Baselines unter
+  `frontend/e2e/aria-snapshots.spec.ts-snapshots/` mit eingecheckt werden – sie **sind**
+  das erwartete Ergebnis und gehören damit ins Repository (anders als die Artefakte
+  unter `build/e2e/`).
+- Vorbedingung erfüllt: `gradle clean build` grün, `gradle systemtest` 13/13,
+  `gradle e2eTest` 7/7.
+- Message vorgelegt und bestätigt bekommen; diesen Eintrag zuerst ergänzt, dann committet
+  (Author = Claude): `Assert UI structure with aria snapshots`.
+- Angemerkt: Das Zurücksetzen der Datenbank war ein Laufzeit-Vorgang und schlägt sich in
+  keiner Datei nieder; es ist nur in Eintrag 39 dokumentiert.
+
+---
+
+## 39. Prompt: „Kannst Du die webm Dateien als erwartetes Testerbenis verwenden?" / „Ja, setz Punkt 1 um und setzte die DB auf den initiale Population!"
+
+**Antwort/Aktionen:**
+- Frage mit **Nein** beantwortet und empirisch belegt: zwei identische Läufe erzeugten
+  Videos, deren Größen um bis zu 40 % auseinanderlagen (z. B. 41.090 B vs. 58.603 B).
+  Ursache: Screencast mit Wanduhr-Zeitstempeln plus nicht bit-reproduzierbare VP8-Kodierung.
+- Stattdessen `toMatchAriaSnapshot()` umgesetzt – neue `frontend/e2e/aria-snapshots.spec.ts`
+  mit zwei Baselines unter `e2e/aria-snapshots.spec.ts-snapshots/`:
+  leeres Anlegeformular (datenunabhängig) und Detailansicht eines im Test selbst
+  angelegten, fest benannten Rezepts (Ausschnitt `section.detail`, damit die
+  datenabhängige Liste außen vor bleibt).
+- Die von Playwright automatisch erzeugten `\d+`-Platzhalter durch **literale Werte**
+  ersetzt – sonst bliebe ein Mapper-Fehler, der 300 zu 30 macht, unentdeckt.
+- Gegenprobe gefahren: Baseline testweise auf „30 g Mehl" verfälscht → Test schlägt mit
+  lesbarem Zeilen-Diff fehl; Baseline wiederhergestellt.
+- Determinismus bestätigt: zwei aufeinanderfolgende Läufe grün, im Gegensatz zu den Videos.
+- **Datenbank auf initiale Population zurückgesetzt**: Kein Seed im Changelog, also ist der
+  Initialzustand das leere Schema. `DROP DATABASE` + `CREATE DATABASE`, Liquibase hat das
+  Schema beim nächsten Start neu angelegt. Verworfen wurden die 3 Testrezepte dieser Session.
+  Endzustand geprüft: 5 Tabellen, 0 Rezepte, 0 Zutaten, 0 Schritte.
+- ADR 0008 um „Video ist Diagnose, nicht Assertion" erweitert (Messwerte, Regeln für
+  Snapshots, Begründung, warum `toHaveScreenshot()` mangels festem CI-Image vorerst entfällt);
+  README entsprechend ergänzt.
+- Verifiziert: `gradle clean build` grün (23 Java + 24 Vitest), `gradle systemtest` 13/13,
+  `gradle e2eTest` **7/7** (5 Flows + 2 Aria-Snapshots).
+
+---
+
 ## 38. Prompt: „Führe alle Tests aus und starte neu." / „Ja, zieh die @Valid-Warnung nach" / „Ja, führ die durch und dann commit"
 
 **Aktionen:**

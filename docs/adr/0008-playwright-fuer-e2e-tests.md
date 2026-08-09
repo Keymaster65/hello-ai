@@ -59,3 +59,32 @@ bereits über `.gitignore` ausgeschlossen – es braucht also weder Aufräum-Log
 zusätzliche Ignore-Einträge. **Preis:** rund 0,5 MB Video pro Lauf (plus eine Kopie im
 Report, der die Videos einbettet); auf CI-Runnern sollte das Verzeichnis daher als
 Build-Artefakt archiviert und nicht dauerhaft aufbewahrt werden.
+
+### Video ist Diagnose, nicht Assertion
+
+Videos taugen **nicht** als erwartetes Testergebnis. Playwright zeichnet per Screencast auf:
+Frames entstehen, wenn sich etwas ändert, mit Wanduhr-Zeitstempeln – dazu kommt die nicht
+bit-reproduzierbare VP8-Kodierung. Empirisch gemessen (zwei identische Läufe, 2026-08-09):
+dieselben fünf Tests erzeugten Videos, die sich in der Größe um bis zu **40 %** unterschieden
+(z. B. 41.090 B gegenüber 58.603 B). Ein Baseline-Vergleich wäre dauerhaft rot.
+
+Für strukturelle Regression wird stattdessen **`toMatchAriaSnapshot()`** verwendet
+(`frontend/e2e/aria-snapshots.spec.ts`): Der Accessibility-Tree wird als **Text** gegen eine
+eingecheckte Baseline unter `e2e/aria-snapshots.spec.ts-snapshots/` verglichen. Das ist
+deterministisch, unabhängig von Fonts, GPU und Plattform, im Review als Zeilen-Diff lesbar –
+und es sichert genau das ab, worauf die übrigen Tests bauen: Rollen und Accessible Names.
+
+Regeln dafür:
+
+- Snapshots nur auf **datenunabhängige** oder im Test selbst erzeugte Ausschnitte
+  (leeres Formular, Detailansicht eines fest benannten Testrezepts) – niemals auf die
+  Rezeptliste, deren Inhalt von der Datenbank abhängt.
+- Die von Playwright bei der Erzeugung eingesetzten `\d+`-Platzhalter **durch literale Werte
+  ersetzen**, wenn die Testdaten fest sind. Sonst bliebe ein Mapper-Fehler, der 300 zu 30
+  macht, unentdeckt.
+- Baseline-Änderungen sind bewusste Entscheidungen: `npx playwright test --update-snapshots`
+  und den Diff im Review prüfen.
+
+**`toHaveScreenshot()`** (Pixelvergleich) bleibt vorerst außen vor: Baselines sind
+plattformabhängig und erfordern ein festes CI-Image – das ist hier mangels Docker
+([ADR 0002](0002-embedded-postgres-statt-testcontainers.md)) nicht gegeben.

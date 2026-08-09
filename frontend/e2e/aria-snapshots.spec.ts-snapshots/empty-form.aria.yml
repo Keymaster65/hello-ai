@@ -1,0 +1,22 @@
+- heading "Neues Rezept" [level=2]
+- text: Titel
+- textbox "Titel"
+- text: Beschreibung
+- textbox "Beschreibung"
+- text: Portionen
+- spinbutton "Portionen"
+- text: Zubereitungszeit (min)
+- spinbutton "Zubereitungszeit (min)"
+- text: Schwierigkeit
+- combobox "Schwierigkeit":
+  - option "EASY"
+  - option "MEDIUM" [selected]
+  - option "HARD"
+- group "Zutaten":
+  - text: ""
+  - button "Zutat hinzufügen"
+- group "Zubereitungsschritte":
+  - text: ""
+  - button "Schritt hinzufügen"
+- button "Speichern"
+- button "Abbrechen"

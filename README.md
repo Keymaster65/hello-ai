@@ -156,6 +156,11 @@ cd frontend && npm run dev
   Contract-Details bleiben in den Systemtests. Benötigt eine erreichbare PostgreSQL.
   Siehe [ADR 0008](docs/adr/0008-playwright-fuer-e2e-tests.md).
 
+  Zusätzlich vergleicht `aria-snapshots.spec.ts` den Accessibility-Tree gegen
+  eingecheckte Baselines unter `frontend/e2e/aria-snapshots.spec.ts-snapshots/`
+  (aktualisieren mit `npx playwright test --update-snapshots`). Die **Videos** sind
+  Diagnose, kein erwartetes Ergebnis – sie sind nicht reproduzierbar.
+
   Alle Artefakte liegen unter **`build/e2e/`** und werden damit von `gradle clean` mit
   entfernt:
 
