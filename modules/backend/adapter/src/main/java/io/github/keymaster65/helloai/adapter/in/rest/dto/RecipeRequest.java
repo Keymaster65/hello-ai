@@ -1,6 +1,6 @@
 package io.github.keymaster65.helloai.adapter.in.rest.dto;
 
-import io.github.keymaster65.helloai.domain.Difficulty;
+import io.github.keymaster65.helloai.domain.model.Difficulty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

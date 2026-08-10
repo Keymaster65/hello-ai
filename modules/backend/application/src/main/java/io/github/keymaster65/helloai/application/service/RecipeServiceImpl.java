@@ -2,7 +2,7 @@ package io.github.keymaster65.helloai.application.service;
 
 import io.github.keymaster65.helloai.application.port.in.RecipeService;
 import io.github.keymaster65.helloai.application.port.out.RecipeRepository;
-import io.github.keymaster65.helloai.domain.Recipe;
+import io.github.keymaster65.helloai.domain.model.Recipe;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

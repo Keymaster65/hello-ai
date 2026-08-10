@@ -20,16 +20,21 @@ import com.tngtech.archunit.lang.ArchRule;
  * <p>Ring assignment:
  *
  * <pre>
- * domain model        ..domain..                    (records, no services)
+ * domain model        ..domain.model..              (records and enums)
+ * domain service      ..domain.services..           (currently empty, see ADR 0020)
  * application service ..application..               (ports and their implementations)
  * adapter "rest"      ..adapter.in.rest..
  * adapter "persist"   ..adapter.out.persistence..   (incl. generated jOOQ code)
  * adapter "bootstrap" ..bootstrap..                 (composition root, outermost ring)
  * </pre>
  *
- * <p>{@code withOptionalLayers(true)} is required because there is no domain service ring: the
- * domain is a pure model and all behaviour lives in the application ring. Without the flag
- * ArchUnit would fail the empty ring itself, which would say nothing about the dependencies.
+ * <p>Splitting the domain into the two innermost rings buys a rule that a single {@code ..domain..}
+ * ring could not state: a domain service may use the model, but the model may not reach back for a
+ * service. ArchUnit enforces that direction as soon as the first service exists.
+ *
+ * <p>{@code withOptionalLayers(true)} is required because the domain service ring is still empty:
+ * all behaviour lives in the application ring. Without the flag ArchUnit would fail the empty ring
+ * itself, which would say nothing about the dependencies.
  *
  * <p>Tests are excluded from the analysis for the same reason as in {@link
  * LayeredArchitectureTest}: a test may legitimately reach into any ring.
@@ -41,7 +46,8 @@ class OnionArchitectureTest {
 
     @ArchTest
     static final ArchRule rings_are_respected = onionArchitecture()
-            .domainModels("..domain..")
+            .domainModels("..domain.model..")
+            .domainServices("..domain.services..")
             .applicationServices("..application..")
             .adapter("rest", "..adapter.in.rest..")
             .adapter("persistence", "..adapter.out.persistence..")

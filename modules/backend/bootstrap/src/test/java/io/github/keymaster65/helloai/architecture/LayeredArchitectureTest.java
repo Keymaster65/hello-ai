@@ -79,6 +79,16 @@ class LayeredArchitectureTest {
             .as("Das Domänenmodell bleibt frei von Framework-Abhängigkeiten");
 
     /**
+     * The domain is split into model and services (ADR 0020). A class directly in {@code ..domain}
+     * would belong to neither and quietly undo the split.
+     */
+    @ArchTest
+    static final ArchRule domain_is_split_into_model_and_services = ArchRuleDefinition.classes()
+            .that().resideInAPackage(DOMAIN)
+            .should().resideInAnyPackage("..domain.model..", "..domain.services..")
+            .as("Die Domäne besteht aus model und services");
+
+    /**
      * Ports are the contract between the layers; a class here would put implementation detail
      * into the boundary.
      */

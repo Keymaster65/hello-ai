@@ -1,4 +1,4 @@
-package io.github.keymaster65.helloai.domain;
+package io.github.keymaster65.helloai.domain.model;
 
 import java.math.BigDecimal;
 import java.util.Objects;

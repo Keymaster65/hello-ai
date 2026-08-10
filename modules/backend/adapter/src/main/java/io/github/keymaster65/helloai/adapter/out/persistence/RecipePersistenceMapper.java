@@ -3,10 +3,10 @@ package io.github.keymaster65.helloai.adapter.out.persistence;
 import io.github.keymaster65.helloai.adapter.out.persistence.jooq.tables.records.IngredientRecord;
 import io.github.keymaster65.helloai.adapter.out.persistence.jooq.tables.records.PreparationStepRecord;
 import io.github.keymaster65.helloai.adapter.out.persistence.jooq.tables.records.RecipeRecord;
-import io.github.keymaster65.helloai.domain.Difficulty;
-import io.github.keymaster65.helloai.domain.Ingredient;
-import io.github.keymaster65.helloai.domain.PreparationStep;
-import io.github.keymaster65.helloai.domain.Recipe;
+import io.github.keymaster65.helloai.domain.model.Difficulty;
+import io.github.keymaster65.helloai.domain.model.Ingredient;
+import io.github.keymaster65.helloai.domain.model.PreparationStep;
+import io.github.keymaster65.helloai.domain.model.Recipe;
 import java.util.List;
 import org.springframework.stereotype.Component;
 

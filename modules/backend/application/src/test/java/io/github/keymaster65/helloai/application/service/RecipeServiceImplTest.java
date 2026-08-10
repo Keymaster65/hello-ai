@@ -6,8 +6,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.github.keymaster65.helloai.application.port.out.RecipeRepository;
-import io.github.keymaster65.helloai.domain.Difficulty;
-import io.github.keymaster65.helloai.domain.Recipe;
+import io.github.keymaster65.helloai.domain.model.Difficulty;
+import io.github.keymaster65.helloai.domain.model.Recipe;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;

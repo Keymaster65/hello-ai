@@ -1,6 +1,6 @@
 package io.github.keymaster65.helloai.application.port.in;
 
-import io.github.keymaster65.helloai.domain.Recipe;
+import io.github.keymaster65.helloai.domain.model.Recipe;
 import java.util.List;
 
 /**

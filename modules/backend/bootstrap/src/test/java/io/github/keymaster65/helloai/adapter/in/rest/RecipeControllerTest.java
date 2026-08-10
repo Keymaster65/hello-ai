@@ -13,8 +13,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import io.github.keymaster65.helloai.application.port.in.RecipeService;
 import io.github.keymaster65.helloai.application.service.RecipeNotFoundException;
 import io.github.keymaster65.helloai.bootstrap.RecipeApplication;
-import io.github.keymaster65.helloai.domain.Difficulty;
-import io.github.keymaster65.helloai.domain.Recipe;
+import io.github.keymaster65.helloai.domain.model.Difficulty;
+import io.github.keymaster65.helloai.domain.model.Recipe;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

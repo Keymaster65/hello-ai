@@ -38,7 +38,8 @@ recipes/
 ├── modules/
 │   ├── backend/
 │   │   ├── build.gradle.kts    gemeinsame Konfiguration der Schichten
-│   │   ├── domain/             Domänenmodell – ohne jede Produktionsabhängigkeit
+│   │   ├── domain/             Domäne – ohne jede Produktionsabhängigkeit; `model`
+│   │   │                       (Records) und `services` (ADR 0020)
 │   │   ├── application/        Use Cases, Ports, Geschäftslogik
 │   │   ├── adapter/            REST + jOOQ, Liquibase-Changelog, jOOQ-Codegen
 │   │   └── bootstrap/          Spring-Boot-Einstieg, application.yml, Boot-Jar,
@@ -207,7 +208,9 @@ cd modules/frontend && npm run dev
 ## Tests
 - **Architektur** (`LayeredArchitectureTest`): ArchUnit erzwingt
   `bootstrap → adapter → application → domain`, die Framework-Freiheit des
-  Domänenmodells und „Ports sind Interfaces". Siehe
+  Domänenmodells, die Teilung der Domäne in `model` und `services`
+  ([ADR 0020](docs/adr/0020-domain-in-model-und-services-teilen.md))
+  und „Ports sind Interfaces". Siehe
   [ADR 0012](docs/adr/0012-archunit-fuer-die-schichtenregel.md).
 - **Architektur** (`OnionArchitectureTest`): dieselbe Struktur als Zwiebelschalen –
   ergänzt, was die Schichtensicht nicht ausdrücken kann: REST- und Persistenz-Adapter

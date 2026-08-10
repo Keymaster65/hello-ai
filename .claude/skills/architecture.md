@@ -18,7 +18,8 @@ io.github.keymaster65.helloai
 ├── application.port.in        → Business-Logik eingehende ports
 ├── application.port.out       → Business-Logik ausgehende ports
 ├── application.service        → Business-Logik (Application)
-├── domain                     → Entities, Domain-Modelle, Value Objects
+├── domain.model               → Entities, Domain-Modelle, Value Objects
+├── domain.services            → Domänenlogik ohne eigenen Modelltyp (ADR 0020)
 ├── bootstrap                  → Spring Anwendung (main)
 ```
 

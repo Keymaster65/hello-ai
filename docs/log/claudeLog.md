@@ -6,6 +6,32 @@ Datum: 2026-07-19
 
 ---
 
+## 78. Prompt: „Teile das "domain" Java Package im "domain" gradle Modul auf in "domain/model" und "domain/services"."
+
+_Delta: 9:45 · 28.577 out · 104.834 in (neu) · 2.675.738 gesamt_
+_Stand (Session, 3 Prompts): 9:45 · 28.577 out · 2.675.738 gesamt_
+
+**Aktionen:**
+- Befund vorab: Die Domäne enthielt ausschließlich Modelltypen, keinen Domain-Service.
+  `RecipeServiceImpl` ist ein Application-Service (Spring, Ports) und bleibt, wo er ist.
+- `Recipe`, `Ingredient`, `PreparationStep`, `Difficulty` per `git mv` nach
+  `io.github.keymaster65.helloai.domain.model` verschoben; Package- und Import-Zeilen in
+  12 Dateien über alle vier Schichten angepasst.
+- `domain.services` angelegt, vorerst leer. Das `package-info.java` nennt die drei
+  Bedingungen für eine Klasse dort (Domänenregel statt Anwendungsfall, mehr als ein
+  Aggregat, frameworkfrei); `domain.model` ebenfalls dokumentiert.
+- `OnionArchitectureTest`: Ringe jetzt `domainModels("..domain.model..")` **und**
+  `domainServices("..domain.services..")` – die Richtung Modell ↔ Domain-Service ist damit
+  ab dem ersten Service geprüft. `withOptionalLayers(true)` bleibt nötig (leerer Ring).
+- `LayeredArchitectureTest`: neue Regel `domain_is_split_into_model_and_services` verhindert
+  Klassen direkt in `..domain`. Probe wie in ADR 0012: eine Klasse dort lässt die Regel
+  fehlschlagen (`AssertionError`), nach Entfernen wieder grün – die Regel greift wirklich.
+- [ADR 0020](../adr/0020-domain-in-model-und-services-teilen.md) geschrieben; Package-Struktur
+  in `.claude/skills/architecture.md` und README (Projektstruktur, Testliste) nachgezogen.
+  ADR 0012/0019 bleiben unverändert – sie halten den damaligen Stand fest.
+- Definition of Done: `clean build` grün (ArchUnit 6/6), `test` grün, `systemtest` 15/15,
+  `e2eTest` grün (`.last-run.json`: `"status": "passed"`, keine fehlgeschlagenen Tests).
+
 ## 77. Prompt: „warte auf den build und committe dann"
 
 _Delta: 1:13 · 9.322 out · 1.644.108 gesamt_

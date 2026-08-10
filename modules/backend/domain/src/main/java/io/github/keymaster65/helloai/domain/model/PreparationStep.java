@@ -1,4 +1,4 @@
-package io.github.keymaster65.helloai.domain;
+package io.github.keymaster65.helloai.domain.model;
 
 import java.util.Objects;
 
