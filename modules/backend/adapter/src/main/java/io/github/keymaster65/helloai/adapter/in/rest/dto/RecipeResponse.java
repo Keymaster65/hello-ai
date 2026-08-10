@@ -35,4 +35,102 @@ public record RecipeResponse(
                 requiredMode = Schema.RequiredMode.REQUIRED) List<IngredientDto> ingredients,
         @Schema(description = "Preparation steps in ascending order",
                 requiredMode = Schema.RequiredMode.REQUIRED) List<PreparationStepResponse> steps) {
+
+    /**
+     * Starts the curried construction of a {@link RecipeResponse} (see ADR 0021).
+     *
+     * @return the first step of the curried factory
+     */
+    public static IdStep curried() {
+        return id -> title -> description -> servings -> prepTimeMinutes -> difficulty -> ingredients -> steps ->
+                new RecipeResponse(id, title, description, servings, prepTimeMinutes, difficulty, ingredients, steps);
+    }
+
+    /** Step 1 of {@link #curried()}: the identifier. */
+    @FunctionalInterface
+    public interface IdStep {
+
+        /**
+         * @param id database identifier, always present on a persisted recipe
+         * @return the next step
+         */
+        TitleStep id(Long id);
+    }
+
+    /** Step 2 of {@link #curried()}: the title. */
+    @FunctionalInterface
+    public interface TitleStep {
+
+        /**
+         * @param title title of the recipe, never {@code null}
+         * @return the next step
+         */
+        DescriptionStep title(String title);
+    }
+
+    /** Step 3 of {@link #curried()}: the description. */
+    @FunctionalInterface
+    public interface DescriptionStep {
+
+        /**
+         * @param description free-text description, may be {@code null}
+         * @return the next step
+         */
+        ServingsStep description(String description);
+    }
+
+    /** Step 4 of {@link #curried()}: the number of servings. */
+    @FunctionalInterface
+    public interface ServingsStep {
+
+        /**
+         * @param servings number of servings, may be {@code null}
+         * @return the next step
+         */
+        PrepTimeMinutesStep servings(Integer servings);
+    }
+
+    /** Step 5 of {@link #curried()}: the preparation time. */
+    @FunctionalInterface
+    public interface PrepTimeMinutesStep {
+
+        /**
+         * @param prepTimeMinutes preparation time in minutes, may be {@code null}
+         * @return the next step
+         */
+        DifficultyStep prepTimeMinutes(Integer prepTimeMinutes);
+    }
+
+    /** Step 6 of {@link #curried()}: the difficulty. */
+    @FunctionalInterface
+    public interface DifficultyStep {
+
+        /**
+         * @param difficulty difficulty level, never {@code null}
+         * @return the next step
+         */
+        IngredientsStep difficulty(Difficulty difficulty);
+    }
+
+    /** Step 7 of {@link #curried()}: the ingredients. */
+    @FunctionalInterface
+    public interface IngredientsStep {
+
+        /**
+         * @param ingredients ingredients, never {@code null} (may be empty)
+         * @return the next step
+         */
+        StepsStep ingredients(List<IngredientDto> ingredients);
+    }
+
+    /** Step 8 of {@link #curried()}: the preparation steps, completing the response. */
+    @FunctionalInterface
+    public interface StepsStep {
+
+        /**
+         * @param steps ordered preparation steps, never {@code null} (may be empty)
+         * @return the finished {@link RecipeResponse}
+         */
+        RecipeResponse steps(List<PreparationStepResponse> steps);
+    }
 }

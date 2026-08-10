@@ -28,6 +28,64 @@ public record ErrorResponse(
     }
 
     /**
+     * Starts the curried construction of an {@link ErrorResponse} (see ADR 0021).
+     *
+     * <p>{@link #of(int, String, String)} stays the shortcut for the common case without field
+     * errors; the steps cover the full payload and keep {@code error} and {@code message},
+     * both {@code String}, from being swapped.
+     *
+     * @return the first step of the curried factory
+     */
+    public static StatusStep curried() {
+        return status -> error -> message -> fieldErrors ->
+                new ErrorResponse(status, error, message, fieldErrors);
+    }
+
+    /** Step 1 of {@link #curried()}: the HTTP status code. */
+    @FunctionalInterface
+    public interface StatusStep {
+
+        /**
+         * @param status HTTP status code
+         * @return the next step
+         */
+        ErrorStep status(int status);
+    }
+
+    /** Step 2 of {@link #curried()}: the error label. */
+    @FunctionalInterface
+    public interface ErrorStep {
+
+        /**
+         * @param error short, machine-readable error label
+         * @return the next step
+         */
+        MessageStep error(String error);
+    }
+
+    /** Step 3 of {@link #curried()}: the human-readable message. */
+    @FunctionalInterface
+    public interface MessageStep {
+
+        /**
+         * @param message human-readable description
+         * @return the next step
+         */
+        FieldErrorsStep message(String message);
+    }
+
+    /** Step 4 of {@link #curried()}: the field errors, completing the payload. */
+    @FunctionalInterface
+    public interface FieldErrorsStep {
+
+        /**
+         * @param fieldErrors per-field validation errors (empty unless a validation failed)
+         * @return the finished {@link ErrorResponse}
+         */
+        ErrorResponse fieldErrors(List<FieldError> fieldErrors);
+    }
+
+    /**
      * A single field-level validation error.
      *
      * @param field   name of the offending field

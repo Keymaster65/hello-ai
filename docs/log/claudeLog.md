@@ -6,6 +6,42 @@ Datum: 2026-07-19
 
 ---
 
+## 79. Prompt: „Ergänze Currying für Java-record Klassen mit mehr als 2 Members. Ergänze das als ADR."
+
+_Delta: 15:49 · 86.319 out · 221.592 in (neu) · 5.987.902 gesamt_
+_Stand (Session, 3 Prompts): 15:49 · 86.319 out · 5.987.902 gesamt_
+
+**Aktionen:**
+- Rückfrage vorab (drei Punkte). Antworten: **benannte Step-Interfaces** statt roher
+  `Function`-Kette, Geltung **überall** (Domäne *und* Adapter-DTOs), Absicherung per
+  **ArchUnit**.
+- Betroffen sind sechs Records mit mehr als zwei Komponenten: `Recipe` (8),
+  `RecipeResponse` (8), `RecipeRequest` (7), `ErrorResponse` (4), `Ingredient` (3),
+  `IngredientDto` (3). Nicht betroffen: `PreparationStep`, `PreparationStepResponse`,
+  `ErrorResponse.FieldError` (je 2), `PreparationStepDto` (1).
+- Je Record eine statische `curried()`-Factory plus ein `@FunctionalInterface` pro
+  Komponente, benannt wie die Komponente. Der kanonische Konstruktor bleibt öffentlich und
+  einziger Ort der Validierung – die Kette ruft ihn im letzten Schritt auf.
+- `RecordCurryingTest` (ArchUnit, `:bootstrap`) prüft nicht nur die Existenz von
+  `curried()`, sondern die **Form der Kette**: Schritt *n* ist ein Interface mit genau einer
+  Methode, diese heißt wie Komponente *n*, nimmt ein Argument von deren Typ, der letzte
+  Schritt liefert den Record.
+- Regel gegengeprüft: mit einem temporären Probe-Record schlug sie in beiden Fehlerfällen
+  zu (fehlende Factory; vertauschte Schritte → „Schritt 2 heißt c(), erwartet war die
+  Komponente b()"). Probe danach entfernt.
+- Neue Property-Tests `CurriedFactoryTest` in `:domain` und `:adapter` (je 5 Tests, grün):
+  Kette ≡ kanonischer Konstruktor, Validierung greift weiterhin, teilweise angewandte Kette
+  ist wiederverwendbar, `ErrorResponse.of(…)` ≡ Kette ohne Field-Errors.
+- [ADR 0021](../adr/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten.md) angelegt;
+  Verweise in `README.md` (Testübersicht) und `.claude/skills/architecture.md`
+  (neuer Abschnitt „Records: Currying ab drei Komponenten").
+- Bestehende Aufrufstellen bewusst **nicht** umgestellt (Grundregel 4: keine ungefragten
+  Refactorings); `curried()` steht additiv neben dem Konstruktor.
+- DoD: `clean build` grün (2:30), `test` grün, `systemtest` grün (58s),
+  `e2eTest` grün (9 Tests, 16,6s).
+
+---
+
 ## 78. Prompt: „Teile das "domain" Java Package im "domain" gradle Modul auf in "domain/model" und "domain/services"."
 
 _Delta: 9:45 · 28.577 out · 104.834 in (neu) · 2.675.738 gesamt_

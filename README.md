@@ -216,7 +216,13 @@ cd modules/frontend && npm run dev
   ergänzt, was die Schichtensicht nicht ausdrücken kann: REST- und Persistenz-Adapter
   kennen einander nicht. Siehe
   [ADR 0019](docs/adr/0019-onion-architecture-regel-in-archunit.md).
+- **Architektur** (`RecordCurryingTest`): jeder Record mit mehr als zwei Komponenten
+  bietet eine curried Factory, deren benannte Schritte die Komponenten in Reihenfolge
+  und Typ abbilden. Siehe
+  [ADR 0021](docs/adr/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten.md).
 - **Unit** (`RecipeServiceImplTest`): Geschäftslogik mit Mockito/AssertJ.
+- **Property-based** (`CurriedFactoryTest` in `:domain` und `:adapter`): die curried
+  Factories liefern dasselbe wie der kanonische Konstruktor – inklusive Validierung.
 - **Property-based** (`RecipeRestMapperPropertyTest`): Mapper-Invarianten mit jqwik.
 - **Web-Slice** (`RecipeControllerTest`): REST-Schicht mit `@WebMvcTest`.
 - **Contract** (`OpenApiDocumentationTest`): prüft, dass `/v3/api-docs` alle

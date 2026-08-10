@@ -44,4 +44,94 @@ public record RecipeRequest(
 
         @Schema(description = "Preparation steps; their order in this list defines the position")
         List<@Valid PreparationStepDto> steps) {
+
+    /**
+     * Starts the curried construction of a {@link RecipeRequest} (see ADR 0021).
+     *
+     * <p>Jackson keeps using the canonical constructor when deserializing a request body; the
+     * steps exist for the code that builds a request by hand, above all the tests.
+     *
+     * @return the first step of the curried factory
+     */
+    public static TitleStep curried() {
+        return title -> description -> servings -> prepTimeMinutes -> difficulty -> ingredients -> steps ->
+                new RecipeRequest(title, description, servings, prepTimeMinutes, difficulty, ingredients, steps);
+    }
+
+    /** Step 1 of {@link #curried()}: the title. */
+    @FunctionalInterface
+    public interface TitleStep {
+
+        /**
+         * @param title title of the recipe (required)
+         * @return the next step
+         */
+        DescriptionStep title(String title);
+    }
+
+    /** Step 2 of {@link #curried()}: the description. */
+    @FunctionalInterface
+    public interface DescriptionStep {
+
+        /**
+         * @param description free-text description (optional)
+         * @return the next step
+         */
+        ServingsStep description(String description);
+    }
+
+    /** Step 3 of {@link #curried()}: the number of servings. */
+    @FunctionalInterface
+    public interface ServingsStep {
+
+        /**
+         * @param servings number of servings (optional, must be positive if present)
+         * @return the next step
+         */
+        PrepTimeMinutesStep servings(Integer servings);
+    }
+
+    /** Step 4 of {@link #curried()}: the preparation time. */
+    @FunctionalInterface
+    public interface PrepTimeMinutesStep {
+
+        /**
+         * @param prepTimeMinutes preparation time in minutes (optional, must be positive if present)
+         * @return the next step
+         */
+        DifficultyStep prepTimeMinutes(Integer prepTimeMinutes);
+    }
+
+    /** Step 5 of {@link #curried()}: the difficulty. */
+    @FunctionalInterface
+    public interface DifficultyStep {
+
+        /**
+         * @param difficulty difficulty level (required)
+         * @return the next step
+         */
+        IngredientsStep difficulty(Difficulty difficulty);
+    }
+
+    /** Step 6 of {@link #curried()}: the ingredients. */
+    @FunctionalInterface
+    public interface IngredientsStep {
+
+        /**
+         * @param ingredients ingredients (optional, each validated)
+         * @return the next step
+         */
+        StepsStep ingredients(List<IngredientDto> ingredients);
+    }
+
+    /** Step 7 of {@link #curried()}: the preparation steps, completing the request. */
+    @FunctionalInterface
+    public interface StepsStep {
+
+        /**
+         * @param steps ordered preparation steps (optional, each validated)
+         * @return the finished {@link RecipeRequest}
+         */
+        RecipeRequest steps(List<PreparationStepDto> steps);
+    }
 }

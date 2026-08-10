@@ -49,6 +49,37 @@ Diese Regel ist **doppelt abgesichert**:
 Fehlt einer Klasse eine Abhängigkeit, ist das ein Hinweis auf einen Schichtverstoß –
 nicht die Aufforderung, sie im Buildskript zu ergänzen.
 
+## Records: Currying ab drei Komponenten
+Jeder `record` mit **mehr als zwei** Komponenten bietet eine curried Factory
+`curried()` – eine Kette einstelliger Schritte, je einer pro Komponente, benannt
+wie die Komponente. Damit erzwingt der Compiler Reihenfolge und Vollständigkeit,
+und die Namen stehen an der Aufrufstelle statt nur in der Deklaration.
+
+```java
+public record Ingredient(String name, BigDecimal quantity, String unit) {
+
+    public static NameStep curried() {
+        return name -> quantity -> unit -> new Ingredient(name, quantity, unit);
+    }
+
+    @FunctionalInterface
+    public interface NameStep {
+        QuantityStep name(String name);
+    }
+    // QuantityStep → UnitStep → Ingredient
+}
+
+Ingredient ingredient = Ingredient.curried()
+        .name("Spaghetti")
+        .quantity(BigDecimal.valueOf(500))
+        .unit("g");
+```
+
+Der kanonische Konstruktor bleibt der einzige Ort der Validierung; die Kette ruft
+ihn im letzten Schritt auf. `RecordCurryingTest` prüft die Form der Kette – nicht
+nur, dass es eine Methode `curried()` gibt. Begründung und Grenzen:
+[ADR 0021](../../docs/adr/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten.md).
+
 ## Checkliste vor Implementierung
 1. Welche Schicht ist betroffen?
 2. Gibt es ein Interface für den Service/Repository?
