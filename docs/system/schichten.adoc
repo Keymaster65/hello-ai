@@ -80,7 +80,10 @@ Basispaket ist `io.github.keymaster65.helloai`.
 | `:modules:backend:bootstrap`
 | `bootstrap`
 | <<src-recipe-application,`RecipeApplication`>> (Composition Root, `@SpringBootApplication`
-  mit `scanBasePackages`) und <<src-openapi-config,`OpenApiConfig`>>. Hier entsteht das Deployable.
+  mit `scanBasePackages`), <<src-openapi-config,`OpenApiConfig`>> und
+  <<src-documentation-routing-config,`DocumentationRoutingConfig`>> (Adresse der
+  mitgelieferten Systemdokumentation,
+  link:{adr}/0024-systemdokumentation-im-boot-jar.md[ADR 0024]). Hier entsteht das Deployable.
 |===
 
 Das Modul `:modules:backend` selbst trägt keinen Quellcode; es hält die gemeinsame

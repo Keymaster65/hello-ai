@@ -6,6 +6,76 @@ Datum: 2026-07-19
 
 ---
 
+## 87. Prompt: „commit"
+
+_Delta: 18s · 1.573 out · 524.314 gesamt_
+_Stand (Session, 5 Prompts): 34:37 · 156.655 out · 20.181.589 gesamt_
+
+**Aktionen:**
+- Einträge 86 und 87 zuerst ergänzt, dann committet (Author = Claude):
+  `Systemdokumentation im Boot-Jar ausliefern`.
+- Grundlage ist der grüne DoD-Lauf aus Eintrag 85; seither wurde kein Code angefasst
+  (nur Log-Einträge).
+- Die laufende Instanz aus Eintrag 86 bleibt auf `:8080`, bis der Nutzer sie stoppen lässt.
+
+---
+
+## 86. Prompt: „start"
+
+_Delta: 44s · 5.973 out · 1.208.959 gesamt_
+_Stand (Session, 4 Prompts): 34:19 · 155.082 out · 19.657.275 gesamt_
+
+**Aktionen:**
+- Nachgefragt statt geraten: „start" konnte „Anwendung starten" oder „Commit ausführen"
+  heißen – die Commit-Regel verlangt eine ausdrückliche Bestätigung der Message. Antwort:
+  Anwendung starten.
+- Boot-Jar auf `:8080` gestartet (Start in 5,4 s, Liquibase-Migration durchgelaufen).
+- Adressen am *laufenden* Artefakt geprüft: `/recipes/` 200, `/recipes/docs/` 200 `text/html`,
+  `/recipes/docs` 302, `/recipes/docs/adr/0024-….md` 200 `text/plain;charset=UTF-8`,
+  `/recipes/swagger-ui.html` 302, `/recipes/api/recipes` 200 – die Doku kommt damit
+  nachweislich aus dem Jar und nicht aus dem Arbeitsverzeichnis.
+
+---
+
+## 85. Prompt: „Deploy die Systemdocumentation aus HTML in der Anwendung."
+
+_Delta: 32:28 · 145.521 out · 342.987 in (neu) · 17.781.075 gesamt_
+_Stand (Session, 3 Prompts): 32:28 · 145.521 out · 17.781.075 gesamt_
+
+**Aktionen:**
+- Zwei Festlegungen vorab beim Nutzer erfragt: Adresse `/recipes/docs/` (kein Link in der
+  SPA) und ADRs **mitliefern** statt auf GitHub zu verlinken.
+- **Renderergebnis ortsunabhängig gemacht** (`build.gradle.kts`): Der `asciidoctor`-Task
+  kopiert `docs/adr/*.md` per `resources`-Block als `adr/` neben das HTML, Attribut `adr`
+  zeigt jetzt relativ dorthin statt `../../../docs/adr`. Damit ist der in ADR 0022 notierte
+  Nachteil („wird das HTML woandershin kopiert, brechen diese Links") erledigt. Nachgemessen:
+  Eine neue ADR-Datei lässt den Task neu laufen und landet im Ergebnis.
+- **Einpacken ins Boot-Jar** (`bootstrap/build.gradle.kts`): `processResources` kopiert
+  `build/docs/asciidoc/` nach `static/docs/`, `system.html` → `index.html`; `-PskipDocs`
+  überspringt das analog zu `-PskipFrontend`. Nachweis im Artefakt: `static/docs/index.html`
+  (516 KB) plus 23 ADRs.
+- **`DocumentationRoutingConfig`** (neu, `:bootstrap`): View-Controller `/docs/` →
+  `forward:/docs/index.html` und Redirect `/docs` → `/docs/` (der Schrägstrich ist die
+  Bedingung dafür, dass die relativen ADR-Verweise stimmen), dazu `MimeMappings` für `.md` →
+  `text/plain;charset=UTF-8`. Der naheliegende Weg über `configureContentNegotiation` blieb
+  wirkungslos – seit Spring Framework 7 nimmt der Resource-Handler seine Medientypen nicht
+  mehr von dort (im Bytecode nachgesehen); ohne die Zuordnung böte der Browser bei jedem ADR
+  einen Download an.
+- **`DocumentationSystemTest`** (neu, 4 Tests): `/docs/`, Redirect, kein Verschatten der
+  Anwendung – und der eigentliche Test: Er folgt **jedem** ADR-Verweis des Dokuments und
+  prüft Status, Content-Type und Inhalt. Ein fehlendes ADR im Jar ist damit ein roter Test.
+- **ADR 0024** angelegt (fünf Optionen abgewogen, u. a. GitHub-Links und Markdown-Konvertierung)
+  und in `system.adoc` indiziert; Systemdoku gepflegt: `api.adoc` (Adressraum),
+  `betrieb.adoc` (Befehle, Deployable-Diagramm, Laufzeit, Startablauf, offene Punkte:
+  die Doku ist öffentlich, sobald der Port es ist), `schichten.adoc`,
+  `qualitaetssicherung.adoc`, `anhang-quellen.adoc` (zwei neue Einträge), README.
+- **DoD grün:** `clean build` (2:36), `systemtest` 19 Tests, `e2eTest` 9 Tests, Asciidoctor
+  ohne `INFO:`/`SEVERE:`-Meldungen. Zusätzlich manuell gegen das laufende Boot-Jar geprüft:
+  `/recipes/docs` → 302, `/recipes/docs/` → 200 mit `<title>Systemdokumentation: recipes</title>`,
+  ADR → 200 als Text.
+
+---
+
 ## 84. Prompt: „Für die referenzierten Sourcen in der Asciidoc Systemdocumentation, erstelle einen Anhang, der die Sourcen gut lesbar enthält. Verlinke diese Sourcen an den entsprechenden Stellen."
 
 _Delta: 12:10 · 131.885 out · 151.429 in (neu) · 18.884.136 gesamt_

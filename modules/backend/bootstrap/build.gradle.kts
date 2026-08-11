@@ -113,12 +113,34 @@ tasks.register<Exec>("e2eTest") {
     outputs.upToDateWhen { false }
 }
 
+// ---------------------------------------------------------------------------
+// Systemdokumentation (docs/system, gerendert nach HTML), ebenfalls im Boot-Jar – ADR 0024.
+// Gerendert wird im Wurzelprojekt; hier wird nur eingepackt, weil hier das Deployable
+// entsteht – dieselbe Rollenteilung wie beim Frontend.
+// Use -PskipDocs to keep the Java-only inner loop fast.
+// ---------------------------------------------------------------------------
+val systemdokuVerzeichnis = rootProject.layout.buildDirectory.dir("docs/asciidoc")
+val systemdokuEnabled = !providers.gradleProperty("skipDocs").isPresent
+
 // The bundle is served by Spring Boot from the classpath, so the SPA and the API
 // share one origin and one deployable artifact.
 tasks.named<ProcessResources>("processResources") {
     dependsOn(frontendBuild)
     from("$frontendDir/dist") {
         into("static")
+    }
+
+    if (systemdokuEnabled) {
+        // Cross-project dependency: der rendernde Task gehört dem Wurzelprojekt, weil die
+        // Dokumentation das Repository beschreibt und keine Schicht (ADR 0022).
+        dependsOn(":asciidoctor")
+        // Das gerenderte Kapitelwerk samt der daneben kopierten ADRs. `system.html` heißt im
+        // Jar `index.html`, damit die Doku unter `/recipes/docs/` liegt und nicht unter einem
+        // Dateinamen; die relativen Verweise auf `adr/…` stimmen dadurch unverändert.
+        from(systemdokuVerzeichnis) {
+            into("static/docs")
+            rename("""system\.html""", "index.html")
+        }
     }
 }
 

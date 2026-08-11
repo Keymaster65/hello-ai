@@ -25,7 +25,9 @@ Gebaut wird ausschließlich über den Gradle-Wrapper
 | `./gradlew e2eTest`
 | Playwright im echten Browser gegen das Boot-Jar. Braucht eine erreichbare PostgreSQL.
 | `./gradlew asciidoctor`
-| Rendert `docs/system/system.adoc` nach `build/docs/asciidoc/system.html`.
+| Rendert `docs/system/system.adoc` nach `build/docs/asciidoc/system.html` und legt die ADRs
+  als `adr/` daneben. Das Ergebnis wandert von dort ins Boot-Jar
+  (link:{adr}/0024-systemdokumentation-im-boot-jar.md[ADR 0024]).
 | `./gradlew asciidoctorPrompt`
 | Rendert `docs/prompt/prompt.adoc` – Master-Prompt und Skills – nach
   `build/docs/prompt/prompt.html`
@@ -35,6 +37,9 @@ Gebaut wird ausschließlich über den Gradle-Wrapper
 | `./gradlew build -PskipFrontend`
 | Überspringt npm-Installation, Vite-Build und Vitest – die schnelle Java-Schleife, auch
   auf Maschinen ohne Node.
+| `./gradlew build -PskipDocs`
+| Überspringt das Einpacken der Systemdokumentation und damit das Rendern vor jedem `test`.
+  Das Jar enthält dann *keine* Dokumentation – `DocumentationSystemTest` schlägt fehl.
 |===
 
 Die Befehle funktionieren unverändert auf jeder Ebene, weil Gradle einen Task-Namen an jedes
@@ -45,8 +50,9 @@ Projekt weiterleitet, das ihn kennt. Die Buildskripte selbst stehen in <<src-gru
 ----
 :domain → :application → :adapter → :bootstrap
                             │            │
-                 jOOQ-Codegen aus        ├── processResources ← modules/frontend/dist → static/
-                 dem Changelog           └── bootJar
+                 jOOQ-Codegen aus        ├── processResources ← modules/frontend/dist  → static/
+                 dem Changelog           │                    ← build/docs/asciidoc    → static/docs/
+                                         └── bootJar
                                               → modules/backend/bootstrap/build/libs/recipes-<version>.jar
 ----
 
@@ -55,6 +61,13 @@ wird: `npmInstall` → `frontendBuild` (`tsc --noEmit && vite build`) →
 `processResources` legt `dist/` nach `static/` in das Jar. Spring Boot liefert das Bundle
 anschließend aus dem Klassenpfad aus – SPA und API kommen aus derselben Origin
 (link:{adr}/0007-react-frontend-mit-backend-als-bff.md[ADR 0007]).
+
+Dieselbe Rollenteilung gilt für die Systemdokumentation: Gerendert wird sie im
+Wurzelprojekt (`asciidoctor`), eingepackt in `:bootstrap`. `processResources` kopiert
+`build/docs/asciidoc/` nach `static/docs/`; dabei wird `system.html` zu `index.html`, die
+mitkopierten ADRs behalten ihren Ordner. Ausgeliefert wird das unter `/recipes/docs/`
+(link:{adr}/0024-systemdokumentation-im-boot-jar.md[ADR 0024]) – die Anwendung trägt ihre
+Beschreibung damit bei sich.
 
 Zwei Eigenschaften, die im Alltag zählen:
 
@@ -129,7 +142,7 @@ Ein einzelner Prozess, eine Datenbank – kein Cluster, kein Cache, keine Queue.
 
 | `recipes-<version>.jar`
 | JVM-Prozess (`java -jar`)
-| Enthält Server, API und SPA. Java 25 zur Laufzeit.
+| Enthält Server, API, SPA und die Systemdokumentation. Java 25 zur Laufzeit.
 
 | PostgreSQL
 | eigener Dienst
@@ -168,7 +181,7 @@ Der Anwendungscode ist in beiden Modi identisch, weil er nur relative Pfade kenn
 . Liquibase prüft `databasechangelog` und führt fehlende Changesets aus – gefiltert nach
   `SPRING_LIQUIBASE_CONTEXTS`.
 . jOOQ erhält seinen `DSLContext` auf der konfigurierten `DataSource`.
-. Der HTTP-Port wird geöffnet; SPA, API und Swagger UI sind erreichbar.
+. Der HTTP-Port wird geöffnet; SPA, API, Swagger UI und Systemdokumentation sind erreichbar.
 
 Ein Rollback von Changesets ist nicht vorgesehen; das Vorgehen bei einer fehlerhaften
 Migration ist ein neues, korrigierendes Changeset.
@@ -185,8 +198,11 @@ Umgebung betreibt, ohne sie zu kennen.
 | Fehlt | Folge
 
 | Authentifizierung und Autorisierung
-| Jeder, der den Port erreicht, kann alle Rezepte lesen, ändern und löschen. Die Anwendung
-  gehört daher hinter einen kontrollierten Zugang oder in ein privates Netz.
+| Jeder, der den Port erreicht, kann alle Rezepte lesen, ändern und löschen – und unter
+  `/recipes/docs/` diese Dokumentation samt der Liste hier lesen
+  (link:{adr}/0024-systemdokumentation-im-boot-jar.md[ADR 0024]). Die Anwendung
+  gehört daher hinter einen kontrollierten Zugang oder in ein privates Netz; kommt eine
+  Authentifizierung, ist `/recipes/docs/**` mit abzusichern.
 
 | HTTPS
 | Wird nicht von der Anwendung geleistet; TLS müsste ein vorgelagerter Proxy übernehmen.

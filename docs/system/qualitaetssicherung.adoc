@@ -130,8 +130,16 @@ JDK-`HttpClient`.
 Ohne `-Psystemtest.baseUrl` startet die Suite die Anwendung auf einem freien Port mit
 embedded PostgreSQL (<<src-running-application,`RunningApplication`>>); mit der Property läuft sie gegen eine deployte
 Instanz und startet nichts. Derselbe Testcode prüft damit beide Fälle. Geprüft werden
-Statuscodes und Contract-Details (<<src-swagger-system-test,`SwaggerSystemTest`>>) sowie die Auslieferung der
-SPA inklusive der weitergeleiteten Routen (<<src-frontend-system-test,`FrontendSystemTest`>>).
+Statuscodes und Contract-Details (<<src-swagger-system-test,`SwaggerSystemTest`>>), die Auslieferung der
+SPA inklusive der weitergeleiteten Routen (<<src-frontend-system-test,`FrontendSystemTest`>>)
+und die der Systemdokumentation (<<src-documentation-system-test,`DocumentationSystemTest`>>).
+
+Der letzte Test geht dabei über einen Statuscode hinaus: Er holt `/docs/` und ruft *jeden*
+ADR-Verweis des Dokuments einzeln ab. Ein ADR, das im Jar fehlt, während die Dokumentation
+darauf verweist, ist damit ein roter Test und kein toter Link im Betrieb
+(link:{adr}/0024-systemdokumentation-im-boot-jar.md[ADR 0024]). Mit `-PskipDocs` gebaut,
+schlägt er fehl – gewollt: Das Flag kauft eine schnelle Schleife, kein dokumentiertes
+Deployable.
 
 == End-to-End-Tests
 

@@ -84,12 +84,24 @@ tasks.named<AsciidoctorTask>("asciidoctor") {
     sources { include("system.adoc") }
     outputOptions { backends("html5") }
 
+    // Die Kapitel verlinken die ADRs, die ADRs selbst liegen aber außerhalb des Ergebnisses.
+    // Bisher hieß das: Das HTML funktioniert nur an seinem Bauplatz, weil das Attribut `adr`
+    // ins Repository zurückzeigte. Seit die Doku mit ausgeliefert wird (ADR 0024), kopiert der
+    // Task sie in einen Unterordner `adr/` neben das HTML – damit ist das Ausgabeverzeichnis
+    // in sich geschlossen und überall gültig, auch im Boot-Jar.
+    resources {
+        from(file("docs/adr")) {
+            include("*.md")
+        }
+        into("adr")
+    }
+
     attributes(
         mapOf(
-            // Verweise auf die ADRs. In `docs/system` gilt `../adr`, im gerenderten HTML unter
-            // `build/docs/asciidoc` muss der Pfad drei Ebenen zurück – deshalb wird das
-            // Attribut hier überschrieben, statt es im Dokument zu verbiegen.
-            "adr" to "../../../docs/adr",
+            // Verweise auf die ADRs. In `docs/system` gilt `../adr`; im Ergebnis liegen sie
+            // dank des `resources`-Blocks oben direkt daneben – deshalb wird das Attribut hier
+            // überschrieben, statt es im Dokument zu verbiegen.
+            "adr" to "adr",
             // Ohne diese Angabe würde eine offene Attribut-Referenz stumm im Text stehen.
             "attribute-missing" to "warn",
         ),

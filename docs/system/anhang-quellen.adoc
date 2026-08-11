@@ -309,6 +309,16 @@ include::../../modules/backend/bootstrap/src/main/java/io/github/keymaster65/hel
 ----
 ====
 
+[[src-documentation-routing-config]]
+[%collapsible]
+.`modules/backend/bootstrap/src/main/java/io/github/keymaster65/helloai/bootstrap/DocumentationRoutingConfig.java`
+====
+[source,java]
+----
+include::../../modules/backend/bootstrap/src/main/java/io/github/keymaster65/helloai/bootstrap/DocumentationRoutingConfig.java[]
+----
+====
+
 [[src-application-yml]]
 [%collapsible]
 .`modules/backend/bootstrap/src/main/resources/application.yml`
@@ -608,6 +618,16 @@ include::../../modules/backend/bootstrap/src/systemtest/java/io/github/keymaster
 [source,java]
 ----
 include::../../modules/backend/bootstrap/src/systemtest/java/io/github/keymaster65/helloai/systemtest/FrontendSystemTest.java[]
+----
+====
+
+[[src-documentation-system-test]]
+[%collapsible]
+.`modules/backend/bootstrap/src/systemtest/java/io/github/keymaster65/helloai/systemtest/DocumentationSystemTest.java`
+====
+[source,java]
+----
+include::../../modules/backend/bootstrap/src/systemtest/java/io/github/keymaster65/helloai/systemtest/DocumentationSystemTest.java[]
 ----
 ====
 

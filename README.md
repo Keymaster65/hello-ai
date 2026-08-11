@@ -10,6 +10,9 @@ beides wird als **ein** Artefakt aus derselben Origin ausgeliefert.
 > [`docs/system/system.adoc`](docs/system/system.adoc)
 > ([ADR 0022](docs/adr/0022-asciidoc-systemdokumentation-in-docs-system.md)).
 > Rendern: `./gradlew asciidoctor` → `build/docs/asciidoc/system.html`.
+> Sie wird außerdem **mit ausgeliefert**: Die laufende Anwendung zeigt sie unter
+> <http://localhost/recipes/docs/>
+> ([ADR 0024](docs/adr/0024-systemdokumentation-im-boot-jar.md)).
 
 ## Tech-Stack
 
@@ -145,6 +148,7 @@ Bei laufender Anwendung (Port `80`, Context-Path `/recipes`):
 | Swagger UI          | <http://localhost/recipes/swagger-ui.html>         |
 | OpenAPI 3.1 (JSON)  | <http://localhost/recipes/v3/api-docs>             |
 | OpenAPI 3.1 (YAML)  | <http://localhost/recipes/v3/api-docs.yaml>        |
+| Systemdokumentation | <http://localhost/recipes/docs/>                   |
 
 Der Contract wird zur Laufzeit aus Controller-Signaturen, Bean-Validation und den
 `@Operation`/`@Schema`-Annotationen erzeugt – siehe
@@ -205,6 +209,7 @@ docker run --name recipes-db -e POSTGRES_DB=recipes \
 
 # Ohne Node/npm bzw. für die schnelle Java-Schleife:
 ./gradlew build -PskipFrontend
+./gradlew build -PskipDocs        # ohne Systemdokumentation im Jar (ADR 0024)
 
 # E2E gegen eine bereits laufende/deployte Instanz:
 ./gradlew e2eTest -Pe2e.baseUrl=http://localhost:8080   # nur Origin, ohne /recipes

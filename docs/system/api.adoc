@@ -18,7 +18,16 @@ Origin. Genau das macht CORS überflüssig
 | OpenAPI 3.1, JSON | `/recipes/v3/api-docs` | zur Laufzeit erzeugt
 | OpenAPI 3.1, YAML | `/recipes/v3/api-docs.yaml` | dasselbe Dokument
 | Swagger UI | `/recipes/swagger-ui.html` | Operationen nach Methode, Tags alphabetisch
+| Systemdokumentation | `/recipes/docs/` | dieses Dokument, gerendert und im Jar
+  (link:{adr}/0024-systemdokumentation-im-boot-jar.md[ADR 0024])
+| ADRs | `/recipes/docs/adr/\{datei}.md` | Markdown als `text/plain;charset=UTF-8`, aus der
+  Doku heraus verlinkt
 |===
+
+Die Adresse der Dokumentation endet auf einen Schrägstrich. `/recipes/docs` leitet dorthin
+um, statt weiterzuleiten: Nur mit dem Schrägstrich lösen die relativen Verweise auf die ADRs
+im Browser richtig auf. Beides richtet <<src-documentation-routing-config,`DocumentationRoutingConfig`>>
+ein, weil Spring Boot eine Verzeichnis-Startseite nur für die Wurzel der Anwendung kennt.
 
 == REST-Ressource `recipes`
 

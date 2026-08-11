@@ -115,6 +115,7 @@ wirkt.
 | link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten.md[0021] | Currying für Records mit mehr als zwei Komponenten
 | link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system.md[0022] | AsciiDoc-Systemdokumentation in `docs/system`
 | link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[0023] | AsciiDoc für Master-Prompt und Skills in `docs/prompt`
+| link:{adr}/0024-systemdokumentation-im-boot-jar.md[0024] | Systemdokumentation im Boot-Jar unter `/recipes/docs/`
 |===
 
 [[pflege-dieser-dokumentation]]
@@ -132,6 +133,10 @@ Gerendert wird mit:
 ----
 ./gradlew asciidoctor   # → build/docs/asciidoc/system.html
 ----
+
+Neben dem HTML legt der Task die ADRs als `adr/` ab; das Ergebnis ist damit als Ganzes
+kopierbar und wird genau so ins Boot-Jar gepackt – die laufende Anwendung liefert es unter
+`/recipes/docs/` aus (link:{adr}/0024-systemdokumentation-im-boot-jar.md[ADR 0024]).
 
 Der Task läuft als Teil von `./gradlew build` mit. Ein fehlender `include`, eine
 unbekannte Attribut-Referenz oder eine defekte Tabelle fällt damit im Build auf und nicht
