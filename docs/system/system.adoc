@@ -17,7 +17,7 @@ betrieben und geprüft wird.
 
 == Zweck und Abgrenzung
 
-Das Projekt kennt drei Dokumentationsarten mit klar getrennten Aufgaben. Wer etwas ergänzt,
+Das Projekt kennt vier Dokumentationsarten mit klar getrennten Aufgaben. Wer etwas ergänzt,
 wählt danach den Ort:
 
 [cols="1,2,3", options="header"]
@@ -36,6 +36,11 @@ wählt danach den Ort:
 | `docs/system/` (hier)
 | Was gibt es, und wie greift es ineinander?
 | Zusammenhängende Sicht auf das System im *Ist-Zustand*
+
+| `docs/prompt/`
+| Wie wird an diesem Projekt gearbeitet?
+| Master-Prompt und Skills – Anweisung statt Beschreibung
+  (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023])
 |===
 
 Daraus folgen drei Regeln für diese Dokumentation:
@@ -99,12 +104,14 @@ wirkt.
 | link:{adr}/0020-domain-in-model-und-services-teilen.md[0020] | Domäne in `model` und `services` teilen
 | link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten.md[0021] | Currying für Records mit mehr als zwei Komponenten
 | link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system.md[0022] | AsciiDoc-Systemdokumentation in `docs/system`
+| link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[0023] | AsciiDoc für Master-Prompt und Skills in `docs/prompt`
 |===
 
 == Pflege dieser Dokumentation
 
 Die Dokumentation wird *mit* der Änderung gepflegt, die sie betrifft – nicht nachgelagert.
-Welche Änderung welches Kapitel berührt, steht in `.claude/skills/systemdoc.md`; die
+Welche Änderung welches Kapitel berührt, steht in `docs/prompt/systemdoku.adoc`
+(link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]); die
 Entscheidung dazu in
 link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system.md[ADR 0022].
 

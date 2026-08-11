@@ -74,6 +74,37 @@ tasks.named<AsciidoctorTask>("asciidoctor") {
     )
 }
 
+// Die Arbeitsgrundlage – Master-Prompt und Skills – liegt seit ADR 0023 ebenfalls als AsciiDoc
+// im Repository (`docs/prompt`) und bekommt deshalb dieselbe Zusicherung wie die
+// Systemdokumentation: kaputte Includes und Querverweise brechen den Build. Die `asciidoctorj`-
+// Konfiguration oben gilt für beide Tasks.
+//
+// Eigener Task statt eines zweiten Eingangspunkts im bestehenden `asciidoctor`: Die beiden
+// Dokumente haben verschiedene Quellverzeichnisse, und getrennte Tasks lassen sich einzeln
+// aufrufen. Das Ausgabeverzeichnis liegt bewusst *neben* `build/docs/asciidoc` und nicht darin –
+// überlappende Task-Ausgaben verwirren Gradles Up-to-date-Prüfung.
+val asciidoctorPrompt by tasks.registering(AsciidoctorTask::class) {
+    group = "documentation"
+    description = "Rendert Master-Prompt und Skills aus docs/prompt nach HTML."
+
+    setSourceDir(file("docs/prompt"))
+    baseDirFollowsSourceFile()
+    // Nur das Masterdokument ist ein Eingangspunkt; Master-Prompt und Skills kommen über
+    // `include`.
+    sources { include("prompt.adoc") }
+    setOutputDir(layout.buildDirectory.dir("docs/prompt").get().asFile)
+    outputOptions { backends("html5") }
+
+    attributes(
+        mapOf(
+            // In `docs/prompt` gilt `../adr`; im gerenderten HTML unter `build/docs/prompt` muss
+            // der Pfad drei Ebenen zurück.
+            "adr" to "../../../docs/adr",
+            "attribute-missing" to "warn",
+        ),
+    )
+}
+
 tasks.named("build") {
-    dependsOn(tasks.named("asciidoctor"))
+    dependsOn(tasks.named("asciidoctor"), asciidoctorPrompt)
 }

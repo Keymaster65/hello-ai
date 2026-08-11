@@ -6,6 +6,57 @@ Datum: 2026-07-19
 
 ---
 
+## 81. Prompt: „Wandle skills und master prompt in asciidoc um. Füge ADR für die zukünftige Pflege dafür hinzu."
+
+_Delta: 18:08 · 133.233 out · 292.445 in (neu) · 6.568.724 gesamt_
+_Stand (Session, 3 Prompts): 18:08 · 133.233 out · 6.568.724 gesamt_
+
+**Aktionen:**
+- Rückfrage vorab (zwei Punkte), weil `CLAUDE.md` ein vom Werkzeug vorgegebener Dateiname ist:
+  Antworten: **Stub mit `@`-Import** auf den AsciiDoc-Master-Prompt und **eigener
+  Asciidoctor-Task** mit denselben `fatalWarnings` wie `docs/system`.
+- `docs/prompt/` angelegt (1016 Zeilen): `prompt.adoc` (Renderdokument mit Attributen,
+  Abgrenzung der vier Dokumentationsarten, Erklärung des Ladewegs, `include`-Liste,
+  Pflegeregel), `masterprompt.adoc` sowie die vier Skills `architektur.adoc`, `tests.adoc`,
+  `systemdoku.adoc`, `develop.adoc`.
+- `CLAUDE.md` von 78 auf 28 Zeilen reduziert: importiert `docs/prompt/masterprompt.adoc`,
+  nennt die vier Skills mit Pfad und verbietet, dort Regeln zu ergänzen. Zusätzlich in Prosa
+  die Anweisung, den Master-Prompt zu lesen – als Absicherung, falls der `@`-Import nicht
+  greift.
+- Umwandlung, keine Umarbeitung: Text wortgetreu übertragen, 11 relative ADR-Pfade
+  (`../../docs/adr/…`) durch das Attribut `{adr}` ersetzt. Inhaltlich geändert wurde nur, was
+  der Umzug erzwang (Skill-Pfade, DoD-Verweis in `develop.adoc`, neuer Befehl). Zwei bekannte
+  Widersprüche bewusst **übernommen** und im ADR benannt: Lombok im Service-Beispiel
+  (widerspricht ADR 0003) und die feste Modellversion im Commit-Trailer.
+- `.claude/skills/*.md` mit `git rm` entfernt – die Arbeitsgrundlage liegt jetzt an einem Ort
+  unter `docs/`, nicht in einem werkzeugspezifischen Verzeichnis.
+- `build.gradle.kts`: Task `asciidoctorPrompt` (Quelle `docs/prompt`, Ausgabe
+  `build/docs/prompt/prompt.html`, ADR-Attribut `../../../docs/adr`), an `build` gehängt. Erbt
+  `fatalWarnings` – kaputter `include` oder Verweis bricht den Build. Ausgabe **neben**
+  `build/docs/asciidoc`, nicht darin (überlappende Task-Ausgaben).
+- `docs/adr/0023-asciidoc-fuer-masterprompt-und-skills.md` angelegt: sechs Optionen (inklusive
+  echter Claude-Code-Skills mit `SKILL.md`), Entscheidung, Tabelle „was Markdown bleibt und
+  warum" (`CLAUDE.md`, ADRs, `claudeLog.md`, README), Konsequenzen samt der neuen Abhängigkeit
+  vom `@`-Import.
+- Nachgezogen: `system.adoc` (vierte Dokumentationsart in der Abgrenzung, ADR 0023 im Index,
+  Pflegeverweis auf `docs/prompt/systemdoku.adoc`), `betrieb.adoc` (Befehlstabelle),
+  `qualitaetssicherung.adoc` (zwei Verweise auf die DoD), `README.md` (Projektstruktur zeigt
+  `docs/` mit vier Unterverzeichnissen).
+- Nachweis: `./gradlew clean build` grün (2m36s, beide Doku-Tasks inklusive), `systemtest`
+  grün (1m), `e2eTest` grün (9 Tests, 15,7s) – letzterer erst im zweiten Lauf: Der erste
+  scheiterte an `config.webServer was not able to start`, weil keine PostgreSQL lief. Cluster
+  per `initdb -D /tmp/pgdata --auth=trust -U postgres` neu aufgesetzt und mit
+  `pg_ctl -o "-p 5432 -k /tmp"` gestartet – **ohne `-k /tmp`** bricht der Start hier ab
+  (`could not create lock file "/var/run/postgresql/…"`). Rolle und Datenbank `recipes`
+  angelegt. Im gerenderten HTML geprüft: ADR-Links lösen auf, der
+  Querverweis auf die AsciiDoc-Konventionen greift über Dateigrenzen, Passthroughs
+  (`+…+`) und `\{id}` bleiben literal, DoD rendert als Checkliste.
+- **Offen:** Dass der `@`-Import greift, zeigt sich erst in der nächsten Session – nach
+  `/clear` daran denken, das zu prüfen.
+- Nach Bestätigung committet (Author = Claude): `Convert master prompt and skills to AsciiDoc`.
+
+---
+
 ## 80. Prompt: „Erstelle eine Asciidoc Systemdocumentation in "docs/system" und Pflege diese in Zukunft mit. Ergänze das als ADR."
 
 _Delta: 37:50 · 176.921 out · 608.818 in (neu) · 23.137.633 gesamt_

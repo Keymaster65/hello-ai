@@ -26,6 +26,10 @@ Gebaut wird ausschließlich über den Gradle-Wrapper
 | Playwright im echten Browser gegen das Boot-Jar. Braucht eine erreichbare PostgreSQL.
 | `./gradlew asciidoctor`
 | Rendert `docs/system/system.adoc` nach `build/docs/asciidoc/system.html`.
+| `./gradlew asciidoctorPrompt`
+| Rendert `docs/prompt/prompt.adoc` – Master-Prompt und Skills – nach
+  `build/docs/prompt/prompt.html`
+  (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]).
 | `./gradlew bootRun`
 | Startet die Anwendung. Braucht eine erreichbare PostgreSQL.
 | `./gradlew build -PskipFrontend`

@@ -42,8 +42,8 @@ Dazu die Frontend-Komponententests (`modules/frontend/src/**/*.test.tsx`, Task
 
 `./gradlew build` führt `test` und `frontendTest` aus. `systemtest` und `e2eTest` hängen
 *nicht* an `check`: Sie sind die langsamsten Stufen und `e2eTest` braucht eine erreichbare
-PostgreSQL. Sie bleiben deshalb eigene, ausdrückliche Schritte – die Definition of Done in
-`CLAUDE.md` verlangt sie trotzdem.
+PostgreSQL. Sie bleiben deshalb eigene, ausdrückliche Schritte – die Definition of Done im Master-Prompt
+(`docs/prompt/masterprompt.adoc`) verlangt sie trotzdem.
 
 == Architekturtests
 
@@ -193,7 +193,9 @@ einzige Bedingung würde zu Tests einladen, die Zeilen berühren, ohne etwas zuz
 
 == Definition of Done
 
-Verbindlich ist die Liste in `CLAUDE.md`; sie steht dort an einer Stelle, damit sie nicht
+Verbindlich ist die Liste im Master-Prompt (`docs/prompt/masterprompt.adoc`,
+link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]); sie steht dort an einer
+Stelle, damit sie nicht
 zweimal gepflegt werden muss. Der Kern:
 
 [source,bash]

@@ -1,30 +1,37 @@
-# Skill: Java-Testing
+// Skill der Arbeitsgrundlage; siehe prompt.adoc.
+ifndef::adr[:adr: ../adr]
+= Skill: Java-Testing
 
-## Zweck
-Aktiviere diesen Skill beim Schreiben, Prüfen oder Refactoring
-von Tests.
+== Zweck
 
-## Stack
-- **Spring Boot Test** – Integrationstests
-- **Testcontainers** – echte DB in Integrationstests
+Aktiviere diesen Skill beim Schreiben, Prüfen oder Refactoring von Tests.
 
-## Testpyramide
-```
+== Stack
+
+* *Spring Boot Test* – Integrationstests
+* *Testcontainers* – echte DB in Integrationstests
+
+== Testpyramide
+
+----
       /\      E2E / @SpringBootTest (wenige)
      /--\     Integration / @DataJpaTest, @WebMvcTest
     /----\    Unit-Tests mit Mockito (viele)
-```
+----
 
-## Prinzipien
-- **AAA-Pattern**: Arrange, Act, Assert
-- **Ein Test = ein Verhalten**
-- Sprechende Namen: `shouldThrowException_whenUserNotFound`
-- Deterministisch & isoliert
-- AssertJ statt JUnit-Assertions (`assertThat(...)`)
-- **F.I.R.S.T.**: Fast, Independent, Repeatable, Self-validating, Timely
+== Prinzipien
 
-## Unit-Test Beispiel (Mockito + AssertJ)
-```java
+* *AAA-Pattern*: Arrange, Act, Assert
+* *Ein Test = ein Verhalten*
+* Sprechende Namen: `shouldThrowException_whenUserNotFound`
+* Deterministisch & isoliert
+* AssertJ statt JUnit-Assertions (`assertThat(...)`)
+* *F.I.R.S.T.*: Fast, Independent, Repeatable, Self-validating, Timely
+
+== Unit-Test Beispiel (Mockito + AssertJ)
+
+[source,java]
+----
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
@@ -63,20 +70,24 @@ class UserServiceTest {
                 .isInstanceOf(UserNotFoundException.class);
     }
 }
-```
+----
 
-## Parametrisierte Tests
-```java
+== Parametrisierte Tests
+
+[source,java]
+----
 @ParameterizedTest
 @ValueSource(strings = {"", "  ", "\t"})
 void shouldThrowException_whenNameIsBlank(String invalidName) {
     assertThatThrownBy(() -> userService.create(invalidName))
             .isInstanceOf(ValidationException.class);
 }
-```
+----
 
-## Slice-Tests (Spring Boot)
-```java
+== Slice-Tests (Spring Boot)
+
+[source,java]
+----
 // Nur Web-Layer testen
 @WebMvcTest(UserController.class)
 class UserControllerTest {
@@ -114,10 +125,12 @@ class UserRepositoryTest {
         assertThat(result).isPresent();
     }
 }
-```
+----
 
-## Integrationstest mit Testcontainers
-```java
+== Integrationstest mit Testcontainers
+
+[source,java]
+----
 @SpringBootTest
 @Testcontainers
 class UserIntegrationTest {
@@ -146,27 +159,30 @@ class UserIntegrationTest {
         assertThat(found.name()).isEqualTo("Anna");
     }
 }
-```
+----
 
-## Checkliste
-1. Happy-Path getestet?
-2. Fehlerfälle & Edge-Cases (null, leer, ungültig)?
-3. Wurde gemockt, was extern ist (Repo, API)?
-4. AssertJ für lesbare Assertions genutzt?
-5. `./gradlew test` grün?
-6. Keine flaky Tests (Zeit/Reihenfolge)?
+== Checkliste
 
-## Mocking-Regeln
-- Externe Abhängigkeiten mocken (Repository, RestClient)
-- Interne Logik NICHT mocken
-- `verify(...)` nur für relevante Interaktionen
-- `@MockBean` in Spring-Slice-Tests, `@Mock` in reinen Unit-Tests
+. Happy-Path getestet?
+. Fehlerfälle & Edge-Cases (null, leer, ungültig)?
+. Wurde gemockt, was extern ist (Repo, API)?
+. AssertJ für lesbare Assertions genutzt?
+. `./gradlew test` grün?
+. Keine flaky Tests (Zeit/Reihenfolge)?
 
-## Nützliche Befehle
-Immer über den Wrapper (siehe [ADR 0009](../../docs/adr/0009-gradle-wrapper-verbindlich.md)):
+== Mocking-Regeln
 
-- Alle Tests: `./gradlew test`
-- Einzelne Klasse: `./gradlew test --tests "*.UserServiceTest"`
-- Einzelne Methode: `./gradlew test --tests "*.UserServiceTest.shouldReturnUser_whenUserExists"`
-- Coverage (JaCoCo): läuft automatisch mit – `test` ist per `finalizedBy` an
+* Externe Abhängigkeiten mocken (Repository, RestClient)
+* Interne Logik NICHT mocken
+* `verify(...)` nur für relevante Interaktionen
+* `@MockBean` in Spring-Slice-Tests, `@Mock` in reinen Unit-Tests
+
+== Nützliche Befehle
+
+Immer über den Wrapper (siehe link:{adr}/0009-gradle-wrapper-verbindlich.md[ADR 0009]):
+
+* Alle Tests: `./gradlew test`
+* Einzelne Klasse: `./gradlew test --tests "*.UserServiceTest"`
+* Einzelne Methode: `./gradlew test --tests "*.UserServiceTest.shouldReturnUser_whenUserExists"`
+* Coverage (JaCoCo): läuft automatisch mit – `test` ist per `finalizedBy` an
   `jacocoTestReport` gekoppelt; Report unter `build/reports/jacoco/test/html/index.html`

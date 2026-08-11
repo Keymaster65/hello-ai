@@ -51,7 +51,11 @@ recipes/
 │   │   └── bootstrap/          Spring-Boot-Einstieg, application.yml, Boot-Jar,
 │   │                           Frontend-Einbindung, Systemtests
 │   └── frontend/               React/Vite, wird ins Boot-Jar gepackt
-└── docs/adr/                   Architekturentscheidungen
+└── docs/
+    ├── adr/                    Architekturentscheidungen
+    ├── system/                 Systemdokumentation (AsciiDoc, ADR 0022)
+    ├── prompt/                 Master-Prompt und Skills (AsciiDoc, ADR 0023)
+    └── log/                    Session-Protokoll
 ```
 
 Ein Modul sieht nur, was es deklariert: Ein Import aus einer äußeren Schicht **compiliert

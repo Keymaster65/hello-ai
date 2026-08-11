@@ -1,0 +1,156 @@
+= Arbeitsgrundlage: recipes
+:toc: left
+:toclevels: 3
+:sectnums:
+:sectanchors:
+:sectlinks:
+:icons: font
+:source-highlighter: highlight.js
+:experimental:
+// Pfad zu den ADRs, relativ zu docs/prompt. Alle Dateien liegen im selben Verzeichnis, der
+// Wert gilt damit auch, wenn eine Datei einzeln gerendert wird.
+:adr: ../adr
+
+Dieses Dokument bündelt die Anweisungen, unter denen an *recipes* gearbeitet wird: den
+Master-Prompt, der in jeder Session gilt, und die vier Skills, die bei Bedarf hinzukommen.
+Entscheidung und Begründung:
+link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023].
+
+== Zweck und Abgrenzung
+
+Das Projekt kennt vier Dokumentationsarten mit klar getrennten Aufgaben. Wer etwas ergänzt,
+wählt danach den Ort:
+
+[cols="1,2,3", options="header"]
+|===
+| Ort | Frage, die es beantwortet | Charakter
+
+| `README.md`
+| Wie fange ich an? Welcher Befehl tut was?
+| Einstieg und Bedienung, bewusst knapp
+
+| `docs/adr/`
+| Warum ist es so und nicht anders?
+| Eine Entscheidung je Datei, mit Optionen und Konsequenzen; historisch, wird nicht
+  umgeschrieben
+
+| `docs/system/`
+| Was gibt es, und wie greift es ineinander?
+| Zusammenhängende Sicht auf das System im *Ist-Zustand*
+
+| `docs/prompt/` (hier)
+| Wie wird an diesem Projekt gearbeitet?
+| Anweisung, nicht Beschreibung: Rolle, Regeln, Konventionen, Abläufe – in der
+  *Gegenwartsform der Vorschrift*
+|===
+
+Der Unterschied zu `docs/system` ist der Modus, nicht das Thema: Die Systemdokumentation
+beschreibt, *was ist*; die Arbeitsgrundlage schreibt vor, *was zu tun ist*. Eine Aussage über
+den Ist-Zustand gehört deshalb nie hierher, sondern nach `docs/system` – und wird von hier aus
+höchstens verlangt.
+
+== Wie diese Dateien geladen werden
+
+`CLAUDE.md` ist der einzige Dateiname, den Claude Code automatisch liest. Die Datei ist
+deshalb auf einen Einbinder reduziert und holt den Master-Prompt per `@`-Import:
+
+[source,text]
+----
+@docs/prompt/masterprompt.adoc
+----
+
+Daraus folgen zwei Regeln für den Umgang mit diesen Dateien:
+
+* *Der Master-Prompt trägt nur, was in jeder Session gilt.* Er wird bei jedem Start
+  vollständig geladen; jede Zeile darin kostet Kontext.
+* *Die Skills werden bei Bedarf gelesen*, nicht importiert. Der Master-Prompt nennt sie mit
+  Pfad und Anlass; wer den Anlass hat, liest die Datei.
+
+NOTE: Der `@`-Import ist eine Funktion von Claude Code, keine von AsciiDoc. Er fügt den
+*Rohtext* ein – die AsciiDoc-Auszeichnung wird dabei nicht aufgelöst und `include::`-Direktiven
+werden nicht verfolgt. Deshalb ist `masterprompt.adoc` so geschrieben, dass es auch als
+Rohtext verständlich ist, und deshalb bindet es die Skills nicht per `include` ein.
+
+== Aufbau
+
+include::masterprompt.adoc[leveloffset=+1]
+
+include::architektur.adoc[leveloffset=+1]
+
+include::tests.adoc[leveloffset=+1]
+
+include::systemdoku.adoc[leveloffset=+1]
+
+include::develop.adoc[leveloffset=+1]
+
+[[pflege]]
+== Pflege dieser Arbeitsgrundlage
+
+Diese Dateien sind das Werkzeug, mit dem gearbeitet wird – veraltet eines davon, arbeitet der
+Assistent nach einer Regel, die nicht mehr gilt. Sie werden deshalb *mit* der Änderung
+gepflegt, die sie betrifft.
+
+=== Auslöser → Pflicht
+
+[cols="2,3", options="header"]
+|===
+| Änderung | Zu pflegen
+
+| Rolle, Tech-Stack, Grundregel, Coding-Konvention, Workflow-Schritt
+| `masterprompt.adoc`, jeweiliger Abschnitt
+
+| Neuer oder geänderter Prüfschritt der Definition of Done
+| `masterprompt.adoc`, Abschnitt „Definition of Done" – *nur dort*. `docs/system` und der
+  Develop-Skill verweisen darauf, statt die Liste zu wiederholen.
+
+| Neuer Gradle-Befehl, der zum Alltag gehört
+| `masterprompt.adoc`, Befehlstabelle *und* `docs/system/betrieb.adoc` (dort im Ist-Zustand)
+
+| Neue Architektur- oder Struktur-Regel
+| `architektur.adoc`
+
+| Neue Test-Konvention, neues Test-Werkzeug
+| `tests.adoc`; die Teststufen selbst stehen in `docs/system/qualitaetssicherung.adoc`
+
+| Neue Regel zur Pflege der Systemdokumentation
+| `systemdoku.adoc`
+
+| Geänderter Session-Ablauf, Log-Format oder Commit-Regel
+| `develop.adoc`
+
+| Neuer Skill
+| Datei anlegen, `include` in dieser Datei ergänzen *und* eine Zeile in der Skill-Tabelle des
+  Master-Prompts – ohne beides ist der Skill unsichtbar
+
+| Neues ADR, das eine Regel hier ändert
+| Betroffene Datei anpassen und auf das ADR verlinken; zusätzlich den ADR-Index in
+  `docs/system/system.adoc` ergänzen
+|===
+
+=== Regeln
+
+. *Eine Regel steht an genau einer Stelle.* Die Definition of Done ist der Prüffall: Sie steht
+  im Master-Prompt, und alles andere verweist. Eine Regel an zwei Stellen ist eine Regel, die
+  an einer Stelle veraltet.
+. *Verlinken statt begründen.* Warum eine Regel gilt, steht im ADR
+  (`+link:{adr}/…[ADR NNNN]+`). Hier steht, was zu tun ist.
+. *Kurz vor vollständig.* Der Master-Prompt wird in jeder Session gelesen – was nur manchmal
+  gebraucht wird, gehört in einen Skill.
+. *`CLAUDE.md` bleibt ein Einbinder.* Keine Regel wird dort ergänzt; sonst gibt es die
+  Arbeitsgrundlage an zwei Orten.
+. *AsciiDoc-Konventionen wie in der Systemdokumentation* – siehe
+  <<asciidoc-konventionen>>.
+
+=== Prüfen
+
+[source,bash]
+----
+./gradlew asciidoctorPrompt      # → build/docs/prompt/prompt.html
+----
+
+Der Task hängt an `./gradlew build`. Ein fehlender `include` und ein Querverweis, der ins Leere
+zeigt, sind *Build-Fehler* – dieselbe Konfiguration wie für die Systemdokumentation
+(link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system.md[ADR 0022]).
+
+WARNING: Der Build prüft Verweise, nicht Inhalte. Dass eine Regel hier noch der gelebten
+Arbeitsweise entspricht, kann kein Task feststellen – das entscheidet der Blick beim Ändern.
