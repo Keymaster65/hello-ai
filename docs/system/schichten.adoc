@@ -1,0 +1,269 @@
+// Kapitel der Systemdokumentation; siehe system.adoc.
+ifndef::adr[:adr: ../adr]
+= Bausteine und Schichten
+
+== Die Regel
+
+Das Backend folgt einer Hexagonal-/Clean-Architecture mit *einem Gradle-Modul je Schicht*
+(link:{adr}/0013-ein-gradle-modul-je-schicht.md[ADR 0013],
+link:{adr}/0014-schichtmodule-unter-backend.md[ADR 0014]). Abhängigkeiten zeigen nach innen:
+
+----
+:modules:backend:bootstrap → :modules:backend:adapter
+        → :modules:backend:application → :modules:backend:domain
+----
+
+Entscheidend ist, dass die Regel nicht nur dokumentiert, sondern *dreifach* abgesichert ist:
+
+. *Vom Build erzwungen.* Ein Modul sieht nur, was es deklariert. Ein Import aus einer
+  äußeren Schicht compiliert nicht. `:domain` hat dabei überhaupt keine
+  Produktionsabhängigkeit – Framework-Freiheit ist dort strukturell garantiert, nicht bloß
+  geprüft.
+. *Von ArchUnit als Schichtenstapel geprüft* (`LayeredArchitectureTest`): zusätzlich
+  Framework-Freiheit der Domäne, die Teilung in `model`/`services` und „Ports sind
+  Interfaces" (link:{adr}/0012-archunit-fuer-die-schichtenregel.md[ADR 0012]).
+. *Von ArchUnit als Zwiebelschalen geprüft* (`OnionArchitectureTest`): Adapter kennen
+  einander nicht – der REST-Adapter greift nicht am Port vorbei auf die Persistenz zu. Diese
+  Lücke kann die Schichtensicht nicht schließen, weil beide Adapter im selben Modul liegen
+  (link:{adr}/0019-onion-architecture-regel-in-archunit.md[ADR 0019]).
+
+Fehlt einer Klasse eine Abhängigkeit, ist das ein Hinweis auf einen Schichtverstoß – nicht
+die Aufforderung, sie im Buildskript zu ergänzen.
+
+== Module und Pakete
+
+Basispaket ist `io.github.keymaster65.helloai`.
+
+[cols="1,1,3", options="header"]
+|===
+| Modul | Paket | Verantwortung
+
+| `:modules:backend:domain`
+| `domain.model`
+| Das Domänenmodell als Records: `Recipe`, `Ingredient`, `PreparationStep`, `Difficulty`.
+  Validierung im kanonischen Konstruktor.
+
+| `:modules:backend:domain`
+| `domain.services`
+| Domänenlogik ohne eigenen Modelltyp. Aktuell leer – nur `package-info.java` markiert den
+  Platz (link:{adr}/0020-domain-in-model-und-services-teilen.md[ADR 0020]).
+
+| `:modules:backend:application`
+| `application.port.in`
+| Eingehender Port `RecipeService`: die fünf Use Cases als Interface.
+
+| `:modules:backend:application`
+| `application.port.out`
+| Ausgehender Port `RecipeRepository`: Persistenz als Interface, formuliert in
+  Domänentypen.
+
+| `:modules:backend:application`
+| `application.service`
+| `RecipeServiceImpl` (Geschäftslogik, Transaktionsgrenzen) und
+  `RecipeNotFoundException`.
+
+| `:modules:backend:adapter`
+| `adapter.in.rest`
+| `RecipeController`, `SpaForwardingController`, `GlobalExceptionHandler`,
+  `RecipeRestMapper`, `ErrorResponse` und die DTOs unter `adapter.in.rest.dto`.
+
+| `:modules:backend:adapter`
+| `adapter.out.persistence`
+| `RecipeJooqRepository`, `RecipePersistenceMapper` sowie der beim Build erzeugte
+  jOOQ-Code unter `adapter.out.persistence.jooq`.
+
+| `:modules:backend:bootstrap`
+| `bootstrap`
+| `RecipeApplication` (Composition Root, `@SpringBootApplication` mit
+  `scanBasePackages`) und `OpenApiConfig`. Hier entsteht das Deployable.
+|===
+
+Das Modul `:modules:backend` selbst trägt keinen Quellcode; es hält die gemeinsame
+Konfiguration der Schichtmodule (Toolchain, Spring-BOM, JaCoCo, Test-Grundausstattung).
+
+== Domäne
+
+`Recipe` ist die Aggregatwurzel: ein Rezept *mit* seinen Zutaten und Schritten. Alle
+Domänentypen sind unveränderliche Records.
+
+[cols="1,3", options="header"]
+|===
+| Zusicherung | Wo sie steht
+
+| `title` ist nicht `null` und nicht leer, `difficulty` ist nicht `null`
+| kanonischer Konstruktor von `Recipe`
+
+| `ingredients` und `steps` sind niemals `null`
+| kanonischer Konstruktor: `null` wird zur leeren Liste, sonst `List.copyOf`; damit ist die
+  Liste auch gegen Änderung von außen geschützt
+
+| `id == null` bedeutet „noch nicht persistiert"
+| Konvention des Modells; `withId(…)` liefert eine Kopie mit Identifikator
+
+| Reihenfolge der Schritte
+| `PreparationStep.position()`, 1-basiert
+|===
+
+Records mit mehr als zwei Komponenten bieten zusätzlich eine curried Factory `curried()` –
+eine Kette benannter Einzelschritte, die Reihenfolge und Vollständigkeit über das Typsystem
+erzwingt (link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten.md[ADR 0021]).
+Der kanonische Konstruktor bleibt der einzige Ort der Validierung.
+
+== Anwendungsschicht
+
+`RecipeServiceImpl` implementiert den eingehenden Port und ist die *Transaktionsgrenze*:
+lesende Use Cases sind `@Transactional(readOnly = true)`, schreibende `@Transactional`. Die
+Schicht kennt weder Web noch Persistenztechnik – im Buildskript stehen nur
+`spring-context` und `spring-tx`.
+
+Die Übersetzung „nicht gefunden" → Fehlerbild geschieht hier durch
+`RecipeNotFoundException`; welchen HTTP-Status daraus wird, entscheidet erst der Adapter.
+Das ist die Stelle, an der die Richtung der Abhängigkeit sichtbar wird: Die Anwendung kennt
+keinen Statuscode.
+
+[cols="1,3", options="header"]
+|===
+| Use Case | Verhalten
+
+| `create(Recipe)` | Speichert; ein mitgegebener Identifikator wird ignoriert.
+| `getById(long)` | Liefert das Rezept oder wirft `RecipeNotFoundException`.
+| `getAll()` | Liefert alle Rezepte, ggf. eine leere Liste.
+| `update(long, Recipe)` | Ersetzt vollständig; wirft `RecipeNotFoundException`, wenn es das Rezept nicht gibt.
+| `delete(long)` | Löscht; wirft `RecipeNotFoundException`, wenn nichts gelöscht wurde.
+|===
+
+== Eingehender Adapter: REST
+
+`RecipeController` bleibt dünn – er mappt, delegiert an den Port und setzt den Statuscode;
+Geschäftslogik enthält er nicht. Die OpenAPI-Annotationen sitzen direkt an dieser Schicht,
+damit der Contract neben dem Code steht, den er beschreibt
+(link:{adr}/0005-springdoc-openapi-und-swagger-ui.md[ADR 0005]).
+
+`RecipeRestMapper` trennt API und Domäne. Zwei Festlegungen stecken darin:
+
+* Die *Position eines Zubereitungsschritts* wird aus der Reihenfolge der Liste im Request
+  abgeleitet (1-basiert) – der Client schickt keine Positionen mit.
+* `null`-Listen im Request werden zu leeren Listen, bevor die Domäne sie sieht.
+
+`GlobalExceptionHandler` (`@RestControllerAdvice`) übersetzt Exceptions zentral in ein
+einheitliches `ErrorResponse`; die Zuordnung steht im Kapitel API.
+
+`SpaForwardingController` leitet die Routen der Oberfläche serverseitig auf die
+`index.html` weiter, damit ein geteilter Link wie `/recipes/3` nicht im 404 endet. Die
+Routen sind *einzeln aufgezählt* statt per Wildcard gefangen, weil ein Catch-all API,
+OpenAPI-Dokument und Swagger UI verschatten könnte
+(link:{adr}/0017-router-mit-spa-fallback.md[ADR 0017]).
+
+[WARNING]
+====
+Eine neue Route im Frontend braucht eine zusätzliche Methode in
+`SpaForwardingController`. Vergisst man sie, funktioniert die Route beim Navigieren
+innerhalb der SPA, aber nicht beim direkten Aufruf. Der zugehörige Systemtest schlägt in
+diesem Fall fehl.
+====
+
+== Ausgehender Adapter: Persistenz
+
+`RecipeJooqRepository` implementiert den ausgehenden Port mit typsicherem SQL über jOOQ.
+Der generierte Code entsteht beim Build aus dem Liquibase-Changelog, ohne laufende
+Datenbank (siehe Kapitel Datenmodell).
+
+Bemerkenswerte Eigenschaften der Implementierung:
+
+[cols="1,3", options="header"]
+|===
+| Aspekt | Umsetzung
+
+| Lesen einer Liste
+| `findAll()` lädt Rezepte, Zutaten und Schritte in *drei* Abfragen und gruppiert im
+  Speicher – kein N+1 über die Zahl der Rezepte.
+
+| Sortierung
+| Kinder werden immer `ORDER BY position` geladen, Rezepte `ORDER BY id`. Die Reihenfolge
+  in der Antwort ist damit deterministisch.
+
+| Ersetzen (`update`)
+| Kopfdaten per `UPDATE` inklusive `updated_at`; Zutaten und Schritte werden *komplett
+  gelöscht und neu eingefügt*. Das hält die Positionen konsistent mit der eingehenden
+  Reihenfolge, vergibt aber neue technische Schlüssel für die Kinder.
+
+| Löschen
+| Nur das Rezept wird gelöscht; Zutaten und Schritte verschwinden über
+  `ON DELETE CASCADE`. Der Rückgabewert `boolean` unterscheidet „gelöscht" von „gab es
+  nicht" und trägt so die 404-Entscheidung in die Anwendungsschicht.
+
+| Sichtbarkeit
+| Repository und Mapper sind *paketprivat*. Von außen ist nur der Port sichtbar.
+|===
+
+== Laufzeitsicht
+
+Zwei Abläufe genügen, um das Zusammenspiel zu zeigen; die übrigen Use Cases folgen
+demselben Muster.
+
+.GET /recipes/api/recipes/\{id}
+----
+Browser → RecipeController.getById(id)
+        → RecipeService.getById(id)                     [readOnly-Transaktion]
+        → RecipeRepository.findById(id)
+        → RecipeJooqRepository: SELECT recipe / ingredient / preparation_step
+        ← Optional<Recipe>
+   leer  → RecipeNotFoundException → GlobalExceptionHandler → 404 + ErrorResponse
+   sonst ← RecipeRestMapper.toResponse(...) → 200 + RecipeResponse
+----
+
+.POST /recipes/api/recipes
+----
+Browser → Bean Validation auf RecipeRequest
+   ungültig → MethodArgumentNotValidException → GlobalExceptionHandler
+              → 400 + ErrorResponse (fieldErrors je Feld)
+   gültig   → RecipeRestMapper.toDomain(request)     [Positionen aus der Listenordnung]
+            → Recipe-Konstruktor validiert die Domäneninvarianten
+            → RecipeService.create(recipe)           [schreibende Transaktion]
+            → INSERT recipe, dann INSERT je Zutat und Schritt
+            ← gespeichertes Rezept inkl. id
+            → 201 + Location: /recipes/api/recipes/{id} + RecipeResponse
+----
+
+Der Start der Anwendung läuft in dieser Reihenfolge: Spring Boot hochfahren →
+Liquibase-Migration gegen die konfigurierte Datenbank → `DSLContext` bereitstellen → HTTP
+öffnen. Ist die Datenbank nicht erreichbar, startet die Anwendung nicht.
+
+== Frontend
+
+Das Frontend ist eine React-SPA mit `react-router`
+(link:{adr}/0017-router-mit-spa-fallback.md[ADR 0017]) und spricht ausschließlich
+*relative* Pfade an – abgeleitet aus `import.meta.env.BASE_URL`, das den Context-Path des
+Backends spiegelt. Eine absolute Origin steht nirgends im Code, deshalb ist derselbe Build
+in Entwicklung und Produktion gültig.
+
+[cols="1,3", options="header"]
+|===
+| Baustein | Aufgabe
+
+| `src/App.tsx`
+| Routen: `/` (Liste), `/new` (Anlegen), `/:id` (Detail), `/:id/edit` (Bearbeiten), sonst
+  eine Nicht-gefunden-Seite. `basename` kommt aus `BASE_URL`.
+
+| `src/pages/`
+| Seiten je Route: `RecipeListPage`, `RecipeDetailPage`, `RecipeFormPage` (Modus `create`
+  oder `edit`). Sie lesen die Route-Parameter, laden Daten und behandeln Lade- und
+  Fehlerzustände.
+
+| `src/components/`
+| Darstellung: `RecipeList` und `RecipeForm` bekommen ihre Daten als Props.
+  `RecipeDetail` fällt aus dem Muster – es lädt sein Rezept selbst und wird von
+  `RecipeDetailPage` nur mit der `id` versorgt.
+
+| `src/api/recipes.ts`
+| Der einzige Ort, an dem `fetch` aufgerufen wird. Wirft bei Nicht-2xx einen `ApiError`,
+  der das `ErrorResponse` des Backends trägt – `fieldError(name)` liefert damit die
+  Validierungsmeldung an das verursachende Feld.
+
+| `src/api/schema.d.ts`
+| Aus dem OpenAPI-Contract *generiert* und eingecheckt. Die TS-Typen der API sind damit
+  nicht von Hand gepflegt.
+|===
+
+Die Fehlerbehandlung des Frontends hängt so direkt am Contract: Ändert das Backend ein
+Feld, fällt es nach dem Neugenerieren der Typen beim `tsc`-Lauf des Builds auf.

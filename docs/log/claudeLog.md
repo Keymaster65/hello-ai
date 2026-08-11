@@ -6,6 +6,51 @@ Datum: 2026-07-19
 
 ---
 
+## 80. Prompt: „Erstelle eine Asciidoc Systemdocumentation in "docs/system" und Pflege diese in Zukunft mit. Ergänze das als ADR."
+
+_Delta: 37:50 · 176.921 out · 608.818 in (neu) · 23.137.633 gesamt_
+_Stand (Session, 1 Prompts): 37:50 · 176.921 out · 23.137.633 gesamt_
+
+**Aktionen:**
+- Rückfrage vorab (drei Punkte). Antworten: **eigene schlanke Gliederung** statt arc42,
+  Rendern über das **Asciidoctor-Gradle-Plugin**, Pflegepflicht in einem **eigenen Skill**.
+- `docs/system/` angelegt: `system.adoc` (Master mit Attributen, Abgrenzung zu README/ADR,
+  `include`-Liste, ADR-Index) plus sechs Kapitel – `ueberblick`, `schichten`,
+  `datenmodell`, `api`, `betrieb`, `qualitaetssicherung`.
+- Inhalte aus dem Code erhoben, nicht aus dem README abgeschrieben. Neu dokumentiert sind
+  u. a. die vier `error`-Codes des `GlobalExceptionHandler`, die Validierungsregeln der
+  DTOs, dass `created_at`/`updated_at` geschrieben aber nie gelesen werden, die
+  Positions-Asymmetrie zwischen `Ingredient` und `PreparationStep`, die vierfach verankerte
+  Festlegung des Context-Paths und ein Abschnitt „Offene Punkte" (keine Auth, kein HTTPS,
+  kein Actuator, keine Paginierung).
+- Asciidoctor-Plugin 4.0.5 in `libs.versions.toml`; im Wurzelprojekt angewendet, dazu
+  `base` (für `clean`/`build`) und ein `repositories`-Block. `./gradlew asciidoctor` →
+  `build/docs/asciidoc/system.html`, hängt an `build`.
+- `baseDirFollowsSourceFile()` war nötig – ohne das sucht Asciidoctor die Kapitel im
+  Projektverzeichnis statt neben dem Masterdokument (Fehlschlag reproduziert).
+- Kaputte Includes **und** kaputte Querverweise sind Build-Fehler
+  (`fatalWarnings(missingIncludes(), "possible invalid reference")`, dafür
+  `logLevel = INFO`). Beide Regeln gegen echte Verstöße geprüft: fehlende Includes und der
+  Anker `[[Offene Punkte]]` (Leerzeichen in der ID) brachen den Task, nach der Korrektur
+  auf `[[offene-punkte]]` läuft er meldungsfrei.
+- `docs/adr/0022-asciidoc-systemdokumentation-in-docs-system.md`: sechs Optionen (README
+  ausbauen, arc42 voll/gekürzt, eigene Gliederung, Markdown, Generieren), Entscheidung mit
+  den drei Regeln „verlinken statt kopieren / keine Versionsnummern / bei Widerspruch
+  gewinnt der Code", Nachteile inkl. der Abweichung „Plugin im Wurzelprojekt".
+- `.claude/skills/systemdoc.md`: Zuordnung „Auslöser → zu pflegendes Kapitel" (15 Zeilen),
+  AsciiDoc-Konventionen, Prüfschritt. In `CLAUDE.md` unter „Skills" verlinkt, dazu
+  `./gradlew asciidoctor` in „Nützliche Befehle"; README bekommt einen Verweiskasten.
+- Kein Workflow-Schritt und kein DoD-Häkchen in `CLAUDE.md` – die Verankerung liegt laut
+  Antwort ausschließlich im Skill. (Zwischenzeitlich ergänzt und wieder entfernt.)
+- Beim Gegenlesen am Code zwei eigene Fehlaussagen korrigiert: `RecipeDetail` lädt sein
+  Rezept **selbst** (nicht „Darstellung ohne Datenzugriff"), und der JaCoCo-Report hängt nur
+  im Modul `:bootstrap` an `test`, nicht in jedem Backend-Modul.
+- **DoD:** `./gradlew clean build` grün (4m15s, 31 Tasks, `:asciidoctor` inbegriffen),
+  `systemtest` grün (15 Tests), `e2eTest` grün (9 Tests). Für die E2E-Stufe waren in dieser
+  Umgebung zwei Vorbereitungen nötig: eine lokale PostgreSQL (`initdb`/`pg_ctl` unter
+  `/tmp/pgdata`, danach wieder gestoppt) und `npx playwright install chromium` – der
+  Browser fehlte, was zunächst 9 Fehlschläge erzeugte.
+
 ## 79. Prompt: „Ergänze Currying für Java-record Klassen mit mehr als 2 Members. Ergänze das als ADR."
 
 _Delta: 15:49 · 86.319 out · 221.592 in (neu) · 5.987.902 gesamt_

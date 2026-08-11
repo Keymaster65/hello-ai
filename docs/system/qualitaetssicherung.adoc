@@ -1,0 +1,210 @@
+// Kapitel der Systemdokumentation; siehe system.adoc.
+ifndef::adr[:adr: ../adr]
+= Qualitätssicherung
+
+== Prinzip
+
+Geprüft wird auf fünf Stufen, jede mit einem eigenen Zweck. Die Aufteilung ist keine
+Geschmacksfrage: Ein Fehlschlag soll die *Stelle* verraten, nicht nur die Tatsache.
+
+[cols="1,2,3,1", options="header"]
+|===
+| Stufe | Ort | Prüft | Task
+
+| Architektur
+| `:bootstrap`, `…/architecture/`
+| Struktur statt Verhalten: Schichten, Zwiebelschalen, Record-Konventionen
+| `test`
+
+| Unit / Property-based
+| je Modul unter `src/test/java`
+| Geschäftslogik, Mapper-Invarianten, Konstruktion von Records
+| `test`
+
+| Slice / Integration
+| `:bootstrap`, `src/test/java`
+| REST-Schicht mit `@WebMvcTest`, Contract, kompletter Stack gegen echtes PostgreSQL
+| `test`
+
+| System
+| `:bootstrap`, `src/systemtest/java`
+| Die laufende Anwendung, ausschließlich über HTTP
+| `systemtest`
+
+| E2E
+| `modules/frontend/e2e`
+| Nutzer-Flows im echten Browser gegen das Boot-Jar
+| `e2eTest`
+|===
+
+Dazu die Frontend-Komponententests (`modules/frontend/src/**/*.test.tsx`, Task
+`frontendTest`).
+
+`./gradlew build` führt `test` und `frontendTest` aus. `systemtest` und `e2eTest` hängen
+*nicht* an `check`: Sie sind die langsamsten Stufen und `e2eTest` braucht eine erreichbare
+PostgreSQL. Sie bleiben deshalb eigene, ausdrückliche Schritte – die Definition of Done in
+`CLAUDE.md` verlangt sie trotzdem.
+
+== Architekturtests
+
+Drei ArchUnit-Regelwerke, alle im Modul `:bootstrap`, weil nur dort jede Schicht auf dem
+Klassenpfad liegt.
+
+[cols="1,3", options="header"]
+|===
+| Test | Regeln
+
+| `LayeredArchitectureTest`
+| `bootstrap → adapter → application → domain`; Framework-Freiheit des Domänenmodells;
+  Teilung der Domäne in `model` und `services`; „Ports sind Interfaces"
+  (link:{adr}/0012-archunit-fuer-die-schichtenregel.md[ADR 0012],
+  link:{adr}/0020-domain-in-model-und-services-teilen.md[ADR 0020])
+
+| `OnionArchitectureTest`
+| Dieselbe Struktur als Ringe – und die Aussage, die der Schichtenstapel nicht ausdrücken
+  kann: *Adapter kennen einander nicht*
+  (link:{adr}/0019-onion-architecture-regel-in-archunit.md[ADR 0019])
+
+| `RecordCurryingTest`
+| Jeder Record mit mehr als zwei Komponenten hat eine curried Factory, deren benannte
+  Schritte die Komponenten in Reihenfolge und Typ abbilden – geprüft wird die *Form der
+  Kette*, nicht nur die Existenz einer Methode
+  (link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten.md[ADR 0021])
+|===
+
+[NOTE]
+====
+Der Maßstab aus ADR 0012 gilt weiter: Eine Regel, die nie fehlschlägt, ist wertlos. Neue
+Architekturregeln werden gegen einen absichtlichen Verstoß geprüft, und dieser Nachweis
+wird im ADR festgehalten – siehe den Abschnitt „Nachweis, dass die Regel greift" in
+link:{adr}/0019-onion-architecture-regel-in-archunit.md[ADR 0019].
+====
+
+== Fachliche Tests
+
+[cols="2,3", options="header"]
+|===
+| Test | Gegenstand
+
+| `RecipeServiceImplTest`
+| Die Use Cases mit Mockito und AssertJ – insbesondere, dass ein leeres `Optional` aus dem
+  Repository zur `RecipeNotFoundException` wird.
+
+| `CurriedFactoryTest` (in `:domain` und `:adapter`)
+| Property-based mit jqwik: Die curried Kette liefert dasselbe wie der kanonische
+  Konstruktor, inklusive Validierungsverhalten.
+
+| `RecipeRestMapperPropertyTest`
+| Property-based: Invarianten des Mappings zwischen DTO und Domäne, darunter die Ableitung
+  der Schrittpositionen aus der Listenordnung.
+
+| `RecipeControllerTest`
+| Web-Slice mit `@WebMvcTest`: Statuscodes, `Location`-Header, Serialisierung und die
+  Fehlerbilder des `GlobalExceptionHandler`.
+
+| `OpenApiDocumentationTest`
+| Der Contract unter `/v3/api-docs` beschreibt alle Operationen und Schemata; die Swagger UI
+  wird ausgeliefert.
+
+| `RecipeIntegrationTest`
+| Der komplette Stack gegen ein echtes PostgreSQL – embedded über Zonky, damit ohne Docker
+  (link:{adr}/0002-embedded-postgres-statt-testcontainers.md[ADR 0002]). Kann das native
+  Binary nicht starten, wird die Klasse *übersprungen* statt rot zu werden.
+|===
+
+== Systemtests
+
+Black-Box über HTTP, in einem eigenen Source-Set (`src/systemtest/java`, test-sets-Plugin,
+link:{adr}/0006-testsets-plugin-und-systemtests.md[ADR 0006]). Als Client genügt der
+JDK-`HttpClient`.
+
+[source,bash]
+----
+./gradlew systemtest                                              # startet die Anwendung selbst
+./gradlew systemtest -Psystemtest.baseUrl=http://localhost:8080   # gegen eine laufende Instanz
+----
+
+Ohne `-Psystemtest.baseUrl` startet die Suite die Anwendung auf einem freien Port mit
+embedded PostgreSQL (`RunningApplication`); mit der Property läuft sie gegen eine deployte
+Instanz und startet nichts. Derselbe Testcode prüft damit beide Fälle. Geprüft werden
+Statuscodes und Contract-Details (`SwaggerSystemTest`) sowie die Auslieferung der SPA
+inklusive der weitergeleiteten Routen (`FrontendSystemTest`).
+
+== End-to-End-Tests
+
+Playwright treibt einen echten Chromium gegen das *Boot-Jar* – also gegen das ausgelieferte
+Artefakt inklusive der darin verpackten SPA
+(link:{adr}/0008-playwright-fuer-e2e-tests.md[ADR 0008]). Getestet werden ausschließlich
+Nutzer-Flows; Statuscodes bleiben in den Systemtests.
+
+[source,bash]
+----
+./gradlew e2eTest                                    # startet das Boot-Jar selbst
+./gradlew e2eTest -Pe2e.baseUrl=http://localhost:8080   # gegen eine laufende Instanz
+----
+
+Eigenschaften der Suite:
+
+* *Nicht parallel* (`workers: 1`): Alle Tests teilen eine Datenbank und dürfen sich nicht
+  gegenseitig überholen.
+* *Bereitschaftsprüfung über die API*, nicht über die SPA – die API wird zuletzt bereit.
+* `aria-snapshots.spec.ts` vergleicht den Accessibility-Tree gegen eingecheckte Baselines
+  unter `e2e/aria-snapshots.spec.ts-snapshots/`. Aktualisieren mit
+  `npx playwright test --update-snapshots` – und zwar bewusst, denn eine Baseline ist eine
+  Zusage über die Bedienbarkeit.
+
+Alle Artefakte liegen unter `modules/backend/bootstrap/build/e2e/` und werden von
+`./gradlew clean` mitentfernt:
+
+[cols="2,3,1", options="header"]
+|===
+| Artefakt | Ort | Wann
+
+| Video (WebM, 1280×800)
+| `test-results/<test>/video.webm`
+| jeder Test, jeder Lauf
+
+| HTML-Report (verlinkt die Videos)
+| `report/index.html`
+| jeder Lauf
+
+| Screenshot
+| `test-results/<test>/`
+| nur bei Fehlschlag
+
+| Trace
+| `test-results/<test>/trace.zip`
+| nur bei Fehlschlag
+|===
+
+Die Videos sind *Diagnose, kein erwartetes Ergebnis* – sie sind nicht reproduzierbar und
+taugen nicht als Baseline.
+
+== Abdeckung
+
+Das JaCoCo-Plugin ist in jedem Backend-Modul aktiv. Automatisch erzeugt wird der Report
+allerdings nur im Modul `:bootstrap` – dort ist `test` mit `finalizedBy(jacocoTestReport)`
+verbunden und der Report als XML *und* HTML konfiguriert. In den übrigen Modulen ist
+`jacocoTestReport` ein Task, den man ausdrücklich aufruft.
+
+Es gibt bewusst *keine* Mindestquote als Build-Bedingung: Die Architektur- und
+Property-Tests prüfen Eigenschaften, die eine Zeilenquote nicht abbildet. Eine Quote als
+einzige Bedingung würde zu Tests einladen, die Zeilen berühren, ohne etwas zuzusichern.
+
+== Definition of Done
+
+Verbindlich ist die Liste in `CLAUDE.md`; sie steht dort an einer Stelle, damit sie nicht
+zweimal gepflegt werden muss. Der Kern:
+
+[source,bash]
+----
+./gradlew clean build   # kompiliert, Java- und Frontend-Tests, JaCoCo, Boot-Jar, Systemdoku
+./gradlew systemtest    # laufende Anwendung über HTTP
+./gradlew e2eTest       # Nutzer-Flows im Browser
+----
+
+[TIP]
+====
+In manchen Umgebungen startet der Gradle-Daemon mit `java.io.IOException: Input/output
+error`. Stabil läuft es dann mit `--no-daemon -g /tmp/gradle-home`.
+====

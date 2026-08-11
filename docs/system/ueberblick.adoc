@@ -1,0 +1,137 @@
+// Kapitel der Systemdokumentation; siehe system.adoc.
+ifndef::adr[:adr: ../adr]
+= Überblick
+
+== Aufgabe des Systems
+
+*recipes* verwaltet Kochrezepte. Ein Rezept besteht aus Kopfdaten (Titel, Beschreibung,
+Portionen, Zubereitungszeit, Schwierigkeitsgrad), einer Liste von Zutaten und einer
+*geordneten* Folge von Zubereitungsschritten. Über die Oberfläche und über die REST-API
+lassen sich Rezepte anlegen, lesen, ersetzen und löschen – mehr nicht. Es gibt keine
+Nutzerverwaltung, keine Suche, keine Bewertungen, keine Bilder.
+
+Fachlich vorbelegt ist die Datenbank mit dem klassischen Buchinger-Heilfastenzyklus
+(siehe <<beispieldaten>> im Kapitel Datenmodell); das ist Beispieldatenbestand, keine
+Fachlogik.
+
+== Qualitätsziele
+
+Die Reihenfolge ist bewusst: Bei einem Konflikt gewinnt das weiter oben stehende Ziel.
+
+[cols="1,3,3", options="header"]
+|===
+| Ziel | Bedeutung | Woran es hängt
+
+| Strukturtreue
+| Die Abhängigkeitsrichtung der Schichten gilt ohne Ausnahme, auch unter Zeitdruck.
+| Ein Gradle-Modul je Schicht, zusätzlich zwei ArchUnit-Sichten
+  (link:{adr}/0013-ein-gradle-modul-je-schicht.md[ADR 0013],
+  link:{adr}/0012-archunit-fuer-die-schichtenregel.md[ADR 0012],
+  link:{adr}/0019-onion-architecture-regel-in-archunit.md[ADR 0019])
+
+| Prüfbarkeit
+| Jede Aussage über das System ist automatisiert nachweisbar – vom Datentyp bis zum
+  Nutzer-Flow im echten Browser.
+| Fünf Teststufen, siehe Kapitel Qualitätssicherung
+
+| Typsicherheit an den Rändern
+| Fehler fallen beim Kompilieren auf, nicht zur Laufzeit: SQL, API-Contract und
+  Record-Konstruktion sind typisiert.
+| jOOQ-Codegen aus dem Changelog, generierte TS-Typen aus OpenAPI, curried Factories
+  (link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten.md[ADR 0021])
+
+| Einfachheit des Deployments
+| Ein Artefakt, eine Origin, keine CORS-Konfiguration.
+| Das Frontend wird ins Boot-Jar gepackt
+  (link:{adr}/0007-react-frontend-mit-backend-als-bff.md[ADR 0007])
+
+| Reproduzierbarer Build
+| Derselbe Befehl führt auf jeder Maschine zum selben Ergebnis, ohne Docker und ohne
+  lokale Datenbank.
+| Gradle-Wrapper (link:{adr}/0009-gradle-wrapper-verbindlich.md[ADR 0009]),
+  Versionskatalog (link:{adr}/0018-versionskatalog-libs-versions-toml.md[ADR 0018]),
+  embedded PostgreSQL (link:{adr}/0002-embedded-postgres-statt-testcontainers.md[ADR 0002])
+|===
+
+== Systemkontext
+
+Das System hat genau zwei Nachbarn: den Browser des Nutzers und eine PostgreSQL-Datenbank.
+Es ruft von sich aus kein Fremdsystem auf.
+
+----
+        ┌────────────────┐
+        │    Browser     │   Nutzer: Rezepte pflegen
+        └───────┬────────┘
+                │ HTTPS/HTTP  (SPA-Auslieferung + JSON über /recipes/api)
+                ▼
+        ┌────────────────────────────────────────────┐
+        │  recipes  (ein Boot-Jar)                   │
+        │  · SPA-Bundle aus dem Klassenpfad          │
+        │  · REST-API                                │
+        │  · OpenAPI-Dokument + Swagger UI           │
+        └───────┬────────────────────────────────────┘
+                │ JDBC (jOOQ), Schema-Migration (Liquibase)
+                ▼
+        ┌────────────────┐
+        │   PostgreSQL   │
+        └────────────────┘
+----
+
+[cols="1,1,3", options="header"]
+|===
+| Nachbar | Richtung | Schnittstelle
+
+| Browser / API-Client
+| eingehend
+| HTTP: SPA unter `/recipes/`, JSON-API unter `/recipes/api/recipes`, Contract unter
+  `/recipes/v3/api-docs`. Ein Port, eine Origin
+  (link:{adr}/0016-context-path-recipes.md[ADR 0016]).
+
+| PostgreSQL
+| ausgehend
+| JDBC. Zugangsdaten ausschließlich über Umgebungsvariablen, siehe Kapitel Betrieb. Das
+  Schema wird beim Start von Liquibase angelegt bzw. fortgeschrieben.
+|===
+
+== Technische Bausteine im Groben
+
+[cols="1,2,3", options="header"]
+|===
+| Baustein | Ort | Rolle
+
+| Backend
+| `modules/backend/`
+| Java, Spring Boot. Vier Gradle-Module – ein Modul je Schicht der Hexagonal-Architektur.
+
+| Frontend
+| `modules/frontend/`
+| TypeScript, React, react-router, Vite. Eigenständiges npm-Projekt, das beim Gradle-Build
+  gebaut und ins Boot-Jar gelegt wird.
+
+| Datenbankschema
+| `modules/backend/adapter/src/main/resources/db/changelog/`
+| Liquibase-Changelogs. Dieselben Dateien speisen zur Laufzeit die Migration und beim Build
+  die jOOQ-Codegenerierung.
+
+| Dokumentation
+| `docs/`
+| ADRs (`docs/adr/`), diese Systemdokumentation (`docs/system/`), Session-Protokoll
+  (`docs/log/`).
+|===
+
+Alle Bausteine liegen unter `modules/`
+(link:{adr}/0015-alle-bausteine-unter-modules.md[ADR 0015]); das Wurzelprojekt trägt keinen
+Quellcode und aggregiert nur.
+
+== Randbedingungen
+
+* *Java 25* als Toolchain-Vorgabe in allen Backend-Modulen; moderne Sprachmittel (Records,
+  Pattern Matching, Text Blocks) sind ausdrücklich erwünscht.
+* *Kein Lombok.* Records und Konstruktor-Injektion ersetzen es
+  (link:{adr}/0003-kein-lombok-records-und-konstruktor-injektion.md[ADR 0003]).
+* *Gradle ausschließlich über den Wrapper*, Buildskripte im Kotlin-DSL
+  (link:{adr}/0009-gradle-wrapper-verbindlich.md[ADR 0009],
+  link:{adr}/0010-gradle-kotlin-dsl.md[ADR 0010]).
+* *Der Build braucht keine laufende Datenbank* – weder für die Codegenerierung noch für die
+  Tests. Docker ist nicht erforderlich.
+* *Code und JavaDoc auf Englisch*, Dokumentation und Oberfläche auf Deutsch.

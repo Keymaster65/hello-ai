@@ -7,6 +7,7 @@
 
 [versions]
 archunit = "1.5.0"
+asciidoctor = "4.0.5"
 jooq = "3.21.6"
 jooqPlugin = "10.2.1"
 jqwik = "1.9.3"
@@ -44,6 +45,7 @@ zonky-embedded-postgres = { module = "io.zonky.test:embedded-postgres", version.
 zonky-postgres-binaries-bom = { module = "io.zonky.test.postgres:embedded-postgres-binaries-bom", version.ref = "zonkyPostgresBinaries" }
 
 [plugins]
+asciidoctor-convert = { id = "org.asciidoctor.jvm.convert", version.ref = "asciidoctor" }
 jooq = { id = "nu.studer.jooq", version.ref = "jooqPlugin" }
 spring-boot = { id = "org.springframework.boot", version.ref = "springBoot" }
 spring-dependency-management = { id = "io.spring.dependency-management", version.ref = "springDependencyManagement" }

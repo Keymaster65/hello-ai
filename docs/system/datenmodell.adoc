@@ -1,0 +1,189 @@
+// Kapitel der Systemdokumentation; siehe system.adoc.
+ifndef::adr[:adr: ../adr]
+= Datenmodell und Persistenz
+
+== Schema
+
+Drei Tabellen, ein Aggregat: `recipe` mit zwei abhängigen Kindtabellen.
+
+----
+recipe (1) ──< ingredient          ON DELETE CASCADE, Reihenfolge über position
+       (1) ──< preparation_step    ON DELETE CASCADE, Reihenfolge über position
+----
+
+.Tabelle `recipe`
+[cols="2,2,1,3", options="header"]
+|===
+| Spalte | Typ | Pflicht | Bedeutung
+
+| `id` | `BIGINT`, `GENERATED ALWAYS` | ja | Primärschlüssel, von der Datenbank vergeben
+| `title` | `VARCHAR(200)` | ja | Titel des Rezepts
+| `description` | `TEXT` | nein | Freitext
+| `servings` | `INTEGER` | nein | Portionen
+| `prep_time_minutes` | `INTEGER` | nein | Zubereitungszeit in Minuten
+| `difficulty` | `VARCHAR(20)` | ja | Name des Enum-Werts: `EASY`, `MEDIUM`, `HARD`
+| `created_at` | `TIMESTAMP` | ja | Default `CURRENT_TIMESTAMP`
+| `updated_at` | `TIMESTAMP` | ja | Default `CURRENT_TIMESTAMP`, beim `UPDATE` neu gesetzt
+|===
+
+.Tabelle `ingredient`
+[cols="2,2,1,3", options="header"]
+|===
+| Spalte | Typ | Pflicht | Bedeutung
+
+| `id` | `BIGINT`, `GENERATED ALWAYS` | ja | Primärschlüssel
+| `recipe_id` | `BIGINT` | ja | FK `fk_ingredient_recipe` → `recipe.id`, `ON DELETE CASCADE`
+| `position` | `INTEGER` | ja | 1-basierte Reihenfolge innerhalb des Rezepts
+| `name` | `VARCHAR(200)` | ja | Bezeichnung der Zutat
+| `quantity` | `NUMERIC(12,3)` | nein | Menge
+| `unit` | `VARCHAR(50)` | nein | Einheit der Menge
+|===
+
+.Tabelle `preparation_step`
+[cols="2,2,1,3", options="header"]
+|===
+| Spalte | Typ | Pflicht | Bedeutung
+
+| `id` | `BIGINT`, `GENERATED ALWAYS` | ja | Primärschlüssel
+| `recipe_id` | `BIGINT` | ja | FK `fk_preparation_step_recipe` → `recipe.id`, `ON DELETE CASCADE`
+| `position` | `INTEGER` | ja | 1-basierte Reihenfolge des Schritts
+| `instruction` | `TEXT` | ja | Anweisungstext
+|===
+
+Zusätzlich je Kindtabelle ein Index auf dem Fremdschlüssel (`idx_ingredient_recipe`,
+`idx_preparation_step_recipe`) – das ist der Zugriffspfad jeder Leseoperation.
+
+== Abbildung auf das Domänenmodell
+
+Die Abbildung ist absichtlich nicht deckungsgleich:
+
+[cols="2,2,3", options="header"]
+|===
+| Datenbank | Domäne | Anmerkung
+
+| `recipe.id`
+| `Recipe.id()`
+| `null` in der Domäne bedeutet „noch nicht persistiert"
+
+| `difficulty` als Text
+| `Difficulty` als Enum
+| Konvertierung über `Difficulty.valueOf(…)` im `RecipePersistenceMapper`. Ein unbekannter
+  Wert in der Spalte führt zu einer `IllegalArgumentException` beim Lesen – die Datenbank
+  selbst hat keine Prüfbedingung darauf.
+
+| `created_at`, `updated_at`
+| –
+| *Nicht* Teil des Domänenmodells und nicht Teil der API. Die Spalten werden geschrieben
+  (Default bzw. `UPDATE`), aber nirgends gelesen. Wer sie fachlich braucht, erweitert
+  Domäne, DTO und Mapper – die Spalten allein genügen nicht.
+
+| `ingredient.id`, `preparation_step.id`
+| –
+| Rein technische Schlüssel. Die Domäne kennt Zutaten und Schritte nur als Bestandteil des
+  Aggregats, nicht als eigenständige Entitäten.
+
+| `ingredient.position`
+| – (Listenordnung)
+| `Ingredient` trägt keine Position; die Reihenfolge steckt in der Liste. Geschrieben wird
+  der Listenindex, gelesen wird `ORDER BY position`.
+
+| `preparation_step.position`
+| `PreparationStep.position()`
+| Hier ist die Position *explizit* im Modell. Gesetzt wird sie vom `RecipeRestMapper` aus
+  der Reihenfolge im Request.
+|===
+
+[NOTE]
+====
+Die Asymmetrie zwischen `Ingredient` (Position implizit) und `PreparationStep` (Position
+explizit) ist historisch und kein Entwurfsprinzip. Sie fällt nicht auf, weil beide Wege
+dieselbe Reihenfolge erzeugen – wer daran arbeitet, sollte sie kennen.
+====
+
+== Migration mit Liquibase
+
+Das Schema wird ausschließlich über Liquibase verwaltet
+(link:{adr}/0004-liquibase-statt-flyway.md[ADR 0004]); es gibt kein
+Schema-Management durch das ORM, kein `ddl-auto`.
+
+[cols="2,3", options="header"]
+|===
+| Datei | Inhalt
+
+| `db/changelog/db.changelog-master.xml`
+| Wurzel-Changelog, bindet die Changesets in Reihenfolge ein. Dieselbe Datei speist die
+  Migration zur Laufzeit *und* die Codegenerierung beim Build.
+
+| `changes/0001-create-recipe-schema.xml`
+| Tabellen, Fremdschlüssel, Indizes.
+
+| `changes/0002-seed-fasting-recipes.xml`
+| Beispieldaten, Context `seed`.
+|===
+
+Die Changesets sind mit `objectQuotingStrategy="QUOTE_ALL_OBJECTS"` geschrieben. Das ist
+keine Kosmetik: Die jOOQ-Codegenerierung interpretiert das Changelog über eine
+In-Memory-H2, die unquotierte Namen groß schreiben würde. Mit Quoting bleiben die
+Bezeichner klein und passen zu dem, was PostgreSQL zur Laufzeit sieht.
+
+[[beispieldaten]]
+=== Beispieldaten
+
+Changeset `0002-seed-fasting-recipes` legt den klassischen Buchinger-Heilfastenzyklus an
+(Entlastungstag, Fastentee, Fastenbrühe, Fastensuppe, Fastenbrechen, Aufbautag). Zwei
+Vorkehrungen machen es unschädlich:
+
+* Eine `preConditions` mit `sqlCheck` auf `COUNT(*) = 0` und `onFail="MARK_RAN"`: In einer
+  bereits befüllten Datenbank wird das Changeset als ausgeführt markiert, ohne etwas
+  einzufügen. Doppelte Einträge sind damit ausgeschlossen.
+* Der Context `seed`. Wer die Beispieldaten nicht will, wählt sie beim Deployment ab:
++
+[source,bash]
+----
+SPRING_LIQUIBASE_CONTEXTS=prod   # Schema ja, Beispieldaten nein
+----
+
+Die Kindzeilen verweisen über einen Subselect auf den (eindeutigen) Titel des Rezepts, weil
+die Identifikatoren `GENERATED ALWAYS` sind und deshalb nicht fest verdrahtet werden können.
+
+== Codegenerierung mit jOOQ
+
+Der typsichere Zugriff entsteht beim Build aus dem Changelog – über
+`org.jooq.meta.extensions.liquibase.LiquibaseDatabase`. Es wird dafür *keine laufende
+Datenbank* benötigt (link:{adr}/0001-jooq-codegen-aus-flyway-skripten.md[ADR 0001],
+link:{adr}/0004-liquibase-statt-flyway.md[ADR 0004]).
+
+[cols="2,3", options="header"]
+|===
+| Einstellung | Wirkung
+
+| `rootPath` + `scripts`
+| Das Changelog wird aus dem Ressourcenverzeichnis des Adapter-Moduls gelesen, samt
+  relativer Includes.
+
+| `defaultNameCase = lower`, `unqualifiedSchema = none`
+| Die generierten Namen passen zu PostgreSQL zur Laufzeit.
+
+| `includeLiquibaseTypes = false`
+| Liquibases eigene Verwaltungstabellen (`databasechangelog`, `databasechangeloglock`)
+  landen nicht im generierten Code.
+
+| `records = true`, `pojos/daos = false`
+| Erzeugt werden Tabellen- und Record-Klassen, keine DAOs – der Zugriff läuft über den Port
+  und das handgeschriebene Repository.
+
+| `generateSchemaSourceOnCompilation = true`
+| Der Code ist beim Kompilieren aktuell; ein separater Generierungsschritt ist nicht nötig.
+|===
+
+Zielpaket ist `io.github.keymaster65.helloai.adapter.out.persistence.jooq`, Ausgabe unter
+`modules/backend/adapter/build/generated-src/jooq/main`. Der generierte Code wird *nicht*
+eingecheckt.
+
+[IMPORTANT]
+====
+Eine Schemaänderung geschieht damit an genau einer Stelle: einem neuen Changeset. Der
+generierte Code, die Migration und die Repository-Abfragen folgen daraus. Passt eine
+Abfrage nach der Änderung nicht mehr, ist das ein *Compilerfehler* – nicht ein Fehler zur
+Laufzeit.
+====

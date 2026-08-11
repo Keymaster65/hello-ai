@@ -41,6 +41,9 @@ Sprache. Welche Rolle gilt, ergibt sich aus der bearbeiteten Datei bzw. Aufgabe.
 ## Skills
 - **Architektur** → siehe `.claude/skills/architecture.md`
 - **Tests** → siehe `.claude/skills/testing.md`
+- **Systemdokumentation** → siehe `.claude/skills/systemdoc.md`
+  (pflegt `docs/system/*.adoc` – bei **jeder** Änderung am Ist-Zustand des Systems,
+  siehe [ADR 0022](docs/adr/0022-asciidoc-systemdokumentation-in-docs-system.md))
 - **Develop / Session-Protokoll** → siehe `.claude/skills/develop.md`
   (pflegt `docs/log/claudeLog.md` fortlaufend – in **jeder** Session aktiv)
 
@@ -58,6 +61,8 @@ Sprache. Welche Rolle gilt, ergibt sich aus der bearbeiteten Datei bzw. Aufgabe.
 lokal installiertes `gradle` – siehe [ADR 0009](docs/adr/0009-gradle-wrapper-verbindlich.md).
 
 - Build: `./gradlew clean build`
+- Systemdokumentation rendern: `./gradlew asciidoctor`
+  (Ergebnis: `build/docs/asciidoc/system.html`; läuft bei `build` mit)
 - Tests: `./gradlew test`
 - Systemtests: `./gradlew systemtest`
   (gegen laufende Instanz: `./gradlew systemtest -Psystemtest.baseUrl=http://localhost:8080`)

@@ -1,0 +1,199 @@
+// Kapitel der Systemdokumentation; siehe system.adoc.
+ifndef::adr[:adr: ../adr]
+= Schnittstellen
+
+== Adressraum
+
+Alles liegt unter dem Context-Path `/recipes`
+(link:{adr}/0016-context-path-recipes.md[ADR 0016]) – SPA, API und Contract teilen eine
+Origin. Genau das macht CORS überflüssig
+(link:{adr}/0007-react-frontend-mit-backend-als-bff.md[ADR 0007]).
+
+[cols="2,2,3", options="header"]
+|===
+| Zweck | Pfad | Anmerkung
+
+| Oberfläche (SPA) | `/recipes/` | Bundle aus dem Klassenpfad (`static/`)
+| REST-API | `/recipes/api/recipes` | JSON
+| OpenAPI 3.1, JSON | `/recipes/v3/api-docs` | zur Laufzeit erzeugt
+| OpenAPI 3.1, YAML | `/recipes/v3/api-docs.yaml` | dasselbe Dokument
+| Swagger UI | `/recipes/swagger-ui.html` | Operationen nach Methode, Tags alphabetisch
+|===
+
+== REST-Ressource `recipes`
+
+[cols="1,3,1,4", options="header"]
+|===
+| Methode | Pfad | Erfolg | Fehler
+
+| `POST` | `/api/recipes` | `201` + `Location` | `400`
+| `GET` | `/api/recipes` | `200` (ggf. leere Liste) | –
+| `GET` | `/api/recipes/\{id}` | `200` | `404`
+| `PUT` | `/api/recipes/\{id}` | `200` | `400`, `404`
+| `DELETE` | `/api/recipes/\{id}` | `204` (ohne Body) | `404`
+|===
+
+`PUT` *ersetzt* das Rezept vollständig, einschließlich Zutaten und Schritte; es gibt keine
+teilweise Änderung (kein `PATCH`). Ein im Request mitgeschickter Identifikator wird
+ignoriert – maßgeblich ist der Pfad.
+
+=== Anfrage
+
+`RecipeRequest`, validiert per Bean Validation. Verstöße erzeugen `400` mit einem Eintrag
+je Feld.
+
+[cols="2,1,3", options="header"]
+|===
+| Feld | Pflicht | Regel
+
+| `title` | ja | nicht leer, maximal 200 Zeichen
+| `description` | nein | Freitext, unbegrenzt
+| `servings` | nein | wenn vorhanden, echt positiv
+| `prepTimeMinutes` | nein | wenn vorhanden, echt positiv
+| `difficulty` | ja | `EASY`, `MEDIUM` oder `HARD`
+| `ingredients[]` | nein | je Element geprüft: `name` nicht leer und ≤ 200 Zeichen, `quantity` ≥ 0, `unit` ≤ 50 Zeichen
+| `steps[]` | nein | je Element geprüft: `instruction` nicht leer
+|===
+
+Die Reihenfolge der Listen ist bedeutungstragend: Aus ihr entstehen die Positionen. Ein
+`null` oder fehlendes Feld für `ingredients`/`steps` wird als leere Liste behandelt.
+
+.Beispiel
+[source,json]
+----
+{
+  "title": "Spaghetti Carbonara",
+  "description": "Klassische römische Pasta",
+  "servings": 4,
+  "prepTimeMinutes": 25,
+  "difficulty": "MEDIUM",
+  "ingredients": [
+    { "name": "Spaghetti", "quantity": 500, "unit": "g" },
+    { "name": "Eier", "quantity": 4, "unit": "Stk" }
+  ],
+  "steps": [
+    { "instruction": "Nudeln kochen" },
+    { "instruction": "Eier und Käse verrühren" }
+  ]
+}
+----
+
+=== Antwort
+
+`RecipeResponse` entspricht dem Request, ergänzt um `id`; die Schritte tragen zusätzlich
+ihre `position`. Die vom Domänenmodell garantierten Felder sind im Contract als
+`required` markiert (`id`, `title`, `difficulty`, `ingredients`, `steps`), die echt
+optionalen nicht (`description`, `servings`, `prepTimeMinutes`).
+
+Das ist mehr als Kosmetik: Der TypeScript-Generator übernimmt die Unterscheidung, sodass im
+Frontend `id: number` statt `id?: number` steht und garantierte Felder ohne Prüfung auf
+`undefined` benutzbar sind.
+
+=== Fehler
+
+Jeder Fehler antwortet mit demselben `ErrorResponse` – zentral erzeugt im
+`GlobalExceptionHandler`:
+
+[source,json]
+----
+{
+  "status": 400,
+  "error": "VALIDATION_FAILED",
+  "message": "Request validation failed",
+  "fieldErrors": [
+    { "field": "title", "message": "must not be blank" }
+  ]
+}
+----
+
+[cols="2,1,2,3", options="header"]
+|===
+| Auslöser | Status | `error` | `fieldErrors`
+
+| `RecipeNotFoundException`
+| `404`
+| `NOT_FOUND`
+| leer
+
+| Bean-Validation-Verstoß (`MethodArgumentNotValidException`)
+| `400`
+| `VALIDATION_FAILED`
+| ein Eintrag je verletztem Feld
+
+| unlesbarer Body (`HttpMessageNotReadableException`)
+| `400`
+| `MALFORMED_REQUEST`
+| leer
+
+| `IllegalArgumentException`
+| `400`
+| `INVALID_ARGUMENT`
+| leer
+|===
+
+`status`, `error`, `message` und `fieldErrors` sind immer vorhanden; `fieldErrors` ist außer
+bei `VALIDATION_FAILED` eine leere Liste – nicht `null`. Das Frontend verlässt sich darauf
+(`ApiError.fieldError(feld)`).
+
+Der letzte Fall verdient Aufmerksamkeit: Die Domänen-Records werfen
+`IllegalArgumentException`/`NullPointerException` bei verletzten Invarianten. Nur die
+`IllegalArgumentException` wird zu `400`; ein `NullPointerException` aus dem Konstruktor
+würde als `500` durchschlagen. In der Praxis fängt die Bean Validation diese Fälle vorher
+ab – die Reihenfolge ist also Absicherung, keine Redundanz ohne Zweck.
+
+== OpenAPI-Contract
+
+Der Contract wird zur *Laufzeit* aus Controller-Signaturen, Bean-Validation und den
+`@Operation`/`@Schema`-Annotationen erzeugt
+(link:{adr}/0005-springdoc-openapi-und-swagger-ui.md[ADR 0005]). Es gibt keine
+handgepflegte Spezifikationsdatei, die veralten könnte.
+
+Dokumentweite Angaben (Titel, Beschreibung, Version, Kontakt, Lizenz) stehen in
+`OpenApiConfig` im Modul `:bootstrap`; alles Operations- und Schemaspezifische steht als
+Annotation am REST-Adapter.
+
+`OpenApiDocumentationTest` prüft, dass das Dokument alle Operationen und Schemata
+beschreibt und die Swagger UI ausgeliefert wird – der Contract ist damit nicht nur
+vorhanden, sondern geprüft.
+
+=== Abgeleitete TypeScript-Typen
+
+Das Frontend nutzt keine handgeschriebenen API-Typen. `src/api/schema.d.ts` wird aus dem
+Contract generiert und ist eingecheckt:
+
+[source,bash]
+----
+cd modules/frontend && npm run generate:api   # benötigt ein laufendes Backend auf :8080
+----
+
+[IMPORTANT]
+====
+Nach jeder API-Änderung ist dieser Schritt fällig. Er ist *nicht* Teil des Gradle-Builds,
+weil er ein laufendes Backend braucht. Unterbleibt er, bleibt das Frontend gegen einen
+veralteten Contract typisiert – der Build ist grün und die Laufzeit falsch.
+====
+
+== Oberfläche
+
+[cols="1,2,3", options="header"]
+|===
+| Ansicht | Adresse | Bemerkung
+
+| Liste | `/recipes/` | Startseite
+| Anlegen | `/recipes/new` | Formular, Modus `create`
+| Detail | `/recipes/\{id}` | teilbarer Link
+| Bearbeiten | `/recipes/\{id}/edit` | Formular, Modus `edit`
+| Nicht gefunden | alles andere | Hinweis mit Rücklink zur Liste
+|===
+
+Damit diese Adressen auch beim *direkten* Aufruf funktionieren, leitet
+`SpaForwardingController` sie serverseitig auf die `index.html` weiter – explizit
+aufgezählt, damit der Fallback API, OpenAPI und Swagger UI nicht verschattet
+(link:{adr}/0017-router-mit-spa-fallback.md[ADR 0017]). Die Detail- und Bearbeiten-Routen
+sind serverseitig auf Ziffern eingeschränkt (`{id:\\d+}`).
+
+== Keine weiteren Schnittstellen
+
+Das System bietet *keine* Authentifizierung, keine Autorisierung, kein Rate Limiting, keine
+Ereignis- oder Messaging-Schnittstelle und keine Actuator-Endpunkte. Wer die Anwendung
+erreicht, darf alles. Siehe Kapitel Betrieb, Abschnitt <<offene-punkte>>.
