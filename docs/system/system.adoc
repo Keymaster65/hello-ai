@@ -7,6 +7,8 @@
 :icons: font
 :source-highlighter: highlight.js
 :experimental:
+// Ohne das steht in der Überschrift des Anhangs „Appendix" – der Rest ist deutsch.
+:appendix-caption: Anhang
 // Pfad zu den ADRs, relativ zu docs/system. Alle Kapiteldateien liegen im selben
 // Verzeichnis, der Wert gilt damit auch, wenn ein Kapitel einzeln gerendert wird.
 :adr: ../adr
@@ -133,4 +135,7 @@ Gerendert wird mit:
 
 Der Task läuft als Teil von `./gradlew build` mit. Ein fehlender `include`, eine
 unbekannte Attribut-Referenz oder eine defekte Tabelle fällt damit im Build auf und nicht
-erst beim Lesen.
+erst beim Lesen. Seit dem Anhang <<quelldateien>> gilt das auch für die *Pfade der
+Quelldateien*: Sie sind eingebunden, ein Umzug bricht den Build.
+
+include::anhang-quellen.adoc[leveloffset=+1]

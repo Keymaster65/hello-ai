@@ -19,10 +19,10 @@ Entscheidend ist, dass die Regel nicht nur dokumentiert, sondern *dreifach* abge
   äußeren Schicht compiliert nicht. `:domain` hat dabei überhaupt keine
   Produktionsabhängigkeit – Framework-Freiheit ist dort strukturell garantiert, nicht bloß
   geprüft.
-. *Von ArchUnit als Schichtenstapel geprüft* (`LayeredArchitectureTest`): zusätzlich
+. *Von ArchUnit als Schichtenstapel geprüft* (<<src-layered-architecture-test,`LayeredArchitectureTest`>>): zusätzlich
   Framework-Freiheit der Domäne, die Teilung in `model`/`services` und „Ports sind
   Interfaces" (link:{adr}/0012-archunit-fuer-die-schichtenregel.md[ADR 0012]).
-. *Von ArchUnit als Zwiebelschalen geprüft* (`OnionArchitectureTest`): Adapter kennen
+. *Von ArchUnit als Zwiebelschalen geprüft* (<<src-onion-architecture-test,`OnionArchitectureTest`>>): Adapter kennen
   einander nicht – der REST-Adapter greift nicht am Port vorbei auf die Persistenz zu. Diese
   Lücke kann die Schichtensicht nicht schließen, weil beide Adapter im selben Modul liegen
   (link:{adr}/0019-onion-architecture-regel-in-archunit.md[ADR 0019]).
@@ -40,42 +40,47 @@ Basispaket ist `io.github.keymaster65.helloai`.
 
 | `:modules:backend:domain`
 | `domain.model`
-| Das Domänenmodell als Records: `Recipe`, `Ingredient`, `PreparationStep`, `Difficulty`.
+| Das Domänenmodell als Records: <<src-recipe,`Recipe`>>, <<src-ingredient,`Ingredient`>>,
+  <<src-preparation-step,`PreparationStep`>>, <<src-difficulty,`Difficulty`>>.
   Validierung im kanonischen Konstruktor.
 
 | `:modules:backend:domain`
 | `domain.services`
-| Domänenlogik ohne eigenen Modelltyp. Aktuell leer – nur `package-info.java` markiert den
+| Domänenlogik ohne eigenen Modelltyp. Aktuell leer – nur <<src-package-info-services,`package-info.java`>> markiert den
   Platz (link:{adr}/0020-domain-in-model-und-services-teilen.md[ADR 0020]).
 
 | `:modules:backend:application`
 | `application.port.in`
-| Eingehender Port `RecipeService`: die fünf Use Cases als Interface.
+| Eingehender Port <<src-recipe-service,`RecipeService`>>: die fünf Use Cases als Interface.
 
 | `:modules:backend:application`
 | `application.port.out`
-| Ausgehender Port `RecipeRepository`: Persistenz als Interface, formuliert in
+| Ausgehender Port <<src-recipe-repository,`RecipeRepository`>>: Persistenz als Interface, formuliert in
   Domänentypen.
 
 | `:modules:backend:application`
 | `application.service`
-| `RecipeServiceImpl` (Geschäftslogik, Transaktionsgrenzen) und
-  `RecipeNotFoundException`.
+| <<src-recipe-service-impl,`RecipeServiceImpl`>> (Geschäftslogik, Transaktionsgrenzen) und
+  <<src-recipe-not-found-exception,`RecipeNotFoundException`>>.
 
 | `:modules:backend:adapter`
 | `adapter.in.rest`
-| `RecipeController`, `SpaForwardingController`, `GlobalExceptionHandler`,
-  `RecipeRestMapper`, `ErrorResponse` und die DTOs unter `adapter.in.rest.dto`.
+| <<src-recipe-controller,`RecipeController`>>,
+  <<src-spa-forwarding-controller,`SpaForwardingController`>>,
+  <<src-global-exception-handler,`GlobalExceptionHandler`>>,
+  <<src-recipe-rest-mapper,`RecipeRestMapper`>>, <<src-error-response,`ErrorResponse`>> und die
+  DTOs unter `adapter.in.rest.dto` (<<src-gruppe-rest,alle Quellen im Anhang>>).
 
 | `:modules:backend:adapter`
 | `adapter.out.persistence`
-| `RecipeJooqRepository`, `RecipePersistenceMapper` sowie der beim Build erzeugte
+| <<src-recipe-jooq-repository,`RecipeJooqRepository`>>,
+  <<src-recipe-persistence-mapper,`RecipePersistenceMapper`>> sowie der beim Build erzeugte
   jOOQ-Code unter `adapter.out.persistence.jooq`.
 
 | `:modules:backend:bootstrap`
 | `bootstrap`
-| `RecipeApplication` (Composition Root, `@SpringBootApplication` mit
-  `scanBasePackages`) und `OpenApiConfig`. Hier entsteht das Deployable.
+| <<src-recipe-application,`RecipeApplication`>> (Composition Root, `@SpringBootApplication`
+  mit `scanBasePackages`) und <<src-openapi-config,`OpenApiConfig`>>. Hier entsteht das Deployable.
 |===
 
 Das Modul `:modules:backend` selbst trägt keinen Quellcode; es hält die gemeinsame
@@ -103,6 +108,8 @@ Domänentypen sind unveränderliche Records.
 | Reihenfolge der Schritte
 | `PreparationStep.position()`, 1-basiert
 |===
+
+Die vier Records samt Paketmarkierung stehen im Original in <<src-gruppe-domaene>>.
 
 Records mit mehr als zwei Komponenten bieten zusätzlich eine curried Factory `curried()` –
 eine Kette benannter Einzelschritte, die Reihenfolge und Vollständigkeit über das Typsystem
@@ -225,6 +232,9 @@ Browser → Bean Validation auf RecipeRequest
             → 201 + Location: /recipes/api/recipes/{id} + RecipeResponse
 ----
 
+Die Quellen der beteiligten Klassen stehen in <<src-gruppe-rest>>, <<src-gruppe-application>>
+und <<src-gruppe-persistence>>.
+
 Der Start der Anwendung läuft in dieser Reihenfolge: Spring Boot hochfahren →
 Liquibase-Migration gegen die konfigurierte Datenbank → `DSLContext` bereitstellen → HTTP
 öffnen. Ist die Datenbank nicht erreichbar, startet die Anwendung nicht.
@@ -241,29 +251,35 @@ in Entwicklung und Produktion gültig.
 |===
 | Baustein | Aufgabe
 
-| `src/App.tsx`
+| <<src-app-tsx,`src/App.tsx`>>
 | Routen: `/` (Liste), `/new` (Anlegen), `/:id` (Detail), `/:id/edit` (Bearbeiten), sonst
   eine Nicht-gefunden-Seite. `basename` kommt aus `BASE_URL`.
 
 | `src/pages/`
-| Seiten je Route: `RecipeListPage`, `RecipeDetailPage`, `RecipeFormPage` (Modus `create`
+| Seiten je Route: <<src-recipe-list-page,`RecipeListPage`>>,
+  <<src-recipe-detail-page,`RecipeDetailPage`>>, <<src-recipe-form-page,`RecipeFormPage`>>
+  (Modus `create`
   oder `edit`). Sie lesen die Route-Parameter, laden Daten und behandeln Lade- und
   Fehlerzustände.
 
 | `src/components/`
-| Darstellung: `RecipeList` und `RecipeForm` bekommen ihre Daten als Props.
-  `RecipeDetail` fällt aus dem Muster – es lädt sein Rezept selbst und wird von
+| Darstellung: <<src-recipe-list,`RecipeList`>> und <<src-recipe-form,`RecipeForm`>> bekommen
+  ihre Daten als Props. <<src-recipe-detail,`RecipeDetail`>> fällt aus dem Muster – es lädt sein Rezept selbst und wird von
   `RecipeDetailPage` nur mit der `id` versorgt.
 
-| `src/api/recipes.ts`
+| <<src-api-recipes,`src/api/recipes.ts`>>
 | Der einzige Ort, an dem `fetch` aufgerufen wird. Wirft bei Nicht-2xx einen `ApiError`,
   der das `ErrorResponse` des Backends trägt – `fieldError(name)` liefert damit die
   Validierungsmeldung an das verursachende Feld.
 
 | `src/api/schema.d.ts`
 | Aus dem OpenAPI-Contract *generiert* und eingecheckt. Die TS-Typen der API sind damit
-  nicht von Hand gepflegt.
+  nicht von Hand gepflegt – und deshalb nicht im Anhang, siehe <<quelldateien>>.
 |===
 
 Die Fehlerbehandlung des Frontends hängt so direkt am Contract: Ändert das Backend ein
 Feld, fällt es nach dem Neugenerieren der Typen beim `tsc`-Lauf des Builds auf.
+
+<<src-gruppe-frontend>> enthält zusätzlich den Einstiegspunkt `src/main.tsx`, die
+`index.html` und das Stylesheet – Dateien, die keine Aussage über die Struktur treffen und
+deshalb oben nicht aufgeführt sind.

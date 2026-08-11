@@ -45,6 +45,10 @@ zuständig ist – und nur das.
 | Master-Prompt und Skills: welche Dateien es gibt, wie sie geladen, verbunden und geprüft
   werden; dazu bindet das Kapitel deren Wortlaut per `include` aus `docs/prompt` ein. Quelle
   und Änderungsort bleiben die Dateien dort
+
+| `anhang-quellen.adoc`
+| Anhang: die Quelldateien des Projekts, per `include` eingebunden und in Klapp-Blöcken je
+  Datei. Gruppiert wie die Schichten; nichts davon wird abgeschrieben
 |===
 
 == Auslöser → Pflicht
@@ -101,6 +105,15 @@ Schritt* geändert, nicht später.
   ein `include` im Abschnitt „Wortlaut". Ohne den `include` fehlt sie dort still. Eine
   geänderte *Regel* dagegen berührt das Kapitel nicht: Sie kommt über den `include` von selbst
   mit.
+
+| Neue handgeschriebene Quelldatei
+| `anhang-quellen.adoc`: Eintrag in der passenden Gruppe ergänzen und aus dem Kapitel
+  verlinken, das die Datei einführt. Generiertes und Maschinengepflegtes bleibt draußen – die
+  Einleitung des Anhangs führt auf, was fehlt und warum.
+
+| Quelldatei umbenannt, verschoben oder gelöscht
+| `anhang-quellen.adoc`, betroffener `include`. Das ist kein Suchspiel: Der Build *bricht* an
+  der Stelle, weil ein fehlender `include` als Fehler konfiguriert ist.
 
 | Neues ADR
 | `system.adoc`, ADR-Index; zusätzlich Verweis im betroffenen Kapitel

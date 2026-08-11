@@ -49,9 +49,31 @@ asciidoctorj {
     fatalWarnings(missingIncludes(), java.util.regex.Pattern.compile("possible invalid reference"))
 }
 
+// Asciidoctor löst `include::` selbst auf – Gradle sieht davon nichts. Für Includes innerhalb des
+// Quellverzeichnisses genügt das, weil der Task es ohnehin als Eingabe kennt. Die
+// Systemdokumentation bindet aber auch Dateien von *außerhalb* ein: die Arbeitsgrundlage aus
+// `docs/prompt` (ADR 0023) und im Anhang die Quelldateien selbst. Ohne die Deklaration unten
+// bliebe der Task nach einer Codeänderung UP-TO-DATE und der Anhang zeigte einen alten Stand –
+// nachgemessen an einem `touch` auf `Recipe.java`.
+fun includesAusserhalb(quellverzeichnis: File): List<File> =
+    quellverzeichnis.walkTopDown()
+        .filter { it.extension == "adoc" }
+        .flatMap { datei ->
+            Regex("""^include::([^\[\n]+)\[""", RegexOption.MULTILINE)
+                .findAll(datei.readText())
+                .map { treffer -> datei.parentFile.resolve(treffer.groupValues[1]).normalize() }
+        }
+        .filter { !it.startsWith(quellverzeichnis) }
+        .distinct()
+        .toList()
+
 tasks.named<AsciidoctorTask>("asciidoctor") {
     group = "documentation"
     description = "Rendert die Systemdokumentation aus docs/system nach HTML."
+
+    inputs.files(provider { includesAusserhalb(file("docs/system")) })
+        .withPropertyName("eingebundeneDateienAusserhalb")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
 
     setSourceDir(file("docs/system"))
     // Ohne das löst Asciidoctor `include::` gegen das Projektverzeichnis auf, nicht gegen die

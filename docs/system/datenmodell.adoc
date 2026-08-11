@@ -66,8 +66,8 @@ Die Abbildung ist absichtlich nicht deckungsgleich:
 | `null` in der Domäne bedeutet „noch nicht persistiert"
 
 | `difficulty` als Text
-| `Difficulty` als Enum
-| Konvertierung über `Difficulty.valueOf(…)` im `RecipePersistenceMapper`. Ein unbekannter
+| <<src-difficulty,`Difficulty`>> als Enum
+| Konvertierung über `Difficulty.valueOf(…)` im <<src-recipe-persistence-mapper,`RecipePersistenceMapper`>>. Ein unbekannter
   Wert in der Spalte führt zu einer `IllegalArgumentException` beim Lesen – die Datenbank
   selbst hat keine Prüfbedingung darauf.
 
@@ -89,7 +89,7 @@ Die Abbildung ist absichtlich nicht deckungsgleich:
 
 | `preparation_step.position`
 | `PreparationStep.position()`
-| Hier ist die Position *explizit* im Modell. Gesetzt wird sie vom `RecipeRestMapper` aus
+| Hier ist die Position *explizit* im Modell. Gesetzt wird sie vom <<src-recipe-rest-mapper,`RecipeRestMapper`>> aus
   der Reihenfolge im Request.
 |===
 
@@ -110,14 +110,14 @@ Schema-Management durch das ORM, kein `ddl-auto`.
 |===
 | Datei | Inhalt
 
-| `db/changelog/db.changelog-master.xml`
+| <<src-changelog-master,`db/changelog/db.changelog-master.xml`>>
 | Wurzel-Changelog, bindet die Changesets in Reihenfolge ein. Dieselbe Datei speist die
   Migration zur Laufzeit *und* die Codegenerierung beim Build.
 
-| `changes/0001-create-recipe-schema.xml`
+| <<src-changeset-schema,`changes/0001-create-recipe-schema.xml`>>
 | Tabellen, Fremdschlüssel, Indizes.
 
-| `changes/0002-seed-fasting-recipes.xml`
+| <<src-changeset-seed,`changes/0002-seed-fasting-recipes.xml`>>
 | Beispieldaten, Context `seed`.
 |===
 

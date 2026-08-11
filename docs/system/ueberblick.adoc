@@ -126,7 +126,7 @@ Es ruft von sich aus kein Fremdsystem auf.
 
 Alle Bausteine liegen unter `modules/`
 (link:{adr}/0015-alle-bausteine-unter-modules.md[ADR 0015]); das Wurzelprojekt trägt keinen
-Quellcode und aggregiert nur.
+Quellcode und aggregiert nur. Die Quellen selbst stehen im Anhang <<quelldateien>>.
 
 == Randbedingungen
 

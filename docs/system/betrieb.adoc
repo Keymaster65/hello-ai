@@ -7,7 +7,7 @@ ifndef::adr[:adr: ../adr]
 Gebaut wird ausschließlich über den Gradle-Wrapper
 (link:{adr}/0009-gradle-wrapper-verbindlich.md[ADR 0009]), Buildskripte im Kotlin-DSL
 (link:{adr}/0010-gradle-kotlin-dsl.md[ADR 0010]). Alle Koordinaten und Versionen stehen in
-`gradle/libs.versions.toml` (link:{adr}/0018-versionskatalog-libs-versions-toml.md[ADR 0018]).
+<<src-libs-versions,`gradle/libs.versions.toml`>> (link:{adr}/0018-versionskatalog-libs-versions-toml.md[ADR 0018]).
 
 [cols="2,3", options="header"]
 |===
@@ -38,7 +38,7 @@ Gebaut wird ausschließlich über den Gradle-Wrapper
 |===
 
 Die Befehle funktionieren unverändert auf jeder Ebene, weil Gradle einen Task-Namen an jedes
-Projekt weiterleitet, das ihn kennt.
+Projekt weiterleitet, das ihn kennt. Die Buildskripte selbst stehen in <<src-gruppe-build>>.
 
 === Wie das Deployable entsteht
 
@@ -66,7 +66,8 @@ Zwei Eigenschaften, die im Alltag zählen:
 
 == Konfiguration
 
-Konfiguriert wird über Umgebungsvariablen; `application.yml` enthält nur Defaults für die
+Konfiguriert wird über Umgebungsvariablen; <<src-application-yml,`application.yml`>> enthält
+nur Defaults für die
 lokale Entwicklung. Es gibt bewusst keine Profil-Dateien je Umgebung.
 
 [cols="2,2,3", options="header"]
@@ -105,13 +106,14 @@ anzupassen:
 | Festlegung | Wer sie außerdem kennt
 
 | Context-Path `/recipes`
-| `vite.config.ts` (`base`), `playwright.config.ts` (`CONTEXT_PATH`), der `basename` der
+| <<src-vite-config,`vite.config.ts`>> (`base`),
+  <<src-playwright-config,`playwright.config.ts`>> (`CONTEXT_PATH`), der `basename` der
   SPA. Eine Änderung betrifft alle drei
   (link:{adr}/0016-context-path-recipes.md[ADR 0016]).
 
 | Liquibase aktiv, Changelog-Pfad
 | Die jOOQ-Codegenerierung liest dieselbe Datei; ein Umzug betrifft
-  `modules/backend/adapter/build.gradle.kts`.
+  <<src-build-gradle-adapter,`modules/backend/adapter/build.gradle.kts`>>.
 
 | SQL-Dialekt `POSTGRES`
 | Die generierten jOOQ-Klassen. Ein anderer Dialekt bedeutet Neugenerierung.

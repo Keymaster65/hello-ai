@@ -38,7 +38,9 @@ Geschmacksfrage: Ein Fehlschlag soll die *Stelle* verraten, nicht nur die Tatsac
 |===
 
 Dazu die Frontend-Komponententests (`modules/frontend/src/**/*.test.tsx`, Task
-`frontendTest`).
+`frontendTest`). Die Nutzer-Flows stehen in <<src-e2e-recipes,`e2e/recipes.spec.ts`>>; alle
+Testquellen sammeln <<src-gruppe-tests-java>>, <<src-gruppe-tests-system>> und
+<<src-gruppe-tests-frontend>>.
 
 `./gradlew build` führt `test` und `frontendTest` aus. `systemtest` und `e2eTest` hängen
 *nicht* an `check`: Sie sind die langsamsten Stufen und `e2eTest` braucht eine erreichbare
@@ -54,18 +56,18 @@ Klassenpfad liegt.
 |===
 | Test | Regeln
 
-| `LayeredArchitectureTest`
+| <<src-layered-architecture-test,`LayeredArchitectureTest`>>
 | `bootstrap → adapter → application → domain`; Framework-Freiheit des Domänenmodells;
   Teilung der Domäne in `model` und `services`; „Ports sind Interfaces"
   (link:{adr}/0012-archunit-fuer-die-schichtenregel.md[ADR 0012],
   link:{adr}/0020-domain-in-model-und-services-teilen.md[ADR 0020])
 
-| `OnionArchitectureTest`
+| <<src-onion-architecture-test,`OnionArchitectureTest`>>
 | Dieselbe Struktur als Ringe – und die Aussage, die der Schichtenstapel nicht ausdrücken
   kann: *Adapter kennen einander nicht*
   (link:{adr}/0019-onion-architecture-regel-in-archunit.md[ADR 0019])
 
-| `RecordCurryingTest`
+| <<src-record-currying-test,`RecordCurryingTest`>>
 | Jeder Record mit mehr als zwei Komponenten hat eine curried Factory, deren benannte
   Schritte die Komponenten in Reihenfolge und Typ abbilden – geprüft wird die *Form der
   Kette*, nicht nur die Existenz einer Methode
@@ -86,27 +88,28 @@ link:{adr}/0019-onion-architecture-regel-in-archunit.md[ADR 0019].
 |===
 | Test | Gegenstand
 
-| `RecipeServiceImplTest`
+| <<src-recipe-service-impl-test,`RecipeServiceImplTest`>>
 | Die Use Cases mit Mockito und AssertJ – insbesondere, dass ein leeres `Optional` aus dem
   Repository zur `RecipeNotFoundException` wird.
 
-| `CurriedFactoryTest` (in `:domain` und `:adapter`)
+| `CurriedFactoryTest` (in <<src-curried-factory-test-domain,`:domain`>> und
+  <<src-curried-factory-test-adapter,`:adapter`>>)
 | Property-based mit jqwik: Die curried Kette liefert dasselbe wie der kanonische
   Konstruktor, inklusive Validierungsverhalten.
 
-| `RecipeRestMapperPropertyTest`
+| <<src-recipe-rest-mapper-property-test,`RecipeRestMapperPropertyTest`>>
 | Property-based: Invarianten des Mappings zwischen DTO und Domäne, darunter die Ableitung
   der Schrittpositionen aus der Listenordnung.
 
-| `RecipeControllerTest`
+| <<src-recipe-controller-test,`RecipeControllerTest`>>
 | Web-Slice mit `@WebMvcTest`: Statuscodes, `Location`-Header, Serialisierung und die
   Fehlerbilder des `GlobalExceptionHandler`.
 
-| `OpenApiDocumentationTest`
+| <<src-openapi-documentation-test,`OpenApiDocumentationTest`>>
 | Der Contract unter `/v3/api-docs` beschreibt alle Operationen und Schemata; die Swagger UI
   wird ausgeliefert.
 
-| `RecipeIntegrationTest`
+| <<src-recipe-integration-test,`RecipeIntegrationTest`>>
 | Der komplette Stack gegen ein echtes PostgreSQL – embedded über Zonky, damit ohne Docker
   (link:{adr}/0002-embedded-postgres-statt-testcontainers.md[ADR 0002]). Kann das native
   Binary nicht starten, wird die Klasse *übersprungen* statt rot zu werden.
@@ -125,10 +128,10 @@ JDK-`HttpClient`.
 ----
 
 Ohne `-Psystemtest.baseUrl` startet die Suite die Anwendung auf einem freien Port mit
-embedded PostgreSQL (`RunningApplication`); mit der Property läuft sie gegen eine deployte
+embedded PostgreSQL (<<src-running-application,`RunningApplication`>>); mit der Property läuft sie gegen eine deployte
 Instanz und startet nichts. Derselbe Testcode prüft damit beide Fälle. Geprüft werden
-Statuscodes und Contract-Details (`SwaggerSystemTest`) sowie die Auslieferung der SPA
-inklusive der weitergeleiteten Routen (`FrontendSystemTest`).
+Statuscodes und Contract-Details (<<src-swagger-system-test,`SwaggerSystemTest`>>) sowie die Auslieferung der
+SPA inklusive der weitergeleiteten Routen (<<src-frontend-system-test,`FrontendSystemTest`>>).
 
 == End-to-End-Tests
 
@@ -148,7 +151,8 @@ Eigenschaften der Suite:
 * *Nicht parallel* (`workers: 1`): Alle Tests teilen eine Datenbank und dürfen sich nicht
   gegenseitig überholen.
 * *Bereitschaftsprüfung über die API*, nicht über die SPA – die API wird zuletzt bereit.
-* `aria-snapshots.spec.ts` vergleicht den Accessibility-Tree gegen eingecheckte Baselines
+* <<src-e2e-aria-snapshots,`aria-snapshots.spec.ts`>> vergleicht den Accessibility-Tree gegen
+  eingecheckte Baselines
   unter `e2e/aria-snapshots.spec.ts-snapshots/`. Aktualisieren mit
   `npx playwright test --update-snapshots` – und zwar bewusst, denn eine Baseline ist eine
   Zusage über die Bedienbarkeit.

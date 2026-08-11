@@ -6,6 +6,56 @@ Datum: 2026-07-19
 
 ---
 
+## 84. Prompt: „Für die referenzierten Sourcen in der Asciidoc Systemdocumentation, erstelle einen Anhang, der die Sourcen gut lesbar enthält. Verlinke diese Sourcen an den entsprechenden Stellen."
+
+_Delta: 12:10 · 131.885 out · 151.429 in (neu) · 18.884.136 gesamt_
+_Stand (Session, 10 Prompts): 44:18 · 371.462 out · 42.895.458 gesamt_
+
+**Aktionen:**
+- Vorab inventarisiert, welche Dateien und Klassen die Kapitel überhaupt nennen (zwei Greps:
+  Pfade mit Endung, Backtick-CamelCase). Ergebnis: rund 60 handgeschriebene Dateien.
+- Neuer Anhang `docs/system/anhang-quellen.adoc` (828 Zeilen): **74 Einträge** mit insgesamt
+  **5.934 eingebundenen Quellzeilen**, gruppiert wie die Schichten – Domäne, Anwendung, REST,
+  Persistenz, Bootstrap, Datenbank, Frontend, drei Testgruppen, Build. Jeder Eintrag ist ein
+  `[%collapsible]`-Block mit dem Pfad als Titel und `include::../../…` als Inhalt, also
+  **eingebunden statt abgeschrieben**.
+- Die 74 Pfade skriptgestützt erzeugt (`/tmp/gen-anhang.sh`), mit Abbruch bei nicht
+  existierender Datei – kein Pfad von Hand getippt.
+- Einleitung des Anhangs benennt die eigentliche Zusicherung: Weil ein fehlender `include`
+  Build-Fehler ist, **bricht `./gradlew build` bei einer umbenannten oder verschobenen
+  Datei**. Die Dateiverweise der Doku sind damit maschinell geprüft. Dazu eine Tabelle „nicht
+  enthalten" mit Begründung: generierter jOOQ-Code, `schema.d.ts`, `package-lock.json`,
+  Gradle-Wrapper, `docs/**`.
+- **46 Verweise** in sechs Kapiteln gesetzt, skriptgestützt mit Einzeltreffer-Prüfung je
+  Ersetzung (`/tmp/link-sources.py`) – verlinkt ist die Stelle, an der eine Datei eingeführt
+  wird, nicht jede Wiederholung. Zusätzlich elf Gruppenanker, damit Sammelbegriffe („die
+  DTOs", „die Buildskripte") ein Ziel haben.
+- Erreichbarkeit maschinell geprüft: 51 Einträge einzeln verlinkt, der Rest über neun
+  Gruppenverweise – **kein Eintrag ohne Zugang**. Dafür zwei fehlende Gruppenverweise
+  (Domäne, Frontend) nachgezogen.
+- Zwei eigene Fehlprüfungen unterwegs korrigiert: `grep -c "<details>"` fand nichts, weil das
+  Tag ein `id`-Attribut trägt (die Klapp-Blöcke waren immer in Ordnung); und die
+  Erreichbarkeitsprüfung lief zunächst mit `≤1` statt `= 0`.
+- **Echter Mangel gefunden und behoben:** Der Task `asciidoctor` kannte die eingebundenen
+  Dateien nicht als Eingabe – nach einer Codeänderung wäre er `UP-TO-DATE` geblieben und der
+  Anhang hätte einen alten Stand gezeigt. `build.gradle.kts` deklariert sie jetzt: eine
+  Funktion sammelt alle `include`-Ziele *außerhalb* des Quellverzeichnisses (deckt damit auch
+  die eingebundene Arbeitsgrundlage aus `docs/prompt` ab). Nachgewiesen mit einer echten
+  Inhaltsänderung an `Recipe.java`: Task läuft, Änderung steht im HTML, nach `git checkout`
+  wieder verschwunden. Der erste Versuch mit `touch` war untauglich – Gradle prüft
+  Inhalts-Hashes, nicht Zeitstempel.
+- Pflege verankert: `systemdoku.adoc` bekommt eine Kapitelzeile und zwei Auslöser („neue
+  Quelldatei" → Eintrag + Verweis; „umbenannt/verschoben/gelöscht" → der Build zeigt die
+  Stelle). README-Hinweis ergänzt.
+- `system.html` wächst von 222 auf 502 KB; die TOC bleibt schlank, weil die Quellen zugeklappt
+  sind (`Anhang A`, deutsche Beschriftung über `:appendix-caption:`).
+- Nachweis (Buildskript geändert, deshalb die vollständige DoD): `./gradlew clean build` grün
+  (2m32s), `systemtest` grün (57s), `e2eTest` grün (9 Tests, 15,9s).
+- Nach Bestätigung committet (Author = Claude):
+  `Add source appendix to system documentation`.
+
+---
+
 ## 83. Prompt: „Bette master prompt und skills in der Systemdocumentation ein, so dass so dort lesbar sind."
 
 _Delta: 3:32 · 33.802 out · 27.744 in (neu) · 4.242.226 gesamt_

@@ -39,7 +39,7 @@ ignoriert – maßgeblich ist der Pfad.
 
 === Anfrage
 
-`RecipeRequest`, validiert per Bean Validation. Verstöße erzeugen `400` mit einem Eintrag
+<<src-recipe-request,`RecipeRequest`>>, validiert per Bean Validation. Verstöße erzeugen `400` mit einem Eintrag
 je Feld.
 
 [cols="2,1,3", options="header"]
@@ -80,7 +80,7 @@ Die Reihenfolge der Listen ist bedeutungstragend: Aus ihr entstehen die Position
 
 === Antwort
 
-`RecipeResponse` entspricht dem Request, ergänzt um `id`; die Schritte tragen zusätzlich
+<<src-recipe-response,`RecipeResponse`>> entspricht dem Request, ergänzt um `id`; die Schritte tragen zusätzlich
 ihre `position`. Die vom Domänenmodell garantierten Felder sind im Contract als
 `required` markiert (`id`, `title`, `difficulty`, `ingredients`, `steps`), die echt
 optionalen nicht (`description`, `servings`, `prepTimeMinutes`).
@@ -91,8 +91,8 @@ Frontend `id: number` statt `id?: number` steht und garantierte Felder ohne Prü
 
 === Fehler
 
-Jeder Fehler antwortet mit demselben `ErrorResponse` – zentral erzeugt im
-`GlobalExceptionHandler`:
+Jeder Fehler antwortet mit demselben <<src-error-response,`ErrorResponse`>> – zentral erzeugt
+im <<src-global-exception-handler,`GlobalExceptionHandler`>>:
 
 [source,json]
 ----
@@ -149,7 +149,7 @@ Der Contract wird zur *Laufzeit* aus Controller-Signaturen, Bean-Validation und 
 handgepflegte Spezifikationsdatei, die veralten könnte.
 
 Dokumentweite Angaben (Titel, Beschreibung, Version, Kontakt, Lizenz) stehen in
-`OpenApiConfig` im Modul `:bootstrap`; alles Operations- und Schemaspezifische steht als
+<<src-openapi-config,`OpenApiConfig`>> im Modul `:bootstrap`; alles Operations- und Schemaspezifische steht als
 Annotation am REST-Adapter.
 
 `OpenApiDocumentationTest` prüft, dass das Dokument alle Operationen und Schemata
@@ -187,7 +187,7 @@ veralteten Contract typisiert – der Build ist grün und die Laufzeit falsch.
 |===
 
 Damit diese Adressen auch beim *direkten* Aufruf funktionieren, leitet
-`SpaForwardingController` sie serverseitig auf die `index.html` weiter – explizit
+<<src-spa-forwarding-controller,`SpaForwardingController`>> sie serverseitig auf die `index.html` weiter – explizit
 aufgezählt, damit der Fallback API, OpenAPI und Swagger UI nicht verschattet
 (link:{adr}/0017-router-mit-spa-fallback.md[ADR 0017]). Die Detail- und Bearbeiten-Routen
 sind serverseitig auf Ziffern eingeschränkt (`{id:\\d+}`).
