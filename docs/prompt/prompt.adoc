@@ -49,6 +49,10 @@ beschreibt, *was ist*; die Arbeitsgrundlage schreibt vor, *was zu tun ist*. Eine
 den Ist-Zustand gehört deshalb nie hierher, sondern nach `docs/system` – und wird von hier aus
 höchstens verlangt.
 
+NOTE: Dieselben Dateien sind zusätzlich in `docs/system/arbeitsgrundlage.adoc` per `include`
+eingebunden, damit sie beim Lesen der Systemdokumentation mitkommen. Ein Wortlaut, zwei
+Dokumente – geändert wird hier.
+
 == Wie diese Dateien geladen werden
 
 `CLAUDE.md` ist der einzige Dateiname, den Claude Code automatisch liest. Die Datei ist
@@ -120,11 +124,13 @@ gepflegt, die sie betrifft.
 
 | Neuer Skill
 | Datei anlegen, `include` in dieser Datei ergänzen *und* eine Zeile in der Skill-Tabelle des
-  Master-Prompts – ohne beides ist der Skill unsichtbar
+  Master-Prompts – ohne beides ist der Skill unsichtbar. Dazu der zweite `include` in
+  `docs/system/arbeitsgrundlage.adoc` (siehe nächste Zeile)
 
 | Neue Datei hier, geänderter Ladeweg, andere Aufteilung zwischen Master-Prompt und Skills
-| Zusätzlich `docs/system/arbeitsgrundlage.adoc` – das Kapitel beschreibt den Aufbau dieser
-  Dateien im Ist-Zustand. Eine geänderte *Regel* berührt es nicht.
+| Zusätzlich `docs/system/arbeitsgrundlage.adoc`: Dateitabelle, Abschnitt „Ladeweg" und ein
+  `include` im Abschnitt „Wortlaut" – das Kapitel gibt diese Dateien vollständig wieder. Eine
+  geänderte *Regel* braucht dort nichts: Sie kommt über den `include` mit.
 
 | Neues ADR, das eine Regel hier ändert
 | Betroffene Datei anpassen und auf das ADR verlinken; zusätzlich den ADR-Index in

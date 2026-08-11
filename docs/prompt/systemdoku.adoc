@@ -43,7 +43,8 @@ zuständig ist – und nur das.
 
 | `arbeitsgrundlage.adoc`
 | Master-Prompt und Skills: welche Dateien es gibt, wie sie geladen, verbunden und geprüft
-  werden – *nicht* die Regeln selbst, die stehen in `docs/prompt`
+  werden; dazu bindet das Kapitel deren Wortlaut per `include` aus `docs/prompt` ein. Quelle
+  und Änderungsort bleiben die Dateien dort
 |===
 
 == Auslöser → Pflicht
@@ -96,8 +97,10 @@ Schritt* geändert, nicht später.
 
 | Neue Datei in `docs/prompt`, geänderter Ladeweg oder geänderte Aufteilung zwischen
   Master-Prompt und Skills
-| `arbeitsgrundlage.adoc` (Dateitabelle bzw. Abschnitt „Ladeweg"). Eine geänderte *Regel*
-  dagegen berührt dieses Kapitel nicht – es beschreibt nur den Aufbau.
+| `arbeitsgrundlage.adoc`: Dateitabelle bzw. Abschnitt „Ladeweg" – *und* bei einer neuen Datei
+  ein `include` im Abschnitt „Wortlaut". Ohne den `include` fehlt sie dort still. Eine
+  geänderte *Regel* dagegen berührt das Kapitel nicht: Sie kommt über den `include` von selbst
+  mit.
 
 | Neues ADR
 | `system.adoc`, ADR-Index; zusätzlich Verweis im betroffenen Kapitel

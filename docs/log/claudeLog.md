@@ -6,6 +6,43 @@ Datum: 2026-07-19
 
 ---
 
+## 83. Prompt: „Bette master prompt und skills in der Systemdocumentation ein, so dass so dort lesbar sind."
+
+_Delta: 3:32 · 33.802 out · 27.744 in (neu) · 4.242.226 gesamt_
+_Stand (Session, 7 Prompts): 31:01 · 233.950 out · 22.803.098 gesamt_
+
+**Aktionen:**
+- `arbeitsgrundlage.adoc` um den Abschnitt `[[wortlaut]] == Wortlaut` erweitert: fünf
+  `include::../prompt/*.adoc[leveloffset=+2]` (Master-Prompt + vier Skills). Im gerenderten
+  Dokument erscheinen sie als 9.5.1 bis 9.5.5; `system.html` wächst von 152 auf 222 KB.
+- Vorab geprüft, was daran scheitern konnte: Der `include` reicht **über das
+  Basisverzeichnis** des Tasks hinaus (`docs/system` → `../prompt`) – funktioniert, der Safe
+  Mode des Plugins lässt es zu. Ebenenlage stimmt: Ebene 0 der Prompt-Dateien landet bei
+  Ebene 3, ihre Abschnitte bei Ebene 4 (nicht mehr in der TOC, `toclevels: 3` bleibt).
+  Mehrfache `== Zweck`-Überschriften werden automatisch zu `_zweck`, `_zweck_2` … entschärft,
+  ohne Warnung.
+- Durchgehend klargestellt, dass es **eingebunden, nicht kopiert** ist – als `IMPORTANT` im
+  Kapitel, als Lesehinweis im Abschnitt „Wortlaut" („Anweisung, nicht Beschreibung; geändert
+  wird in `docs/prompt`") und als `NOTE` in `prompt.adoc` („ein Wortlaut, zwei Dokumente").
+- Die Aussagen des vorigen Prompts korrigiert, die jetzt falsch wären: `system.adoc` nannte
+  die Arbeitsanweisungen unter „Nicht Gegenstand" – daraus ist eine benannte **Ausnahme** von
+  „Beschreibung statt Anweisung" geworden; die Zeile in der Abgrenzungstabelle nennt den
+  Wortlaut.
+- `qualitaetssicherung.adoc`: Die DoD ist jetzt im selben Dokument mitlesbar, der Verweis
+  zeigt auf `<<wortlaut>>` statt nur auf das Kapitel.
+- Neue Pflegefalle benannt, statt sie zu bauen: Ein **neuer Skill braucht zwei `include`** –
+  in `prompt.adoc` und in `arbeitsgrundlage.adoc`. Steht jetzt in beiden Zuordnungstabellen
+  (`systemdoku.adoc`, `prompt.adoc`), zusammen mit der Entlastung, dass eine geänderte *Regel*
+  dort nichts braucht.
+- Nachweis: `./gradlew asciidoctor asciidoctorPrompt` grün ohne `INFO:`/`SEVERE:`-Meldungen;
+  im HTML gegengeprüft (Wortlaut vorhanden, `#wortlaut` fünfmal verlinkt, DoD als Checkliste).
+- Reine Doku-Änderung, kein Code und kein Buildskript – es gilt weiter der grüne Lauf aus
+  Commit `8ecb537` (`clean build`, `systemtest`, `e2eTest`).
+- Nach Bestätigung committet (Author = Claude):
+  `Embed working basis into system documentation`.
+
+---
+
 ## 82. Prompt: „Ergänze master prompt und skills in der Systemdocumentation."
 
 _Delta: 3:22 · 39.244 out · 62.998 in (neu) · 4.389.005 gesamt_

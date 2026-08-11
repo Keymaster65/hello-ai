@@ -196,8 +196,9 @@ einzige Bedingung würde zu Tests einladen, die Zeilen berühren, ohne etwas zuz
 
 Verbindlich ist die Liste im Master-Prompt (`docs/prompt/masterprompt.adoc`,
 link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]); sie steht dort an einer
-Stelle, damit sie nicht zweimal gepflegt werden muss. Wie diese Datei geladen und geprüft
-wird, beschreibt <<arbeitsgrundlage>>. Der Kern:
+Stelle, damit sie nicht zweimal gepflegt werden muss. Sie ist in diesem Dokument mitlesbar:
+<<wortlaut>> bindet den Master-Prompt ein, <<arbeitsgrundlage>> beschreibt Ladeweg und
+Prüfung. Der Kern:
 
 [source,bash]
 ----

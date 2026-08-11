@@ -40,8 +40,9 @@ wählt danach den Ort:
 | `docs/prompt/`
 | Wie wird an diesem Projekt gearbeitet?
 | Master-Prompt und Skills – Anweisung statt Beschreibung
-  (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]). Was dort existiert und
-  wie es geladen wird, beschreibt <<arbeitsgrundlage>>
+  (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]). Aufbau, Ladeweg und
+  der vollständige Wortlaut stehen in <<arbeitsgrundlage>>; die Dateien dort bleiben die
+  Quelle, das Kapitel bindet sie ein
 |===
 
 Daraus folgen drei Regeln für diese Dokumentation:
@@ -56,9 +57,11 @@ Daraus folgen drei Regeln für diese Dokumentation:
   Ein Widerspruch ist ein Fehler in der Dokumentation und wird dort behoben.
 
 Nicht Gegenstand dieser Dokumentation sind Betriebsanleitungen für eine konkrete
-Zielumgebung (es gibt noch keine), die Fachlichkeit der enthaltenen Rezepte und die
-Arbeitsanweisungen selbst – von der Arbeitsgrundlage beschreibt <<arbeitsgrundlage>> nur
-Aufbau, Ladeweg und Prüfung.
+Zielumgebung (es gibt noch keine) und die Fachlichkeit der enthaltenen Rezepte.
+
+Eine Ausnahme von „Beschreibung statt Anweisung" ist <<arbeitsgrundlage>>: Das Kapitel bindet
+Master-Prompt und Skills im Wortlaut ein, damit sie hier mitlesbar sind. Eingebunden, nicht
+kopiert – geändert werden sie in `docs/prompt`.
 
 == Aufbau
 

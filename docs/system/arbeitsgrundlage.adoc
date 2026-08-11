@@ -8,9 +8,13 @@ ihr gearbeitet wird: einen *Master-Prompt*, der in jeder Entwicklungs-Session gi
 *Skills*, die bei einem bestimmten Anlass hinzukommen. Beides liegt als AsciiDoc unter
 `docs/prompt` (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]).
 
-Dieses Kapitel beschreibt, *was dort existiert und wie es geladen und geprüft wird*. Die
-Regeln selbst stehen nicht hier – sie stehen in den Dateien, und dort werden sie auch
-geändert.
+Dieses Kapitel beschreibt zuerst, *was dort existiert und wie es geladen und geprüft wird*,
+und gibt anschließend den vollständigen <<wortlaut>> wieder – Master-Prompt und Skills sind
+damit hier lesbar, ohne die Dateien einzeln zu öffnen.
+
+IMPORTANT: Der Wortlaut ist *eingebunden, nicht kopiert*. Die Dateien unter `docs/prompt`
+bleiben die einzige Quelle; geändert wird nur dort. Dieses Kapitel zieht sie per `include`
+herein, also gibt es keine zweite Fassung, die veralten kann.
 
 == Dateien
 
@@ -113,3 +117,27 @@ formulierte Regel auffällt.
 
 WARNING: Geprüft werden Verweise, nicht Inhalte. Ob eine Regel noch der gelebten Arbeitsweise
 entspricht, stellt kein Task fest – das entscheidet der Blick beim Ändern.
+
+[[wortlaut]]
+== Wortlaut
+
+Es folgen der Master-Prompt und die vier Skills im Original, aus `docs/prompt` eingebunden.
+Der Master-Prompt gilt in jeder Session; die Skills gelten bei ihrem jeweiligen Anlass, der
+im Abschnitt „Skills" des Master-Prompts steht.
+
+Zwei Dinge sind beim Lesen zu beachten:
+
+* *Diese Abschnitte sind Anweisung, nicht Beschreibung* – anders als der Rest dieser
+  Dokumentation. Sie sagen, was zu tun ist, nicht, was ist.
+* *Geändert wird in `docs/prompt`*, nie hier. Welche Änderung welche Datei berührt, steht in
+  `docs/prompt/prompt.adoc`, Abschnitt „Pflege dieser Arbeitsgrundlage".
+
+include::../prompt/masterprompt.adoc[leveloffset=+2]
+
+include::../prompt/architektur.adoc[leveloffset=+2]
+
+include::../prompt/tests.adoc[leveloffset=+2]
+
+include::../prompt/systemdoku.adoc[leveloffset=+2]
+
+include::../prompt/develop.adoc[leveloffset=+2]
