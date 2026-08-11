@@ -122,6 +122,10 @@ gepflegt, die sie betrifft.
 | Datei anlegen, `include` in dieser Datei ergänzen *und* eine Zeile in der Skill-Tabelle des
   Master-Prompts – ohne beides ist der Skill unsichtbar
 
+| Neue Datei hier, geänderter Ladeweg, andere Aufteilung zwischen Master-Prompt und Skills
+| Zusätzlich `docs/system/arbeitsgrundlage.adoc` – das Kapitel beschreibt den Aufbau dieser
+  Dateien im Ist-Zustand. Eine geänderte *Regel* berührt es nicht.
+
 | Neues ADR, das eine Regel hier ändert
 | Betroffene Datei anpassen und auf das ADR verlinken; zusätzlich den ADR-Index in
   `docs/system/system.adoc` ergänzen

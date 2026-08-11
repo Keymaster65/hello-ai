@@ -40,6 +40,10 @@ zuständig ist – und nur das.
 
 | `qualitaetssicherung.adoc`
 | Teststufen, Architekturtests, Abdeckung, Definition of Done
+
+| `arbeitsgrundlage.adoc`
+| Master-Prompt und Skills: welche Dateien es gibt, wie sie geladen, verbunden und geprüft
+  werden – *nicht* die Regeln selbst, die stehen in `docs/prompt`
 |===
 
 == Auslöser → Pflicht
@@ -89,6 +93,11 @@ Schritt* geändert, nicht später.
 
 | Eine neue Lücke entsteht bewusst
 | `betrieb.adoc`, „Offene Punkte" – Zeile *ergänzen*
+
+| Neue Datei in `docs/prompt`, geänderter Ladeweg oder geänderte Aufteilung zwischen
+  Master-Prompt und Skills
+| `arbeitsgrundlage.adoc` (Dateitabelle bzw. Abschnitt „Ladeweg"). Eine geänderte *Regel*
+  dagegen berührt dieses Kapitel nicht – es beschreibt nur den Aufbau.
 
 | Neues ADR
 | `system.adoc`, ADR-Index; zusätzlich Verweis im betroffenen Kapitel

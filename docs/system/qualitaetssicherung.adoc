@@ -191,12 +191,13 @@ Es gibt bewusst *keine* Mindestquote als Build-Bedingung: Die Architektur- und
 Property-Tests prüfen Eigenschaften, die eine Zeilenquote nicht abbildet. Eine Quote als
 einzige Bedingung würde zu Tests einladen, die Zeilen berühren, ohne etwas zuzusichern.
 
+[[definition-of-done]]
 == Definition of Done
 
 Verbindlich ist die Liste im Master-Prompt (`docs/prompt/masterprompt.adoc`,
 link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]); sie steht dort an einer
-Stelle, damit sie nicht
-zweimal gepflegt werden muss. Der Kern:
+Stelle, damit sie nicht zweimal gepflegt werden muss. Wie diese Datei geladen und geprüft
+wird, beschreibt <<arbeitsgrundlage>>. Der Kern:
 
 [source,bash]
 ----

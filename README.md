@@ -5,8 +5,8 @@ React-Frontend, das dieses Backend als **BFF** (Backend for Frontend) nutzt –
 beides wird als **ein** Artefakt aus derselben Origin ausgeliefert.
 
 > **Dieses README ist der Einstieg.** Die zusammenhängende Beschreibung des Systems –
-> Bausteine, Datenmodell, Fehlerbilder der API, Betrieb, Teststufen und die bewusst
-> offenen Punkte – steht in [`docs/system/system.adoc`](docs/system/system.adoc)
+> Bausteine, Datenmodell, Fehlerbilder der API, Betrieb, Teststufen, die Arbeitsgrundlage
+> und die bewusst offenen Punkte – steht in [`docs/system/system.adoc`](docs/system/system.adoc)
 > ([ADR 0022](docs/adr/0022-asciidoc-systemdokumentation-in-docs-system.md)).
 > Rendern: `./gradlew asciidoctor` → `build/docs/asciidoc/system.html`.
 

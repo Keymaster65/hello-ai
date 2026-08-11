@@ -6,6 +6,46 @@ Datum: 2026-07-19
 
 ---
 
+## 82. Prompt: „Ergänze master prompt und skills in der Systemdocumentation."
+
+_Delta: 3:22 · 39.244 out · 62.998 in (neu) · 4.389.005 gesamt_
+_Stand (Session, 5 Prompts): 26:06 · 192.536 out · 16.580.715 gesamt_
+
+**Aktionen:**
+- Neues Kapitel `docs/system/arbeitsgrundlage.adoc` (siebtes Kapitel, per `include` in
+  `system.adoc` nach der Qualitätssicherung). Inhalt: Dateitabelle (`CLAUDE.md`,
+  `prompt.adoc`, `masterprompt.adoc` und die vier Skills), Ladeweg als Skizze
+  (`@`-Import → Master-Prompt in jeder Session, Skills nur bei Anlass), Verbindungen zum
+  übrigen System, Rendern und Prüfung.
+- Abgrenzung im Kapitel ausdrücklich gemacht: Es beschreibt **Aufbau, Ladeweg und Prüfung**,
+  nicht die Regeln selbst – sonst stünden die Anweisungen an zwei Orten. Ebenso festgehalten,
+  dass die Skills **keine** Claude-Code-Skills im technischen Sinn sind (kein `SKILL.md` mit
+  Frontmatter).
+- `system.adoc`: `include` ergänzt, in der Abgrenzungstabelle und im „Nicht Gegenstand"-Satz
+  auf das Kapitel verwiesen, Anker `[[pflege-dieser-dokumentation]]` gesetzt.
+- `ueberblick.adoc`: Zeile „Arbeitsgrundlage" in „Technische Bausteine im Groben" (kein
+  Baustein der Anwendung, aber Teil des Repositorys) und eine Randbedingung „Die Arbeitsweise
+  ist versioniert".
+- `qualitaetssicherung.adoc`: Anker `[[definition-of-done]]` und Verweis auf das neue Kapitel.
+  Die DoD selbst bleibt allein im Master-Prompt.
+- Zuordnungstabellen nachgezogen, damit das Kapitel künftig mitgepflegt wird:
+  `docs/prompt/systemdoku.adoc` (Kapitelliste + Auslöser-Zeile „neue Datei/geänderter
+  Ladeweg") und `docs/prompt/prompt.adoc` (Pflegetabelle verweist zurück auf
+  `arbeitsgrundlage.adoc`). Beide Zeilen grenzen ab: eine geänderte **Regel** berührt das
+  Kapitel nicht.
+- `README.md`: Aufzählung der Systemdoku-Inhalte um die Arbeitsgrundlage ergänzt.
+- Nachweis: `./gradlew asciidoctor asciidoctorPrompt` grün, ohne `INFO:`/`SEVERE:`-Meldungen –
+  damit lösen auch die neuen Querverweise auf (`<<arbeitsgrundlage>>` viermal,
+  `<<definition-of-done>>`, `<<pflege-dieser-dokumentation>>`); im HTML gegengeprüft. Kein
+  neues ADR nötig: ADR 0023 trägt die Entscheidung, ADR 0022 sieht das Erweitern der
+  Gliederung ausdrücklich vor.
+- Reine Doku-Änderung (nur `.adoc`/`.md`), kein Code und kein Buildskript angefasst – es gilt
+  der grüne Lauf aus Commit `8ecb537` (`clean build`, `systemtest`, `e2eTest`).
+- Nach Bestätigung committet (Author = Claude):
+  `Document working basis in system documentation`.
+
+---
+
 ## 81. Prompt: „Wandle skills und master prompt in asciidoc um. Füge ADR für die zukünftige Pflege dafür hinzu."
 
 _Delta: 18:08 · 133.233 out · 292.445 in (neu) · 6.568.724 gesamt_

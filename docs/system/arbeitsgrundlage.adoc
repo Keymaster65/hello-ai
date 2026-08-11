@@ -1,0 +1,115 @@
+// Kapitel der Systemdokumentation; siehe system.adoc.
+ifndef::adr[:adr: ../adr]
+[[arbeitsgrundlage]]
+= Arbeitsgrundlage: Master-Prompt und Skills
+
+Das Repository enthält nicht nur die Anwendung, sondern auch die Anweisungen, unter denen an
+ihr gearbeitet wird: einen *Master-Prompt*, der in jeder Entwicklungs-Session gilt, und vier
+*Skills*, die bei einem bestimmten Anlass hinzukommen. Beides liegt als AsciiDoc unter
+`docs/prompt` (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]).
+
+Dieses Kapitel beschreibt, *was dort existiert und wie es geladen und geprüft wird*. Die
+Regeln selbst stehen nicht hier – sie stehen in den Dateien, und dort werden sie auch
+geändert.
+
+== Dateien
+
+[cols="2,3", options="header"]
+|===
+| Datei | Inhalt
+
+| `CLAUDE.md`
+| Einbinder im Wurzelverzeichnis, bewusst kurz. Enthält keine Regeln, sondern den Import des
+  Master-Prompts, die Liste der Skills mit Pfad und das Verbot, hier etwas zu ergänzen.
+
+| `docs/prompt/prompt.adoc`
+| Masterdokument: Attribute, Abgrenzung der Dokumentationsarten, Beschreibung des Ladewegs,
+  `include`-Liste und die Pflegeregel für diese Dateien.
+
+| `docs/prompt/masterprompt.adoc`
+| Rolle, Tech-Stack, Grundregeln, Coding-Konventionen, Skill-Verweise, Workflow, Befehle und
+  die Definition of Done.
+
+| `docs/prompt/architektur.adoc`
+| Skill: Schichten und Abhängigkeitsregel, Package-Struktur, Currying-Konvention für Records,
+  Anti-Patterns, ADR-Pflicht bei größeren Entscheidungen.
+
+| `docs/prompt/tests.adoc`
+| Skill: Testpyramide, Prinzipien (AAA, F.I.R.S.T.), Beispiele für Unit-, Slice- und
+  Integrationstests, Mocking-Regeln.
+
+| `docs/prompt/systemdoku.adoc`
+| Skill: Pflege *dieser* Systemdokumentation – welche Änderung welches Kapitel berührt, dazu
+  die AsciiDoc-Konventionen des Projekts.
+
+| `docs/prompt/develop.adoc`
+| Skill: Session-Protokoll `docs/log/claudeLog.md`, Ermittlung von Dauer und Tokenzahl,
+  Commit-Regeln.
+|===
+
+Die Skills sind *keine* Claude-Code-Skills im technischen Sinn – solche verlangen
+`.claude/skills/<name>/SKILL.md` mit YAML-Frontmatter und werden vom Werkzeug selbst
+angeboten. Hier sind es gewöhnliche Dokumente, die der Master-Prompt mit Pfad und Anlass
+nennt.
+
+== Ladeweg
+
+`CLAUDE.md` ist der einzige Dateiname, den Claude Code automatisch liest; er ist vom Werkzeug
+vorgegeben und deshalb Markdown. Von dort führt ein `@`-Import zum Master-Prompt:
+
+----
+CLAUDE.md ──@-Import──> docs/prompt/masterprompt.adoc      (jede Session, vollständig)
+    │
+    └── nennt mit Pfad ─> architektur | tests | systemdoku | develop
+                                       (nur bei Anlass, vom Assistenten gelesen)
+----
+
+Zwei Eigenschaften dieses Wegs bestimmen, wie die Dateien geschrieben sind:
+
+* Der `@`-Import fügt den *Rohtext* ein. AsciiDoc wird dabei nicht gerendert und
+  `include::`-Direktiven werden nicht verfolgt. `masterprompt.adoc` ist deshalb arm an
+  Auszeichnung und bindet die Skills nicht ein.
+* Was im Master-Prompt steht, wird bei *jedem* Start vollständig geladen. Die Trennung
+  „gilt immer" (Master-Prompt) und „gilt bei Anlass" (Skill) ist damit keine Ordnungsfrage,
+  sondern eine Frage des Kontextverbrauchs.
+
+NOTE: Fällt der `@`-Import aus, bleibt in `CLAUDE.md` eine Anweisung in Prosa, den
+Master-Prompt zu lesen – nicht die Regeln selbst. Der Ausfall wäre also nicht still, aber
+auch nicht folgenlos.
+
+== Verbindungen zum übrigen System
+
+[cols="2,3", options="header"]
+|===
+| Festlegung | Wer sie außerdem kennt
+
+| Definition of Done
+| Steht *nur* im Master-Prompt. <<definition-of-done>> in diesem Dokument verweist darauf,
+  ebenso der Develop-Skill als Commit-Vorbedingung. Eine zweite Liste wäre eine Liste, die an
+  einer Stelle veraltet.
+
+| Pfad `docs/prompt/masterprompt.adoc`
+| `CLAUDE.md` (Import), `prompt.adoc` (`include`) und zwei Stellen in dieser Dokumentation.
+  Eine Umbenennung betrifft alle vier.
+
+| Pflege dieser Systemdokumentation
+| Die Zuordnung „welche Änderung berührt welches Kapitel" steht im Skill
+  `docs/prompt/systemdoku.adoc`, nicht hier – siehe <<pflege-dieser-dokumentation>>.
+|===
+
+== Rendern und Prüfung
+
+[source,bash]
+----
+./gradlew asciidoctorPrompt      # → build/docs/prompt/prompt.html
+----
+
+Der Task ist im Wurzelprojekt konfiguriert, hängt an `./gradlew build` und erbt dieselbe
+`asciidoctorj`-Einstellung wie die Systemdokumentation: Ein fehlender `include` und ein
+Querverweis, der ins Leere zeigt, sind *Build-Fehler*
+(link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system.md[ADR 0022]). Master-Prompt und
+Skills sind damit als *ein* Dokument lesbar, in dem eine doppelt oder widersprüchlich
+formulierte Regel auffällt.
+
+WARNING: Geprüft werden Verweise, nicht Inhalte. Ob eine Regel noch der gelebten Arbeitsweise
+entspricht, stellt kein Task fest – das entscheidet der Blick beim Ändern.

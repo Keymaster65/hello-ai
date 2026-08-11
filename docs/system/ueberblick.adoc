@@ -117,6 +117,11 @@ Es ruft von sich aus kein Fremdsystem auf.
 | `docs/`
 | ADRs (`docs/adr/`), diese Systemdokumentation (`docs/system/`), Session-Protokoll
   (`docs/log/`).
+
+| Arbeitsgrundlage
+| `docs/prompt/` und `CLAUDE.md`
+| Master-Prompt und vier Skills – die Anweisungen, unter denen entwickelt wird. Kein Baustein
+  der Anwendung, aber Teil des Repositorys; siehe <<arbeitsgrundlage>>.
 |===
 
 Alle Bausteine liegen unter `modules/`
@@ -135,3 +140,6 @@ Quellcode und aggregiert nur.
 * *Der Build braucht keine laufende Datenbank* – weder für die Codegenerierung noch für die
   Tests. Docker ist nicht erforderlich.
 * *Code und JavaDoc auf Englisch*, Dokumentation und Oberfläche auf Deutsch.
+* *Die Arbeitsweise ist versioniert.* Rolle, Grundregeln, Konventionen und die Definition of
+  Done stehen als Master-Prompt und Skills im Repository, nicht im Gedächtnis der Beteiligten
+  (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]).

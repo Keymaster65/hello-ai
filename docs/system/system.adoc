@@ -40,7 +40,8 @@ wählt danach den Ort:
 | `docs/prompt/`
 | Wie wird an diesem Projekt gearbeitet?
 | Master-Prompt und Skills – Anweisung statt Beschreibung
-  (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023])
+  (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]). Was dort existiert und
+  wie es geladen wird, beschreibt <<arbeitsgrundlage>>
 |===
 
 Daraus folgen drei Regeln für diese Dokumentation:
@@ -55,7 +56,9 @@ Daraus folgen drei Regeln für diese Dokumentation:
   Ein Widerspruch ist ein Fehler in der Dokumentation und wird dort behoben.
 
 Nicht Gegenstand dieser Dokumentation sind Betriebsanleitungen für eine konkrete
-Zielumgebung (es gibt noch keine) und die Fachlichkeit der enthaltenen Rezepte.
+Zielumgebung (es gibt noch keine), die Fachlichkeit der enthaltenen Rezepte und die
+Arbeitsanweisungen selbst – von der Arbeitsgrundlage beschreibt <<arbeitsgrundlage>> nur
+Aufbau, Ladeweg und Prüfung.
 
 == Aufbau
 
@@ -70,6 +73,8 @@ include::api.adoc[leveloffset=+1]
 include::betrieb.adoc[leveloffset=+1]
 
 include::qualitaetssicherung.adoc[leveloffset=+1]
+
+include::arbeitsgrundlage.adoc[leveloffset=+1]
 
 == Architekturentscheidungen
 
@@ -107,6 +112,7 @@ wirkt.
 | link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[0023] | AsciiDoc für Master-Prompt und Skills in `docs/prompt`
 |===
 
+[[pflege-dieser-dokumentation]]
 == Pflege dieser Dokumentation
 
 Die Dokumentation wird *mit* der Änderung gepflegt, die sie betrifft – nicht nachgelagert.
