@@ -8,6 +8,33 @@ Datum: 2026-07-19
 
 '''
 
+== 116. Prompt: „Vor einem "next" Befehl soll ein "pull" des aktuellen git Branches durchgeführt werden" (aus dem Backlog, `next`)
+
+_Delta: 3:15 min · 21.813 Token out · 69.644 Token in (neu) · 2.441.614 Token gesamt_
+_Stand (Session, 7 Prompts): 4:59 min · 34.920 Token out · 3.444.340 Token gesamt_
+
+*Aktionen:*
+
+* *Backlog gezogen:* Der Eintrag war zwischenzeitlich vom Nutzer auf `+:+` gesetzt worden und
+  damit oberster ready-Eintrag; nach Bestätigung auf `+*+` gesetzt, nach Abschluss entfernt.
+* *ADR 0030 geschrieben* (`+docs/adr/0030-pull-vor-next.adoc+`): `git pull --ff-only` vor jedem
+  `next`, mit den verworfenen Optionen (nichts tun, erst beim Commit ziehen, nur `fetch` und
+  melden, Merge-Voreinstellung, `+--rebase+`) und den drei Ausgängen Fast-Forward, kein
+  Upstream, Divergenz. Führt ADR 0028/0029 fort.
+* *PO-Skill erweitert* (`docs/prompt/po.adoc`): neuer *Schritt 1 „Stand holen"* vor dem Lesen
+  des Backlogs samt Verhalten je Ausgang; dazu Zweck, der Hinweis unter „Tiefer ziehen", eine
+  Zeile in der Auslöser-Tabelle (Divergenz → Abbruch) und die WARNING unter „Prüfen"
+  nachgezogen.
+* *ADR-Index ergänzt* (`docs/system/system.adoc`): 0030 als erste Tabellenzeile.
+* *Gegenprobe:* `git pull --ff-only` auf `ai1` → `Already up to date.`
+* *DoD:* reine Doku-Änderung, kein Code angefasst – `asciidoctor`, `asciidoctorPrompt` und
+  `asciidoctorAdr` grün (ohne Asciidoctor-Meldung); der grüne Testlauf aus Eintrag 104 gilt
+  weiter.
+* *Nicht protokolliert:* die Turns „next", „nein" und „Ich habe sie bewusst verworfen" – der
+  Nutzer hat die Einträge dazu ausdrücklich verworfen.
+
+'''
+
 == 115. Prompt: „commit"
 
 _Delta: 5 s · 716 Token out · 188.038 Token gesamt (der Bestätigungs-Turn „ja" ist darin nicht

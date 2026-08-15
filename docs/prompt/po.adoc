@@ -9,7 +9,8 @@ Aktiviere diesen Skill, wenn der Nutzer `next` oder `next+N` schreibt oder wenn 
 aufkommt, der *nicht sofort* umgesetzt wird: Er regelt, wie das Backlog `docs/backlog.adoc`
 geführt und wie daraus der nächste Prompt gezogen wird
 (link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028],
-link:{adr}/0029-next-mit-versatz{adrext}[ADR 0029]).
+link:{adr}/0029-next-mit-versatz{adrext}[ADR 0029],
+link:{adr}/0030-pull-vor-next{adrext}[ADR 0030]).
 
 Das Backlog ist die *Zukunft*, das Session-Protokoll die *Vergangenheit*. Was erledigt ist,
 verschwindet hier und steht dort (Butterfly-Skill, `docs/prompt/butterfly.adoc`).
@@ -53,6 +54,19 @@ Historie mitschleppt, ist nach zwanzig Prompts keine Arbeitsliste mehr.
 
 == Der Befehl `next`
 
+. *Stand holen* – `git pull --ff-only` auf dem aktuellen Branch, *vor* dem Lesen des Backlogs
+  (link:{adr}/0030-pull-vor-next{adrext}[ADR 0030]). Sonst wird aus einer Datei gezogen, die
+  anderswo längst weiter ist. Der Ausgang entscheidet:
++
+--
+* *Fast-Forward oder „Already up to date"* – weiter mit Schritt 2. Hat der Pull etwas geholt,
+  wird das im Log-Eintrag erwähnt.
+* *Kein Upstream, kein Remote, kein Netz* – kein Abbruch: Grund nennen, dann auf dem lokalen
+  Stand weiterarbeiten. Ein nur lokal geführtes Backlog ist ein gültiges Backlog.
+* *Divergiert (kein Fast-Forward möglich)* – *Abbruch.* Es wird nichts gezogen und *kein*
+  `+*+`-Marker gesetzt; über Merge oder Rebase entscheidet der Nutzer. Kein automatisches
+  `git stash`, kein Rebase im Vorbeigehen.
+--
 . *Backlog lesen* (`docs/backlog.adoc`).
 . *Ist schon ein Eintrag aktiv* (`+*+`)? Dann wird *nicht* gezogen, sondern gefragt: erst
   abschließen oder bewusst wechseln. Zwei aktive Einträge sind ein Zustand, den niemand mehr
@@ -111,8 +125,9 @@ oder der Nutzer will erst den darunter erledigen. Dafür trägt der Befehl einen
   Notizen gerade dazwischenstehen.
 * *Gibt es so viele ready-Einträge nicht*, wird das gesagt – mit der Zahl der vorhandenen.
   Ersatzweise wird *nichts* gezogen, auch nicht der letzte.
-* *Alles Übrige bleibt wie bei `next`*: Blick auf aktive Einträge, Rückfrage im Wortlaut,
-  Marker vor der Arbeit, Entfernen danach, Log-Eintrag – und *genau ein* Eintrag je Befehl.
+* *Alles Übrige bleibt wie bei `next`*: Pull vor dem Lesen, Blick auf aktive Einträge,
+  Rückfrage im Wortlaut, Marker vor der Arbeit, Entfernen danach, Log-Eintrag – und *genau ein*
+  Eintrag je Befehl.
 * *Der Versatz sortiert nicht um.* Er ist die Ausnahme für einen Aufruf; wer einen Eintrag
   dauerhaft vorzieht, verschiebt ihn im Backlog nach oben. Sonst steht die Priorität an zwei
   Stellen: in der Reihenfolge und in der Gewohnheit, immer `+2` zu tippen.
@@ -124,10 +139,14 @@ oder der Nutzer will erst den darunter erledigen. Dafür trägt der Befehl einen
 | Anlass | Zu tun
 
 | Nutzer schreibt `next`
-| Ablauf oben, inklusive Rückfrage
+| Ablauf oben, inklusive Pull und Rückfrage
 
 | Nutzer schreibt `next+N`
 | Derselbe Ablauf, gezogen wird der (N+1)-te ready-Eintrag
+
+| `git pull --ff-only` schlägt fehl, weil der Branch divergiert
+| Abbrechen und sagen. Kein Eintrag, kein Marker, kein Merge und kein Rebase im Vorbeigehen
+  (link:{adr}/0030-pull-vor-next{adrext}[ADR 0030])
 
 | Wunsch *des Nutzers*, der jetzt nicht umgesetzt wird
 | Als Eintrag *ohne* Marker ans Ende des Backlogs – auch wenn er im Gespräch nur nebenbei
@@ -162,8 +181,8 @@ damit *im Build*: Eine kaputte Auszeichnung bricht ihn
 (link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022]).
 
 WARNING: Der Build prüft die Auszeichnung, nicht die Statuszeichen. Ein `+*+`, das seit drei
-Sessions hängt, fällt nur beim Lesen auf – deshalb beginnt `next` mit dem Blick auf die aktiven
-Einträge.
+Sessions hängt, fällt nur beim Lesen auf – deshalb steht der Blick auf die aktiven Einträge am
+Anfang von `next`, gleich hinter dem Pull.
 
 == Hinweise
 

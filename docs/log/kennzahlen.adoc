@@ -16,6 +16,16 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| 116
+|„Vor einem "next" Befehl soll ein "pull" des aktuellen git Branches durchgeführt werden" (aus dem Backlog, `next`)
+| 3:15 min
+| 21.813
+| 69.644
+| 2.441.614
+| 4:59 min
+| 34.920
+| 3.444.340
+
 | 115
 |„commit"
 | –
