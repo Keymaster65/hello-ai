@@ -41,13 +41,11 @@ Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt
 was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
 `git`.
 
-== :doc Ergänze claudeLog in der Systemdocumentation als neuen Anhang "Änderungen" vor dem Anhang "Quelldateien" ein.
+== : doc Erzeuge entsprechenden Links, wenn claudeLog in der Systemdocumentation referenziert wird.
 
-== :doc Erzeuge entsprechenden Links, wenn claudeLog in der Systemdocumentation referenziert wird.
+== : doc Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein.
 
-== :doc Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein.
-
-== :doc Füge die Querverweise zwischen den Prompts in claudeLog und den Commits im gitChangeLog hinzu.
+== : doc Füge die Querverweise zwischen den Prompts in claudeLog und den Commits im gitChangeLog hinzu.
 
 == doc Ergänze ein Plant UML Diagram für die Abhängigkeiten der gradle Module in der Asciidoc Systemdocumentation. Ergänze die Pflege der Abhängigkeiten in den Skills. Ergänze ein ADR für Plant UML.
 
@@ -55,23 +53,25 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 
 == doc Verwende plantuml in der Asciidoc Systemdocumentation wo es sinnvoll ist. Ergänze das im ADR
 
-== ?Ergänze einen MCP Service für den Zugriff auf Rezepte.
+== ?dev Ergänze einen MCP Service für den Zugriff auf Rezepte.
 
-== Erstelle security Skills für frontend und backend.
-    Ergänze ein security Skill der zur Einhaltung von RFC 9116 (definiert den Standard security.txt)
+== : sm Erstelle security Skills für das backend. Füge dort die Einhaltung von RFC 9116 (definiert den Standard security.txt) hinzu
+
     cooldown
     Updates
     write-lock
     org.gradle.dependency.verification=strict
 
-== Realisiere "RFC 9116 A File Format to Aid in Security Vulnerability Disclosure" für die Anwendung.
+== sm Erstelle security Skills für frontend und backend.
 
-== Realisiere "RFC 9457 Problem Details for HTTP API" für die Anwendung.
+== sm Realisiere "RFC 9116 A File Format to Aid in Security Vulnerability Disclosure" für die Anwendung.
 
-== architecture
+== dev Realisiere "RFC 9457 Problem Details for HTTP API" für die Anwendung.
+
+== dev architecture
     Multi Brower Support
 
-==  business
+== dev business
     Barrierefrei
     en+de
     Händler

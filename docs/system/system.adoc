@@ -22,7 +22,7 @@ betrieben und geprüft wird.
 
 == Zweck und Abgrenzung
 
-Das Projekt kennt fünf Dokumentationsarten mit klar getrennten Aufgaben. Wer etwas ergänzt,
+Das Projekt kennt sechs Dokumentationsarten mit klar getrennten Aufgaben. Wer etwas ergänzt,
 wählt danach den Ort:
 
 [cols="1,2,3", options="header"]
@@ -41,6 +41,13 @@ wählt danach den Ort:
 | `docs/system/` (hier)
 | Was gibt es, und wie greift es ineinander?
 | Zusammenhängende Sicht auf das System im *Ist-Zustand*
+
+| `docs/log/claudeLog.adoc`
+| Wie ist es entstanden?
+| Ein Eintrag je Prompt, neuester oben – Protokoll statt Beschreibung
+  (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]). Eingebunden als Anhang
+  <<aenderungen>> (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]), die
+  Kennzahlen daraus als <<kennzahlen>>
 
 | `docs/backlog.adoc`
 | Was kommt als Nächstes?
@@ -107,6 +114,7 @@ erste Zeile.
 |===
 | ADR | Thema
 
+| link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[0033] | Session-Protokoll als Anhang „Änderungen" der Systemdokumentation
 | link:{adr}/0032-branches-nach-jedem-commit-mergen{adrext}[0032] | Nach jedem Commit die Arbeitsbranches mergen
 | link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[0031] | `next` bevorzugt Einträge, die an den aktuellen Branch gebunden sind
 | link:{adr}/0030-pull-vor-next{adrext}[0030] | `git pull --ff-only` vor jedem `next`
@@ -167,6 +175,8 @@ Der Task läuft als Teil von `./gradlew build` mit. Ein fehlender `include`, ein
 unbekannte Attribut-Referenz oder eine defekte Tabelle fällt damit im Build auf und nicht
 erst beim Lesen. Seit dem Anhang <<quelldateien>> gilt das auch für die *Pfade der
 Quelldateien*: Sie sind eingebunden, ein Umzug bricht den Build.
+
+include::anhang-aenderungen.adoc[leveloffset=+1]
 
 include::anhang-quellen.adoc[leveloffset=+1]
 

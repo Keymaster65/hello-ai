@@ -27,7 +27,7 @@ wenn diese Bindung nicht mehr passt.
 
 == Vor der Arbeit: welche ADRs gelten
 
-Nicht alle 32 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
+Nicht alle 33 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
 Zusammenfassung: *Was* gilt, steht im ADR selbst.
 
 [cols="2,3", options="header"]
@@ -82,7 +82,8 @@ Zusammenfassung: *Was* gilt, steht im ADR selbst.
   link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[0028],
   link:{adr}/0029-next-mit-versatz{adrext}[0029],
   link:{adr}/0030-pull-vor-next{adrext}[0030],
-  link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[0031]
+  link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[0031],
+  link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[0033]
 
 | Commit, Zusammenführen von Branches
 | link:{adr}/0030-pull-vor-next{adrext}[0030],

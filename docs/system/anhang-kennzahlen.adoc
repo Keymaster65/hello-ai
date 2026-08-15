@@ -19,10 +19,11 @@ Protokoll *erzeugt* und als `docs/log/kennzahlen.adoc` hier eingebunden. Der Log
 einzige Quelle; die Werte werden übernommen, nicht neu gerechnet. Gepflegt wird sie nach dem
 Skill `docs/prompt/manager.adoc` (link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]).
 
-Das Protokoll selbst bleibt außerhalb des Builds
-(link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]): Es zitiert wörtliche Prompts und
-darf die Auslieferung nicht blockieren. Die Tabelle kann das nicht, weil die Prompt-Spalte
-*literal* gesetzt ist (`l` im `cols`-Attribut) – AsciiDoc wertet dort nichts aus.
+Das Protokoll selbst steht seit
+link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033] als Anhang <<aenderungen>>
+daneben – Text und Zahlen desselben Eintrags sind damit im selben Dokument. Für diese Tabelle
+ändert das nichts: Ihre Prompt-Spalte ist *literal* gesetzt (`l` im `cols`-Attribut), AsciiDoc
+wertet dort nichts aus.
 
 .Zu den Spalten
 [cols="2,3", options="header"]

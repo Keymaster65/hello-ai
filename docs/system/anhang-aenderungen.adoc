@@ -1,0 +1,36 @@
+// Kapitel der Systemdokumentation; siehe system.adoc.
+ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
+[appendix]
+[[aenderungen]]
+= Änderungen
+
+Die Kapitel beschreiben den *Ist-Zustand*, die ADRs die *Entscheidungen* dahinter. Beides sagt
+nicht, wie dieser Zustand entstanden ist: In welcher Reihenfolge die Bausteine kamen, welcher
+Prompt eine Änderung ausgelöst hat, was ein Schritt gekostet hat. Das führt das
+Session-Protokoll `docs/log/claudeLog.adoc` mit – ein Eintrag je Prompt, neuester oben.
+
+Dieser Anhang bindet es ein
+(link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]). Damit steht die
+Entstehung neben dem Ergebnis, in *einem* Dokument, das auch die laufende Anwendung unter
+`/recipes/docs/` ausliefert
+(link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]).
+
+*Eingebunden, nicht kopiert* – wie die Quelldateien in <<quelldateien>> und die
+Kennzahlen-Tabelle in <<kennzahlen>>. Gepflegt wird das Protokoll ausschließlich in
+`docs/log/claudeLog.adoc`, nach dem Skill `docs/prompt/butterfly.adoc`; hier steht keine
+zweite Fassung, die veralten könnte.
+
+Zwei Folgen sind zu kennen:
+
+* *Das Protokoll steht damit im Build.* Ein `+{+`, ein `+<<+` oder ein Zeilenanfang, der wie
+  ein Listenmarker aussieht, ist ab jetzt ein Fehler in der Auslieferung und nicht mehr nur
+  eine Unschönheit im Text. Der Butterfly-Skill nennt den Schutz, der das verhindert
+  (Passthrough `+…+` um Code-Spans mit Sonderzeichen).
+* *Die Einträge stehen tief.* Sie liegen zwei Ebenen unter diesem Anhang und damit unterhalb
+  von `+:toclevels:+` – sonst trüge das Inhaltsverzeichnis über hundert Prompt-Überschriften.
+
+Die Kennzahlen derselben Einträge stehen als Tabelle in <<kennzahlen>>: dieselbe Quelle,
+andere Sicht.
+
+include::../log/claudeLog.adoc[leveloffset=+2]

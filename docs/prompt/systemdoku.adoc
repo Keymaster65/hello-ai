@@ -47,6 +47,11 @@ zuständig ist – und nur das.
   werden; dazu bindet das Kapitel deren Wortlaut per `include` aus `docs/prompt` ein. Quelle
   und Änderungsort bleiben die Dateien dort
 
+| `anhang-aenderungen.adoc`
+| Anhang: die Entstehung des Systems. Bindet das Session-Protokoll `docs/log/claudeLog.adoc`
+  ein (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]); gepflegt wird das
+  Protokoll dort und nach dem Butterfly-Skill, nicht hier
+
 | `anhang-quellen.adoc`
 | Anhang: die Quelldateien des Projekts, per `include` eingebunden und in Klapp-Blöcken je
   Datei. Gruppiert wie die Schichten; nichts davon wird abgeschrieben

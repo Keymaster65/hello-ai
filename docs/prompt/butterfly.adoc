@@ -27,9 +27,14 @@ mit.
 == Format
 
 * Datei: `docs/log/claudeLog.adoc` – AsciiDoc wie der Rest von `docs/`
-  (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]). Sie wird bewusst *nicht* gerendert
-  und in kein Dokument per `include` eingebunden: Ein Protokoll, das wörtliche Prompts
-  zitiert, darf den Build nicht rot färben können.
+  (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]). Sie ist als Anhang „Änderungen"
+  in die Systemdokumentation eingebunden und wird von `+./gradlew asciidoctor+` mitgerendert
+  (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]).
+
+IMPORTANT: Der Log steht damit *im Build*. Eine kaputte Auszeichnung bricht die Auslieferung –
+und zwar in einem Protokoll, das wörtliche Prompts zitiert. Die drei Fallstricke unten sind
+deshalb keine Kosmetik, sondern die Bedingung dafür, dass ein Eintrag überhaupt geschrieben
+werden darf.
 * Nummerierte Abschnitte: `== N. Prompt: „<Originaltext des Prompts>"`
 * *Sortierung: chronologisch absteigend – neuester Eintrag oben.*
 * Neue Einträge *immer vorne* einfügen (direkt unter dem Header, vor dem bisher obersten

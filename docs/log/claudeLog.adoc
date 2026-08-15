@@ -8,6 +8,41 @@ Datum: 2026-07-19
 
 '''
 
+== 121. Prompt: „Ergänze claudeLog in der Systemdocumentation als neuen Anhang "Änderungen" vor dem Anhang "Quelldateien" ein." (aus dem Backlog, `next`)
+
+_Delta: 13:22 min · 46.353 Token out · 504.739 Token in (neu) · 7.944.910 Token gesamt_
+_Stand (Session, 3 Prompts): 22:43 min · 83.439 Token out · 11.748.557 Token gesamt_
+
+*Aktionen:*
+
+* *Pull vor `next`* (ADR 0030): Fast-Forward `+e94f8f9..09d4158+`, brachte ADR 0032 und einen
+  bereits erledigten `+:sm+`-Eintrag. Branch `doc`, gezogen wurde der erste an `doc` gebundene
+  Eintrag.
+* *Konflikt mit ADR 0025 vorgelegt:* Dort ist „Umstellen und in den Build aufnehmen"
+  ausdrücklich verworfen. Der Nutzer entschied für Einbinden *mit* neuem ADR statt für einen
+  bloßen Verweis.
+* *`docs/system/anhang-aenderungen.adoc`* neu: Anhang „Änderungen", bindet
+  `docs/log/claudeLog.adoc` mit `+leveloffset=+2+` ein; `include` in `system.adoc` *vor*
+  `anhang-quellen.adoc`.
+* *`+leveloffset=+2+` statt `+1`, gemessen:* Bei `+1` stünden alle 125 Prompt-Überschriften im
+  Inhaltsverzeichnis (104 → 229 Einträge). Jetzt wächst es um genau einen Eintrag.
+* *ADR 0033 geschrieben*, das die Teilentscheidung „nicht gerendert, in kein Dokument
+  eingebunden" aus ADR 0025 ablöst – Format und Ort des Protokolls bleiben unverändert. ADR
+  0025 selbst wurde nicht angefasst.
+* *Nachgezogen:* ADR-Index in `system.adoc` (0033 oben), Abgrenzungstabelle dort um
+  `docs/log/` erweitert (fünf → sechs Dokumentationsarten), `anhang-kennzahlen.adoc` (der Satz
+  „bleibt außerhalb des Builds" war falsch geworden), `butterfly.adoc` (der Log steht jetzt im
+  Build – die drei Fallstricke sind damit Bedingung, nicht Kosmetik), `systemdoku.adoc`
+  (Kapiteltabelle) und `adr.adoc` (Wegweiser, 33 ADRs).
+* *Risiko geprüft, nicht behauptet:* Alle 7 `+<<+` und 24 `+{+` im Bestand stehen bereits im
+  Passthrough; der Log rendert ohne eine einzige Meldung.
+* *Nachweis:* `+./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr+` BUILD SUCCESSFUL, ohne
+  `+INFO:+`/`+WARN:+`/`+SEVERE:+`-Meldung. Anhänge jetzt A Änderungen, B Quelldateien,
+  C Kennzahlen, D Backlog. Reine Doku-Änderung – kein Code angefasst, es gilt der letzte grüne
+  Testlauf.
+
+'''
+
 == 120. Prompt: „Diese Regel soll dem developer Skill hinzugefügt werden: Nach einem commit, sollen andere Branches des git Repositories mit "merge" hinzugefügt werden: Nur main, sm, doc und dev. Merge-Konflikte sollen behoben werden. Danach soll ein erneuter commit durchgeführt werden. Das soll wiederholt werden, bis alle Branches gemerged sind." (aus dem Backlog, `next`)
 
 _Delta: 5:17 min · 35.896 Token out · 82.614 Token in (neu) · 4.449.493 Token gesamt_
