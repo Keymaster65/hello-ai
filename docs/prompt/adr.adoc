@@ -27,7 +27,7 @@ wenn diese Bindung nicht mehr passt.
 
 == Vor der Arbeit: welche ADRs gelten
 
-Nicht alle 28 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
+Nicht alle 29 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
 Zusammenfassung: *Was* gilt, steht im ADR selbst.
 
 [cols="2,3", options="header"]
@@ -79,7 +79,8 @@ Zusammenfassung: *Was* gilt, steht im ADR selbst.
   link:{adr}/0025-claudelog-als-asciidoc{adrext}[0025],
   link:{adr}/0026-adrs-als-asciidoc{adrext}[0026],
   link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[0027],
-  link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[0028]
+  link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[0028],
+  link:{adr}/0029-next-mit-versatz{adrext}[0029]
 |===
 
 Der vollständige Index steht in `docs/system/system.adoc`, Abschnitt

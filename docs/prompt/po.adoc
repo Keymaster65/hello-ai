@@ -5,10 +5,11 @@ ifndef::adrext[:adrext: .adoc]
 
 == Zweck
 
-Aktiviere diesen Skill, wenn der Nutzer `next` schreibt oder wenn ein Wunsch aufkommt, der
-*nicht sofort* umgesetzt wird: Er regelt, wie das Backlog `docs/backlog.adoc` geführt und wie
-daraus der nächste Prompt gezogen wird
-(link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028]).
+Aktiviere diesen Skill, wenn der Nutzer `next` oder `next+N` schreibt oder wenn ein Wunsch
+aufkommt, der *nicht sofort* umgesetzt wird: Er regelt, wie das Backlog `docs/backlog.adoc`
+geführt und wie daraus der nächste Prompt gezogen wird
+(link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028],
+link:{adr}/0029-next-mit-versatz{adrext}[ADR 0029]).
 
 Das Backlog ist die *Zukunft*, das Session-Protokoll die *Vergangenheit*. Was erledigt ist,
 verschwindet hier und steht dort (Butterfly-Skill, `docs/prompt/butterfly.adoc`).
@@ -56,8 +57,9 @@ Historie mitschleppt, ist nach zwanzig Prompts keine Arbeitsliste mehr.
 . *Ist schon ein Eintrag aktiv* (`+*+`)? Dann wird *nicht* gezogen, sondern gefragt: erst
   abschließen oder bewusst wechseln. Zwei aktive Einträge sind ein Zustand, den niemand mehr
   auflöst.
-. *Obersten ready-Eintrag bestimmen.* Gibt es keinen, wird das gesagt – zusammen mit den
-  nicht-ready-Einträgen, die in Frage kämen. Nichts wird ersatzweise ausgeführt.
+. *Obersten ready-Eintrag bestimmen* – bei `next+N` den *N-ten darunter*, siehe unten. Gibt es
+  keinen, wird das gesagt – zusammen mit den nicht-ready-Einträgen, die in Frage kämen. Nichts
+  wird ersatzweise ausgeführt.
 . *Rückfrage (Pflicht):* Den Eintrag im *Wortlaut* vorlegen und fragen, ob er jetzt
   ausgeführt wird. Ohne Bestätigung passiert nichts – wie bei der Commit-Message im
   Develop-Skill.
@@ -78,10 +80,42 @@ Historie mitschleppt, ist nach zwanzig Prompts keine Arbeitsliste mehr.
 +
 `next` ist der Befehl, mit dem der Prompt gezogen wurde – nicht der Prompt. Stünde er in der
 Überschrift, wäre nach dem Entfernen des Eintrags nirgends mehr nachlesbar, *was* gearbeitet
-wurde; die Kennzahlen-Tabelle (Manager-Skill) trüge eine Zeile ohne Aussage.
+wurde; die Kennzahlen-Tabelle (Manager-Skill) trüge eine Zeile ohne Aussage. In der Klammer
+steht der *tatsächlich getippte* Befehl, also gegebenenfalls `+(aus dem Backlog, `next+2`)+`.
 
 `next` führt *genau einen* Eintrag aus. Der übernächste braucht ein neues `next` – sonst
 arbeitet der Assistent eine Liste ab, die der Nutzer zwischendurch nicht mehr steuern kann.
+
+=== Tiefer ziehen: `next+1`, `next+2` …
+
+Manchmal ist der oberste ready-Eintrag gerade nicht der richtige – er wartet auf eine Antwort,
+oder der Nutzer will erst den darunter erledigen. Dafür trägt der Befehl einen *Versatz*
+(link:{adr}/0029-next-mit-versatz{adrext}[ADR 0029]):
+
+[cols="1,3", options="header"]
+|===
+| Befehl | Zieht
+
+| `next`
+| den *ersten* ready-Eintrag (gleichbedeutend mit `next+0`)
+
+| `next+1`
+| den *zweiten* ready-Eintrag
+
+| `next+N`
+| den *(N+1)-ten* ready-Eintrag
+|===
+
+* *Gezählt werden nur ready-Einträge* (`+:+`). Was `next` übergeht – `+KI+`, Ideen, Notizen –
+  zählt auch beim Versatz nicht mit; sonst hinge die Bedeutung von `next+2` daran, wie viele
+  Notizen gerade dazwischenstehen.
+* *Gibt es so viele ready-Einträge nicht*, wird das gesagt – mit der Zahl der vorhandenen.
+  Ersatzweise wird *nichts* gezogen, auch nicht der letzte.
+* *Alles Übrige bleibt wie bei `next`*: Blick auf aktive Einträge, Rückfrage im Wortlaut,
+  Marker vor der Arbeit, Entfernen danach, Log-Eintrag – und *genau ein* Eintrag je Befehl.
+* *Der Versatz sortiert nicht um.* Er ist die Ausnahme für einen Aufruf; wer einen Eintrag
+  dauerhaft vorzieht, verschiebt ihn im Backlog nach oben. Sonst steht die Priorität an zwei
+  Stellen: in der Reihenfolge und in der Gewohnheit, immer `+2` zu tippen.
 
 == Auslöser → Pflicht
 
@@ -91,6 +125,9 @@ arbeitet der Assistent eine Liste ab, die der Nutzer zwischendurch nicht mehr st
 
 | Nutzer schreibt `next`
 | Ablauf oben, inklusive Rückfrage
+
+| Nutzer schreibt `next+N`
+| Derselbe Ablauf, gezogen wird der (N+1)-te ready-Eintrag
 
 | Wunsch *des Nutzers*, der jetzt nicht umgesetzt wird
 | Als Eintrag *ohne* Marker ans Ende des Backlogs – auch wenn er im Gespräch nur nebenbei
@@ -136,4 +173,4 @@ Einträge.
 * *Der Status steht nur an einer Stelle*, im Anfang der Überschrift. Keine zweite Liste, keine
   Statustabelle daneben.
 * *Reihenfolge ist Priorität.* Umsortieren ist die Priorisierung; eine eigene Prioritätsspalte
-  gibt es nicht.
+  gibt es nicht – auch `next+N` ist keine: Es zieht einmalig tiefer, ohne die Liste zu ändern.

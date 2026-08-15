@@ -16,6 +16,26 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| 115
+|„commit"
+| –
+| –
+| –
+| –
+| 1:04:15 h
+| 49.342
+| 5.380.177
+
+| 114
+|„Unterstütze im po Skill das ziehen etwas tiefer im Backlog mit next+1, next+2 use." (aus dem Backlog, `next`)
+| 1:00:02 h
+| 25.671
+| 98.572
+| 2.936.151
+| 1:03:30 h
+| 45.494
+| 5.219.851
+
 | 113
 |„commit"
 | –

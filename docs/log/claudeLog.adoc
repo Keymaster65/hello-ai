@@ -8,6 +8,47 @@ Datum: 2026-07-19
 
 '''
 
+== 115. Prompt: „commit"
+
+_Delta: 5 s · 716 Token out · 188.038 Token gesamt (der Bestätigungs-Turn „ja" ist darin nicht
+enthalten; `in (neu)` weist die Turn-Tabelle nicht aus)_
+_Stand (Session, 8 Prompts): 1:04:15 h · 49.342 Token out · 5.380.177 Token gesamt_
+
+*Aktionen:*
+
+* *DoD geprüft:* reine Doku-Änderung, kein Code angefasst – `asciidoctor`, `asciidoctorPrompt`
+  und `asciidoctorAdr` grün; der grüne Testlauf aus Eintrag 104 gilt weiter.
+* *Commit-Message vorgelegt und bestätigt* („next+N: tiefer im Backlog ziehen"), dann committet
+  mit `+--author="Claude <noreply@anthropic.com>"+` auf Branch `ai1`; neu im Commit ist
+  `+docs/adr/0029-next-mit-versatz.adoc+`.
+
+'''
+
+== 114. Prompt: „Unterstütze im po Skill das ziehen etwas tiefer im Backlog mit next+1, next+2 use." (aus dem Backlog, `next`)
+
+_Delta: 1:00:02 h · 25.671 Token out · 98.572 Token in (neu) · 2.936.151 Token gesamt_
+_Stand (Session, 6 Prompts): 1:03:30 h · 45.494 Token out · 5.219.851 Token gesamt_
+
+*Aktionen:*
+
+* *Backlog gezogen:* obersten ready-Eintrag vorgelegt, nach Bestätigung auf `+*+` gesetzt, nach
+  Abschluss entfernt.
+* *PO-Skill erweitert* (`docs/prompt/po.adoc`): neuer Abschnitt „Tiefer ziehen" – `next+N` zieht
+  den (N+1)-ten *ready*-Eintrag, nicht-ready-Einträge zählen nicht mit; fehlt der Eintrag, wird
+  nichts ersatzweise gezogen. Dazu Zweck, Ablaufschritt 3, die Auslöser-Tabelle und der Hinweis
+  zur Reihenfolge nachgezogen.
+* *ADR 0029 geschrieben* (`+docs/adr/0029-next-mit-versatz.adoc+`): führt ADR 0028 fort, das
+  „`next` zieht den obersten ready-Eintrag" festgelegt hatte. Verworfen sind Umsortieren,
+  Ziehen über den Titel und Nummern je Eintrag.
+* *Nachgezogen:* Index in `docs/system/system.adoc` (neue *erste* Zeile), Wegweiser-Tabelle in
+  `docs/prompt/adr.adoc` (Zeile „Dokumentation …", Zahl 28 → 29), Einleitung von
+  `docs/backlog.adoc`.
+* *Doku gebaut:* `./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr` grün, ohne
+  `INFO:`/`SEVERE:`; `+0029-next-mit-versatz.html+` liegt unter `+build/docs/adr/+`.
+* Reine Doku-Änderung – kein Code angefasst, es gilt der grüne Testlauf aus Eintrag 104 weiter.
+
+'''
+
 == 113. Prompt: „commit"
 
 _Delta: 26 s · 2.384 Token out · 331.412 Token gesamt (der Bestätigungs-Turn „ja" ist darin

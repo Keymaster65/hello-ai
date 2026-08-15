@@ -8,9 +8,10 @@ ifndef::adrext[:adrext: .adoc]
 
 Was als Nächstes zu tun ist – *ein Prompt je Überschrift*, von oben nach unten abzuarbeiten.
 Die Überschrift *ist* der Prompt: Sie wird wörtlich als Aufgabe genommen, ein Rumpftext
-darunter ist nur Notiz. Gezogen wird mit dem Befehl `next`, den der Skill
-`docs/prompt/po.adoc` beschreibt
-(link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028]).
+darunter ist nur Notiz. Gezogen wird mit dem Befehl `next` – mit `next+N` der (N+1)-te
+ready-Eintrag –, den der Skill `docs/prompt/po.adoc` beschreibt
+(link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028],
+link:{adr}/0029-next-mit-versatz{adrext}[ADR 0029]).
 
 .Der Anfang der Überschrift ist der Status
 [cols="1,3", options="header"]
@@ -33,8 +34,6 @@ darunter ist nur Notiz. Gezogen wird mit dem Befehl `next`, den der Skill
 Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt die Zukunft;
 was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
 `git`.
-
-== : Unterstütze im po Skill das ziehen etwas tiefer im Backlog mit next+1, next+2 use.
 
 == : Ergänze claudeLog in der Systemdocumentation als neuen Anhang "Änderungen" vor dem Anhang "Quelldateien" ein.
 
