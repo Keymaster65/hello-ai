@@ -16,6 +16,11 @@ Dieser Anhang sagt es – aus zwei Blickwinkeln auf dieselbe Arbeit:
 * das *Session-Protokoll* `docs/log/claudeLog.adoc` – *woraufhin* es geschah, ein Eintrag je
   Prompt (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]).
 
+Beide Sichten sind *untereinander verlinkt*
+(link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038]): Die Spalte „Prompt"
+der Tabelle führt zum auslösenden Eintrag, die Zeile `+_Commit:_+` eines Eintrags führt zurück
+zur Zeile des Commits.
+
 Beides ist *eingebunden, nicht kopiert* – wie die Quelldateien in <<quelldateien>> und die
 Kennzahlen-Tabelle in <<kennzahlen>>. Damit steht die Entstehung neben dem Ergebnis, in *einem*
 Dokument, das auch die laufende Anwendung unter `/recipes/docs/` ausliefert
@@ -32,6 +37,13 @@ genau einen Commit alt.
 Neuester Commit oben – dieselbe Richtung wie im Protokoll darunter, im ADR-Index und in der
 Kennzahlen-Tabelle. Der Kurz-Hash benennt den Commit, der Betreff ist die *erste Zeile* seiner
 Message; der Rumpf samt `Co-Authored-By`-Zeile bleibt draußen.
+
+Die Spalte *„Prompt"* nennt die Einträge des Protokolls, aus denen der Commit hervorgegangen
+ist (link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038]). Sie ist
+*abgeleitet*: Gelesen wird allein die Zeile `+_Commit:_+` des jeweiligen Eintrags, nicht dessen
+Fließtext. Ein `–` heißt deshalb nicht „kein Prompt", sondern *„kein Eintrag schreibt sich
+diesen Commit zu"* – bei den Commits, die vor dieser Entscheidung entstanden sind, ist das die
+Regel.
 
 Zwei Auslassungen gehören dazugesagt, damit die Tabelle nicht als lückenlose Liste gelesen wird:
 

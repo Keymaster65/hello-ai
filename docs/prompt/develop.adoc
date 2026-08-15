@@ -22,6 +22,12 @@ beim Commit.
   *nicht* committet, sondern zuerst die Ursache behoben.
 * *Log vor Commit:* Der Eintrag zum laufenden Prompt steht *vor* dem Commit in
   `docs/log/claudeLog.adoc`; das Format regelt der Butterfly-Skill.
+* *Hash nach Commit:* Sobald der Commit steht, wird sein Kurz-Hash im Eintrag als Zeile
+  `+_Commit: <<commit-<kurzhash>,<kurzhash>>>_+` nachgetragen – die Quelle der Spalte „Prompt"
+  in der Git-Historie (link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR
+  0038]). Sie kann im eigenen Commit nicht mehr enthalten sein und reist mit dem *nächsten*
+  mit; ein `+--amend+` verböte sich, weil er den eben eingetragenen Hash ersetzt. Ohne diese
+  Zeile bleibt der Commit in der Tabelle bei `–` stehen.
 * *Author = Claude:* Beim Committen wird als Git-*Author* Claude gesetzt, nicht der bisherige
   Nutzer. Konkret pro Commit:
 +

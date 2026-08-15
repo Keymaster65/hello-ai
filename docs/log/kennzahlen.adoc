@@ -16,6 +16,36 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| 134
+|„Füge die Querverweise zwischen den Prompts in claudeLog und den Commits im gitChangeLog hinzu." (aus dem Backlog, `next`)
+| 33:51 min
+| 153.418
+| 447.142
+| 21.676.891
+| 45:11 min
+| 189.909
+| 26.056.010
+
+| 133
+|„restart app"
+| –
+| –
+| –
+| –
+| –
+| –
+| –
+
+| 132
+|„/run" (Skill: Anwendung starten und bedienen)
+| –
+| –
+| –
+| –
+| –
+| –
+| –
+
 | 131
 |„ja, commit"
 | 53:14 min

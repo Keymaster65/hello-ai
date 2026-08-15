@@ -135,6 +135,11 @@ tasks.named<GitChangelogTask>("gitChangelog") {
     // *literal* (`l`) – aus demselben Grund wie die Prompt-Spalte der Kennzahlen-Tabelle
     // (ADR 0027): In einer Commit-Message steht beliebiger Text, und der darf den Build nicht
     // brechen.
+    //
+    // Die Vorlage legt die *Gestalt* der Tabelle fest, auch die vierte Spalte „Prompt" (ADR 0038).
+    // Deren Inhalt bleibt hier leer: Handlebars sieht nur die Commits, nicht das Session-Protokoll.
+    // Gefüllt wird die Spalte – zusammen mit dem Anker je Commit – im `doLast` unten. Die Spalte
+    // ist *nicht* literal, sonst blieben die Querverweise darin Text.
     templateContent.set(
         """
         // Erzeugt vom Gradle-Task `gitChangelog` aus der git-Historie – nicht von Hand ändern,
@@ -142,15 +147,88 @@ tasks.named<GitChangelogTask>("gitChangelog") {
 
         [[git-historie-tabelle]]
         .Commits, neuester zuerst
-        [cols="2,1m,6l", options="header"]
+        [cols="2,1m,6l,1", options="header"]
         |===
-        | Datum | Commit | Betreff
+        | Datum | Commit | Betreff | Prompt
         {{#commits}}
-        | {{commitTime}} | {{hash}} | {{{messageTitle}}}
+        | {{commitTime}} | {{hash}} | {{{messageTitle}}} |
         {{/commits}}
         |===
         """.trimIndent(),
     )
+
+    // Querverweise zwischen den beiden Sichten des Anhangs „Änderungen" (ADR 0038): Jede Zeile
+    // bekommt den Anker `+commit-<kurzhash>+`, auf den das Protokoll zeigt, und in der Spalte
+    // „Prompt" die Verweise zurück auf die Log-Einträge, die diesen Commit nennen.
+    //
+    // Die Zuordnung steht *im Protokoll*, nicht hier: Ein Log-Eintrag, aus dem ein Commit
+    // hervorgegangen ist, nennt ihn in einer eigenen Zeile `+_Commit: …_+` (Butterfly-Skill).
+    // Sie wird daraus abgeleitet und nirgends zweitgeführt – wie die Kennzahlen-Tabelle aus
+    // denselben Einträgen entsteht (ADR 0027).
+    //
+    // Gelesen wird *ausschließlich* diese Zeile, nicht der Fließtext. Ein Eintrag nennt Hashes
+    // auch aus anderen Gründen – einen Pull-Bereich (`+e94f8f9..09d4158+`), den Stand eines
+    // Remote-Branches, einen fremden Commit als Nebenbefund. Über den Fließtext gelesen behauptete
+    // die Spalte, dieser Prompt habe jene Commits erzeugt; sie wäre überwiegend falsch. Erraten
+    // wird nichts: Ein Commit, den keine solche Zeile nennt, bekommt `–` (ADR 0038).
+    val protokoll = file("docs/log/claudeLog.adoc")
+    val ziel = gitChangelogAdoc.get().asFile
+    inputs.file(protokoll).withPropertyName("sessionProtokoll")
+
+    doLast {
+        // `+== 131. Prompt: „ja, commit"+` – die Nummer ist der Anker `+prompt-131+`. Die vier
+        // ältesten Einträge tragen eine negative Nummer, deshalb `+-?+`.
+        val ueberschrift = Regex("""^== (-?\d+)\. """)
+        // `+_Commit: <<commit-66a5ae4,66a5ae4>>_+`, bei mehreren durch Komma getrennt.
+        val commitzeile = Regex("""^_Commit: (.+)_$""")
+        val hashes = Regex("""\b[0-9a-f]{7,40}\b""")
+
+        val zuordnung = linkedMapOf<String, MutableList<String>>()
+        var eintrag: String? = null
+        protokoll.forEachLine { zeile ->
+            ueberschrift.find(zeile)?.let { eintrag = it.groupValues[1] }
+            val nummer = eintrag ?: return@forEachLine
+            val treffer = commitzeile.matchEntire(zeile) ?: return@forEachLine
+            hashes.findAll(treffer.groupValues[1])
+                .map { it.value.take(7) }
+                .distinct()
+                .forEach { kurz ->
+                    val nummern = zuordnung.getOrPut(kurz) { mutableListOf() }
+                    if (nummer !in nummern) nummern.add(nummer)
+                }
+        }
+
+        // Die Kopfzeile passt nicht: „Commit" ist keine Hexadezimalzahl.
+        val datenzeile = Regex("""^\| (.+?) \| ([0-9a-f]{7,40}) \| (.*) \|$""")
+        var commits = 0
+        var verknuepft = 0
+        val zeilen = ziel.readLines().map { zeile ->
+            val treffer = datenzeile.matchEntire(zeile) ?: return@map zeile
+            val (zeit, hash, betreff) = treffer.destructured
+            val kurz = hash.take(7)
+            val prompts = zuordnung[kurz].orEmpty()
+            commits++
+            if (prompts.isNotEmpty()) verknuepft++
+            // Die vier ältesten Einträge tragen eine negative Nummer. Ihr Anker heißt
+            // `+prompt-minus1+`, nicht `+prompt--1+`: Asciidoctor ersetzt `+--+` durch einen
+            // Geviertstrich, und der Verweis wird dann *still* zu einem Link auf ein anderes
+            // Dokument – ohne Warnung, weil ein Dokumentverweis nicht geprüft wird.
+            val spalte =
+                if (prompts.isEmpty()) {
+                    "–"
+                } else {
+                    prompts.joinToString(", ") { nr ->
+                        "<<prompt-${nr.replace("-", "minus")},$nr>>"
+                    }
+                }
+            "| $zeit | [[commit-$kurz]]$hash | $betreff | $spalte"
+        }
+        ziel.writeText(zeilen.joinToString("\n", postfix = "\n"))
+
+        logger.lifecycle(
+            "gitChangelog: $commits Commits, davon $verknuepft einem Log-Eintrag zugeordnet.",
+        )
+    }
 }
 
 tasks.named<AsciidoctorTask>("asciidoctor") {

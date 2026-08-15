@@ -39,8 +39,15 @@ werden darf.
 * *Sortierung: chronologisch absteigend – neuester Eintrag oben.*
 * Neue Einträge *immer vorne* einfügen (direkt unter dem Header, vor dem bisher obersten
   Eintrag). Nummerierung fortlaufend hochzählen.
+* *Ankerzeile* `+[[prompt-<N>]]+` direkt *über* der Überschrift – das Ziel, auf das die Spalte
+  „Prompt" der Git-Historie zeigt
+  (link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038]). Bei negativer
+  Nummer wird das Vorzeichen *ausgeschrieben* (`+[[prompt-minus2]]+`): Asciidoctor macht aus
+  `+--+` einen Geviertstrich, und der Verweis liefe still ins Leere.
 * Direkt unter der Überschrift zwei *Kennzahlenzeilen*: *Delta* (dieser Prompt) und *Stand*
   (kumuliert über die Session) – siehe unten.
+* Ist aus dem Prompt ein *Commit* hervorgegangen, darunter die Zeile `+_Commit:_+` – siehe
+  „Der Commit im Eintrag".
 * *Jede Zahl trägt ihre Einheit*: die Dauer `s`, `min` oder `h`, jede Tokenzahl das Wort
   `Token`. Eine nackte Zahl ist im Log nicht lesbar.
 * Je Eintrag ein `*Aktionen:*`-Block (bzw. `*Antwort:*` bei reinen Fragen) mit knapper
@@ -58,6 +65,37 @@ Sie kosten beim Schreiben je einen Handgriff und sind der Preis der Umstellung:
   Ohne das entstehen Kursivschrift, eine Attribut-Referenz oder ein Querverweis.
 . *Keine vier Leerzeichen einrücken.* Fortsetzungszeilen eines `**`-Punktes bekommen drei,
   eines `*`-Punktes zwei. Vier wären ein Literalblock.
+
+== Der Commit im Eintrag
+
+Ist aus dem Prompt ein Commit hervorgegangen, hält der Eintrag ihn in einer *eigenen Zeile*
+fest, direkt unter den Kennzahlenzeilen
+(link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038]):
+
+[source,asciidoc]
+----
+_Commit: <<commit-66a5ae4,66a5ae4>>_
+----
+
+* *Der Kurz-Hash hat sieben Stellen* – die Form aus `+git log --oneline+`. Er steht zweimal
+  darin: als Ankerziel und als sichtbarer Text.
+* *Mehrere Commits* stehen durch Komma getrennt in derselben Zeile.
+* *Die Zeile ist optional.* Die meisten Prompts erzeugen keinen Commit; dann fehlt sie.
+* *Sie ist die einzige Quelle der Zuordnung.* Der Task `gitChangelog` liest *nur* sie, nie den
+  Fließtext, und füllt daraus die Spalte „Prompt" der Git-Historie. Hashes, die anderswo im
+  Eintrag vorkommen – ein Pull-Bereich, der Stand eines Remote-Branches, ein fremder Commit als
+  Nebenbefund –, bleiben folgenlos. Das ist Absicht: Sie meinen nicht „hier entstanden".
+
+IMPORTANT: Der Hash muss ein Commit sein, den die Tabelle *führt*. Ein `Merge`, ein
+aufgehobener Commit oder ein Vertipper erzeugt einen Verweis ins Leere – und der bricht den
+Build („possible invalid reference"). Den Hash deshalb aus `+git log+` kopieren, nicht tippen,
+und ihn *nach* dem Commit eintragen, nicht davor.
+
+IMPORTANT: Die Zeile hinkt dem Commit um einen Schritt hinterher, und das ist unvermeidlich:
+Der Eintrag steht *vor* dem Commit (Develop-Skill, „Log vor Commit"), der Hash entsteht *mit*
+ihm. Sie wird deshalb *nach* dem Commit nachgetragen und reist mit dem *nächsten* mit. Ein
+`+git commit --amend+` ist dafür der falsche Weg – er vergäbe einen neuen Hash und machte die
+eben geschriebene Zeile ungültig.
 
 == Dauer und Tokenanzahl
 

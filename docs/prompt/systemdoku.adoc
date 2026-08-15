@@ -53,7 +53,10 @@ zuständig ist – und nur das.
   (link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036]), „Session-Protokoll"
   das Protokoll `docs/log/claudeLog.adoc`
   (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]). Beides wird an seiner
-  Quelle gepflegt – das Protokoll nach dem Butterfly-Skill, die Tabelle gar nicht –, nicht hier
+  Quelle gepflegt – das Protokoll nach dem Butterfly-Skill, die Tabelle gar nicht –, nicht hier.
+  Verbunden sind die zwei Kapitel über Anker in beide Richtungen; die Spalte „Prompt" der
+  Tabelle stammt aus der Zeile `+_Commit:_+` des Protokolls
+  (link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038])
 
 | `anhang-quellen.adoc`
 | Anhang: die Quelldateien des Projekts, per `include` eingebunden und in Klapp-Blöcken je

@@ -9,10 +9,117 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-134]]
+== 134. Prompt: „Füge die Querverweise zwischen den Prompts in claudeLog und den Commits im gitChangeLog hinzu." (aus dem Backlog, `next`)
+
+_Delta: 33:51 min · 153.418 Token out · 447.142 Token in (neu) · 21.676.891 Token gesamt_
+_Stand (Session, 5 Prompts): 45:11 min · 189.909 Token out · 26.056.010 Token gesamt_
+
+*Aktionen:*
+
+* *Gezogen:* `+git pull --ff-only+` auf `doc` meldete „Already up to date"; kein Eintrag war
+  aktiv. Auf `doc` stand genau *ein* ziehbarer Eintrag bereit – der an diesen Branch gebundene
+  `+:doc+`; die übrigen sind nicht ready (`doc`, `+?dev+`, `sm`, `dev`) oder `+KI+`-Vorschläge.
+  Wortlaut vorgelegt, nach der Bestätigung Marker `+:doc+` → `+*doc+` gesetzt, danach
+  gearbeitet.
+* *Vorab gemessen statt geschätzt:* 86 Commits stehen in der Tabelle, 136 Einträge im
+  Protokoll – aber nur *15* Einträge nennen überhaupt einen Hash, und vier davon zeigen auf
+  Commits, die die Tabelle gar nicht führt (Merges, Remote-Stände). Über den Fließtext gelesen
+  wären 19 Commits verknüpft worden.
+* *Entwurf nach der Messung verworfen und ersetzt:* Die Fließtext-Zuordnung wäre *überwiegend
+  falsch* gewesen. Die Einträge 117, 118 und 121 nennen Pull-Bereiche, 106 einen Commit
+  ausdrücklich als „Nebenbefund, nicht angefasst", 99 den Commit des vorigen Turns, 82/83 den
+  grünen Lauf eines dritten, 71 die fünf Commits, die er nur *dokumentiert*. Gelesen wird
+  deshalb *ausschließlich* eine neue, ausgezeichnete Zeile `+_Commit:_+`.
+* *Rückfrage zur Reichweite:* Der Nutzer wählte „beidseitig, erzeugt" – gegen die schlanke
+  Einbahnvariante und gegen ein vollständiges Nachtragen des Bestands von Hand.
+* *ADR 0038 geschrieben* („Querverweise zwischen Prompt und Commit im Anhang „Änderungen""):
+  fünf Optionen samt der beiden verworfenen Automatismen (Fließtext raten, über Zeitstempel
+  rechnen); ergänzt ADR 0036, wo dieser Schritt unter „Bewusst nicht getan" stand. Index in
+  `+system.adoc+` als *erste* Zeile ergänzt (absteigend), Wegweiser im ADR-Skill nachgezogen.
+* *Umgesetzt in `+build.gradle.kts+`:* Die Handlebars-Vorlage bekommt die vierte Spalte
+  „Prompt" (nicht literal, sonst blieben die Verweise Text); ein `+doLast+` setzt je Zeile den
+  Anker `+[[commit-<kurzhash>]]+` und füllt die Spalte aus dem Protokoll. `+claudeLog.adoc+`
+  ist als Task-Eingabe deklariert; Dateien werden zur Konfigurationszeit aufgelöst, damit der
+  Konfigurations-Cache nicht bricht.
+* *Protokoll ergänzt:* 136 Ankerzeilen `+[[prompt-<N>]]+` über den Überschriften und *neun*
+  Zeilen `+_Commit:_+` – genau jene Einträge, die sich den Commit selbst eindeutig zuschreiben
+  (131, 129, 126, 119, 0, −1, −2, −3, −4). Nichts rekonstruiert.
+* *Skills nachgezogen:* Butterfly bekommt Ankerzeile und den Abschnitt „Der Commit im
+  Eintrag", Develop die Regel „Hash nach Commit". Dabei einen eigenen Denkfehler korrigiert:
+  Ein `+--amend+` zum Nachtragen des Hashes wäre selbstwidersprüchlich – er vergäbe einen
+  neuen. Die Zeile reist deshalb mit dem *nächsten* Commit.
+* *Gegenprobe zur Build-Sicherung:* Ein absichtlich falscher Hash (`+deadbee+`) bricht
+  `+asciidoctor+` mit „possible invalid reference: commit-deadbee" – die Zusicherung ist
+  belegt, nicht behauptet; der Log wurde danach wiederhergestellt.
+* *Stille Fehlfunktion gefunden – beim Nachzählen, nicht durch den Build:* Die Tabelle trug
+  zunächst nur *fünf* statt neun Verweise. Ursache: Asciidoctor ersetzt `+--+` durch einen
+  Geviertstrich, `+<<prompt--2,-2>>+` wurde damit zu einem Verweis auf ein *anderes Dokument*
+  (`+prompt….html+`). Solche Dokumentverweise prüft der Build nicht – er blieb grün und lieferte
+  vier tote Links aus. Die Anker der vier ältesten Einträge schreiben das Vorzeichen deshalb
+  aus (`+prompt-minus2+`); `+build.gradle.kts+`, ADR und Butterfly-Skill halten die Falle fest.
+  Lehre für die Prüfung: Die *Zahl* der Verweise zählen, nicht nur den Build-Ausgang lesen.
+* *Ergebnis:* 86 Commit-Anker, ein Anker je Log-Eintrag, je *neun* Verweise in beide Richtungen
+  im gerenderten HTML. `+gitChangelog+` meldet „86 Commits, davon 9 einem Log-Eintrag
+  zugeordnet".
+* *DoD vollständig* (Build-Code war betroffen, nicht nur Doku): `+clean build+` grün
+  (12:07 min), `+systemtest+` grün (2:18 min), `+e2eTest+` grün (9 Tests, 31,5 s), alle drei
+  Asciidoctor-Tasks grün. Übrig bleibt die bekannte Meldung „missing attribute: id", die als
+  `+KI+`-Eintrag im Backlog steht.
+* *Nebenbei:* Der Gradle-Cache `+.gradle/9.6.1+` war nach einem abgeschossenen Daemon
+  beschädigt („FileHasher … Input/output error") und wurde entfernt; er wird neu erzeugt.
+
+'''
+
+[[prompt-133]]
+== 133. Prompt: „restart app"
+
+_Delta: nicht ermittelbar (vor Einführung der Messung in dieser Session)_
+
+*Aktionen:*
+
+* Anwendung nach dem Stopp erneut über `+./gradlew bootRun --args='--server.port=8080'+`
+  gestartet – Port 80 aus der `+application.yml+` ist als Nutzer `agent` nicht bindbar.
+* *86 s* bis zur Erreichbarkeit statt der 5 Minuten des ersten Laufs: Frontend und
+  Dokumentation waren gebaut, Gradle meldete sie als up-to-date.
+* Smoke: SPA liefert HTTP 200, die API listet die sechs Seed-Rezepte.
+
+'''
+
+[[prompt-132]]
+== 132. Prompt: „/run" (Skill: Anwendung starten und bedienen)
+
+_Delta: nicht ermittelbar (vor Einführung der Messung in dieser Session)_
+
+*Aktionen:*
+
+* *Kein Projekt-Skill vorhanden:* `+.claude/skills/run-recipes/+` existiert, ist aber *leer* –
+  keine `+SKILL.md+`. Deshalb nach dem eingebauten Server-Muster vorgegangen.
+* *Start:* PostgreSQL lief bereits auf `+:5432+` mit DB und Nutzer `recipes`; kein Docker
+  nötig. `+bootRun+` auf Port 8080; der erste Lauf dauerte rund 5 Minuten, weil Frontend, ADRs
+  und beide Dokumentationen mitgebaut wurden.
+* *Durchgespielt im echten Browser* (Playwright, headless Chromium): Liste, Detailseite,
+  Deep-Link auf `+/recipes/3+` (SPA-Fallback nach ADR 0017, HTTP 200), Anlegen über das
+  Formular (`+POST+` 201 → Redirect), Validierung des leeren Formulars (`+POST+` 400, rot
+  umrandetes Feld) und Löschen (Confirm-Dialog, `+DELETE+` 204). Keine JS-Fehler.
+* *API direkt:* Liste grün, 404 als Fehlerobjekt, `+/.well-known/security.txt+` liefert 200 am
+  Ursprung – die Arbeit aus Eintrag 130/131 im laufenden System bestätigt.
+* *Eigener Fehlschluss korrigiert:* Das Speichern hielt ich zunächst für hängend
+  („Speichern…"); mein Wartefenster von 1 s war zu kurz. Mit Netzwerk-Mitschnitt zeigte sich
+  der saubere Ablauf.
+* *Beobachtung, nicht angefasst:* Die Feldfehler kommen englisch aus dem Backend („must not be
+  blank") in einer sonst durchgehend deutschen Oberfläche – die Bean-Validation-Meldungen sind
+  nicht lokalisiert.
+* Testdaten (IDs 44, 45) über die Oberfläche wieder gelöscht, Treiber-Skripte entfernt.
+
+'''
+
+[[prompt-131]]
 == 131. Prompt: „ja, commit"
 
 _Delta: 53:14 min · 32.053 Token out · 1.287.590 Token in (neu) · 16.536.341 Token gesamt_
 _Stand (Session, 4 Prompts): 1:47:30 h · 158.536 Token out · 41.664.065 Token gesamt_
+_Commit: <<commit-b48d7a6,b48d7a6>>_
 
 *Aktionen:*
 
@@ -39,6 +146,7 @@ _Stand (Session, 4 Prompts): 1:47:30 h · 158.536 Token out · 41.664.065 Token 
 
 '''
 
+[[prompt-130]]
 == 130. Prompt: „Wende ARD 0035 auf die Anwendung an und startet sie" (aus dem Backlog, `next`)
 
 _Delta: 52:54 min · 121.256 Token out · 924.307 Token in (neu) · 23.849.634 Token gesamt_
@@ -82,10 +190,12 @@ _Stand (Session, 3 Prompts): 52:54 min · 121.256 Token out · 23.849.634 Token 
   Signatur der Datei).
 '''
 
+[[prompt-129]]
 == 129. Prompt: „commit"
 
 _Delta: 18:27 min · 24.131 Token out · 273.337 Token in (neu) · 8.579.131 Token gesamt_
 _Stand (Session, 5 Prompts): 43:38 min · 122.929 Token out · 23.845.676 Token gesamt_
+_Commit: <<commit-66a5ae4,66a5ae4>>_
 
 *Aktionen:*
 
@@ -110,6 +220,7 @@ _Stand (Session, 5 Prompts): 43:38 min · 122.929 Token out · 23.845.676 Token 
 
 '''
 
+[[prompt-128]]
 == 128. Prompt: „Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein." (aus dem Backlog, `next`)
 
 _Delta: 11:16 min · 72.313 Token out · 210.900 Token in (neu) · 7.989.015 Token gesamt_
@@ -148,6 +259,7 @@ _Stand (Session, 4 Prompts): 11:40 min · 74.997 Token out · 8.229.618 Token ge
 
 '''
 
+[[prompt-127]]
 == 127. Prompt: „next"
 
 _Delta: 24 s · 2.684 Token out · 52.149 Token in (neu) · 240.603 Token gesamt_
@@ -162,10 +274,12 @@ _Stand (Session, 3 Prompts): 24 s · 2.684 Token out · 240.603 Token gesamt_
 
 '''
 
+[[prompt-126]]
 == 126. Prompt: „ja, commit"
 
 _Delta: 36 s · 2.929 Token out · 5.770 Token in (neu) · 1.035.865 Token gesamt_
 _Stand (Session, 5 Prompts): 8:55 min · 81.334 Token out · 7.273.438 Token gesamt_
+_Commit: <<commit-a09ffa9,a09ffa9>>_
 
 *Aktionen:*
 
@@ -185,6 +299,7 @@ _Stand (Session, 5 Prompts): 8:55 min · 81.334 Token out · 7.273.438 Token ges
 
 '''
 
+[[prompt-125]]
 == 125. Prompt: „Erstelle security Skills für das backend. Füge dort die Einhaltung von RFC 9116 (definiert den Standard security.txt) hinzu" (aus dem Backlog, `next`)
 
 _Delta: 6:27 min · 69.140 Token out · 190.355 Token in (neu) · 5.112.285 Token gesamt_
@@ -228,6 +343,7 @@ _Stand (Session, 4 Prompts): 6:49 min · 71.589 Token out · 5.350.722 Token ges
 
 '''
 
+[[prompt-124]]
 == 124. Prompt: „ja, commit"
 
 _Delta: 21 s · 2.388 Token out · 4.622 Token in (neu) · 637.780 Token gesamt_
@@ -249,6 +365,7 @@ _Stand (Session, 5 Prompts): 5:30 min · 38.289 Token out · 4.592.766 Token ges
 
 '''
 
+[[prompt-123]]
 == 123. Prompt: „Erzeuge entsprechenden Links, wenn claudeLog in der Systemdocumentation referenziert wird." (aus dem Backlog, `next`)
 
 _Delta: 3:20 min · 29.493 Token out · 155.314 Token in (neu) · 2.799.255 Token gesamt_
@@ -286,6 +403,7 @@ _Stand (Session, 4 Prompts): 3:39 min · 31.052 Token out · 3.038.231 Token ges
 
 '''
 
+[[prompt-122]]
 == 122. Prompt: „Ergänze in ADR-0032: Arbeitsbranches sollen zunächst vom remote mit pull aktualisiert werden" (aus dem Backlog, `nex` – gemeint war `next`)
 
 _Delta: 8:26 min · 47.348 Token out · 121.831 Token in (neu) · 4.056.044 Token gesamt_
@@ -321,6 +439,7 @@ _Stand (Session, 4 Prompts): 8:47 min · 50.295 Token out · 4.296.505 Token ges
 
 '''
 
+[[prompt-121]]
 == 121. Prompt: „Ergänze claudeLog in der Systemdocumentation als neuen Anhang "Änderungen" vor dem Anhang "Quelldateien" ein." (aus dem Backlog, `next`)
 
 _Delta: 13:22 min · 46.353 Token out · 504.739 Token in (neu) · 7.944.910 Token gesamt_
@@ -356,6 +475,7 @@ _Stand (Session, 3 Prompts): 22:43 min · 83.439 Token out · 11.748.557 Token g
 
 '''
 
+[[prompt-120]]
 == 120. Prompt: „Diese Regel soll dem developer Skill hinzugefügt werden: Nach einem commit, sollen andere Branches des git Repositories mit "merge" hinzugefügt werden: Nur main, sm, doc und dev. Merge-Konflikte sollen behoben werden. Danach soll ein erneuter commit durchgeführt werden. Das soll wiederholt werden, bis alle Branches gemerged sind." (aus dem Backlog, `next`)
 
 _Delta: 5:17 min · 35.896 Token out · 82.614 Token in (neu) · 4.449.493 Token gesamt_
@@ -401,10 +521,12 @@ _Stand (Session, 8 Prompts): 11:10 min · 75.983 Token out · 8.219.989 Token ge
 
 '''
 
+[[prompt-119]]
 == 119. Prompt: „Nach einem commit, sollen andere Branches des git Repositories mit "merge" hinzugefügt werden: Nur main, ai1, ai2 usw. Merge-Konflikte sollen behoben werden. Danach soll ein erneuter commit durchgeführt werden. Das soll wiederholt werden, bis alle Branches gemerged sind." (aus dem Backlog, `next`)
 
 _Delta: 26 s · 3.534 Token out · 4.798 Token in (neu) · 494.102 Token gesamt_
 _Stand (Session, 5 Prompts): 4:14 min · 31.128 Token out · 2.689.447 Token gesamt_
+_Commit: <<commit-c95caa2,c95caa2>>_
 
 *Aktionen:*
 
@@ -428,6 +550,7 @@ _Stand (Session, 5 Prompts): 4:14 min · 31.128 Token out · 2.689.447 Token ges
 
 '''
 
+[[prompt-118]]
 == 118. Prompt: „next"
 
 _Delta: 19 s · 3.074 Token out · 55.318 Token in (neu) · 396.536 Token gesamt_
@@ -448,6 +571,7 @@ _Stand (Session, 3 Prompts): 19 s · 3.074 Token out · 396.536 Token gesamt_
 
 '''
 
+[[prompt-117]]
 == 117. Prompt: „Bevorzuge bei einem "next" Befehl den Prompt, dem der aktuelle Branchname folgt, also z. B. :ai1" (aus dem Backlog, `next`)
 
 _Delta: 7:48 min · 55.787 Token out · 189.417 Token in (neu) · 4.273.767 Token gesamt_
@@ -483,6 +607,7 @@ _Stand (Session, 3 Prompts): 7:48 min · 55.787 Token out · 4.273.767 Token ges
 
 '''
 
+[[prompt-116]]
 == 116. Prompt: „Vor einem "next" Befehl soll ein "pull" des aktuellen git Branches durchgeführt werden" (aus dem Backlog, `next`)
 
 _Delta: 3:15 min · 21.813 Token out · 69.644 Token in (neu) · 2.441.614 Token gesamt_
@@ -510,6 +635,7 @@ _Stand (Session, 7 Prompts): 4:59 min · 34.920 Token out · 3.444.340 Token ges
 
 '''
 
+[[prompt-115]]
 == 115. Prompt: „commit"
 
 _Delta: 5 s · 716 Token out · 188.038 Token gesamt (der Bestätigungs-Turn „ja" ist darin nicht
@@ -526,6 +652,7 @@ _Stand (Session, 8 Prompts): 1:04:15 h · 49.342 Token out · 5.380.177 Token ge
 
 '''
 
+[[prompt-114]]
 == 114. Prompt: „Unterstütze im po Skill das ziehen etwas tiefer im Backlog mit next+1, next+2 use." (aus dem Backlog, `next`)
 
 _Delta: 1:00:02 h · 25.671 Token out · 98.572 Token in (neu) · 2.936.151 Token gesamt_
@@ -551,6 +678,7 @@ _Stand (Session, 6 Prompts): 1:03:30 h · 45.494 Token out · 5.219.851 Token ge
 
 '''
 
+[[prompt-113]]
 == 113. Prompt: „commit"
 
 _Delta: 26 s · 2.384 Token out · 331.412 Token gesamt (der Bestätigungs-Turn „ja" ist darin
@@ -570,6 +698,7 @@ _Stand (Session, 5 Prompts): 2:28 min · 14.121 Token out · 1.790.738 Token ges
 
 '''
 
+[[prompt-112]]
 == 112. Prompt: „Ändere in der Systemdocumentation die Kapitelüberschrift "Architekturentscheidungen" auf "Architekturentscheidungen (ADR)"" (aus dem Backlog, `next`)
 
 _Delta: 1:14 min · 8.611 Token out · 73.940 Token in (neu) · 910.542 Token gesamt_
@@ -590,6 +719,7 @@ _Stand (Session, 3 Prompts): 1:14 min · 8.611 Token out · 910.542 Token gesamt
 
 '''
 
+[[prompt-111]]
 == 111. Prompt: „commit"
 
 _Delta: 2:40 min · 720 Token out · 1.064 Token in (neu) · 493.052 Token gesamt_
@@ -604,6 +734,7 @@ _Stand (Session, 10 Prompts): 35:41 min · 214.531 Token out · 35.499.078 Token
 
 '''
 
+[[prompt-110]]
 == 110. Prompt: „Stelle die ADRs in der Systemdocumentation in umgekehrter Reihenfolge das, so dass die neuesten ADRs oben beginnen." (aus dem Backlog, `next`)
 
 _Delta: 1:44 min · 9.030 Token out · 17.088 Token in (neu) · 4.790.675 Token gesamt_
@@ -627,6 +758,7 @@ _Stand (Session, 9 Prompts): 32:23 min · 211.980 Token out · 34.271.138 Token 
 
 '''
 
+[[prompt-109]]
 == 109. Prompt: „commit"
 
 _Delta: 11 s · 2.340 Token out · 90 Token in (neu) · 692.565 Token gesamt_
@@ -642,6 +774,7 @@ _Stand (Session, 8 Prompts): 29:41 min · 201.069 Token out · 27.851.358 Token 
 
 '''
 
+[[prompt-108]]
 == 108. Prompt: „Ergänze in der DoD den Bau der als "Systemdocumentation gebaut"." (aus dem Backlog, `next`)
 
 _Delta: 4:13 min · 12.436 Token out · 620.029 Token in (neu) · 3.803.647 Token gesamt_
@@ -669,6 +802,7 @@ _Stand (Session, 7 Prompts): 28:46 min · 196.611 Token out · 26.471.018 Token 
 
 '''
 
+[[prompt-107]]
 == 107. Prompt: „commit"
 
 _Delta: 19 s · 2.821 Token out · 4.201 Token in (neu) · 856.965 Token gesamt_
@@ -683,6 +817,7 @@ _Stand (Session, 6 Prompts): 23:55 min · 182.657 Token out · 21.587.376 Token 
 
 '''
 
+[[prompt-106]]
 == 106. Prompt: „Ersetze im claudeLog den "" durch den tatsächlichen Prompt, der ausgeführt wurde. Mache das zukünftig für alle "next" Befehle." (aus dem Backlog, `next`)
 
 _Delta: 2:49 min · 15.178 Token out · 26.916 Token in (neu) · 5.124.572 Token gesamt_
@@ -711,6 +846,7 @@ _Stand (Session, 5 Prompts): 22:48 min · 177.480 Token out · 19.882.205 Token 
 
 '''
 
+[[prompt-105]]
 == 105. Prompt: „commit"
 
 _Delta: 26 s · 5.099 Token out · 6.111 Token in (neu) · 959.714 Token gesamt_
@@ -729,6 +865,7 @@ _Stand (Session, 4 Prompts): 18:56 min · 159.084 Token out · 12.802.300 Token 
 
 '''
 
+[[prompt-104]]
 == 104. Prompt: „Strukturiere die Inhalte in den ADR in Kapitel, wie z. B. in ADR-0026. Die ADR, wie z. B. ADR-0001 sollen inhaltlich nicht verändert werden. Referenzen sollen bei Bedarf ergänzt werden. Die Optionen oder Konsequenzen sollen als Aufzählung strukturiert werden." (aus dem Backlog, `next`)
 
 _Delta: 17:00 min · 147.984 Token out · 382.321 Token in (neu) · 9.973.322 Token gesamt_
@@ -771,6 +908,7 @@ _Stand (Session, 3 Prompts): 17:00 min · 147.984 Token out · 9.973.322 Token g
 
 '''
 
+[[prompt-103]]
 == 103. Prompt: „commit"
 
 _Delta: 2:38 min · 7.973 Token out · 8.932 Token in (neu) · 2.094.064 Token gesamt_
@@ -794,6 +932,7 @@ _Stand (Session, 7 Prompts): 32:45 min · 164.056 Token out · 21.717.585 Token 
 
 '''
 
+[[prompt-102]]
 == 102. Prompt: „Erstelle ein docs/backlog.adoc im Projekt, welche die nächsten Prompts als Unterkapitelüberschriften zur Abarbeitung enthält. Also z. B. = Backlog und == Prompt1 == Prompt2. Ergänze einen po.adoc Skill, der backlog.adoc als Prompt abarbeiten kann. Mit dem Befehl \"next\" wird der nächste Prompt im Status \"ready\" nach Rückfrage ausgeführt. Der Anfang der Überschrift bestimmt den Status. : ready für Prompt, *: Prompt bereits aktiv sonst nicht \"ready\". Erster Eintrag soll sein \"Erstelle ein Backlog\". Das Backlog soll als letzter Anhang in der Systemdocumentation ergänzt werden." (+ Rückfrage: erledigte Einträge werden gelöscht)
 
 _Delta: 7:24 min · 46.753 Token out · 49.582 Token in (neu) · 7.500.513 Token gesamt_
@@ -834,6 +973,7 @@ _Stand (Session, 6 Prompts): 29:09 min · 152.525 Token out · 18.783.279 Token 
 
 '''
 
+[[prompt-101]]
 == 101. Prompt: „commit"
 
 _Delta: 28 s · 5.782 Token out · 6.252 Token in (neu) · 650.253 Token gesamt_
@@ -852,6 +992,7 @@ _Stand (Session, 5 Prompts): 19:42 min · 102.543 Token out · 10.082.951 Token 
 
 '''
 
+[[prompt-100]]
 == 100. Prompt: „Ergänze eine manager.adoc Skill. Er soll die folgende Aufgabe erfüllen: Erstelle eine zusätzliche Asciidoc Tabelle zum claudeLog, welche die Delta Informationen in Spalten enthält. In der ersten Spalte stehen alle Prompts mit Nummer. Diese Tabelle soll in Zukunft vom manager-Skill gepflegt werden und mit in den Anhang in der Systemdokumentation als Kapitel hinter das claudeLog Kapitel." (+ Rückfragen: „Nr soll eine eigene Spalte sein", Spalten „Delta + Stand", nur die Tabelle in den Anhang)
 
 _Delta: 9:12 min · 74.944 Token out · 114.366 Token in (neu) · 7.289.167 Token gesamt_
@@ -891,6 +1032,7 @@ _Stand (Session, 4 Prompts): 17:35 min · 87.452 Token out · 8.182.091 Token ge
 
 '''
 
+[[prompt-99]]
 == 99. Prompt: „commit"
 
 _Delta: 29 s · 1.230 Token out · 4 Token in (neu) · 241.374 Token gesamt_
@@ -908,6 +1050,7 @@ _Stand (Session, 6 Prompts): 9:19 min · 98.915 Token out · 7.942.629 Token ges
 
 '''
 
+[[prompt-98]]
 == 98. Prompt: „Ergänze im claudeLog die fehlenden Einheiten wie Token oder Zeiteinheiten."
 
 _Delta: 2:09 min · 26.783 Token out · 37.809 Token in (neu) · 2.434.527 Token gesamt_
@@ -932,6 +1075,7 @@ _Stand (Session, 5 Prompts): 7:57 min · 94.102 Token out · 6.989.047 Token ges
 
 '''
 
+[[prompt-97]]
 == 97. Prompt: „Ergänze die Einhaltung der ADR einen eigenen Skill adr.adoc"
 
 _Delta: 4:52 min · 60.054 Token out · 208.939 Token in (neu) · 3.593.346 Token gesamt_
@@ -962,6 +1106,7 @@ _Stand (Session, 3 Prompts): 4:52 min · 60.054 Token out · 3.593.346 Token ges
 
 '''
 
+[[prompt-96]]
 == 96. Prompt: „Stelle alle ADR auf Asciidoc um"
 
 _Delta: 47:19 min · 261.951 Token out · 678.882 Token in (neu) · 34.620.667 Token gesamt_
@@ -1006,6 +1151,7 @@ _Stand (Session, 3 Prompts): 47:19 min · 261.951 Token out · 34.620.667 Token 
 
 '''
 
+[[prompt-95]]
 == 95. Prompt: „commit"
 
 _Delta: 30 s · 4.403 Token out · 5.562 Token in (neu) · 1.087.124 Token gesamt_
@@ -1024,6 +1170,7 @@ _Stand (Session, 8 Prompts): 39:32 min · 217.262 Token out · 31.139.710 Token 
 
 '''
 
+[[prompt-94]]
 == 94. Prompt: „Stelle claudeLog.md auf Asciidoc um."
 
 _Delta: 15:34 min · 101.302 Token out · 143.783 Token in (neu) · 15.825.012 Token gesamt_
@@ -1072,6 +1219,7 @@ _Stand (Session, 7 Prompts): 37:24 min · 208.230 Token out · 28.562.741 Token 
 
 '''
 
+[[prompt-93]]
 == 93. Prompt: „commit"
 
 _Delta: 6:15 min · 19.447 Token out · 30.412 Token in (neu) · 2.016.140 Token gesamt_
@@ -1104,6 +1252,7 @@ _Stand (Session, 5 Prompts): 20:41 min · 100.772 Token out · 11.332.538 Token 
 
 '''
 
+[[prompt-92]]
 == 92. Prompt: „Erstelle die Pflege von claudeLog.md einen eigenen Skill."
 
 _Delta: 5:35 min · 41.336 Token out · 96.487 Token in (neu) · 4.296.328 Token gesamt_
@@ -1141,6 +1290,7 @@ _Stand (Session, 4 Prompts): 13:41 min · 77.597 Token out · 8.557.747 Token ge
 
 '''
 
+[[prompt-91]]
 == 91. Prompt: „/run"
 
 _Delta: 7:29 min · 32.217 Token out · 161.990 Token in (neu) · 4.006.972 Token gesamt_
@@ -1179,6 +1329,7 @@ _Stand (Session, 3 Prompts): 7:29 min · 32.217 Token out · 4.006.972 Token ges
 
 '''
 
+[[prompt-90]]
 == 90. Prompt: „Führe alle Tests aus"
 
 _Delta: 6:40 min · 11.193 Token out · 19.770 Token in (neu) · 1.767.479 Token gesamt_
@@ -1205,6 +1356,7 @@ _Stand (Session, 5 Prompts): 12:36 min · 30.391 Token out · 4.037.602 Token ge
 
 '''
 
+[[prompt-89]]
 == 89. Prompt: „ja, installiere den browser und mach den screenshot"
 
 _Delta: nicht ermittelbar (Kennzahlen erst im Folgeturn gemessen)_
@@ -1224,6 +1376,7 @@ _Delta: nicht ermittelbar (Kennzahlen erst im Folgeturn gemessen)_
 
 '''
 
+[[prompt-88]]
 == 88. Prompt: „start app"
 
 _Delta: 3:34 min · 11.938 Token out · 68.694 Token in (neu) · 1.261.400 Token gesamt_
@@ -1247,6 +1400,7 @@ _Stand (Session, 3 Prompts): 3:34 min · 11.938 Token out · 1.261.400 Token ges
 
 '''
 
+[[prompt-87]]
 == 87. Prompt: „commit"
 
 _Delta: 18 s · 1.573 Token out · 524.314 Token gesamt_
@@ -1262,6 +1416,7 @@ _Stand (Session, 5 Prompts): 34:37 min · 156.655 Token out · 20.181.589 Token 
 
 '''
 
+[[prompt-86]]
 == 86. Prompt: „start"
 
 _Delta: 44 s · 5.973 Token out · 1.208.959 Token gesamt_
@@ -1280,6 +1435,7 @@ _Stand (Session, 4 Prompts): 34:19 min · 155.082 Token out · 19.657.275 Token 
 
 '''
 
+[[prompt-85]]
 == 85. Prompt: „Deploy die Systemdocumentation aus HTML in der Anwendung."
 
 _Delta: 32:28 min · 145.521 Token out · 342.987 Token in (neu) · 17.781.075 Token gesamt_
@@ -1320,6 +1476,7 @@ _Stand (Session, 3 Prompts): 32:28 min · 145.521 Token out · 17.781.075 Token 
 
 '''
 
+[[prompt-84]]
 == 84. Prompt: „Für die referenzierten Sourcen in der Asciidoc Systemdocumentation, erstelle einen Anhang, der die Sourcen gut lesbar enthält. Verlinke diese Sourcen an den entsprechenden Stellen."
 
 _Delta: 12:10 min · 131.885 Token out · 151.429 Token in (neu) · 18.884.136 Token gesamt_
@@ -1371,6 +1528,7 @@ _Stand (Session, 10 Prompts): 44:18 min · 371.462 Token out · 42.895.458 Token
 
 '''
 
+[[prompt-83]]
 == 83. Prompt: „Bette master prompt und skills in der Systemdocumentation ein, so dass so dort lesbar sind."
 
 _Delta: 3:32 min · 33.802 Token out · 27.744 Token in (neu) · 4.242.226 Token gesamt_
@@ -1409,6 +1567,7 @@ _Stand (Session, 7 Prompts): 31:01 min · 233.950 Token out · 22.803.098 Token 
 
 '''
 
+[[prompt-82]]
 == 82. Prompt: „Ergänze master prompt und skills in der Systemdocumentation."
 
 _Delta: 3:22 min · 39.244 Token out · 62.998 Token in (neu) · 4.389.005 Token gesamt_
@@ -1450,6 +1609,7 @@ _Stand (Session, 5 Prompts): 26:06 min · 192.536 Token out · 16.580.715 Token 
 
 '''
 
+[[prompt-81]]
 == 81. Prompt: „Wandle skills und master prompt in asciidoc um. Füge ADR für die zukünftige Pflege dafür hinzu."
 
 _Delta: 18:08 min · 133.233 Token out · 292.445 Token in (neu) · 6.568.724 Token gesamt_
@@ -1502,6 +1662,7 @@ _Stand (Session, 3 Prompts): 18:08 min · 133.233 Token out · 6.568.724 Token g
 
 '''
 
+[[prompt-80]]
 == 80. Prompt: „Erstelle eine Asciidoc Systemdocumentation in "docs/system" und Pflege diese in Zukunft mit. Ergänze das als ADR."
 
 _Delta: 37:50 min · 176.921 Token out · 608.818 Token in (neu) · 23.137.633 Token gesamt_
@@ -1547,6 +1708,7 @@ _Stand (Session, 1 Prompts): 37:50 min · 176.921 Token out · 23.137.633 Token 
   `/tmp/pgdata`, danach wieder gestoppt) und `npx playwright install chromium` – der
   Browser fehlte, was zunächst 9 Fehlschläge erzeugte.
 
+[[prompt-79]]
 == 79. Prompt: „Ergänze Currying für Java-record Klassen mit mehr als 2 Members. Ergänze das als ADR."
 
 _Delta: 15:49 min · 86.319 Token out · 221.592 Token in (neu) · 5.987.902 Token gesamt_
@@ -1584,6 +1746,7 @@ _Stand (Session, 3 Prompts): 15:49 min · 86.319 Token out · 5.987.902 Token ge
 
 '''
 
+[[prompt-78]]
 == 78. Prompt: „Teile das "domain" Java Package im "domain" gradle Modul auf in "domain/model" und "domain/services"."
 
 _Delta: 9:45 min · 28.577 Token out · 104.834 Token in (neu) · 2.675.738 Token gesamt_
@@ -1611,6 +1774,7 @@ _Stand (Session, 3 Prompts): 9:45 min · 28.577 Token out · 2.675.738 Token ges
 * Definition of Done: `clean build` grün (ArchUnit 6/6), `test` grün, `systemtest` 15/15,
   `e2eTest` grün (`.last-run.json`: `"status": "passed"`, keine fehlgeschlagenen Tests).
 
+[[prompt-77]]
 == 77. Prompt: „warte auf den build und committe dann"
 
 _Delta: 1:13 min · 9.322 Token out · 1.644.108 Token gesamt_
@@ -1629,6 +1793,7 @@ _Stand (Session, 5 Prompts): 10:09 min · 53.111 Token out · 4.974.240 Token ge
 
 '''
 
+[[prompt-76]]
 == 76. Prompt: „commit"
 
 _Delta: 1:28 min · 7.333 Token out · 764.087 Token gesamt_
@@ -1646,6 +1811,7 @@ _Stand (Session, 4 Prompts): 8:56 min · 43.789 Token out · 3.330.132 Token ges
 
 '''
 
+[[prompt-75]]
 == 75. Prompt: „Ergänze einen archunit Test mit onionArchitecture()"
 
 _Delta: 7:28 min · 36.456 Token out · 2.566.045 Token gesamt_
@@ -1677,6 +1843,7 @@ _Stand (Session, 3 Prompts): 7:28 min · 36.456 Token out · 2.566.045 Token ges
 
 '''
 
+[[prompt-74]]
 == 74. Prompt: „commit"
 
 _Delta: 28 s · 2.212 Token out · 2.309 Token in (neu) · 401.386 Token gesamt_
@@ -1695,6 +1862,7 @@ _Stand (Session, 4 Prompts): 23:26 min · 65.323 Token out · 4.632.597 Token ge
 
 '''
 
+[[prompt-73]]
 == 73. Prompt: „Stelle die gradle Dependencies um auf den Versionskatalog libs.versions.toml. Ergänze ein entsprechendes ADR."
 
 _Delta: 22:16 min · 58.048 Token out · 240.721 Token in (neu) · 3.842.517 Token gesamt_
@@ -1723,6 +1891,7 @@ _Stand (Session, 3 Prompts): 22:16 min · 58.048 Token out · 3.842.517 Token ge
 
 '''
 
+[[prompt-72]]
 == 72. Prompt: „commit"
 
 _Delta: 8 s · 682 Token out · 8.060 Token in (neu) · 254.330 Token gesamt_
@@ -1738,6 +1907,7 @@ _Stand (Session, 4 Prompts): 5:00 min · 28.311 Token out · 2.099.579 Token ges
 
 '''
 
+[[prompt-71]]
 == 71. Prompt: „Ergänze die ersten commits des Branches chronologisch umgekehrt am Ende von claudeLod.md bis zu dem Punkt, ab welchem sie schon im claudeLod.md enthalten sind"
 
 _Delta: 4:52 min · 27.629 Token out · 105.952 Token in (neu) · 1.845.249 Token gesamt_
@@ -1767,6 +1937,7 @@ _Stand (Session, 3 Prompts): 4:52 min · 27.629 Token out · 1.845.249 Token ges
 
 '''
 
+[[prompt-70]]
 == 70. Prompt: „commit"
 
 _Delta: 10 s · 2.148 Token out · 18 Token in (neu) · 181.503 Token gesamt_
@@ -1786,6 +1957,7 @@ _Stand (Session, 4 Prompts): 1:38 min · 16.921 Token out · 1.153.574 Token ges
 
 '''
 
+[[prompt-69]]
 == 69. Prompt: „/clear" / „Do /clear after each commit"
 
 _Delta: 31 s · 4.639 Token out · 105.339 Token in (neu) · 337.591 Token gesamt_
@@ -1811,6 +1983,7 @@ _Stand (Session, 3 Prompts): 31 s · 4.639 Token out · 337.591 Token gesamt_
 
 '''
 
+[[prompt-68]]
 == 68. Prompt: „commit" / „start" / „commit"
 
 _Delta: 2:41 min · 7.381 Token out · 9.185 Token in (neu) · 15.814.811 Token gesamt_
@@ -1831,6 +2004,7 @@ _Stand (Session, 89 Prompts): 6:40:04 h · 1.012.570 Token out · 530.666.585 To
 
 '''
 
+[[prompt-67]]
 == 67. Prompt: „Ergänze einen Router mit SPA-Fallback für teilbare Rezept-URLs"
 
 _Delta: 47:15 min · 58.448 Token out · 2.362.346 Token in (neu) · 50.126.519 Token gesamt_
@@ -1859,6 +2033,7 @@ _Stand (Session, 86 Prompts): 6:37:23 h · 1.005.189 Token out · 514.851.774 To
 
 '''
 
+[[prompt-66]]
 == 66. Prompt: „commit" / „Ja, so committen"
 
 _Delta: 6 s · 155 Token out · 11 Token in (neu) · 746.115 Token gesamt_
@@ -1874,6 +2049,7 @@ _Stand (Session, 84 Prompts): 5:48:31 h · 944.080 Token out · 458.740.047 Toke
 
 '''
 
+[[prompt-65]]
 == 65. Prompt: „Ändere die Applikations Basis-URL auf \"recipes\"" / „retry"
 
 _Delta: 35:18 min · 32.095 Token out · 3.567.310 Token in (neu) · 41.613.717 Token gesamt_
@@ -1913,6 +2089,7 @@ _Stand (Session, 82 Prompts): 5:47:28 h · 941.070 Token out · 455.013.588 Toke
 
 '''
 
+[[prompt-64]]
 == 64. Prompt: „commit" / „Ja, so committen"
 
 _Delta: 5 s · 155 Token out · 11 Token in (neu) · 711.988 Token gesamt_
@@ -1928,6 +2105,7 @@ _Stand (Session, 80 Prompts): 5:11:10 h · 902.175 Token out · 408.398.997 Toke
 
 '''
 
+[[prompt-63]]
 == 63. Prompt: „Ändere dem Projektnamen von \"recipe-backend\" auf \"receipes"
 
 _Delta: 13:59 min · 9.671 Token out · 1.396.550 Token in (neu) · 10.608.423 Token gesamt_
@@ -1955,6 +2133,7 @@ _Stand (Session, 78 Prompts): 5:10:19 h · 899.904 Token out · 404.841.951 Toke
 
 '''
 
+[[prompt-62]]
 == 62. Prompt: „Was soll modules-broken?" / „commit"
 
 _Delta: 32 s · 1.000 Token out · 2.496 Token in (neu) · 2.086.775 Token gesamt_
@@ -1982,6 +2161,7 @@ _Stand (Session, 76 Prompts): 4:54:56 h · 887.409 Token out · 390.039.896 Toke
 
 '''
 
+[[prompt-61]]
 == 61. Prompt: „Bewege die gradle Module backend und frontend als Untermodule in ein neues \"modules\""
 
 _Delta: 21:50 min · 64.616 Token out · 82.628 Token in (neu) · 46.694.974 Token gesamt_
@@ -2021,6 +2201,7 @@ _Stand (Session, 74 Prompts): 4:44:22 h · 869.664 Token out · 372.749.163 Toke
 
 '''
 
+[[prompt-60]]
 == 60. Prompt: „commit" / „Ja, so committen"
 
 _Delta: 6 s · 148 Token out · 11 Token in (neu) · 634.678 Token gesamt_
@@ -2036,6 +2217,7 @@ _Stand (Session, 73 Prompts): 4:21:47 h · 803.588 Token out · 323.506.093 Toke
 
 '''
 
+[[prompt-59]]
 == 59. Prompt: „Bewege die Module \"bootstrap → adapter → application → domain\" als Untermodule in ein neues backend Modul"
 
 _Delta: 8:32 min · 20.014 Token out · 23.315 Token in (neu) · 14.272.774 Token gesamt_
@@ -2065,6 +2247,7 @@ _Stand (Session, 71 Prompts): 4:16:59 h · 800.883 Token out · 319.704.624 Toke
 
 '''
 
+[[prompt-58]]
 == 58. Prompt: „commit" / „commit"
 
 _Delta: 12 s · 546 Token out · 682 Token in (neu) · 1.831.603 Token gesamt_
@@ -2084,6 +2267,7 @@ _Stand (Session, 70 Prompts): 4:07:43 h · 779.092 Token out · 302.983.291 Toke
 
 '''
 
+[[prompt-57]]
 == 57. Prompt: „Ergänze Dauer und Tokenanzahl immer im claudeLog.md auch für einen Prompt als Delta zu letzten Stand."
 
 _Delta: 2:10 min · 19.657 Token out · 12.400 Token in (neu) · 9.052.479 Token gesamt_
@@ -2108,6 +2292,7 @@ _Stand (Session, 68 Prompts): 4:06:04 h · 774.871 Token out · 295.669.556 Toke
 
 '''
 
+[[prompt-56]]
 == 56. Prompt: „commit" / „Ja, so committen"
 
 _Delta: 1:35 min · 5.223 Token out · 3.663 Token in (neu) · 7.143.965 Token gesamt_
@@ -2126,6 +2311,7 @@ _Stand (Session, 67 Prompts): 4:03:54 h · 755.214 Token out · 286.617.077 Toke
 
 '''
 
+[[prompt-55]]
 == 55. Prompt: „Ergänze Dauer und Tokenanzahl immer im claudeLog.md"
 
 _Delta: 3:42 min · 25.154 Token out · 21.955 Token in (neu) · 14.047.520 Token gesamt_
@@ -2155,6 +2341,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-54]]
 == 54. Prompt: „commit" / „Ja, so committen"
 
 *Aktionen:*
@@ -2169,6 +2356,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-53]]
 == 53. Prompt: „Bewege bootstrap → adapter → application → domain in gradle-Module."
 
 *Aktionen:*
@@ -2208,6 +2396,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-52]]
 == 52. Prompt: „commit" / „Ja, so committen"
 
 *Aktionen:*
@@ -2221,6 +2410,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-51]]
 == 51. Prompt: „Ergänze archunit Test für die \"Schichten & Abhängigkeitsregel\""
 
 *Aktionen:*
@@ -2252,6 +2442,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-50]]
 == 50. Prompt: „commit" / „commit" (Bestätigung der vorgelegten Message)
 
 *Aktionen:*
@@ -2267,6 +2458,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-49]]
 == 49. Prompt: „Bewege das BFF ins gradle Modul \"backend\"."
 
 *Aktionen:*
@@ -2298,6 +2490,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-48]]
 == 48. Prompt: „commit" / „commit" (Bestätigung der vorgelegten Message)
 
 *Aktionen:*
@@ -2310,6 +2503,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-47]]
 == 47. Prompt: „Verwende kotlin script für die gradle Dateien. ADR dafür erstellen."
 
 *Aktionen:*
@@ -2343,6 +2537,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-46]]
 == 46. Prompt: „commit" / „Ja, so committen"
 
 *Aktionen:*
@@ -2354,6 +2549,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-45]]
 == 45. Prompt: „Verwende den gradle wrapper und ergänze ein entsprechenden ADR"
 
 *Aktionen:*
@@ -2386,6 +2582,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-44]]
 == 44. Prompt: „commit" / „ja"
 
 *Aktionen:*
@@ -2399,6 +2596,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-43]]
 == 43. Prompt: „Ersetze die rdundante \"Test vor Commit\" im developer Skill durch einen Bezug auf die DoD,"
 
 *Aktionen:*
@@ -2418,6 +2616,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-42]]
 == 42. Prompt: „commit" / „Ja, so committen"
 
 *Aktionen:*
@@ -2431,6 +2630,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-41]]
 == 41. Prompt: „Ergänze die Rezepte von Prof. Dr. Andreas Michalsen zum Heilfasten" / „Leg sie als Liquibase-Changeset an"
 
 *Aktionen:*
@@ -2460,6 +2660,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-40]]
 == 40. Prompt: „commit" / „Ja, so committen"
 
 *Aktionen:*
@@ -2477,6 +2678,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-39]]
 == 39. Prompt: „Kannst Du die webm Dateien als erwartetes Testerbenis verwenden?" / „Ja, setz Punkt 1 um und setzte die DB auf den initiale Population!"
 
 *Antwort/Aktionen:*
@@ -2506,6 +2708,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-38]]
 == 38. Prompt: „Führe alle Tests aus und starte neu." / „Ja, zieh die @Valid-Warnung nach" / „Ja, führ die durch und dann commit"
 
 *Aktionen:*
@@ -2529,6 +2732,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-37]]
 == 37. Prompt: „Erstlle zu den e2eTests entsprechende Filme zur Testdurchführung die das mit im build-Verzeuchnis erzeugt werden."
 
 *Aktionen:*
@@ -2552,6 +2756,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-36]]
 == 36. Prompt: „commit" / „Ja"
 
 *Aktionen:*
@@ -2563,6 +2768,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-35]]
 == 35. Prompt: „Ergänze Playwright und e2eTest in CLAUDE.md"
 
 *Aktionen:*
@@ -2577,6 +2783,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-34]]
 == 34. Prompt: „Wo finde ich die Ergebnisse der Playwrite Tests?" / „Ja, ändern und dann committen"
 
 *Antwort/Aktionen:*
@@ -2594,6 +2801,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-33]]
 == 33. Prompt: „Setze die Playwright-Suite um"
 
 *Aktionen:*
@@ -2623,6 +2831,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-32]]
 == 32. Prompt: „commit" / „commit" (Bestätigung der vorgelegten Message)
 
 *Aktionen:*
@@ -2634,6 +2843,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-31]]
 == 31. Prompt: „Welches e2e Frontend Testframework empfiehlst du?" / „Ergänze einen ADR für Playwright"
 
 *Aktionen:*
@@ -2654,6 +2864,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-30]]
 == 30. Prompt: „Starte die App" / „Comit"
 
 *Aktionen:*
@@ -2669,6 +2880,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-29]]
 == 29. Prompt: „Vorschlag: Ergänze @Schema(requiredMode = REQUIRED) an den Response-Records" (+ Zwischenruf „Commit")
 
 *Aktionen:*
@@ -2695,6 +2907,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-28]]
 == 28. Prompt: „Commit" / „Ja, so committen"
 
 *Aktionen:*
@@ -2709,6 +2922,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-27]]
 == 27. Prompt: „Erstelle ein Frontend, welches das Backend als BFF verwendet." (+ Zwischenfrage „Mit welcher URL kann ich auf das Frontend zugreifen?")
 
 *Aktionen:*
@@ -2741,6 +2955,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-26]]
 == 26. Prompt: „Commit des aktuellen Standes." / „Ja, so committen"
 
 *Aktionen:*
@@ -2752,6 +2967,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-25]]
 == 25. Prompt: „Ergänze im Masterprompt die Rolle eines Du bist ein Senior Typescript Entwickler. Der Tech-Stack wird um vite, vitest und React."
 
 *Aktionen:*
@@ -2767,6 +2983,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-24]]
 == 24. Prompt: „Commit des aktuellen Standes." / „Ja, so committen"
 
 *Aktionen:*
@@ -2781,6 +2998,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-23]]
 == 23. Prompt: „Ergänze ein ADR zur Verwendung des \"unbroken-dome/gradle-testsets-plugin\" und ergänze damit Systemtest mit gradle Task \"systemtest\", mit denen die Swagger AI der gestarteten Anwenung getestet wird. Die Durchführung der \"systemtest\" Task wir in der DoD ergänzt!"
 
 *Aktionen:*
@@ -2814,6 +3032,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-22]]
 == 22. Prompt: „commite das"
 
 *Aktionen:*
@@ -2826,6 +3045,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-21]]
 == 21. Prompt: „Add newest swagger to application and add this for future as ADR."
 
 *Aktionen:*
@@ -2852,6 +3072,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-20]]
 == 20. Prompt: „Ja!" (Bestätigung, die uncommitteten develop.md-Änderungen zu committen)
 
 *Aktionen:*
@@ -2863,6 +3084,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-19]]
 == 19. Prompt: „Erweitere develop.md so, dass vor dem commit die message im Prompt bestätigt werden muß."
 
 *Aktionen:*
@@ -2873,6 +3095,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-18]]
 == 18. Prompt: „Erweitere develop.md so, dass vor dem commit ein erfolgreicher test durchgeführt wird!"
 
 *Aktionen:*
@@ -2883,6 +3106,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-17]]
 == 17. Prompt: „commit!"
 
 *Aktionen:*
@@ -2893,6 +3117,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-16]]
 == 16. Prompt: „Erweitere in develop.md so, dass als Commit-Message eine kurze Zeile vorgeschlagen wird. Dieser wird von dir eine kurze Zusammenfassung des Inhaltes das Commits in der Commit-Message ergänzt."
 
 *Aktionen:*
@@ -2903,6 +3128,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-15]]
 == 15. Prompt: „Ändere den Titel in develop.md so, dass er nicht auch das Session-Protokoll beschränkt ist."
 
 *Aktionen:*
@@ -2911,6 +3137,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-14]]
 == 14. Prompt: „Ergänze in develop.md, dass beim commit Claude als Author verwendet wird!"
 
 *Aktionen:*
@@ -2922,6 +3149,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-13]]
 == 13. Prompt: „Ja, committe das mit deiner vorgeschlagenen Message und in den nächsten Zeilen ein kurze Zusammenfassung!"
 
 *Aktionen:*
@@ -2931,6 +3159,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-12]]
 == 12. Prompt: „Erzeuge einen neuen Skill develop.md, der zur Pflege des claudeLog.md in zukünftigen Sessions führt."
 
 *Aktionen:*
@@ -2941,6 +3170,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-11]]
 == 11. Prompt: „Committe den Stand mit der message \"Add claudeLog.md\" aber erst nachdem claudeLog.md aktualisiert wurde!"
 
 *Aktionen:*
@@ -2950,6 +3180,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-10]]
 == 10. Prompt: „Sortiere in claudeLog.md die Prompts chronologisch absteigend. Füge als neue Prompt immer vorne ein!"
 
 *Aktionen:*
@@ -2959,6 +3190,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-9]]
 == 9. Prompt: „Halte ab jetzt claudeLog.md immer aktuell!"
 
 *Aktionen:*
@@ -2969,6 +3201,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-8]]
 == 8. Prompt: „Speichere dort den gesamten Verlauf im Kontext!"
 
 *Aktionen:*
@@ -2977,6 +3210,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-7]]
 == 7. Prompt: „Speichere diesen Prompt am Anfang der der Datei docs/log/claudeLog.md"
 
 *Aktionen:*
@@ -2985,6 +3219,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-6]]
 == 6. Prompt: „Nein, als getrennten commit mit meiner Anweisung als commit message!"
 
 *Aktionen:*
@@ -2998,6 +3233,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-5]]
 == 5. Prompt: „Ja, lauf gradle test"
 
 *Aktionen:*
@@ -3008,6 +3244,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-4]]
 == 4. Prompt: „Fix für \"Unused exception parameter should use the unnamed variable pattern\" in RecipeIntegrationTest.java"
 
 *Aktionen:*
@@ -3017,6 +3254,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-3]]
 == 3. Prompt: „Erstelle für die Umstellung auf liqibase eine commit message!"
 
 *Aktionen:*
@@ -3027,6 +3265,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-2]]
 == 2. Prompt: „Welchen Account hat die DB?"
 
 *Antwort:*
@@ -3038,6 +3277,7 @@ _Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Toke
 
 '''
 
+[[prompt-1]]
 == 1. Prompt: „Start die Java-Anwendung!"
 
 *Aktionen:*
@@ -3060,7 +3300,10 @@ erhalten. Die Aktionen sind aus den Commits rekonstruiert, nicht aus dem Gesprä
 
 '''
 
+[[prompt-0]]
 == 0. Prompt: „Wieso hast du keine ADRs erstellt?" (Commit `d02045e`, 18.07.2026 23:12)
+
+_Commit: <<commit-d02045e,d02045e>>_
 
 *Aktionen:*
 
@@ -3082,7 +3325,10 @@ erhalten. Die Aktionen sind aus den Commits rekonstruiert, nicht aus dem Gesprä
 
 '''
 
+[[prompt-minus1]]
 == -1. Prompt: „Erstelle ein backend zur Verwaltung von Rezepten. Ich möchte über eine REST API Rezepte erstellen, bearbeiten und in einer postgres DB speichen können. Löschen soll auch möglich sein" (Commit `13c4737`, 18.07.2026 21:15)
+
+_Commit: <<commit-13c4737,13c4737>>_
 
 *Aktionen:*
 
@@ -3112,7 +3358,10 @@ erhalten. Die Aktionen sind aus den Commits rekonstruiert, nicht aus dem Gesprä
 
 '''
 
+[[prompt-minus2]]
 == -2. Commit: „Add .gitignore" (Commit `bb6db40`, 18.07.2026 19:02)
+
+_Commit: <<commit-bb6db40,bb6db40>>_
 
 *Aktionen:*
 
@@ -3121,7 +3370,10 @@ erhalten. Die Aktionen sind aus den Commits rekonstruiert, nicht aus dem Gesprä
 
 '''
 
+[[prompt-minus3]]
 == -3. Commit: „Add first AI skills" (Commit `4d8be77`, 18.07.2026 19:00)
+
+_Commit: <<commit-4d8be77,4d8be77>>_
 
 *Aktionen:*
 
@@ -3141,7 +3393,10 @@ erhalten. Die Aktionen sind aus den Commits rekonstruiert, nicht aus dem Gesprä
 
 '''
 
+[[prompt-minus4]]
 == -4. Commit: „Initial commit" (Commit `b0dd66f`, 18.07.2026 18:08)
+
+_Commit: <<commit-b0dd66f,b0dd66f>>_
 
 *Aktionen:*
 
