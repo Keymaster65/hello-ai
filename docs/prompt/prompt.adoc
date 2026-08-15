@@ -10,11 +10,14 @@
 // Pfad zu den ADRs, relativ zu docs/prompt. Alle Dateien liegen im selben Verzeichnis, der
 // Wert gilt damit auch, wenn eine Datei einzeln gerendert wird.
 :adr: ../adr
+// Endung der ADR-Dateien (ADR 0026). Hier zeigen die Verweise ins Repository, dort liegen
+// die ADRs als Quelltext – deshalb `.adoc`.
+:adrext: .adoc
 
 Dieses Dokument bündelt die Anweisungen, unter denen an *recipes* gearbeitet wird: den
 Master-Prompt, der in jeder Session gilt, und die fünf Skills, die bei Bedarf hinzukommen.
 Entscheidung und Begründung:
-link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023].
+link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023].
 
 == Zweck und Abgrenzung
 
@@ -148,7 +151,8 @@ gepflegt, die sie betrifft.
   im Master-Prompt, und alles andere verweist. Eine Regel an zwei Stellen ist eine Regel, die
   an einer Stelle veraltet.
 . *Verlinken statt begründen.* Warum eine Regel gilt, steht im ADR
-  (`+link:{adr}/…[ADR NNNN]+`). Hier steht, was zu tun ist.
+  (`+link:{adr}/NNNN-titel{adrext}[ADR NNNN]+` – die Endung kommt aus dem Attribut, siehe
+  <<asciidoc-konventionen>>). Hier steht, was zu tun ist.
 . *Kurz vor vollständig.* Der Master-Prompt wird in jeder Session gelesen – was nur manchmal
   gebraucht wird, gehört in einen Skill.
 . *`CLAUDE.md` bleibt ein Einbinder.* Keine Regel wird dort ergänzt; sonst gibt es die
@@ -165,7 +169,7 @@ gepflegt, die sie betrifft.
 
 Der Task hängt an `./gradlew build`. Ein fehlender `include` und ein Querverweis, der ins Leere
 zeigt, sind *Build-Fehler* – dieselbe Konfiguration wie für die Systemdokumentation
-(link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system.md[ADR 0022]).
+(link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022]).
 
 WARNING: Der Build prüft Verweise, nicht Inhalte. Dass eine Regel hier noch der gelebten
 Arbeitsweise entspricht, kann kein Task feststellen – das entscheidet der Blick beim Ändern.

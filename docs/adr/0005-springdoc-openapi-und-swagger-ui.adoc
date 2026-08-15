@@ -1,0 +1,64 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= 0005 – springdoc-openapi 3.x für OpenAPI-Contract und Swagger UI
+
+Status: akzeptiert +
+Datum: 2026-08-09
+
+[cols="1,4", options="header"]
+|===
+| Abschnitt | Inhalt
+
+| *Kontext*
+| Die REST-API (`+/api/recipes+`, siehe
+  link:0003-kein-lombok-records-und-konstruktor-injektion{adrext}[ADR 0003] zum DTO-Stil)
+  besitzt bisher keine maschinenlesbare Schnittstellenbeschreibung. Benötigt werden (a) ein
+  *OpenAPI-Contract* für Client-Generierung und Contract-Tests sowie (b) eine *interaktive UI*
+  zum manuellen Ausprobieren. Randbedingungen: Spring Boot 4.1 / Java 25, keine
+  Docker-Abhängigkeit im Build
+  (link:0002-embedded-postgres-statt-testcontainers{adrext}[ADR 0002]), und die Beschreibung
+  darf die Schichtentrennung nicht aufweichen – dokumentiert werden *DTOs an der API-Grenze*,
+  niemals Domain- oder jOOQ-Typen.
+
+| *Optionen*
+| 1. *springdoc-openapi 3.x* (`+springdoc-openapi-starter-webmvc-ui+`): Runtime-Introspektion
+  der Spring-MVC-Handler, erzeugt den Contract aus Controller-Signaturen, Bean-Validation und
+  `@Schema`-Annotationen; bringt Swagger UI als WebJar mit. 2. *Design-First*: handgepflegte
+  `+openapi.yaml+` im Repo, Server-Stubs via OpenAPI-Generator. 3. *swagger-core / springfox*
+  direkt: springfox ist seit Spring Boot 3 tot, swagger-core allein kennt Spring-MVC-Mappings
+  nicht. 4. *Kein OpenAPI*, nur Markdown-Doku im README.
+
+| *Entscheidung*
+| *Option 1 – springdoc-openapi in Version 3.1.0* (Code-First). Die 3.x-Linie ist die gegen
+  *Spring Boot 4.1.0* gebaute Serie (2.x zielt auf Boot 3) und liefert Swagger UI 5.32.x.
+  Konkret: Dependency `+org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0+`,
+  Dokument-Metadaten (Titel, Version, Lizenz) als `OpenAPI`-Bean in
+  `+bootstrap.OpenApiConfig+`, operations- und schemabezogene Annotationen (`@Tag`,
+  `@Operation`, `@ApiResponse`, `@Parameter`, `@Schema`) direkt am REST-Adapter und an den
+  DTOs. Ausgegeben wird *OpenAPI 3.1* (`+springdoc.api-docs.version=openapi_3_1+`) unter
+  `+/v3/api-docs+` (JSON) bzw. `+/v3/api-docs.yaml+`; die UI liegt unter
+  `+/swagger-ui.html+`. Ein Test (`OpenApiDocumentationTest`) prüft Erreichbarkeit,
+  Metadaten, alle fünf Operationen und die Schemata.
+
+| *Konsequenzen*
+| *{plus}* Der Contract kann nicht vom Code abdriften: er wird aus Signaturen und
+  Bean-Validation abgeleitet, Pflichtfelder (`@NotBlank`, `@NotNull`) landen automatisch in
+  `required`. *{plus}* Swagger UI ohne zusätzlichen Build-Schritt oder Server. *{plus}* Für
+  die Doku-Version wird nichts erfunden – `OpenApiConfig` liest
+  `+spring.application.version+` mit Fallback. *−* Der Contract entsteht erst zur *Laufzeit*;
+  für „Design-First"-Reviews oder Client-Generierung im CI muss die App gestartet (oder das
+  Dokument im Test gedumpt) werden. *−* Annotationen erhöhen das Rauschen in Controller und
+  DTOs; deshalb bleibt der Umfang bewusst knapp (Summary, Statuscodes, Beispiele) statt jede
+  Kleinigkeit zu beschreiben. *−* Zusätzliche Laufzeit-Abhängigkeit mit eigener
+  Release-Kadenz; die Versionslinie muss beim nächsten Spring-Boot-Major mitgezogen werden
+  (springdoc 3.x ↔ Boot 4.x). *−* `+/v3/api-docs+` und `+/swagger-ui.html+` sind derzeit
+  *unauthentifiziert* erreichbar. Sobald Spring Security dazukommt, müssen diese Pfade bewusst
+  freigegeben oder geschützt werden – in Produktionsumgebungen ggf. via
+  `+springdoc.swagger-ui.enabled=false+` abschaltbar.
+|===
+
+== Regel für die Zukunft
+
+Neue oder geänderte REST-Endpunkte werden *im selben Commit* mit `@Operation` und den
+relevanten `@ApiResponse`-Einträgen versehen; neue DTO-Felder erhalten eine
+`@Schema`-Beschreibung. Der Contract ist Teil der Definition of Done, nicht Nacharbeit.

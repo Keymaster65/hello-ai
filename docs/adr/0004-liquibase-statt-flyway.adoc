@@ -1,0 +1,52 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= 0004 – Liquibase statt Flyway (Migration + jOOQ-Codegen)
+
+Status: akzeptiert +
+Datum: 2026-07-18
+
+[cols="1,4", options="header"]
+|===
+| Abschnitt | Inhalt
+
+| *Kontext*
+| Das Backend nutzte bisher Flyway für Datenbank-Migrationen und generierte den jOOQ-Code aus
+  den Flyway-`+.sql+`-Skripten via `DDLDatabase`
+  (link:0001-jooq-codegen-aus-flyway-skripten{adrext}[ADR 0001]). Das Migrationswerkzeug soll
+  auf *Liquibase* umgestellt werden. Dabei sollen die bestehenden Prinzipien erhalten bleiben:
+  (a) Codegen *ohne laufende DB/Docker* zur Build-Zeit
+  (link:0001-jooq-codegen-aus-flyway-skripten{adrext}[ADR 0001]), (b) das Changelog als
+  *einzige Schemaquelle* (Single Source of Truth), (c) grüne Integrationstests gegen embedded
+  PostgreSQL (link:0002-embedded-postgres-statt-testcontainers{adrext}[ADR 0002]).
+
+| *Optionen*
+| 1. *Formatiertes SQL* als Liquibase-Changelog (behält die handgeschriebene DDL,
+  minimal-invasiv). 2. *Deklarative XML-Changesets* (`createTable`,
+  `addForeignKeyConstraint`, `createIndex`) – DB-agnostisch, Werkzeug-idiomatisch. 3.
+  YAML-Changelog. Für den Codegen zusätzlich: DDL-basiert (`DDLDatabase`, nur SQL) vs.
+  `LiquibaseDatabase` (interpretiert ein Changelog In-Memory über H2).
+
+| *Entscheidung*
+| *Deklarative XML-Changesets* (Option 2) unter `+src/main/resources/db/changelog+`
+  (Master-Changelog `+db.changelog-master.xml+` + `+changes/0001-create-recipe-schema.xml+`).
+  Zur Laufzeit übernimmt die Spring-Boot-4-Autoconfiguration
+  (`+org.springframework.boot:spring-boot-liquibase+`) die Migration. Für den jOOQ-Codegen
+  ersetzt `+org.jooq.meta.extensions.liquibase.LiquibaseDatabase+` (Artefakt
+  `+jooq-meta-extensions-liquibase+`) die bisherige `DDLDatabase`; es interpretiert
+  *dasselbe* Changelog über ein internes In-Memory-H2 – weiterhin ohne laufende DB.
+
+| *Konsequenzen*
+| *{plus}* Ein Changelog speist Laufzeit *und* Codegen (Single Source of Truth bleibt
+  erhalten). *{plus}* Kein DB-/Docker-Zwang beim Build. *{plus}* Deklaratives XML ist
+  DB-portabel und werkzeug-idiomatisch. *−* Der H2-Interpreter des Codegens hebt
+  *unquotierte* Namen groß; damit die generierten jOOQ-Namen zur PostgreSQL-Laufzeit
+  (Kleinschreibung) passen, wird im Changeset `+objectQuotingStrategy="QUOTE_ALL_OBJECTS"+`
+  gesetzt (H2 bewahrt so die Kleinschreibung → generierte Namen z. B. `+"recipe"+`). Als Folge
+  müssen Fremdschlüssel als eigenständige `+<addForeignKeyConstraint>+`-Changes definiert
+  werden, da der inline-`references`-String von der Quoting-Strategie *nicht* erfasst wird.
+  *−* `LiquibaseDatabase` ist ab jOOQ (wegen des Liquibase-5.x-Lizenzwechsels) *deprecated*;
+  solange Spring Boot Liquibase 4.x mitliefert, funktioniert der Codegen. Mittelfristige
+  Alternative laut jOOQ: Codegen gegen eine per Testcontainers migrierte DB – scheitert hier
+  aber am fehlenden Docker
+  (link:0002-embedded-postgres-statt-testcontainers{adrext}[ADR 0002]).
+|===

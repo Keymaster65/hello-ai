@@ -1,13 +1,14 @@
 // Kapitel der Systemdokumentation; siehe system.adoc.
 ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
 = Build und Betrieb
 
 == Build
 
 Gebaut wird ausschließlich über den Gradle-Wrapper
-(link:{adr}/0009-gradle-wrapper-verbindlich.md[ADR 0009]), Buildskripte im Kotlin-DSL
-(link:{adr}/0010-gradle-kotlin-dsl.md[ADR 0010]). Alle Koordinaten und Versionen stehen in
-<<src-libs-versions,`gradle/libs.versions.toml`>> (link:{adr}/0018-versionskatalog-libs-versions-toml.md[ADR 0018]).
+(link:{adr}/0009-gradle-wrapper-verbindlich{adrext}[ADR 0009]), Buildskripte im Kotlin-DSL
+(link:{adr}/0010-gradle-kotlin-dsl{adrext}[ADR 0010]). Alle Koordinaten und Versionen stehen in
+<<src-libs-versions,`gradle/libs.versions.toml`>> (link:{adr}/0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018]).
 
 [cols="2,3", options="header"]
 |===
@@ -27,11 +28,15 @@ Gebaut wird ausschließlich über den Gradle-Wrapper
 | `./gradlew asciidoctor`
 | Rendert `docs/system/system.adoc` nach `build/docs/asciidoc/system.html` und legt die ADRs
   als `adr/` daneben. Das Ergebnis wandert von dort ins Boot-Jar
-  (link:{adr}/0024-systemdokumentation-im-boot-jar.md[ADR 0024]).
+  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]).
+| `./gradlew asciidoctorAdr`
+| Rendert `docs/adr/*.adoc` nach `build/docs/adr/`. Hängt am Task darüber, der das Ergebnis
+  neben die Systemdokumentation kopiert
+  (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026]).
 | `./gradlew asciidoctorPrompt`
 | Rendert `docs/prompt/prompt.adoc` – Master-Prompt und Skills – nach
   `build/docs/prompt/prompt.html`
-  (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]).
+  (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]).
 | `./gradlew bootRun`
 | Startet die Anwendung. Braucht eine erreichbare PostgreSQL.
 | `./gradlew build -PskipFrontend`
@@ -60,22 +65,22 @@ Der Frontend-Build hängt am Modul `:bootstrap`, weil dort das Deployable zusamm
 wird: `npmInstall` → `frontendBuild` (`tsc --noEmit && vite build`) →
 `processResources` legt `dist/` nach `static/` in das Jar. Spring Boot liefert das Bundle
 anschließend aus dem Klassenpfad aus – SPA und API kommen aus derselben Origin
-(link:{adr}/0007-react-frontend-mit-backend-als-bff.md[ADR 0007]).
+(link:{adr}/0007-react-frontend-mit-backend-als-bff{adrext}[ADR 0007]).
 
 Dieselbe Rollenteilung gilt für die Systemdokumentation: Gerendert wird sie im
 Wurzelprojekt (`asciidoctor`), eingepackt in `:bootstrap`. `processResources` kopiert
 `build/docs/asciidoc/` nach `static/docs/`; dabei wird `system.html` zu `index.html`, die
 mitkopierten ADRs behalten ihren Ordner. Ausgeliefert wird das unter `/recipes/docs/`
-(link:{adr}/0024-systemdokumentation-im-boot-jar.md[ADR 0024]) – die Anwendung trägt ihre
+(link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]) – die Anwendung trägt ihre
 Beschreibung damit bei sich.
 
 Zwei Eigenschaften, die im Alltag zählen:
 
 * *Der Build braucht keine Datenbank.* Die jOOQ-Codegenerierung interpretiert das
   Liquibase-Changelog im Speicher, die Integrationstests nutzen embedded PostgreSQL
-  (link:{adr}/0002-embedded-postgres-statt-testcontainers.md[ADR 0002]).
+  (link:{adr}/0002-embedded-postgres-statt-testcontainers{adrext}[ADR 0002]).
 * *Der Artefaktname ist vom Modulnamen entkoppelt*: `recipes-<version>.jar`, nicht
-  `bootstrap-<version>.jar` (link:{adr}/0011-backend-als-gradle-modul.md[ADR 0011]).
+  `bootstrap-<version>.jar` (link:{adr}/0011-backend-als-gradle-modul{adrext}[ADR 0011]).
 
 == Konfiguration
 
@@ -122,7 +127,7 @@ anzupassen:
 | <<src-vite-config,`vite.config.ts`>> (`base`),
   <<src-playwright-config,`playwright.config.ts`>> (`CONTEXT_PATH`), der `basename` der
   SPA. Eine Änderung betrifft alle drei
-  (link:{adr}/0016-context-path-recipes.md[ADR 0016]).
+  (link:{adr}/0016-context-path-recipes{adrext}[ADR 0016]).
 
 | Liquibase aktiv, Changelog-Pfad
 | Die jOOQ-Codegenerierung liest dieselbe Datei; ein Umzug betrifft
@@ -200,7 +205,7 @@ Umgebung betreibt, ohne sie zu kennen.
 | Authentifizierung und Autorisierung
 | Jeder, der den Port erreicht, kann alle Rezepte lesen, ändern und löschen – und unter
   `/recipes/docs/` diese Dokumentation samt der Liste hier lesen
-  (link:{adr}/0024-systemdokumentation-im-boot-jar.md[ADR 0024]). Die Anwendung
+  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]). Die Anwendung
   gehört daher hinter einen kontrollierten Zugang oder in ein privates Netz; kommt eine
   Authentifizierung, ist `/recipes/docs/**` mit abzusichern.
 

@@ -8,6 +8,50 @@ Datum: 2026-07-19
 
 '''
 
+== 96. Prompt: „Stelle alle ADR auf Asciidoc um"
+
+_Delta: 47:19 · 261.951 out · 678.882 in (neu) · 34.620.667 gesamt_
+_Stand (Session, 3 Prompts): 47:19 · 261.951 out · 34.620.667 gesamt_
+
+*Aktionen:*
+
+* Vorab *nachgefragt*, was mit den ADRs im Boot-Jar geschehen soll (ADR-0024-Kette). Antwort:
+  nach HTML rendern.
+* *25 ADRs* von Markdown nach AsciiDoc konvertiert (`+docs/adr/*.md+` → `+*.adoc+`),
+  Wort für Wort; die beiden gewachsenen Titelformen bleiben stehen.
+* Neues Attribut `+{adrext}+` neben `+{adr}+`: Vorgabe `+.adoc+` je Datei per
+  `+ifndef+`, vom Build auf `+.html+` gebogen, wo die ADRs gerendert danebenliegen. Alle
+  Verweise in `+docs/system/*.adoc+`, `+docs/prompt/*.adoc+`, README und `+CLAUDE.md+`
+  umgestellt.
+* Build: neuer Task `asciidoctorAdr` (`+docs/adr+` → `+build/docs/adr+`, ein Stylesheet für
+  alle per `+linkcss+`); der `asciidoctor`-Task kopiert jetzt dieses *Ergebnis* als `+adr/+`
+  neben `+system.html+` statt des Quelltextes.
+* `DocumentationRoutingConfig`: die `MimeMappings`-Bean für `+.md+` samt fünf Importen
+  ersatzlos entfernt – `+.html+` kennt jeder Webserver. `DocumentationSystemTest` prüft
+  entsprechend `+text/html+` und `+<h1>+` statt `+text/plain+` und `+# +`.
+* *Fund des Systemtests:* `+/recipes/docs/adr/0022-….html+` antwortete 404. Der
+  Kopierschritt ins Boot-Jar benannte per `+rename("""system\.html""", "index.html")+` auch
+  `+0022-asciidoc-systemdokumentation-in-docs-system.html+` um – Gradles `rename` sucht das
+  Muster *irgendwo* im Namen. Verankert zu `+^system\.html$+`.
+* *Prüfung der Konvertierung, nicht nach Augenschein:* Für alle 25 Dateien die
+  Markdown-Fassung aus `HEAD` von ihrer Auszeichnung befreit, das gerenderte AsciiDoc von
+  seinem HTML, beides auf Zeichen ohne Leerraum normalisiert – *identisch*, 1.103 bis 10.623
+  Zeichen je Datei. Zwei Stellen brauchten einen Handgriff (`+[NOTE,caption=Hinweis:]+` in
+  ADR 0001; `+`++- ++`+` statt `+`+- +`+` in ADR 0025).
+* `docs/adr/0026-adrs-als-asciidoc.adoc` angelegt: Kontext (drei Gründe, Gegenargument aus
+  ADR 0023 entkräftet), Optionen für Format *und* Auslieferung, Entscheidung samt
+  `+{adrext}+`-Muster, Konsequenzen, Prüfung inklusive des `rename`-Funds.
+* Doku mitgezogen: ADR-Index und Renderabschnitt in `+system.adoc+`, ADR-Zeile in
+  `+api.adoc+` (jetzt `+.html+`), `+asciidoctorAdr+` in der Befehlstabelle von
+  `+betrieb.adoc+`, Dokumentationsarten in `+ueberblick.adoc+`, ADR-Vorlage in
+  `+architektur.adoc+`, AsciiDoc-Konventionen in `+systemdoku.adoc+`, Regel 2 in
+  `+prompt.adoc+`, Verzeichnisbaum im README.
+* Definition of Done: `+./gradlew clean build+` grün (43 Java-Tests, 24 Vitest),
+  `+systemtest+` 19/19, `+e2eTest+` 9/9. Boot-Jar enthält 26 ADR-HTMLs plus
+  `+asciidoctor.css+` unter `+static/docs/adr/+`.
+
+'''
+
 == 95. Prompt: „commit"
 
 _Delta: 30s · 4.403 out · 5.562 in (neu) · 1.087.124 gesamt_

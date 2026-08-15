@@ -1,7 +1,7 @@
 # Projekt: recipes
 
 Die Arbeitsgrundlage dieses Projekts – Master-Prompt und Skills – steht als AsciiDoc unter
-`docs/prompt/` ([ADR 0023](docs/adr/0023-asciidoc-fuer-masterprompt-und-skills.md)).
+`docs/prompt/` ([ADR 0023](docs/adr/0023-asciidoc-fuer-masterprompt-und-skills.adoc)).
 Diese Datei bindet sie nur ein: `CLAUDE.md` ist der einzige Dateiname, den Claude Code
 automatisch lädt, und bleibt deshalb Markdown.
 

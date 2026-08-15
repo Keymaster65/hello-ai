@@ -8,11 +8,11 @@ beides wird als **ein** Artefakt aus derselben Origin ausgeliefert.
 > Bausteine, Datenmodell, Fehlerbilder der API, Betrieb, Teststufen, die Arbeitsgrundlage
 > und die bewusst offenen Punkte, dazu alle Quelldateien im Anhang – steht in
 > [`docs/system/system.adoc`](docs/system/system.adoc)
-> ([ADR 0022](docs/adr/0022-asciidoc-systemdokumentation-in-docs-system.md)).
+> ([ADR 0022](docs/adr/0022-asciidoc-systemdokumentation-in-docs-system.adoc)).
 > Rendern: `./gradlew asciidoctor` → `build/docs/asciidoc/system.html`.
 > Sie wird außerdem **mit ausgeliefert**: Die laufende Anwendung zeigt sie unter
 > <http://localhost/recipes/docs/>
-> ([ADR 0024](docs/adr/0024-systemdokumentation-im-boot-jar.md)).
+> ([ADR 0024](docs/adr/0024-systemdokumentation-im-boot-jar.adoc)).
 
 ## Tech-Stack
 
@@ -29,11 +29,11 @@ beides wird als **ein** Artefakt aus derselben Origin ausgeliefert.
 
 ## Projektstruktur
 
-Alle Bausteine liegen unter `modules/` ([ADR 0015](docs/adr/0015-alle-bausteine-unter-modules.md)),
+Alle Bausteine liegen unter `modules/` ([ADR 0015](docs/adr/0015-alle-bausteine-unter-modules.adoc)),
 das Backend mit **einem Modul je Schicht** – die Abhängigkeitsrichtung ist damit vom Build
 erzwungen, nicht nur dokumentiert
-([ADR 0013](docs/adr/0013-ein-gradle-modul-je-schicht.md),
-[ADR 0014](docs/adr/0014-schichtmodule-unter-backend.md)):
+([ADR 0013](docs/adr/0013-ein-gradle-modul-je-schicht.adoc),
+[ADR 0014](docs/adr/0014-schichtmodule-unter-backend.adoc)):
 
 ```
 :modules:backend:bootstrap → :modules:backend:adapter
@@ -56,7 +56,7 @@ recipes/
 │   │                           Frontend-Einbindung, Systemtests
 │   └── frontend/               React/Vite, wird ins Boot-Jar gepackt
 └── docs/
-    ├── adr/                    Architekturentscheidungen
+    ├── adr/                    Architekturentscheidungen (AsciiDoc, ADR 0026)
     ├── system/                 Systemdokumentation (AsciiDoc, ADR 0022)
     ├── prompt/                 Master-Prompt und Skills (AsciiDoc, ADR 0023)
     └── log/                    Session-Protokoll
@@ -89,7 +89,7 @@ Das React-Frontend liegt in `modules/frontend/` und spricht ausschließlich **re
 `/api`-Pfade an. Gradle baut es (`frontendBuild`) und packt das Bundle nach
 `static/` ins Boot-Jar – Spring Boot liefert damit SPA und API aus derselben
 Origin aus: kein CORS, ein Deployable. Siehe
-[ADR 0007](docs/adr/0007-react-frontend-mit-backend-als-bff.md).
+[ADR 0007](docs/adr/0007-react-frontend-mit-backend-als-bff.adoc).
 
 | Modus       | URL                     | Womit                                        |
 |-------------|-------------------------|----------------------------------------------|
@@ -106,7 +106,7 @@ cd modules/frontend && npm run generate:api   # benötigt ein laufendes Backend 
 ### Adressen der Oberfläche
 
 Die SPA nutzt `react-router`; die Detailansicht ist damit **teilbar**
-([ADR 0017](docs/adr/0017-router-mit-spa-fallback.md)):
+([ADR 0017](docs/adr/0017-router-mit-spa-fallback.adoc)):
 
 | Ansicht | Adresse |
 |---|---|
@@ -127,7 +127,7 @@ nicht-optional (`id: number` statt `id?: number`), während echte Nullable-Felde
 
 ## REST-API
 
-Basis-URL: `/recipes/api/recipes` (Context-Path `/recipes`, siehe [ADR 0016](docs/adr/0016-context-path-recipes.md))
+Basis-URL: `/recipes/api/recipes` (Context-Path `/recipes`, siehe [ADR 0016](docs/adr/0016-context-path-recipes.adoc))
 
 | Methode | Pfad                | Beschreibung             | Erfolg |
 |---------|---------------------|--------------------------|--------|
@@ -152,7 +152,7 @@ Bei laufender Anwendung (Port `80`, Context-Path `/recipes`):
 
 Der Contract wird zur Laufzeit aus Controller-Signaturen, Bean-Validation und den
 `@Operation`/`@Schema`-Annotationen erzeugt – siehe
-[ADR 0005](docs/adr/0005-springdoc-openapi-und-swagger-ui.md).
+[ADR 0005](docs/adr/0005-springdoc-openapi-und-swagger-ui.adoc).
 
 ### Beispiel-Request (POST)
 ```json
@@ -225,17 +225,17 @@ cd modules/frontend && npm run dev
 - **Architektur** (`LayeredArchitectureTest`): ArchUnit erzwingt
   `bootstrap → adapter → application → domain`, die Framework-Freiheit des
   Domänenmodells, die Teilung der Domäne in `model` und `services`
-  ([ADR 0020](docs/adr/0020-domain-in-model-und-services-teilen.md))
+  ([ADR 0020](docs/adr/0020-domain-in-model-und-services-teilen.adoc))
   und „Ports sind Interfaces". Siehe
-  [ADR 0012](docs/adr/0012-archunit-fuer-die-schichtenregel.md).
+  [ADR 0012](docs/adr/0012-archunit-fuer-die-schichtenregel.adoc).
 - **Architektur** (`OnionArchitectureTest`): dieselbe Struktur als Zwiebelschalen –
   ergänzt, was die Schichtensicht nicht ausdrücken kann: REST- und Persistenz-Adapter
   kennen einander nicht. Siehe
-  [ADR 0019](docs/adr/0019-onion-architecture-regel-in-archunit.md).
+  [ADR 0019](docs/adr/0019-onion-architecture-regel-in-archunit.adoc).
 - **Architektur** (`RecordCurryingTest`): jeder Record mit mehr als zwei Komponenten
   bietet eine curried Factory, deren benannte Schritte die Komponenten in Reihenfolge
   und Typ abbilden. Siehe
-  [ADR 0021](docs/adr/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten.md).
+  [ADR 0021](docs/adr/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten.adoc).
 - **Unit** (`RecipeServiceImplTest`): Geschäftslogik mit Mockito/AssertJ.
 - **Property-based** (`CurriedFactoryTest` in `:domain` und `:adapter`): die curried
   Factories liefern dasselbe wie der kanonische Konstruktor – inklusive Validierung.
@@ -249,7 +249,7 @@ cd modules/frontend && npm run dev
   gegen das **Boot-Jar** – also gegen das ausgelieferte Artefakt inklusive der darin
   verpackten SPA. Getestet werden ausschließlich Nutzer-Flows; Statuscodes und
   Contract-Details bleiben in den Systemtests. Benötigt eine erreichbare PostgreSQL.
-  Siehe [ADR 0008](docs/adr/0008-playwright-fuer-e2e-tests.md).
+  Siehe [ADR 0008](docs/adr/0008-playwright-fuer-e2e-tests.adoc).
 
   Zusätzlich vergleicht `aria-snapshots.spec.ts` den Accessibility-Tree gegen
   eingecheckte Baselines unter `modules/frontend/e2e/aria-snapshots.spec.ts-snapshots/`
@@ -275,7 +275,7 @@ cd modules/frontend && npm run dev
   **laufende** Anwendung, ausschließlich über HTTP. Ohne `-Psystemtest.baseUrl`
   startet die Suite die Anwendung selbst auf einem freien Port (embedded PostgreSQL),
   mit der Property läuft sie gegen eine deployte Instanz. Siehe
-  [ADR 0006](docs/adr/0006-testsets-plugin-und-systemtests.md).
+  [ADR 0006](docs/adr/0006-testsets-plugin-und-systemtests.adoc).
 - **Integration** (`RecipeIntegrationTest`): kompletter Stack gegen ein echtes
   PostgreSQL. Genutzt wird **embedded PostgreSQL (Zonky)**, das ohne Docker
   auskommt; in Umgebungen mit Docker lässt sich stattdessen Testcontainers

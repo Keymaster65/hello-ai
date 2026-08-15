@@ -1,5 +1,6 @@
 // Kapitel der Systemdokumentation; siehe system.adoc.
 ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
 = Qualitätssicherung
 
 == Prinzip
@@ -59,19 +60,19 @@ Klassenpfad liegt.
 | <<src-layered-architecture-test,`LayeredArchitectureTest`>>
 | `bootstrap → adapter → application → domain`; Framework-Freiheit des Domänenmodells;
   Teilung der Domäne in `model` und `services`; „Ports sind Interfaces"
-  (link:{adr}/0012-archunit-fuer-die-schichtenregel.md[ADR 0012],
-  link:{adr}/0020-domain-in-model-und-services-teilen.md[ADR 0020])
+  (link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012],
+  link:{adr}/0020-domain-in-model-und-services-teilen{adrext}[ADR 0020])
 
 | <<src-onion-architecture-test,`OnionArchitectureTest`>>
 | Dieselbe Struktur als Ringe – und die Aussage, die der Schichtenstapel nicht ausdrücken
   kann: *Adapter kennen einander nicht*
-  (link:{adr}/0019-onion-architecture-regel-in-archunit.md[ADR 0019])
+  (link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019])
 
 | <<src-record-currying-test,`RecordCurryingTest`>>
 | Jeder Record mit mehr als zwei Komponenten hat eine curried Factory, deren benannte
   Schritte die Komponenten in Reihenfolge und Typ abbilden – geprüft wird die *Form der
   Kette*, nicht nur die Existenz einer Methode
-  (link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten.md[ADR 0021])
+  (link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[ADR 0021])
 |===
 
 [NOTE]
@@ -79,7 +80,7 @@ Klassenpfad liegt.
 Der Maßstab aus ADR 0012 gilt weiter: Eine Regel, die nie fehlschlägt, ist wertlos. Neue
 Architekturregeln werden gegen einen absichtlichen Verstoß geprüft, und dieser Nachweis
 wird im ADR festgehalten – siehe den Abschnitt „Nachweis, dass die Regel greift" in
-link:{adr}/0019-onion-architecture-regel-in-archunit.md[ADR 0019].
+link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019].
 ====
 
 == Fachliche Tests
@@ -111,14 +112,14 @@ link:{adr}/0019-onion-architecture-regel-in-archunit.md[ADR 0019].
 
 | <<src-recipe-integration-test,`RecipeIntegrationTest`>>
 | Der komplette Stack gegen ein echtes PostgreSQL – embedded über Zonky, damit ohne Docker
-  (link:{adr}/0002-embedded-postgres-statt-testcontainers.md[ADR 0002]). Kann das native
+  (link:{adr}/0002-embedded-postgres-statt-testcontainers{adrext}[ADR 0002]). Kann das native
   Binary nicht starten, wird die Klasse *übersprungen* statt rot zu werden.
 |===
 
 == Systemtests
 
 Black-Box über HTTP, in einem eigenen Source-Set (`src/systemtest/java`, test-sets-Plugin,
-link:{adr}/0006-testsets-plugin-und-systemtests.md[ADR 0006]). Als Client genügt der
+link:{adr}/0006-testsets-plugin-und-systemtests{adrext}[ADR 0006]). Als Client genügt der
 JDK-`HttpClient`.
 
 [source,bash]
@@ -137,7 +138,7 @@ und die der Systemdokumentation (<<src-documentation-system-test,`DocumentationS
 Der letzte Test geht dabei über einen Statuscode hinaus: Er holt `/docs/` und ruft *jeden*
 ADR-Verweis des Dokuments einzeln ab. Ein ADR, das im Jar fehlt, während die Dokumentation
 darauf verweist, ist damit ein roter Test und kein toter Link im Betrieb
-(link:{adr}/0024-systemdokumentation-im-boot-jar.md[ADR 0024]). Mit `-PskipDocs` gebaut,
+(link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]). Mit `-PskipDocs` gebaut,
 schlägt er fehl – gewollt: Das Flag kauft eine schnelle Schleife, kein dokumentiertes
 Deployable.
 
@@ -145,7 +146,7 @@ Deployable.
 
 Playwright treibt einen echten Chromium gegen das *Boot-Jar* – also gegen das ausgelieferte
 Artefakt inklusive der darin verpackten SPA
-(link:{adr}/0008-playwright-fuer-e2e-tests.md[ADR 0008]). Getestet werden ausschließlich
+(link:{adr}/0008-playwright-fuer-e2e-tests{adrext}[ADR 0008]). Getestet werden ausschließlich
 Nutzer-Flows; Statuscodes bleiben in den Systemtests.
 
 [source,bash]
@@ -207,7 +208,7 @@ einzige Bedingung würde zu Tests einladen, die Zeilen berühren, ohne etwas zuz
 == Definition of Done
 
 Verbindlich ist die Liste im Master-Prompt (`docs/prompt/masterprompt.adoc`,
-link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]); sie steht dort an einer
+link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]); sie steht dort an einer
 Stelle, damit sie nicht zweimal gepflegt werden muss. Sie ist in diesem Dokument mitlesbar:
 <<wortlaut>> bindet den Master-Prompt ein, <<arbeitsgrundlage>> beschreibt Ladeweg und
 Prüfung. Der Kern:

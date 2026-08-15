@@ -1,5 +1,6 @@
 // Skill der Arbeitsgrundlage; siehe prompt.adoc.
 ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
 = Skill: Java-Testing
 
 == Zweck
@@ -179,7 +180,7 @@ class UserIntegrationTest {
 
 == Nützliche Befehle
 
-Immer über den Wrapper (siehe link:{adr}/0009-gradle-wrapper-verbindlich.md[ADR 0009]):
+Immer über den Wrapper (siehe link:{adr}/0009-gradle-wrapper-verbindlich{adrext}[ADR 0009]):
 
 * Alle Tests: `./gradlew test`
 * Einzelne Klasse: `./gradlew test --tests "*.UserServiceTest"`

@@ -1,5 +1,6 @@
 // Kapitel der Systemdokumentation; siehe system.adoc.
 ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
 = Überblick
 
 == Aufgabe des Systems
@@ -25,9 +26,9 @@ Die Reihenfolge ist bewusst: Bei einem Konflikt gewinnt das weiter oben stehende
 | Strukturtreue
 | Die Abhängigkeitsrichtung der Schichten gilt ohne Ausnahme, auch unter Zeitdruck.
 | Ein Gradle-Modul je Schicht, zusätzlich zwei ArchUnit-Sichten
-  (link:{adr}/0013-ein-gradle-modul-je-schicht.md[ADR 0013],
-  link:{adr}/0012-archunit-fuer-die-schichtenregel.md[ADR 0012],
-  link:{adr}/0019-onion-architecture-regel-in-archunit.md[ADR 0019])
+  (link:{adr}/0013-ein-gradle-modul-je-schicht{adrext}[ADR 0013],
+  link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012],
+  link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019])
 
 | Prüfbarkeit
 | Jede Aussage über das System ist automatisiert nachweisbar – vom Datentyp bis zum
@@ -38,19 +39,19 @@ Die Reihenfolge ist bewusst: Bei einem Konflikt gewinnt das weiter oben stehende
 | Fehler fallen beim Kompilieren auf, nicht zur Laufzeit: SQL, API-Contract und
   Record-Konstruktion sind typisiert.
 | jOOQ-Codegen aus dem Changelog, generierte TS-Typen aus OpenAPI, curried Factories
-  (link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten.md[ADR 0021])
+  (link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[ADR 0021])
 
 | Einfachheit des Deployments
 | Ein Artefakt, eine Origin, keine CORS-Konfiguration.
 | Das Frontend wird ins Boot-Jar gepackt
-  (link:{adr}/0007-react-frontend-mit-backend-als-bff.md[ADR 0007])
+  (link:{adr}/0007-react-frontend-mit-backend-als-bff{adrext}[ADR 0007])
 
 | Reproduzierbarer Build
 | Derselbe Befehl führt auf jeder Maschine zum selben Ergebnis, ohne Docker und ohne
   lokale Datenbank.
-| Gradle-Wrapper (link:{adr}/0009-gradle-wrapper-verbindlich.md[ADR 0009]),
-  Versionskatalog (link:{adr}/0018-versionskatalog-libs-versions-toml.md[ADR 0018]),
-  embedded PostgreSQL (link:{adr}/0002-embedded-postgres-statt-testcontainers.md[ADR 0002])
+| Gradle-Wrapper (link:{adr}/0009-gradle-wrapper-verbindlich{adrext}[ADR 0009]),
+  Versionskatalog (link:{adr}/0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018]),
+  embedded PostgreSQL (link:{adr}/0002-embedded-postgres-statt-testcontainers{adrext}[ADR 0002])
 |===
 
 == Systemkontext
@@ -85,7 +86,7 @@ Es ruft von sich aus kein Fremdsystem auf.
 | eingehend
 | HTTP: SPA unter `/recipes/`, JSON-API unter `/recipes/api/recipes`, Contract unter
   `/recipes/v3/api-docs`. Ein Port, eine Origin
-  (link:{adr}/0016-context-path-recipes.md[ADR 0016]).
+  (link:{adr}/0016-context-path-recipes{adrext}[ADR 0016]).
 
 | PostgreSQL
 | ausgehend
@@ -115,10 +116,11 @@ Es ruft von sich aus kein Fremdsystem auf.
 
 | Dokumentation
 | `docs/`
-| ADRs (`docs/adr/`, Markdown), diese Systemdokumentation (`docs/system/`) und das
-  Session-Protokoll (`docs/log/claudeLog.adoc`) – beide AsciiDoc. Das Protokoll wird als
-  einziges AsciiDoc-Dokument *nicht* gerendert
-  (link:{adr}/0025-claudelog-als-asciidoc.md[ADR 0025]).
+| ADRs (`docs/adr/`), diese Systemdokumentation (`docs/system/`) und das Session-Protokoll
+  (`docs/log/claudeLog.adoc`) – alles AsciiDoc
+  (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026]). Das Protokoll wird als einziges
+  AsciiDoc-Dokument *nicht* gerendert
+  (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]).
 
 | Arbeitsgrundlage
 | `docs/prompt/` und `CLAUDE.md`
@@ -127,7 +129,7 @@ Es ruft von sich aus kein Fremdsystem auf.
 |===
 
 Alle Bausteine liegen unter `modules/`
-(link:{adr}/0015-alle-bausteine-unter-modules.md[ADR 0015]); das Wurzelprojekt trägt keinen
+(link:{adr}/0015-alle-bausteine-unter-modules{adrext}[ADR 0015]); das Wurzelprojekt trägt keinen
 Quellcode und aggregiert nur. Die Quellen selbst stehen im Anhang <<quelldateien>>.
 
 == Randbedingungen
@@ -135,13 +137,13 @@ Quellcode und aggregiert nur. Die Quellen selbst stehen im Anhang <<quelldateien
 * *Java 25* als Toolchain-Vorgabe in allen Backend-Modulen; moderne Sprachmittel (Records,
   Pattern Matching, Text Blocks) sind ausdrücklich erwünscht.
 * *Kein Lombok.* Records und Konstruktor-Injektion ersetzen es
-  (link:{adr}/0003-kein-lombok-records-und-konstruktor-injektion.md[ADR 0003]).
+  (link:{adr}/0003-kein-lombok-records-und-konstruktor-injektion{adrext}[ADR 0003]).
 * *Gradle ausschließlich über den Wrapper*, Buildskripte im Kotlin-DSL
-  (link:{adr}/0009-gradle-wrapper-verbindlich.md[ADR 0009],
-  link:{adr}/0010-gradle-kotlin-dsl.md[ADR 0010]).
+  (link:{adr}/0009-gradle-wrapper-verbindlich{adrext}[ADR 0009],
+  link:{adr}/0010-gradle-kotlin-dsl{adrext}[ADR 0010]).
 * *Der Build braucht keine laufende Datenbank* – weder für die Codegenerierung noch für die
   Tests. Docker ist nicht erforderlich.
 * *Code und JavaDoc auf Englisch*, Dokumentation und Oberfläche auf Deutsch.
 * *Die Arbeitsweise ist versioniert.* Rolle, Grundregeln, Konventionen und die Definition of
   Done stehen als Master-Prompt und Skills im Repository, nicht im Gedächtnis der Beteiligten
-  (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]).
+  (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]).

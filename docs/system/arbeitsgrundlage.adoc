@@ -1,12 +1,13 @@
 // Kapitel der Systemdokumentation; siehe system.adoc.
 ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
 [[arbeitsgrundlage]]
 = Arbeitsgrundlage: Master-Prompt und Skills
 
 Das Repository enthält nicht nur die Anwendung, sondern auch die Anweisungen, unter denen an
 ihr gearbeitet wird: einen *Master-Prompt*, der in jeder Entwicklungs-Session gilt, und fünf
 *Skills*, die bei einem bestimmten Anlass hinzukommen. Beides liegt als AsciiDoc unter
-`docs/prompt` (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]).
+`docs/prompt` (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]).
 
 Dieses Kapitel beschreibt zuerst, *was dort existiert und wie es geladen und geprüft wird*,
 und gibt anschließend den vollständigen <<wortlaut>> wieder – Master-Prompt und Skills sind
@@ -115,7 +116,7 @@ auch nicht folgenlos.
 Der Task ist im Wurzelprojekt konfiguriert, hängt an `./gradlew build` und erbt dieselbe
 `asciidoctorj`-Einstellung wie die Systemdokumentation: Ein fehlender `include` und ein
 Querverweis, der ins Leere zeigt, sind *Build-Fehler*
-(link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system.md[ADR 0022]). Master-Prompt und
+(link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022]). Master-Prompt und
 Skills sind damit als *ein* Dokument lesbar, in dem eine doppelt oder widersprüchlich
 formulierte Regel auffällt.
 

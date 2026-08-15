@@ -66,14 +66,13 @@ class DocumentationSystemTest {
         for (String adr : adrs) {
             HttpResponse<String> response = HttpProbe.get("/docs/" + adr);
             assertThat(response.statusCode()).as(adr).isEqualTo(200);
-            // Without the media type mapping the browser would offer a download instead of the
-            // text (`application/octet-stream`).
+            // Since ADR 0026 the ADRs ship as rendered HTML, not as source text.
             assertThat(response.headers().firstValue("Content-Type")).as(adr)
-                    .hasValue("text/plain;charset=UTF-8");
-            // Its own number in the first heading – enough to tell the document apart from an
-            // error page, and blind to the two heading styles the ADRs grew over time.
+                    .hasValueSatisfying(contentType -> assertThat(contentType).contains("text/html"));
+            // Its own number in the document title – enough to tell the document apart from an
+            // error page, and blind to the two title styles the ADRs grew over time.
             assertThat(response.body()).as(adr)
-                    .startsWith("# ")
+                    .contains("<h1>")
                     .contains(nummer(adr));
         }
 
@@ -82,7 +81,7 @@ class DocumentationSystemTest {
         assertThat(adrs).as("ADRs referenced by the documentation").isNotEmpty();
     }
 
-    /** {@code adr/0022-asciidoc-….md} → {@code 0022}. */
+    /** {@code adr/0022-asciidoc-….html} → {@code 0022}. */
     private static String nummer(String adr) {
         String dateiname = adr.substring(adr.lastIndexOf('/') + 1);
         return dateiname.substring(0, dateiname.indexOf('-'));

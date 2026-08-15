@@ -1,0 +1,79 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= 0015 – Alle Bausteine unter `modules/`
+
+Status: akzeptiert und umgesetzt +
+Datum: 2026-08-09
+
+[cols="1,4", options="header"]
+|===
+| Abschnitt | Inhalt
+
+| *Kontext*
+| Nach link:0014-schichtmodule-unter-backend{adrext}[ADR 0014] lagen im Wurzelverzeichnis
+  `+backend/+`, `+frontend/+`, `+docs/+`, `+gradle/+` sowie die Build- und Wrapper-Dateien.
+  Die beiden Bausteine, aus denen das Produkt besteht, standen damit auf derselben Ebene wie
+  Dokumentation und Werkzeug-Verzeichnisse. Ein zusätzlicher Baustein (Batch-Job, zweiter
+  Client) hätte die Wurzel weiter aufgefüllt.
+
+| *Optionen*
+| 1. *Gemeinsames `+modules/+`* – beide Bausteine darunter, das Wurzelverzeichnis enthält nur
+  Build-Einstieg, `+modules/+`, `+docs/+`, `+gradle/+`. 2. *Flach lassen* – kein Aufwand, aber
+  die Wurzel wächst mit jedem Baustein. 3. Nur das Backend gruppieren und `+frontend/+` in der
+  Wurzel lassen – erhält die Asymmetrie, die gerade behoben werden soll.
+
+| *Entscheidung*
+| *Option 1.* `+backend/+` und `+frontend/+` wandern nach `+modules/+`. Die
+  Gradle-Projektpfade lauten damit `+:modules:backend:domain+` …
+  `+:modules:backend:bootstrap+`; `:modules` und `+:modules:backend+` sind reine
+  Containerprojekte ohne Quellen und ohne Java-Plugin. `+modules/frontend+` bleibt ein
+  npm-Projekt – die Begründung aus link:0011-backend-als-gradle-modul{adrext}[ADR 0011] gilt
+  weiter.
+
+| *Konsequenzen*
+| *{plus}* Das Wurzelverzeichnis zeigt nur noch Build-Einstieg, `+modules/+`, `+docs/+` und
+  `+gradle/+`; neue Bausteine haben einen offensichtlichen Platz. *{plus}* Die relativen Pfade
+  *zwischen* Backend und Frontend bleiben unverändert – die Playwright-Konfiguration zeigt
+  weiter auf `+../backend/bootstrap/build/…+`, weil beide zusammen verschoben wurden. *−* Die
+  Projektpfade werden noch länger: `+:modules:backend:bootstrap+` statt `:bootstrap`. Für den
+  Alltag ist das irrelevant, weil Gradle Task-Namen an alle Projekte weiterleitet; wer aber
+  ein einzelnes Modul adressiert, schreibt viel. *−* Zwei Container-Ebenen (`:modules`,
+  `+:modules:backend+`) für vier Module mit Quellen – ein bewusster Vorgriff auf Wachstum.
+  *−* Angepasst werden mussten `+settings.gradle.kts+`, die drei `+project(":…")+`-Verweise,
+  `+rootProject.file("modules/frontend")+` sowie die Pfadangaben in README und `+CLAUDE.md+`.
+|===
+
+== Vorfall beim ersten Versuch: Verlust im Arbeitsverzeichnis
+
+Der erste Anlauf hat das Arbeitsverzeichnis beschädigt. Der Ablauf, weil er sich wiederholen
+kann:
+
+. `+git mv frontend modules/frontend+` meldete Erfolg.
+. Danach war `+modules/frontend+` *leer*; `+git status+` zeigte 24 Einträge als `RD` – im
+  Index als Umbenennung vermerkt, im Arbeitsverzeichnis fehlend.
+. Der Verzeichniseintrag war anschließend ein *Phantom*: `cd` gelang, aber `stat`, Lesen,
+  Schreiben, `rmdir`, `+rm -rf+` und `mv` schlugen alle mit „No such file or directory" fehl
+  (`+ls -l+` zeigte `+d????????? ? ? ? ?+`).
+. Erst das Umbenennen des Elternverzeichnisses löste den Eintrag auf – nahm dabei aber auch
+  das bereits korrekt verschobene `+backend/+` mit.
+
+*Kein Datenverlust*, weil alles committet war: `+git reset --hard HEAD+` stellte den Stand
+vollständig wieder her, `+git fsck+` zeigte keine beschädigten Objekte, und der Build war
+danach grün.
+
+*Ursache:* Mit hoher Wahrscheinlichkeit das Umbenennen eines sehr großen Verzeichnisbaums auf
+dem Overlay-Dateisystem dieser Umgebung (WSL2). `+frontend/+` enthielt *5836 Dateien*, davon
+der Großteil in `+node_modules+`. Nach dem Löschen der generierten Verzeichnisse
+(`+node_modules+`, `dist`, `+.vite+`, `+playwright-report+`, `+test-results+` – alle
+regenerierbar und ohnehin ignoriert) blieben 24 Dateien übrig, und derselbe `+git mv+` lief
+fehlerfrei durch.
+
+== Regel für die Zukunft
+
+* *Vor dem Verschieben von Verzeichnissen die generierten Inhalte löschen.* Ein `+git mv+`
+  über tausende Dateien ist auf dieser Umgebung nicht verlässlich; `+node_modules+` und
+  `+build/+` sind regenerierbar und haben im Umzug nichts zu suchen.
+* *Nach jedem Verschieben die Dateizahl am Ziel prüfen*, nicht nur den Rückgabewert von
+  `+git mv+`. Der Befehl meldete Erfolg, obwohl das Ziel leer war.
+* Vor größeren Umbauten sicherstellen, dass der Ausgangsstand *committet* ist. Genau das hat
+  hier den Unterschied zwischen Ärgernis und Datenverlust gemacht.

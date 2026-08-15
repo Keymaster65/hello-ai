@@ -67,6 +67,36 @@ fun includesAusserhalb(quellverzeichnis: File): List<File> =
         .distinct()
         .toList()
 
+// Die ADRs sind seit ADR 0026 ebenfalls AsciiDoc und werden gerendert, statt als Quelltext
+// mitzureisen. Eigener Task, weil sie ein eigenes Quellverzeichnis haben und – anders als
+// Systemdoku und Arbeitsgrundlage – *jede* Datei ein Eingangspunkt ist: 25 Dokumente, kein
+// Masterdokument. Das Ergebnis wird vom `asciidoctor`-Task unten neben das HTML kopiert.
+val asciidoctorAdr by tasks.registering(AsciidoctorTask::class) {
+    group = "documentation"
+    description = "Rendert die Architekturentscheidungen aus docs/adr nach HTML."
+
+    setSourceDir(file("docs/adr"))
+    baseDirFollowsSourceFile()
+    // Kein `sources`-Filter: Jedes ADR ist ein eigenständiges Dokument und damit ein eigener
+    // Eingangspunkt.
+    setOutputDir(layout.buildDirectory.dir("docs/adr").get().asFile)
+    outputOptions { backends("html5") }
+
+    attributes(
+        mapOf(
+            // Die ADRs verweisen untereinander als `link:NNNN-titel{adrext}[…]`. Im Repository
+            // steht `.adoc` (GitHub rendert es), im Ergebnis liegen die HTML-Dateien
+            // nebeneinander – deshalb hier `.html`.
+            "adrext" to ".html",
+            // Ein Stylesheet neben 25 Dokumenten statt 25-mal eingebettet; sonst wüchse das
+            // Boot-Jar um ein Vielfaches der eigentlichen Texte.
+            "linkcss" to true,
+            "copycss" to true,
+            "attribute-missing" to "warn",
+        ),
+    )
+}
+
 tasks.named<AsciidoctorTask>("asciidoctor") {
     group = "documentation"
     description = "Rendert die Systemdokumentation aus docs/system nach HTML."
@@ -88,11 +118,11 @@ tasks.named<AsciidoctorTask>("asciidoctor") {
     // Bisher hieß das: Das HTML funktioniert nur an seinem Bauplatz, weil das Attribut `adr`
     // ins Repository zurückzeigte. Seit die Doku mit ausgeliefert wird (ADR 0024), kopiert der
     // Task sie in einen Unterordner `adr/` neben das HTML – damit ist das Ausgabeverzeichnis
-    // in sich geschlossen und überall gültig, auch im Boot-Jar.
+    // in sich geschlossen und überall gültig, auch im Boot-Jar. Kopiert wird seit ADR 0026
+    // das *gerenderte* HTML aus `asciidoctorAdr`, nicht mehr der Quelltext.
+    dependsOn(asciidoctorAdr)
     resources {
-        from(file("docs/adr")) {
-            include("*.md")
-        }
+        from(asciidoctorAdr.map { it.outputDir })
         into("adr")
     }
 
@@ -102,6 +132,8 @@ tasks.named<AsciidoctorTask>("asciidoctor") {
             // dank des `resources`-Blocks oben direkt daneben – deshalb wird das Attribut hier
             // überschrieben, statt es im Dokument zu verbiegen.
             "adr" to "adr",
+            // Dort liegen sie als HTML (ADR 0026); im Repository ist es `.adoc`.
+            "adrext" to ".html",
             // Ohne diese Angabe würde eine offene Attribut-Referenz stumm im Text stehen.
             "attribute-missing" to "warn",
         ),
@@ -134,6 +166,10 @@ val asciidoctorPrompt by tasks.registering(AsciidoctorTask::class) {
             // In `docs/prompt` gilt `../adr`; im gerenderten HTML unter `build/docs/prompt` muss
             // der Pfad drei Ebenen zurück.
             "adr" to "../../../docs/adr",
+            // Dieser Pfad zeigt ins Repository, nicht in ein Ausgabeverzeichnis – dort liegen
+            // die ADRs als Quelltext. Der Wert ist der Vorgabewert der Dateien; er steht hier,
+            // damit die Wahl sichtbar ist und nicht nur implizit gilt.
+            "adrext" to ".adoc",
             "attribute-missing" to "warn",
         ),
     )

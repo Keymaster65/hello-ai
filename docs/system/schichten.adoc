@@ -1,12 +1,13 @@
 // Kapitel der Systemdokumentation; siehe system.adoc.
 ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
 = Bausteine und Schichten
 
 == Die Regel
 
 Das Backend folgt einer Hexagonal-/Clean-Architecture mit *einem Gradle-Modul je Schicht*
-(link:{adr}/0013-ein-gradle-modul-je-schicht.md[ADR 0013],
-link:{adr}/0014-schichtmodule-unter-backend.md[ADR 0014]). Abhängigkeiten zeigen nach innen:
+(link:{adr}/0013-ein-gradle-modul-je-schicht{adrext}[ADR 0013],
+link:{adr}/0014-schichtmodule-unter-backend{adrext}[ADR 0014]). Abhängigkeiten zeigen nach innen:
 
 ----
 :modules:backend:bootstrap → :modules:backend:adapter
@@ -21,11 +22,11 @@ Entscheidend ist, dass die Regel nicht nur dokumentiert, sondern *dreifach* abge
   geprüft.
 . *Von ArchUnit als Schichtenstapel geprüft* (<<src-layered-architecture-test,`LayeredArchitectureTest`>>): zusätzlich
   Framework-Freiheit der Domäne, die Teilung in `model`/`services` und „Ports sind
-  Interfaces" (link:{adr}/0012-archunit-fuer-die-schichtenregel.md[ADR 0012]).
+  Interfaces" (link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012]).
 . *Von ArchUnit als Zwiebelschalen geprüft* (<<src-onion-architecture-test,`OnionArchitectureTest`>>): Adapter kennen
   einander nicht – der REST-Adapter greift nicht am Port vorbei auf die Persistenz zu. Diese
   Lücke kann die Schichtensicht nicht schließen, weil beide Adapter im selben Modul liegen
-  (link:{adr}/0019-onion-architecture-regel-in-archunit.md[ADR 0019]).
+  (link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019]).
 
 Fehlt einer Klasse eine Abhängigkeit, ist das ein Hinweis auf einen Schichtverstoß – nicht
 die Aufforderung, sie im Buildskript zu ergänzen.
@@ -47,7 +48,7 @@ Basispaket ist `io.github.keymaster65.helloai`.
 | `:modules:backend:domain`
 | `domain.services`
 | Domänenlogik ohne eigenen Modelltyp. Aktuell leer – nur <<src-package-info-services,`package-info.java`>> markiert den
-  Platz (link:{adr}/0020-domain-in-model-und-services-teilen.md[ADR 0020]).
+  Platz (link:{adr}/0020-domain-in-model-und-services-teilen{adrext}[ADR 0020]).
 
 | `:modules:backend:application`
 | `application.port.in`
@@ -83,7 +84,7 @@ Basispaket ist `io.github.keymaster65.helloai`.
   mit `scanBasePackages`), <<src-openapi-config,`OpenApiConfig`>> und
   <<src-documentation-routing-config,`DocumentationRoutingConfig`>> (Adresse der
   mitgelieferten Systemdokumentation,
-  link:{adr}/0024-systemdokumentation-im-boot-jar.md[ADR 0024]). Hier entsteht das Deployable.
+  link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]). Hier entsteht das Deployable.
 |===
 
 Das Modul `:modules:backend` selbst trägt keinen Quellcode; es hält die gemeinsame
@@ -116,7 +117,7 @@ Die vier Records samt Paketmarkierung stehen im Original in <<src-gruppe-domaene
 
 Records mit mehr als zwei Komponenten bieten zusätzlich eine curried Factory `curried()` –
 eine Kette benannter Einzelschritte, die Reihenfolge und Vollständigkeit über das Typsystem
-erzwingt (link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten.md[ADR 0021]).
+erzwingt (link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[ADR 0021]).
 Der kanonische Konstruktor bleibt der einzige Ort der Validierung.
 
 == Anwendungsschicht
@@ -147,7 +148,7 @@ keinen Statuscode.
 `RecipeController` bleibt dünn – er mappt, delegiert an den Port und setzt den Statuscode;
 Geschäftslogik enthält er nicht. Die OpenAPI-Annotationen sitzen direkt an dieser Schicht,
 damit der Contract neben dem Code steht, den er beschreibt
-(link:{adr}/0005-springdoc-openapi-und-swagger-ui.md[ADR 0005]).
+(link:{adr}/0005-springdoc-openapi-und-swagger-ui{adrext}[ADR 0005]).
 
 `RecipeRestMapper` trennt API und Domäne. Zwei Festlegungen stecken darin:
 
@@ -162,7 +163,7 @@ einheitliches `ErrorResponse`; die Zuordnung steht im Kapitel API.
 `index.html` weiter, damit ein geteilter Link wie `/recipes/3` nicht im 404 endet. Die
 Routen sind *einzeln aufgezählt* statt per Wildcard gefangen, weil ein Catch-all API,
 OpenAPI-Dokument und Swagger UI verschatten könnte
-(link:{adr}/0017-router-mit-spa-fallback.md[ADR 0017]).
+(link:{adr}/0017-router-mit-spa-fallback{adrext}[ADR 0017]).
 
 [WARNING]
 ====
@@ -245,7 +246,7 @@ Liquibase-Migration gegen die konfigurierte Datenbank → `DSLContext` bereitste
 == Frontend
 
 Das Frontend ist eine React-SPA mit `react-router`
-(link:{adr}/0017-router-mit-spa-fallback.md[ADR 0017]) und spricht ausschließlich
+(link:{adr}/0017-router-mit-spa-fallback{adrext}[ADR 0017]) und spricht ausschließlich
 *relative* Pfade an – abgeleitet aus `import.meta.env.BASE_URL`, das den Context-Path des
 Backends spiegelt. Eine absolute Origin steht nirgends im Code, deshalb ist derselbe Build
 in Entwicklung und Produktion gültig.

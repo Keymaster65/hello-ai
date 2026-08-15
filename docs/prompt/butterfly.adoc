@@ -1,5 +1,6 @@
 // Skill der Arbeitsgrundlage; siehe prompt.adoc.
 ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
 = Skill: Butterfly – Session-Protokoll
 
 == Zweck
@@ -21,7 +22,7 @@ sondern im Develop-Skill (`docs/prompt/develop.adoc`).
 == Format
 
 * Datei: `docs/log/claudeLog.adoc` – AsciiDoc wie der Rest von `docs/`
-  (link:{adr}/0025-claudelog-als-asciidoc.md[ADR 0025]). Sie wird bewusst *nicht* gerendert
+  (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]). Sie wird bewusst *nicht* gerendert
   und in kein Dokument per `include` eingebunden: Ein Protokoll, das wörtliche Prompts
   zitiert, darf den Build nicht rot färben können.
 * Nummerierte Abschnitte: `== N. Prompt: „<Originaltext des Prompts>"`

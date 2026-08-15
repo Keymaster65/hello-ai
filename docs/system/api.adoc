@@ -1,13 +1,14 @@
 // Kapitel der Systemdokumentation; siehe system.adoc.
 ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
 = Schnittstellen
 
 == Adressraum
 
 Alles liegt unter dem Context-Path `/recipes`
-(link:{adr}/0016-context-path-recipes.md[ADR 0016]) – SPA, API und Contract teilen eine
+(link:{adr}/0016-context-path-recipes{adrext}[ADR 0016]) – SPA, API und Contract teilen eine
 Origin. Genau das macht CORS überflüssig
-(link:{adr}/0007-react-frontend-mit-backend-als-bff.md[ADR 0007]).
+(link:{adr}/0007-react-frontend-mit-backend-als-bff{adrext}[ADR 0007]).
 
 [cols="2,2,3", options="header"]
 |===
@@ -19,9 +20,9 @@ Origin. Genau das macht CORS überflüssig
 | OpenAPI 3.1, YAML | `/recipes/v3/api-docs.yaml` | dasselbe Dokument
 | Swagger UI | `/recipes/swagger-ui.html` | Operationen nach Methode, Tags alphabetisch
 | Systemdokumentation | `/recipes/docs/` | dieses Dokument, gerendert und im Jar
-  (link:{adr}/0024-systemdokumentation-im-boot-jar.md[ADR 0024])
-| ADRs | `/recipes/docs/adr/\{datei}.md` | Markdown als `text/plain;charset=UTF-8`, aus der
-  Doku heraus verlinkt
+  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024])
+| ADRs | `/recipes/docs/adr/\{datei}.html` | gerendertes AsciiDoc, aus der Doku heraus
+  verlinkt (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026])
 |===
 
 Die Adresse der Dokumentation endet auf einen Schrägstrich. `/recipes/docs` leitet dorthin
@@ -154,7 +155,7 @@ ab – die Reihenfolge ist also Absicherung, keine Redundanz ohne Zweck.
 
 Der Contract wird zur *Laufzeit* aus Controller-Signaturen, Bean-Validation und den
 `@Operation`/`@Schema`-Annotationen erzeugt
-(link:{adr}/0005-springdoc-openapi-und-swagger-ui.md[ADR 0005]). Es gibt keine
+(link:{adr}/0005-springdoc-openapi-und-swagger-ui{adrext}[ADR 0005]). Es gibt keine
 handgepflegte Spezifikationsdatei, die veralten könnte.
 
 Dokumentweite Angaben (Titel, Beschreibung, Version, Kontakt, Lizenz) stehen in
@@ -198,7 +199,7 @@ veralteten Contract typisiert – der Build ist grün und die Laufzeit falsch.
 Damit diese Adressen auch beim *direkten* Aufruf funktionieren, leitet
 <<src-spa-forwarding-controller,`SpaForwardingController`>> sie serverseitig auf die `index.html` weiter – explizit
 aufgezählt, damit der Fallback API, OpenAPI und Swagger UI nicht verschattet
-(link:{adr}/0017-router-mit-spa-fallback.md[ADR 0017]). Die Detail- und Bearbeiten-Routen
+(link:{adr}/0017-router-mit-spa-fallback{adrext}[ADR 0017]). Die Detail- und Bearbeiten-Routen
 sind serverseitig auf Ziffern eingeschränkt (`{id:\\d+}`).
 
 == Keine weiteren Schnittstellen

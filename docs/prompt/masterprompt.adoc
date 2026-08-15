@@ -1,6 +1,7 @@
 // Master-Prompt des Projekts; siehe prompt.adoc. Diese Datei wird von `CLAUDE.md` per
 // @-Import geladen und ist damit die verbindliche Arbeitsgrundlage jeder Session.
 ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
 = Master-Prompt: recipes
 
 == Rolle
@@ -28,7 +29,7 @@ bearbeiteten Datei bzw. Aufgabe.
 * Build-Tool / Dev-Server: Vite
 * Testing: Vitest (Komponenten), Playwright (E2E im echten Browser)
 * UI-Framework: React mit react-router (Routen siehe
-  link:{adr}/0017-router-mit-spa-fallback.md[ADR 0017])
+  link:{adr}/0017-router-mit-spa-fallback{adrext}[ADR 0017])
 
 == Grundregeln
 
@@ -51,7 +52,7 @@ bearbeiteten Datei bzw. Aufgabe.
 
 Die Skills stehen als eigene AsciiDoc-Dateien neben dieser Datei und werden *bei Bedarf*
 gelesen – anders als dieser Master-Prompt, der in jeder Session gilt
-(link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]).
+(link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]).
 
 [cols="1,2,3", options="header"]
 |===
@@ -68,7 +69,7 @@ gelesen – anders als dieser Master-Prompt, der in jeder Session gilt
 | Systemdokumentation
 | `docs/prompt/systemdoku.adoc`
 | Bei *jeder* Änderung am Ist-Zustand des Systems; pflegt `docs/system/*.adoc`
-  (link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system.md[ADR 0022])
+  (link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022])
 
 | Butterfly / Session-Protokoll
 | `docs/prompt/butterfly.adoc`
@@ -96,7 +97,7 @@ steht in `docs/prompt/prompt.adoc`, Abschnitt „Pflege dieser Arbeitsgrundlage"
 
 IMPORTANT: *Immer den Gradle-Wrapper `./gradlew` verwenden* (Windows: `gradlew.bat`), nie ein
 lokal installiertes `gradle` – siehe
-link:{adr}/0009-gradle-wrapper-verbindlich.md[ADR 0009].
+link:{adr}/0009-gradle-wrapper-verbindlich{adrext}[ADR 0009].
 
 [cols="2,3", options="header"]
 |===

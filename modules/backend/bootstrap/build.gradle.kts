@@ -137,9 +137,14 @@ tasks.named<ProcessResources>("processResources") {
         // Das gerenderte Kapitelwerk samt der daneben kopierten ADRs. `system.html` heißt im
         // Jar `index.html`, damit die Doku unter `/recipes/docs/` liegt und nicht unter einem
         // Dateinamen; die relativen Verweise auf `adr/…` stimmen dadurch unverändert.
+        //
+        // Das Muster ist verankert (`^…$`). Ohne die Anker sucht Gradle den Ausdruck *irgendwo*
+        // im Dateinamen – seit die ADRs als HTML danebenliegen (ADR 0026), traf er auch
+        // `0022-asciidoc-systemdokumentation-in-docs-system.html` und benannte sie in
+        // `…-in-docs-index.html` um. Aufgefallen ist das als 404 im `DocumentationSystemTest`.
         from(systemdokuVerzeichnis) {
             into("static/docs")
-            rename("""system\.html""", "index.html")
+            rename("""^system\.html$""", "index.html")
         }
     }
 }

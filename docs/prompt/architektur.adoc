@@ -1,5 +1,6 @@
 // Skill der Arbeitsgrundlage; siehe prompt.adoc.
 ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
 = Skill: Java-Architektur
 
 == Zweck
@@ -41,16 +42,16 @@ Diese Regel ist *doppelt abgesichert*:
 . *Vom Build erzwungen* – jede Schicht ist ein eigenes Gradle-Modul unter `:modules:backend`
   (`:modules:backend:bootstrap` → `:modules:backend:adapter` → `:modules:backend:application` →
   `:modules:backend:domain`). Ein Import aus einer äußeren Schicht *compiliert nicht*; siehe
-  link:{adr}/0013-ein-gradle-modul-je-schicht.md[ADR 0013] und
-  link:{adr}/0014-schichtmodule-unter-backend.md[ADR 0014] sowie
-  link:{adr}/0015-alle-bausteine-unter-modules.md[ADR 0015].
+  link:{adr}/0013-ein-gradle-modul-je-schicht{adrext}[ADR 0013] und
+  link:{adr}/0014-schichtmodule-unter-backend{adrext}[ADR 0014] sowie
+  link:{adr}/0015-alle-bausteine-unter-modules{adrext}[ADR 0015].
 . *Von ArchUnit geprüft* – `LayeredArchitectureTest` sichert zusätzlich ab, was Modulgrenzen
   nicht sehen: Framework-Freiheit des Domänenmodells und „Ports sind Interfaces"; siehe
-  link:{adr}/0012-archunit-fuer-die-schichtenregel.md[ADR 0012].
+  link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012].
   `OnionArchitectureTest` beschreibt dieselbe Struktur als Zwiebelschalen und schließt die
   Lücke der Schichtensicht: *Adapter kennen einander nicht* – der REST-Adapter greift nicht
   am Port vorbei auf die Persistenz zu. Siehe
-  link:{adr}/0019-onion-architecture-regel-in-archunit.md[ADR 0019].
+  link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019].
 
 Fehlt einer Klasse eine Abhängigkeit, ist das ein Hinweis auf einen Schichtverstoß – nicht
 die Aufforderung, sie im Buildskript zu ergänzen.
@@ -86,7 +87,7 @@ Ingredient ingredient = Ingredient.curried()
 Der kanonische Konstruktor bleibt der einzige Ort der Validierung; die Kette ruft ihn im
 letzten Schritt auf. `RecordCurryingTest` prüft die Form der Kette – nicht nur, dass es eine
 Methode `curried()` gibt. Begründung und Grenzen:
-link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten.md[ADR 0021].
+link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[ADR 0021].
 
 == Checkliste vor Implementierung
 
@@ -180,4 +181,7 @@ Kurzes *ADR (Architecture Decision Record)* erstellen:
 | Konsequenzen | Vor- und Nachteile der Wahl
 |===
 
-Speicherort: `docs/adr/NNNN-titel.md`
+Speicherort: `docs/adr/NNNN-titel.adoc`, AsciiDoc wie der Rest von `docs/`
+(link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026]). Verweise auf andere ADRs als
+`+link:NNNN-titel{adrext}[ADR NNNN]+` – die Endung kommt aus dem Attribut, damit derselbe
+Verweis im Repository und im gerenderten HTML trifft.

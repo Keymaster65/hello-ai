@@ -1,5 +1,6 @@
 // Skill der Arbeitsgrundlage; siehe prompt.adoc.
 ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
 = Skill: Systemdokumentation
 
 == Zweck
@@ -9,7 +10,7 @@ bei neuen Endpunkten, geänderten Schemata, neuen Bausteinen, geänderten Build-
 und neuen Teststufen. Er hält `docs/system/*.adoc` mit dem Code gleich.
 
 Entscheidung und Begründung:
-link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system.md[ADR 0022].
+link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022].
 
 == Wo was steht
 
@@ -129,7 +130,7 @@ Schritt* geändert, nicht später.
   in der Systemdoku. Sie sagt, *was* gilt.
 . *Keine Versionsnummern.* Einzige Quelle ist `gradle/libs.versions.toml` bzw.
   `modules/frontend/package.json`
-  (link:{adr}/0018-versionskatalog-libs-versions-toml.md[ADR 0018]).
+  (link:{adr}/0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018]).
 . *Bei Widerspruch gewinnt der Code.* Ein Widerspruch ist ein Fehler in der Doku und wird
   dort behoben – nicht im Code weggeredet.
 
@@ -151,11 +152,15 @@ besonders leicht zu vergessen:
 
 Diese Konventionen gelten für *jede* AsciiDoc-Datei im Projekt, also auch für die
 Arbeitsgrundlage unter `docs/prompt`
-(link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023]).
+(link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]).
 
 * Ein Kapitel je Datei, Titel als Ebene 0 (`= Titel`); die Einbindung setzt `leveloffset=+1`.
-* Jede Kapiteldatei beginnt mit dem Kommentar-Hinweis und der Zeile
-  `+ifndef::adr[:adr: ../adr]+`, damit sie auch einzeln gerendert korrekte ADR-Links hat.
+* Jede Kapiteldatei beginnt mit dem Kommentar-Hinweis und den beiden Zeilen
+  `+ifndef::adr[:adr: ../adr]+` und `+ifndef::adrext[:adrext: .adoc]+`, damit sie auch einzeln
+  gerendert korrekte ADR-Links hat.
+* ADRs werden als `+link:{adr}/NNNN-titel{adrext}[ADR NNNN]+` verlinkt – *nie* mit fester
+  Endung. Der Build biegt `+{adrext}+` dort auf `+.html+`, wo die ADRs gerendert danebenliegen
+  (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026]).
 * Anker als Kleinschreibung mit Bindestrich: `+[[offene-punkte]]+`, Verweis
   `+<<offene-punkte>>+`. *Keine Leerzeichen in IDs* – das bricht den Build (siehe unten).
 * Literale geschweifte Klammern escapen: `\{id}`. Unescaped liest AsciiDoc sie als

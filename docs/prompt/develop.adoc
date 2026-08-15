@@ -1,5 +1,6 @@
 // Skill der Arbeitsgrundlage; siehe prompt.adoc.
 ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
 = Skill: Develop – Entwicklungsleitfaden
 
 == Zweck

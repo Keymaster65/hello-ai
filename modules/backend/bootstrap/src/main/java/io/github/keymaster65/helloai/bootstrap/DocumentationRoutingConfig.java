@@ -1,12 +1,6 @@
 package io.github.keymaster65.helloai.bootstrap;
 
-import java.nio.charset.StandardCharsets;
-import org.springframework.boot.web.server.MimeMappings;
-import org.springframework.boot.web.server.WebServerFactoryCustomizer;
-import org.springframework.boot.web.server.servlet.ConfigurableServletWebServerFactory;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.MediaType;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -27,28 +21,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  *
  * <p>View controllers instead of a {@code @Controller}: there is no handler method to write,
  * and springdoc does not mistake them for API operations.
+ *
+ * <p>Nothing else is needed. The ADRs used to travel as Markdown and required an explicit
+ * {@code MimeMappings} entry so the browser would show them instead of offering a download;
+ * since ADR 0026 they are rendered to HTML like the documentation itself, and {@code .html} is
+ * a media type every web server already knows.
  */
 @Configuration
 public class DocumentationRoutingConfig implements WebMvcConfigurer {
-
-    /**
-     * The ADRs travel with the documentation as Markdown, and nothing in the default mappings
-     * knows {@code .md}: without this they are served as {@code application/octet-stream}, and the
-     * browser offers a download instead of showing the text. Plain text with an explicit charset
-     * is the honest answer – no browser renders Markdown either way, but the file is readable,
-     * umlauts included.
-     *
-     * <p>The mapping belongs to the web server rather than to content negotiation: since Spring
-     * Framework 7 the static resource handler no longer takes its media types from there.
-     */
-    @Bean
-    public WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> markdownAsPlainText() {
-        return factory -> {
-            MimeMappings mappings = new MimeMappings(MimeMappings.DEFAULT);
-            mappings.add("md", MediaType.TEXT_PLAIN_VALUE + ";charset=" + StandardCharsets.UTF_8);
-            factory.setMimeMappings(mappings);
-        };
-    }
 
     @Override
     public void addViewControllers(ViewControllerRegistry registry) {
