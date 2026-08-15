@@ -15,7 +15,7 @@
 :adrext: .adoc
 
 Dieses Dokument bündelt die Anweisungen, unter denen an *recipes* gearbeitet wird: den
-Master-Prompt, der in jeder Session gilt, und die fünf Skills, die bei Bedarf hinzukommen.
+Master-Prompt, der in jeder Session gilt, und die sechs Skills, die bei Bedarf hinzukommen.
 Entscheidung und Begründung:
 link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023].
 
@@ -84,6 +84,8 @@ include::masterprompt.adoc[leveloffset=+1]
 
 include::architektur.adoc[leveloffset=+1]
 
+include::adr.adoc[leveloffset=+1]
+
 include::tests.adoc[leveloffset=+1]
 
 include::systemdoku.adoc[leveloffset=+1]
@@ -117,6 +119,9 @@ gepflegt, die sie betrifft.
 
 | Neue Architektur- oder Struktur-Regel
 | `architektur.adoc`
+
+| Neue Regel zum Umgang mit ADRs (Einhaltung, Aufbau, Ablösung)
+| `adr.adoc`; die ADRs selbst bleiben unter `docs/adr`, ihr Index in `docs/system/system.adoc`
 
 | Neue Test-Konvention, neues Test-Werkzeug
 | `tests.adoc`; die Teststufen selbst stehen in `docs/system/qualitaetssicherung.adoc`

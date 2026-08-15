@@ -169,19 +169,10 @@ public class GlobalExceptionHandler {
 
 == Bei größeren Entscheidungen
 
-Kurzes *ADR (Architecture Decision Record)* erstellen:
+Jede Entscheidung mit sichtbarer Alternative bekommt ein *ADR (Architecture Decision Record)*
+unter `docs/adr`. Wie eines aufgebaut ist, wie bestehende einzuhalten und wie sie abzulösen
+sind, steht im *ADR-Skill* (`docs/prompt/adr.adoc`) – hier nicht, damit es an *einer* Stelle
+steht.
 
-[cols="1,2", options="header"]
-|===
-| Abschnitt | Inhalt
-
-| Kontext | Warum ist die Entscheidung nötig?
-| Optionen | Welche Alternativen gibt es?
-| Entscheidung | Was wird gewählt und warum?
-| Konsequenzen | Vor- und Nachteile der Wahl
-|===
-
-Speicherort: `docs/adr/NNNN-titel.adoc`, AsciiDoc wie der Rest von `docs/`
-(link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026]). Verweise auf andere ADRs als
-`+link:NNNN-titel{adrext}[ADR NNNN]+` – die Endung kommt aus dem Attribut, damit derselbe
-Verweis im Repository und im gerenderten HTML trifft.
+Vor dem Entwurf gilt der erste Schritt von dort: Welche ADRs binden diese Aufgabe bereits? Die
+Antwort begrenzt den Entwurfsraum, bevor er aufgespannt wird.

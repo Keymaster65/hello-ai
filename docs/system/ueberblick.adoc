@@ -124,7 +124,7 @@ Es ruft von sich aus kein Fremdsystem auf.
 
 | Arbeitsgrundlage
 | `docs/prompt/` und `CLAUDE.md`
-| Master-Prompt und fünf Skills – die Anweisungen, unter denen entwickelt wird. Kein Baustein
+| Master-Prompt und sechs Skills – die Anweisungen, unter denen entwickelt wird. Kein Baustein
   der Anwendung, aber Teil des Repositorys; siehe <<arbeitsgrundlage>>.
 |===
 

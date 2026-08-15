@@ -1,0 +1,232 @@
+// Skill der Arbeitsgrundlage; siehe prompt.adoc.
+ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
+= Skill: ADR – Entscheidungen einhalten und fortschreiben
+
+== Zweck
+
+Aktiviere diesen Skill, bevor eine Entscheidung getroffen wird *und* bevor eine bestehende
+berührt wird: Er regelt, wie die Architekturentscheidungen unter `docs/adr` *eingehalten*,
+*geprüft* und *fortgeschrieben* werden.
+
+Ein ADR ist keine Empfehlung und kein Rückblick, sondern die geltende Festlegung – bis ein
+neues ADR sie ablöst. Der Architektur-Skill (`docs/prompt/architektur.adoc`) sagt, *wie*
+entworfen wird; dieser hier sagt, *woran* der Entwurf schon gebunden ist und was zu tun ist,
+wenn diese Bindung nicht mehr passt.
+
+== Grundsatz
+
+. *Ein ADR gilt, bis es abgelöst ist.* Wer davon abweicht, bricht keine Konvention, sondern
+  eine Entscheidung.
+. *Eine Abweichung ist ein neues ADR*, kein stiller Sonderfall. Der Ausweg aus einer
+  Festlegung führt immer über eine neue Festlegung.
+. *ADRs werden nicht umgeschrieben.* Sie sind historisch: Ein ADR hält den Stand seiner
+  Entscheidung fest, auch wenn er überholt ist. Das neue ADR verweist zurück, das alte bleibt
+  wortgleich stehen (Muster: link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026], Abschnitt
+  „Bewusst nicht getan").
+
+== Vor der Arbeit: welche ADRs gelten
+
+Nicht alle 26 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
+Zusammenfassung: *Was* gilt, steht im ADR selbst.
+
+[cols="2,3", options="header"]
+|===
+| Aufgabe | Dabei gelten
+
+| Neues Modul, neue Schicht, Paketstruktur
+| link:{adr}/0011-backend-als-gradle-modul{adrext}[0011],
+  link:{adr}/0013-ein-gradle-modul-je-schicht{adrext}[0013],
+  link:{adr}/0014-schichtmodule-unter-backend{adrext}[0014],
+  link:{adr}/0015-alle-bausteine-unter-modules{adrext}[0015],
+  link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[0019],
+  link:{adr}/0020-domain-in-model-und-services-teilen{adrext}[0020]
+
+| Klasse in der Domäne, DTO, Spring-Bean
+| link:{adr}/0003-kein-lombok-records-und-konstruktor-injektion{adrext}[0003],
+  link:{adr}/0020-domain-in-model-und-services-teilen{adrext}[0020],
+  link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[0021]
+
+| Persistenz, Migration, Schemaänderung
+| link:{adr}/0004-liquibase-statt-flyway{adrext}[0004],
+  link:{adr}/0001-jooq-codegen-aus-flyway-skripten{adrext}[0001],
+  link:{adr}/0002-embedded-postgres-statt-testcontainers{adrext}[0002]
+
+| REST-Endpunkt, Fehlerbild, OpenAPI
+| link:{adr}/0005-springdoc-openapi-und-swagger-ui{adrext}[0005],
+  link:{adr}/0016-context-path-recipes{adrext}[0016]
+
+| Frontend, neue Route
+| link:{adr}/0007-react-frontend-mit-backend-als-bff{adrext}[0007],
+  link:{adr}/0017-router-mit-spa-fallback{adrext}[0017],
+  link:{adr}/0016-context-path-recipes{adrext}[0016]
+
+| Tests schreiben, Teststufe ändern
+| link:{adr}/0006-testsets-plugin-und-systemtests{adrext}[0006],
+  link:{adr}/0008-playwright-fuer-e2e-tests{adrext}[0008],
+  link:{adr}/0002-embedded-postgres-statt-testcontainers{adrext}[0002],
+  link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[0012]
+
+| Build, neue Abhängigkeit, neuer Gradle-Task
+| link:{adr}/0009-gradle-wrapper-verbindlich{adrext}[0009],
+  link:{adr}/0010-gradle-kotlin-dsl{adrext}[0010],
+  link:{adr}/0018-versionskatalog-libs-versions-toml{adrext}[0018]
+
+| Dokumentation, Arbeitsgrundlage, Session-Protokoll
+| link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[0022],
+  link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[0023],
+  link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[0024],
+  link:{adr}/0025-claudelog-als-asciidoc{adrext}[0025],
+  link:{adr}/0026-adrs-als-asciidoc{adrext}[0026]
+|===
+
+Der vollständige Index steht in `docs/system/system.adoc`, Abschnitt
+„Architekturentscheidungen" – er ist die einzige Liste aller ADRs; hier wird sie nicht
+zweitgeführt.
+
+== Was der Build erzwingt – und was nicht
+
+Ein Teil der Entscheidungen ist maschinell abgesichert; der Rest hängt am Lesen. Der zweite
+Teil ist der gefährlichere.
+
+*Erzwungen:*
+
+* *Schichtgrenzen* – ein Import aus einer äußeren Schicht compiliert nicht (0013/0014/0015);
+  zusätzlich prüfen `LayeredArchitectureTest` (0012) und `OnionArchitectureTest` (0019).
+* *Currying ab drei Record-Komponenten* – `RecordCurryingTest` (0021).
+* *Dokumentation* – fehlender `include` und Querverweis ins Leere brechen den Build; das gilt
+  für alle drei Asciidoctor-Tasks (0022/0023/0026).
+* *Auslieferung der Doku* – `DocumentationSystemTest` prüft, dass sie im Boot-Jar erreichbar
+  ist (0024/0026).
+
+*Nicht erzwungen – hier ist Einhaltung reine Sorgfalt:*
+
+* Kein Lombok (0003), auch nicht in Beispielen.
+* `./gradlew` statt `gradle` in Doku, Skripten und Befehlen (0009).
+* Versionen nur im Versionskatalog bzw. in `package.json` (0018).
+* Context-Path an *allen* verankerten Stellen ändern (0016).
+* Verweise auf ADRs mit `+{adrext}+` statt fester Endung (0026) – `+link:+` prüft der Build
+  nicht.
+
+WARNING: Fehlt einer Klasse eine Abhängigkeit oder schlägt ein Architekturtest fehl, ist das
+in aller Regel *der ADR-Fund*, nicht ein Mangel im Buildskript. Erst das zugehörige ADR lesen,
+dann handeln – eine gelockerte Regel ist die teuerste Art, einen Test grün zu bekommen.
+
+== Abweichen: der Ablauf
+
+. *Das betroffene ADR vollständig lesen*, besonders die Optionen. Häufig steht die jetzt
+  erwogene Alternative dort schon – als verworfene Option, mit Grund.
+. *Prüfen, ob der Grund weggefallen ist.* Ist er es, ist die Lage neu und eine Entscheidung
+  fällig. Ist er es nicht, gilt das ADR weiter.
+. *Nachfragen statt einseitig entscheiden* (Grundregel 5 des Master-Prompts). Eine Ablösung
+  ist nie eine Nebenwirkung einer anderen Aufgabe.
+. *Neues ADR schreiben* (siehe unten), das das alte benennt und ablöst.
+. *Das alte ADR unangetastet lassen* – auch die Sätze, die dadurch falsch werden.
+. *Nachziehen*, was die Entscheidung berührt: Index in `docs/system/system.adoc`, das
+  zuständige Kapitel unter `docs/system` (Skill Systemdokumentation) und – wenn sich eine
+  Arbeitsregel ändert – die betroffene Datei unter `docs/prompt`.
+. *Umsetzen.* Bleibt Code zurück, der der neuen Entscheidung nicht folgt, benennt das ADR ihn
+  ausdrücklich unter „Konsequenzen".
+
+== Ein neues ADR schreiben
+
+*Ort und Name:* `docs/adr/NNNN-titel-in-kleinbuchstaben.adoc`, Nummer fortlaufend und *nie
+wiederverwendet*, AsciiDoc wie der Rest von `docs/`
+(link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026]).
+
+*Kopf:* die Kommentarzeile `// Architekturentscheidung; Index siehe docs/system/system.adoc.`
+und `+ifndef::adrext[:adrext: .adoc]+`. Ein `+{adr}+`-Attribut braucht es hier nicht – die
+ADRs liegen nebeneinander und verweisen als `+link:NNNN-titel{adrext}[ADR NNNN]+` aufeinander.
+Von außerhalb (`docs/system`, `docs/prompt`) heißt derselbe Verweis
+`+link:{adr}/NNNN-titel{adrext}[ADR NNNN]+`.
+
+*Titel:* `+= ADR NNNN: Titel+`. Ältere Dateien tragen die gewachsene Form `+= NNNN – Titel+`
+und behalten sie (ADR 0026, „Bewusst nicht getan").
+
+*Abschnitte:*
+
+[cols="1,3", options="header"]
+|===
+| Abschnitt | Inhalt
+
+| Status
+| `Akzeptiert – JJJJ-MM-TT`; dazu, falls zutreffend, welches ADR abgelöst oder fortgeführt wird
+
+| Kontext
+| Warum die Entscheidung jetzt nötig ist – Ausgangslage, nicht Lösung
+
+| Optionen
+| Die erwogenen Wege, *mit* den verworfenen und deren Grund
+
+| Entscheidung
+| Was gewählt wurde und warum; bei Bedarf in Unterabschnitten
+
+| Konsequenzen
+| `*Vorteile*`, `*Nachteile*` und `*Bewusst nicht getan*` – der letzte Block verhindert, dass
+  eine offene Frage später als Versehen gelesen wird
+
+| Prüfung
+| Womit die Entscheidung belegt ist: Testlauf, Messung, Zahlen. Nicht „sieht gut aus"
+
+| Referenzen
+| Die ADRs und Dateien, die zusammenhängen
+|===
+
+Die Optionen sind der eigentliche Wert eines ADR – deshalb fasst die Systemdokumentation sie
+bewusst nicht zusammen (`docs/system/system.adoc`). Ein ADR ohne Alternativen ist eine Notiz.
+
+Für die Auszeichnung gelten die AsciiDoc-Konventionen des Projekts (Skill
+Systemdokumentation, Abschnitt „AsciiDoc-Konventionen").
+
+== Auslöser → Pflicht
+
+[cols="2,3", options="header"]
+|===
+| Anlass | Zu tun
+
+| Entscheidung mit sichtbarer Alternative (Bibliothek, Werkzeug, Struktur, Format)
+| Neues ADR, Zeile im Index von `docs/system/system.adoc`, Verweis an der Stelle, an der die
+  Entscheidung wirkt
+
+| Ein neues ADR ändert eine *Arbeitsregel*
+| Betroffene Datei unter `docs/prompt` anpassen und auf das ADR verlinken – die Zuordnung
+  steht in `docs/prompt/prompt.adoc`, Abschnitt „Pflege dieser Arbeitsgrundlage"
+
+| Ein neues ADR verschiebt den *Ist-Zustand*
+| Zuständiges Kapitel unter `docs/system` (Skill Systemdokumentation)
+
+| Widerspruch zwischen Code/Doku und einem ADR entdeckt
+| Ansprechen, nicht übergehen: entweder die Stelle korrigieren oder das ADR ablösen. Ein
+  unbenannter Widerspruch wird beim nächsten Lesen zur Regel
+
+| Ein ADR ist inhaltlich überholt
+| *Nicht* umschreiben – ein neues ADR löst es ab und verweist zurück
+
+| Werkzeug oder Abhängigkeit ohne ADR eingeführt
+| ADR nachziehen, bevor committet wird. Was nur im Verlauf steht, ist nach `/clear` weg
+  (Develop-Skill)
+|===
+
+== Prüfen
+
+[source,bash]
+----
+./gradlew asciidoctorAdr      # → build/docs/adr/
+----
+
+Der Task hängt über den `asciidoctor`-Task an `./gradlew build`; sein Ergebnis wird als `adr/`
+neben `system.html` ausgeliefert (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR
+0024]). Fehlender `include` und Querverweis ins Leere sind auch hier *Build-Fehler*.
+
+WARNING: `+link:+` wird *nicht* geprüft. Ein vergessenes `+{adrext}+` oder ein Tippfehler im
+Dateinamen zeigt im Repository richtig und im ausgelieferten HTML ins Leere, ohne dass etwas
+rot wird (ADR 0026, „Nachteile"). Dateinamen beim Verlinken deshalb kopieren, nicht tippen.
+
+== Hinweise
+
+* *Das ADR entsteht mit der Entscheidung*, nicht als Nachtrag am Ende der Session. Danach ist
+  die Begründung schon zur Erinnerung geschrumpft – und genau sie ist der Inhalt.
+* *Drei Modi, ein Sachverhalt:* Das ADR begründet (*warum*), die Arbeitsgrundlage schreibt vor
+  (*was zu tun ist*), `docs/system` beschreibt (*was ist*). Wiederholt wird nichts davon –
+  verlinkt schon.
+* In dieser Umgebung stabil: `./gradlew asciidoctorAdr --no-daemon -g /tmp/gradle-home`.

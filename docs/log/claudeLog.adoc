@@ -8,6 +8,36 @@ Datum: 2026-07-19
 
 '''
 
+== 97. Prompt: „Ergänze die Einhaltung der ADR einen eigenen Skill adr.adoc"
+
+_Delta: 4:52 · 60.054 out · 208.939 in (neu) · 3.593.346 gesamt_
+_Stand (Session, 3 Prompts): 4:52 · 60.054 out · 3.593.346 gesamt_
+
+*Aktionen:*
+
+* Neuer Skill `+docs/prompt/adr.adoc+`: Grundsatz (ein ADR gilt bis zur Ablösung, Abweichung
+  = neues ADR, ADRs werden nicht umgeschrieben), Wegweiser „Aufgabe → bindende ADRs", Trennung
+  *erzwungen* (Modulgrenzen, ArchUnit, `RecordCurryingTest`, Asciidoctor-`fatalWarnings`,
+  `DocumentationSystemTest`) gegen *nur durch Sorgfalt* (kein Lombok, `./gradlew`,
+  Versionskatalog, Context-Path, `+{adrext}+`), Ablauf beim Abweichen, Aufbau eines neuen ADR,
+  Auslöser→Pflicht-Tabelle, Prüfen mit `asciidoctorAdr`.
+* Die ADR-Schreibregel aus `architektur.adoc` *dorthin verschoben* statt verdoppelt; der
+  Architektur-Skill verweist jetzt nur noch.
+* Vier Pflichtstellen für einen neuen Skill nachgezogen: `include` in `prompt.adoc` (plus
+  Pflege-Zeile „Neue Regel zum Umgang mit ADRs"), Skill-Tabelle im Master-Prompt,
+  `arbeitsgrundlage.adoc` (Dateitabelle, Ladeweg, `include` im Wortlaut) und `CLAUDE.md`.
+  Dazu „fünf Skills" → „sechs" in `prompt.adoc`, `arbeitsgrundlage.adoc`, `ueberblick.adoc`,
+  `CLAUDE.md`.
+* `./gradlew asciidoctorPrompt asciidoctor asciidoctorAdr` grün, ohne Asciidoctor-Meldung;
+  alle 26 `+link:+`-Ziele des neuen Skills gegen `+docs/adr/+` geprüft (der Build prüft
+  `+link:+` nicht). Reine Doku-Änderung – kein Code angefasst, der letzte grüne Test-/System-/
+  E2E-Lauf gilt weiter.
+* *Offen gemeldet:* `architektur.adoc` zeigt in zwei Beispielen `+@RequiredArgsConstructor+`
+  (Lombok) – ein Widerspruch zu ADR 0003, den ADR 0023 bewusst wortgetreu übernommen hat.
+  Nicht eigenmächtig geändert.
+
+'''
+
 == 96. Prompt: „Stelle alle ADR auf Asciidoc um"
 
 _Delta: 47:19 · 261.951 out · 678.882 in (neu) · 34.620.667 gesamt_

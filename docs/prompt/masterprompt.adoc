@@ -62,6 +62,11 @@ gelesen – anders als dieser Master-Prompt, der in jeder Session gilt
 | `docs/prompt/architektur.adoc`
 | Design-Entscheidungen, neue Module, Refactorings, Struktur-Fragen
 
+| ADR
+| `docs/prompt/adr.adoc`
+| Vor jeder Entscheidung und bei jeder Berührung einer bestehenden: bestehende ADRs einhalten,
+  neue schreiben, alte ablösen
+
 | Tests
 | `docs/prompt/tests.adoc`
 | Schreiben, Prüfen oder Refactoring von Tests
