@@ -9,1833 +9,1846 @@
 | Nr.
 | Prompt
 | Dauer
+| Summe Dauer
 | out / Token
+| Summe out / Token
 | in (neu) / Token
+| Summe in (neu) / Token
 | gesamt / Token
 | Stand Dauer
 | Stand out / Token
 | Stand gesamt / Token
-| Summe Dauer
-| Summe out / Token
-| Summe in (neu) / Token
+
+| 136
+|„Bewege in kennzahlen die akkumulierten Summen jeweils hinter die Spalte die akkumuliert ist" (aus dem Backlog, `next`)
+| 4:45 min
+| 12:37:43 h
+| 27.578
+| 2.942.709
+| 842.095
+| 18.760.890
+| 10.108.427
+| 1:34:14 h
+| 350.620
+| 76.061.913
 
 | 135
 |„Ergänze in kennzahlen.adoc für Dauer, out toke und in token 3 Spalten mit den akkumulierten Summen" (aus dem Backlog, `next`)
 | 11:46 min
+| 12:32:58 h
 | 78.545
+| 2.915.131
 | 719.343
+| 17.918.795
 | 19.260.284
 | 1:14:34 h
 | 304.484
 | 57.003.836
-| 12:32:58 h
-| 2.915.131
-| 17.918.795
 
 | 134
 |„Füge die Querverweise zwischen den Prompts in claudeLog und den Commits im gitChangeLog hinzu." (aus dem Backlog, `next`)
 | 33:51 min
+| 12:21:12 h
 | 153.418
+| 2.836.586
 | 447.142
+| 17.199.452
 | 21.676.891
 | 45:11 min
 | 189.909
 | 26.056.010
-| 12:21:12 h
-| 2.836.586
-| 17.199.452
 
 | 133
 |„restart app"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 11:47:21 h
+| –
 | 2.683.168
+| –
 | 16.752.310
+| –
+| –
+| –
+| –
 
 | 132
 |„/run" (Skill: Anwendung starten und bedienen)
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 11:47:21 h
+| –
 | 2.683.168
+| –
 | 16.752.310
+| –
+| –
+| –
+| –
 
 | 131
 |„ja, commit"
 | 53:14 min
+| 11:47:21 h
 | 32.053
+| 2.683.168
 | 1.287.590
+| 16.752.310
 | 16.536.341
 | 1:47:30 h
 | 158.536
 | 41.664.065
-| 11:47:21 h
-| 2.683.168
-| 16.752.310
 
 | 130
 |„Wende ARD 0035 auf die Anwendung an und startet sie" (aus dem Backlog, `next`)
 | 52:54 min
+| 10:54:07 h
 | 121.256
+| 2.651.115
 | 924.307
+| 15.464.720
 | 23.849.634
 | 52:54 min
 | 121.256
 | 23.849.634
-| 10:54:07 h
-| 2.651.115
-| 15.464.720
 
 | 129
 |„commit"
 | 18:27 min
+| 10:01:13 h
 | 24.131
+| 2.529.859
 | 273.337
+| 14.540.413
 | 8.579.131
 | 43:38 min
 | 122.929
 | 23.845.676
-| 10:01:13 h
-| 2.529.859
-| 14.540.413
 
 | 128
 |„Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein." (aus dem Backlog, `next`)
 | 11:16 min
+| 9:42:46 h
 | 72.313
+| 2.505.728
 | 210.900
+| 14.267.076
 | 7.989.015
 | 11:40 min
 | 74.997
 | 8.229.618
-| 9:42:46 h
-| 2.505.728
-| 14.267.076
 
 | 127
 |„next"
 | 24 s
+| 9:31:30 h
 | 2.684
+| 2.433.415
 | 52.149
+| 14.056.176
 | 240.603
 | 24 s
 | 2.684
 | 240.603
-| 9:31:30 h
-| 2.433.415
-| 14.056.176
 
 | 126
 |„ja, commit"
 | 36 s
+| 9:31:06 h
 | 2.929
+| 2.430.731
 | 5.770
+| 14.004.027
 | 1.035.865
 | 8:55 min
 | 81.334
 | 7.273.438
-| 9:31:06 h
-| 2.430.731
-| 14.004.027
 
 | 125
 |„Erstelle security Skills für das backend. Füge dort die Einhaltung von RFC 9116 (definiert den Standard security.txt) hinzu" (aus dem Backlog, `next`)
 | 6:27 min
+| 9:30:30 h
 | 69.140
+| 2.427.802
 | 190.355
+| 13.998.257
 | 5.112.285
 | 6:49 min
 | 71.589
 | 5.350.722
-| 9:30:30 h
-| 2.427.802
-| 13.998.257
 
 | 124
 |„ja, commit"
 | 21 s
+| 9:24:03 h
 | 2.388
+| 2.358.662
 | 4.622
+| 13.807.902
 | 637.780
 | 5:30 min
 | 38.289
 | 4.592.766
-| 9:24:03 h
-| 2.358.662
-| 13.807.902
 
 | 123
 |„Erzeuge entsprechenden Links, wenn claudeLog in der Systemdocumentation referenziert wird." (aus dem Backlog, `next`)
 | 3:20 min
+| 9:23:42 h
 | 29.493
+| 2.356.274
 | 155.314
+| 13.803.280
 | 2.799.255
 | 3:39 min
 | 31.052
 | 3.038.231
-| 9:23:42 h
-| 2.356.274
-| 13.803.280
 
 | 122
 |„Ergänze in ADR-0032: Arbeitsbranches sollen zunächst vom remote mit pull aktualisiert werden" (aus dem Backlog, `nex` – gemeint war `next`)
 | 8:26 min
+| 9:20:22 h
 | 47.348
+| 2.326.781
 | 121.831
+| 13.647.966
 | 4.056.044
 | 8:47 min
 | 50.295
 | 4.296.505
-| 9:20:22 h
-| 2.326.781
-| 13.647.966
 
 | 121
 |„Ergänze claudeLog in der Systemdocumentation als neuen Anhang "Änderungen" vor dem Anhang "Quelldateien" ein." (aus dem Backlog, `next`)
 | 13:22 min
+| 9:11:56 h
 | 46.353
+| 2.279.433
 | 504.739
+| 13.526.135
 | 7.944.910
 | 22:43 min
 | 83.439
 | 11.748.557
-| 9:11:56 h
-| 2.279.433
-| 13.526.135
 
 | 120
 |„Diese Regel soll dem developer Skill hinzugefügt werden: Nach einem commit, sollen andere Branches des git Repositories mit "merge" hinzugefügt werden: Nur main, sm, doc und dev. Merge-Konflikte sollen behoben werden. Danach soll ein erneuter commit durchgeführt werden. Das soll wiederholt werden, bis alle Branches gemerged sind." (aus dem Backlog, `next`)
 | 5:17 min
+| 8:58:34 h
 | 35.896
+| 2.233.080
 | 82.614
+| 13.021.396
 | 4.449.493
 | 11:10 min
 | 75.983
 | 8.219.989
-| 8:58:34 h
-| 2.233.080
-| 13.021.396
 
 | 119
 |„Nach einem commit, sollen andere Branches des git Repositories mit "merge" hinzugefügt werden: Nur main, ai1, ai2 usw. Merge-Konflikte sollen behoben werden. Danach soll ein erneuter commit durchgeführt werden. Das soll wiederholt werden, bis alle Branches gemerged sind." (aus dem Backlog, `next`)
 | 26 s
+| 8:53:17 h
 | 3.534
+| 2.197.184
 | 4.798
+| 12.938.782
 | 494.102
 | 4:14 min
 | 31.128
 | 2.689.447
-| 8:53:17 h
-| 2.197.184
-| 12.938.782
 
 | 118
 |„next"
 | 19 s
+| 8:52:51 h
 | 3.074
+| 2.193.650
 | 55.318
+| 12.933.984
 | 396.536
 | 19 s
 | 3.074
 | 396.536
-| 8:52:51 h
-| 2.193.650
-| 12.933.984
 
 | 117
 |„Bevorzuge bei einem "next" Befehl den Prompt, dem der aktuelle Branchname folgt, also z. B. :ai1" (aus dem Backlog, `next`)
 | 7:48 min
+| 8:52:32 h
 | 55.787
+| 2.190.576
 | 189.417
+| 12.878.666
 | 4.273.767
 | 7:48 min
 | 55.787
 | 4.273.767
-| 8:52:32 h
-| 2.190.576
-| 12.878.666
 
 | 116
 |„Vor einem "next" Befehl soll ein "pull" des aktuellen git Branches durchgeführt werden" (aus dem Backlog, `next`)
 | 3:15 min
+| 8:44:44 h
 | 21.813
+| 2.134.789
 | 69.644
+| 12.689.249
 | 2.441.614
 | 4:59 min
 | 34.920
 | 3.444.340
-| 8:44:44 h
-| 2.134.789
-| 12.689.249
 
 | 115
 |„commit"
 | –
+| 8:41:29 h
 | –
+| 2.112.976
 | –
+| 12.619.605
 | –
 | 1:04:15 h
 | 49.342
 | 5.380.177
-| 8:41:29 h
-| 2.112.976
-| 12.619.605
 
 | 114
 |„Unterstütze im po Skill das ziehen etwas tiefer im Backlog mit next+1, next+2 use." (aus dem Backlog, `next`)
 | 1:00:02 h
+| 8:41:29 h
 | 25.671
+| 2.112.976
 | 98.572
+| 12.619.605
 | 2.936.151
 | 1:03:30 h
 | 45.494
 | 5.219.851
-| 8:41:29 h
-| 2.112.976
-| 12.619.605
 
 | 113
 |„commit"
 | –
+| 7:41:27 h
 | –
+| 2.087.305
 | –
+| 12.521.033
 | –
 | 2:28 min
 | 14.121
 | 1.790.738
-| 7:41:27 h
-| 2.087.305
-| 12.521.033
 
 | 112
 |„Ändere in der Systemdocumentation die Kapitelüberschrift "Architekturentscheidungen" auf "Architekturentscheidungen (ADR)"" (aus dem Backlog, `next`)
 | 1:14 min
+| 7:41:27 h
 | 8.611
+| 2.087.305
 | 73.940
+| 12.521.033
 | 910.542
 | 1:14 min
 | 8.611
 | 910.542
-| 7:41:27 h
-| 2.087.305
-| 12.521.033
 
 | 111
 |„commit"
 | 2:40 min
+| 7:40:13 h
 | 720
+| 2.078.694
 | 1.064
+| 12.447.093
 | 493.052
 | 35:41 min
 | 214.531
 | 35.499.078
-| 7:40:13 h
-| 2.078.694
-| 12.447.093
 
 | 110
 |„Stelle die ADRs in der Systemdocumentation in umgekehrter Reihenfolge das, so dass die neuesten ADRs oben beginnen." (aus dem Backlog, `next`)
 | 1:44 min
+| 7:37:33 h
 | 9.030
+| 2.077.974
 | 17.088
+| 12.446.029
 | 4.790.675
 | 32:23 min
 | 211.980
 | 34.271.138
-| 7:37:33 h
-| 2.077.974
-| 12.446.029
 
 | 109
 |„commit"
 | 11 s
+| 7:35:49 h
 | 2.340
+| 2.068.944
 | 90
+| 12.428.941
 | 692.565
 | 29:41 min
 | 201.069
 | 27.851.358
-| 7:35:49 h
-| 2.068.944
-| 12.428.941
 
 | 108
 |„Ergänze in der DoD den Bau der als "Systemdocumentation gebaut"." (aus dem Backlog, `next`)
 | 4:13 min
+| 7:35:38 h
 | 12.436
+| 2.066.604
 | 620.029
+| 12.428.851
 | 3.803.647
 | 28:46 min
 | 196.611
 | 26.471.018
-| 7:35:38 h
-| 2.066.604
-| 12.428.851
 
 | 107
 |„commit"
 | 19 s
+| 7:31:25 h
 | 2.821
+| 2.054.168
 | 4.201
+| 11.808.822
 | 856.965
 | 23:55 min
 | 182.657
 | 21.587.376
-| 7:31:25 h
-| 2.054.168
-| 11.808.822
 
 | 106
 |„Ersetze im claudeLog den "" durch den tatsächlichen Prompt, der ausgeführt wurde. Mache das zukünftig für alle "next" Befehle." (aus dem Backlog, `next`)
 | 2:49 min
+| 7:31:06 h
 | 15.178
+| 2.051.347
 | 26.916
+| 11.804.621
 | 5.124.572
 | 22:48 min
 | 177.480
 | 19.882.205
-| 7:31:06 h
-| 2.051.347
-| 11.804.621
 
 | 105
 |„commit"
 | 26 s
+| 7:28:17 h
 | 5.099
+| 2.036.169
 | 6.111
+| 11.777.705
 | 959.714
 | 18:56 min
 | 159.084
 | 12.802.300
-| 7:28:17 h
-| 2.036.169
-| 11.777.705
 
 | 104
 |„Strukturiere die Inhalte in den ADR in Kapitel, wie z. B. in ADR-0026. Die ADR, wie z. B. ADR-0001 sollen inhaltlich nicht verändert werden. Referenzen sollen bei Bedarf ergänzt werden. Die Optionen oder Konsequenzen sollen als Aufzählung strukturiert werden." (aus dem Backlog, `next`)
 | 17:00 min
+| 7:27:51 h
 | 147.984
+| 2.031.070
 | 382.321
+| 11.771.594
 | 9.973.322
 | 17:00 min
 | 147.984
 | 9.973.322
-| 7:27:51 h
-| 2.031.070
-| 11.771.594
 
 | 103
 |„commit"
 | 2:38 min
+| 7:10:51 h
 | 7.973
+| 1.883.086
 | 8.932
+| 11.389.273
 | 2.094.064
 | 32:45 min
 | 164.056
 | 21.717.585
-| 7:10:51 h
-| 1.883.086
-| 11.389.273
 
 | 102
 |„Erstelle ein docs/backlog.adoc im Projekt, welche die nächsten Prompts als Unterkapitelüberschriften zur Abarbeitung enthält. Also z. B. = Backlog und == Prompt1 == Prompt2. Ergänze einen po.adoc Skill, der backlog.adoc als Prompt abarbeiten kann. Mit dem Befehl \"next\" wird der nächste Prompt im Status \"ready\" nach Rückfrage ausgeführt. Der Anfang der Überschrift bestimmt den Status. : ready für Prompt, *: Prompt bereits aktiv sonst nicht \"ready\". Erster Eintrag soll sein \"Erstelle ein Backlog\". Das Backlog soll als letzter Anhang in der Systemdocumentation ergänzt werden." (+ Rückfrage: erledigte Einträge werden gelöscht)
 | 7:24 min
+| 7:08:13 h
 | 46.753
+| 1.875.113
 | 49.582
+| 11.380.341
 | 7.500.513
 | 29:09 min
 | 152.525
 | 18.783.279
-| 7:08:13 h
-| 1.875.113
-| 11.380.341
 
 | 101
 |„commit"
 | 28 s
+| 7:00:49 h
 | 5.782
+| 1.828.360
 | 6.252
+| 11.330.759
 | 650.253
 | 19:42 min
 | 102.543
 | 10.082.951
-| 7:00:49 h
-| 1.828.360
-| 11.330.759
 
 | 100
 |„Ergänze eine manager.adoc Skill. Er soll die folgende Aufgabe erfüllen: Erstelle eine zusätzliche Asciidoc Tabelle zum claudeLog, welche die Delta Informationen in Spalten enthält. In der ersten Spalte stehen alle Prompts mit Nummer. Diese Tabelle soll in Zukunft vom manager-Skill gepflegt werden und mit in den Anhang in der Systemdokumentation als Kapitel hinter das claudeLog Kapitel." (+ Rückfragen: „Nr soll eine eigene Spalte sein", Spalten „Delta + Stand", nur die Tabelle in den Anhang)
 | 9:12 min
+| 7:00:21 h
 | 74.944
+| 1.822.578
 | 114.366
+| 11.324.507
 | 7.289.167
 | 17:35 min
 | 87.452
 | 8.182.091
-| 7:00:21 h
-| 1.822.578
-| 11.324.507
 
 | 99
 |„commit"
 | 29 s
+| 6:51:09 h
 | 1.230
+| 1.747.634
 | 4
+| 11.210.141
 | 241.374
 | 9:19 min
 | 98.915
 | 7.942.629
-| 6:51:09 h
-| 1.747.634
-| 11.210.141
 
 | 98
 |„Ergänze im claudeLog die fehlenden Einheiten wie Token oder Zeiteinheiten."
 | 2:09 min
+| 6:50:40 h
 | 26.783
+| 1.746.404
 | 37.809
+| 11.210.137
 | 2.434.527
 | 7:57 min
 | 94.102
 | 6.989.047
-| 6:50:40 h
-| 1.746.404
-| 11.210.137
 
 | 97
 |„Ergänze die Einhaltung der ADR einen eigenen Skill adr.adoc"
 | 4:52 min
+| 6:48:31 h
 | 60.054
+| 1.719.621
 | 208.939
+| 11.172.328
 | 3.593.346
 | 4:52 min
 | 60.054
 | 3.593.346
-| 6:48:31 h
-| 1.719.621
-| 11.172.328
 
 | 96
 |„Stelle alle ADR auf Asciidoc um"
 | 47:19 min
+| 6:43:39 h
 | 261.951
+| 1.659.567
 | 678.882
+| 10.963.389
 | 34.620.667
 | 47:19 min
 | 261.951
 | 34.620.667
-| 6:43:39 h
-| 1.659.567
-| 10.963.389
 
 | 95
 |„commit"
 | 30 s
+| 5:56:20 h
 | 4.403
+| 1.397.616
 | 5.562
+| 10.284.507
 | 1.087.124
 | 39:32 min
 | 217.262
 | 31.139.710
-| 5:56:20 h
-| 1.397.616
-| 10.284.507
 
 | 94
 |„Stelle claudeLog.md auf Asciidoc um."
 | 15:34 min
+| 5:55:50 h
 | 101.302
+| 1.393.213
 | 143.783
+| 10.278.945
 | 15.825.012
 | 37:24 min
 | 208.230
 | 28.562.741
-| 5:55:50 h
-| 1.393.213
-| 10.278.945
 
 | 93
 |„commit"
 | 6:15 min
+| 5:40:16 h
 | 19.447
+| 1.291.911
 | 30.412
+| 10.135.162
 | 2.016.140
 | 20:41 min
 | 100.772
 | 11.332.538
-| 5:40:16 h
-| 1.291.911
-| 10.135.162
 
 | 92
 |„Erstelle die Pflege von claudeLog.md einen eigenen Skill."
 | 5:35 min
+| 5:34:01 h
 | 41.336
+| 1.272.464
 | 96.487
+| 10.104.750
 | 4.296.328
 | 13:41 min
 | 77.597
 | 8.557.747
-| 5:34:01 h
-| 1.272.464
-| 10.104.750
 
 | 91
 |„/run"
 | 7:29 min
+| 5:28:26 h
 | 32.217
+| 1.231.128
 | 161.990
+| 10.008.263
 | 4.006.972
 | 7:29 min
 | 32.217
 | 4.006.972
-| 5:28:26 h
-| 1.231.128
-| 10.008.263
 
 | 90
 |„Führe alle Tests aus"
 | 6:40 min
+| 5:20:57 h
 | 11.193
+| 1.198.911
 | 19.770
+| 9.846.273
 | 1.767.479
 | 12:36 min
 | 30.391
 | 4.037.602
-| 5:20:57 h
-| 1.198.911
-| 9.846.273
 
 | 89
 |„ja, installiere den browser und mach den screenshot"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 5:14:17 h
+| –
 | 1.187.718
+| –
 | 9.826.503
+| –
+| –
+| –
+| –
 
 | 88
 |„start app"
 | 3:34 min
+| 5:14:17 h
 | 11.938
+| 1.187.718
 | 68.694
+| 9.826.503
 | 1.261.400
 | 3:34 min
 | 11.938
 | 1.261.400
-| 5:14:17 h
-| 1.187.718
-| 9.826.503
 
 | 87
 |„commit"
 | 18 s
+| 5:10:43 h
 | 1.573
+| 1.175.780
 | –
+| 9.757.809
 | 524.314
 | 34:37 min
 | 156.655
 | 20.181.589
-| 5:10:43 h
-| 1.175.780
-| 9.757.809
 
 | 86
 |„start"
 | 44 s
+| 5:10:25 h
 | 5.973
+| 1.174.207
 | –
+| 9.757.809
 | 1.208.959
 | 34:19 min
 | 155.082
 | 19.657.275
-| 5:10:25 h
-| 1.174.207
-| 9.757.809
 
 | 85
 |„Deploy die Systemdocumentation aus HTML in der Anwendung."
 | 32:28 min
+| 5:09:41 h
 | 145.521
+| 1.168.234
 | 342.987
+| 9.757.809
 | 17.781.075
 | 32:28 min
 | 145.521
 | 17.781.075
-| 5:09:41 h
-| 1.168.234
-| 9.757.809
 
 | 84
 |„Für die referenzierten Sourcen in der Asciidoc Systemdocumentation, erstelle einen Anhang, der die Sourcen gut lesbar enthält. Verlinke diese Sourcen an den entsprechenden Stellen."
 | 12:10 min
+| 4:37:13 h
 | 131.885
+| 1.022.713
 | 151.429
+| 9.414.822
 | 18.884.136
 | 44:18 min
 | 371.462
 | 42.895.458
-| 4:37:13 h
-| 1.022.713
-| 9.414.822
 
 | 83
 |„Bette master prompt und skills in der Systemdocumentation ein, so dass so dort lesbar sind."
 | 3:32 min
+| 4:25:03 h
 | 33.802
+| 890.828
 | 27.744
+| 9.263.393
 | 4.242.226
 | 31:01 min
 | 233.950
 | 22.803.098
-| 4:25:03 h
-| 890.828
-| 9.263.393
 
 | 82
 |„Ergänze master prompt und skills in der Systemdocumentation."
 | 3:22 min
+| 4:21:31 h
 | 39.244
+| 857.026
 | 62.998
+| 9.235.649
 | 4.389.005
 | 26:06 min
 | 192.536
 | 16.580.715
-| 4:21:31 h
-| 857.026
-| 9.235.649
 
 | 81
 |„Wandle skills und master prompt in asciidoc um. Füge ADR für die zukünftige Pflege dafür hinzu."
 | 18:08 min
+| 4:18:09 h
 | 133.233
+| 817.782
 | 292.445
+| 9.172.651
 | 6.568.724
 | 18:08 min
 | 133.233
 | 6.568.724
-| 4:18:09 h
-| 817.782
-| 9.172.651
 
 | 80
 |„Erstelle eine Asciidoc Systemdocumentation in "docs/system" und Pflege diese in Zukunft mit. Ergänze das als ADR."
 | 37:50 min
+| 4:00:01 h
 | 176.921
+| 684.549
 | 608.818
+| 8.880.206
 | 23.137.633
 | 37:50 min
 | 176.921
 | 23.137.633
-| 4:00:01 h
-| 684.549
-| 8.880.206
 
 | 79
 |„Ergänze Currying für Java-record Klassen mit mehr als 2 Members. Ergänze das als ADR."
 | 15:49 min
+| 3:22:11 h
 | 86.319
+| 507.628
 | 221.592
+| 8.271.388
 | 5.987.902
 | 15:49 min
 | 86.319
 | 5.987.902
-| 3:22:11 h
-| 507.628
-| 8.271.388
 
 | 78
 |„Teile das "domain" Java Package im "domain" gradle Modul auf in "domain/model" und "domain/services"."
 | 9:45 min
+| 3:06:22 h
 | 28.577
+| 421.309
 | 104.834
+| 8.049.796
 | 2.675.738
 | 9:45 min
 | 28.577
 | 2.675.738
-| 3:06:22 h
-| 421.309
-| 8.049.796
 
 | 77
 |„warte auf den build und committe dann"
 | 1:13 min
+| 2:56:37 h
 | 9.322
+| 392.732
 | –
+| 7.944.962
 | 1.644.108
 | 10:09 min
 | 53.111
 | 4.974.240
-| 2:56:37 h
-| 392.732
-| 7.944.962
 
 | 76
 |„commit"
 | 1:28 min
+| 2:55:24 h
 | 7.333
+| 383.410
 | –
+| 7.944.962
 | 764.087
 | 8:56 min
 | 43.789
 | 3.330.132
-| 2:55:24 h
-| 383.410
-| 7.944.962
 
 | 75
 |„Ergänze einen archunit Test mit onionArchitecture()"
 | 7:28 min
+| 2:53:56 h
 | 36.456
+| 376.077
 | –
+| 7.944.962
 | 2.566.045
 | 7:28 min
 | 36.456
 | 2.566.045
-| 2:53:56 h
-| 376.077
-| 7.944.962
 
 | 74
 |„commit"
 | 28 s
+| 2:46:28 h
 | 2.212
+| 339.621
 | 2.309
+| 7.944.962
 | 401.386
 | 23:26 min
 | 65.323
 | 4.632.597
-| 2:46:28 h
-| 339.621
-| 7.944.962
 
 | 73
 |„Stelle die gradle Dependencies um auf den Versionskatalog libs.versions.toml. Ergänze ein entsprechendes ADR."
 | 22:16 min
+| 2:46:00 h
 | 58.048
+| 337.409
 | 240.721
+| 7.942.653
 | 3.842.517
 | 22:16 min
 | 58.048
 | 3.842.517
-| 2:46:00 h
-| 337.409
-| 7.942.653
 
 | 72
 |„commit"
 | 8 s
+| 2:23:44 h
 | 682
+| 279.361
 | 8.060
+| 7.701.932
 | 254.330
 | 5:00 min
 | 28.311
 | 2.099.579
-| 2:23:44 h
-| 279.361
-| 7.701.932
 
 | 71
 |„Ergänze die ersten commits des Branches chronologisch umgekehrt am Ende von claudeLod.md bis zu dem Punkt, ab welchem sie schon im claudeLod.md enthalten sind"
 | 4:52 min
+| 2:23:36 h
 | 27.629
+| 278.679
 | 105.952
+| 7.693.872
 | 1.845.249
 | 4:52 min
 | 27.629
 | 1.845.249
-| 2:23:36 h
-| 278.679
-| 7.693.872
 
 | 70
 |„commit"
 | 10 s
+| 2:18:44 h
 | 2.148
+| 251.050
 | 18
+| 7.587.920
 | 181.503
 | 1:38 min
 | 16.921
 | 1.153.574
-| 2:18:44 h
-| 251.050
-| 7.587.920
 
 | 69
 |„/clear" / „Do /clear after each commit"
 | 31 s
+| 2:18:34 h
 | 4.639
+| 248.902
 | 105.339
+| 7.587.902
 | 337.591
 | 31 s
 | 4.639
 | 337.591
-| 2:18:34 h
-| 248.902
-| 7.587.902
 
 | 68
 |„commit" / „start" / „commit"
 | 2:41 min
+| 2:18:03 h
 | 7.381
+| 244.263
 | 9.185
+| 7.482.563
 | 15.814.811
 | 6:40:04 h
 | 1.012.570
 | 530.666.585
-| 2:18:03 h
-| 244.263
-| 7.482.563
 
 | 67
 |„Ergänze einen Router mit SPA-Fallback für teilbare Rezept-URLs"
 | 47:15 min
+| 2:15:22 h
 | 58.448
+| 236.882
 | 2.362.346
+| 7.473.378
 | 50.126.519
 | 6:37:23 h
 | 1.005.189
 | 514.851.774
-| 2:15:22 h
-| 236.882
-| 7.473.378
 
 | 66
 |„commit" / „Ja, so committen"
 | 6 s
+| 1:28:07 h
 | 155
+| 178.434
 | 11
+| 5.111.032
 | 746.115
 | 5:48:31 h
 | 944.080
 | 458.740.047
-| 1:28:07 h
-| 178.434
-| 5.111.032
 
 | 65
 |„Ändere die Applikations Basis-URL auf \"recipes\"" / „retry"
 | 35:18 min
+| 1:28:01 h
 | 32.095
+| 178.279
 | 3.567.310
+| 5.111.021
 | 41.613.717
 | 5:47:28 h
 | 941.070
 | 455.013.588
-| 1:28:01 h
-| 178.279
-| 5.111.021
 
 | 64
 |„commit" / „Ja, so committen"
 | 5 s
+| 52:43 min
 | 155
+| 146.184
 | 11
+| 1.543.711
 | 711.988
 | 5:11:10 h
 | 902.175
 | 408.398.997
-| 52:43 min
-| 146.184
-| 1.543.711
 
 | 63
 |„Ändere dem Projektnamen von \"recipe-backend\" auf \"receipes"
 | 13:59 min
+| 52:38 min
 | 9.671
+| 146.029
 | 1.396.550
+| 1.543.700
 | 10.608.423
 | 5:10:19 h
 | 899.904
 | 404.841.951
-| 52:38 min
-| 146.029
-| 1.543.700
 
 | 62
 |„Was soll modules-broken?" / „commit"
 | 32 s
+| 38:39 min
 | 1.000
+| 136.358
 | 2.496
+| 147.150
 | 2.086.775
 | 4:54:56 h
 | 887.409
 | 390.039.896
-| 38:39 min
-| 136.358
-| 147.150
 
 | 61
 |„Bewege die gradle Module backend und frontend als Untermodule in ein neues \"modules\""
 | 21:50 min
+| 38:07 min
 | 64.616
+| 135.358
 | 82.628
+| 144.654
 | 46.694.974
 | 4:44:22 h
 | 869.664
 | 372.749.163
-| 38:07 min
-| 135.358
-| 144.654
 
 | 60
 |„commit" / „Ja, so committen"
 | 6 s
+| 16:17 min
 | 148
+| 70.742
 | 11
+| 62.026
 | 634.678
 | 4:21:47 h
 | 803.588
 | 323.506.093
-| 16:17 min
-| 70.742
-| 62.026
 
 | 59
 |„Bewege die Module \"bootstrap → adapter → application → domain\" als Untermodule in ein neues backend Modul"
 | 8:32 min
+| 16:11 min
 | 20.014
+| 70.594
 | 23.315
+| 62.015
 | 14.272.774
 | 4:16:59 h
 | 800.883
 | 319.704.624
-| 16:11 min
-| 70.594
-| 62.015
 
 | 58
 |„commit" / „commit"
 | 12 s
+| 7:39 min
 | 546
+| 50.580
 | 682
+| 38.700
 | 1.831.603
 | 4:07:43 h
 | 779.092
 | 302.983.291
-| 7:39 min
-| 50.580
-| 38.700
 
 | 57
 |„Ergänze Dauer und Tokenanzahl immer im claudeLog.md auch für einen Prompt als Delta zu letzten Stand."
 | 2:10 min
+| 7:27 min
 | 19.657
+| 50.034
 | 12.400
+| 38.018
 | 9.052.479
 | 4:06:04 h
 | 774.871
 | 295.669.556
-| 7:27 min
-| 50.034
-| 38.018
 
 | 56
 |„commit" / „Ja, so committen"
 | 1:35 min
+| 5:17 min
 | 5.223
+| 30.377
 | 3.663
+| 25.618
 | 7.143.965
 | 4:03:54 h
 | 755.214
 | 286.617.077
-| 5:17 min
-| 30.377
-| 25.618
 
 | 55
 |„Ergänze Dauer und Tokenanzahl immer im claudeLog.md"
 | 3:42 min
+| 3:42 min
 | 25.154
+| 25.154
+| 21.955
 | 21.955
 | 14.047.520
 | 4:02:19 h
 | 749.991
 | 279.473.112
-| 3:42 min
-| 25.154
-| 21.955
 
 | 54
 |„commit" / „Ja, so committen"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 53
 |„Bewege bootstrap → adapter → application → domain in gradle-Module."
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 52
 |„commit" / „Ja, so committen"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 51
 |„Ergänze archunit Test für die \"Schichten & Abhängigkeitsregel\""
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 50
 |„commit" / „commit" (Bestätigung der vorgelegten Message)
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 49
 |„Bewege das BFF ins gradle Modul \"backend\"."
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 48
 |„commit" / „commit" (Bestätigung der vorgelegten Message)
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 47
 |„Verwende kotlin script für die gradle Dateien. ADR dafür erstellen."
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 46
 |„commit" / „Ja, so committen"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 45
 |„Verwende den gradle wrapper und ergänze ein entsprechenden ADR"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 44
 |„commit" / „ja"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 43
 |„Ersetze die rdundante \"Test vor Commit\" im developer Skill durch einen Bezug auf die DoD,"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 42
 |„commit" / „Ja, so committen"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 41
 |„Ergänze die Rezepte von Prof. Dr. Andreas Michalsen zum Heilfasten" / „Leg sie als Liquibase-Changeset an"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 40
 |„commit" / „Ja, so committen"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 39
 |„Kannst Du die webm Dateien als erwartetes Testerbenis verwenden?" / „Ja, setz Punkt 1 um und setzte die DB auf den initiale Population!"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 38
 |„Führe alle Tests aus und starte neu." / „Ja, zieh die @Valid-Warnung nach" / „Ja, führ die durch und dann commit"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 37
 |„Erstlle zu den e2eTests entsprechende Filme zur Testdurchführung die das mit im build-Verzeuchnis erzeugt werden."
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 36
 |„commit" / „Ja"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 35
 |„Ergänze Playwright und e2eTest in CLAUDE.md"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 34
 |„Wo finde ich die Ergebnisse der Playwrite Tests?" / „Ja, ändern und dann committen"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 33
 |„Setze die Playwright-Suite um"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 32
 |„commit" / „commit" (Bestätigung der vorgelegten Message)
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 31
 |„Welches e2e Frontend Testframework empfiehlst du?" / „Ergänze einen ADR für Playwright"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 30
 |„Starte die App" / „Comit"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 29
 |„Vorschlag: Ergänze @Schema(requiredMode = REQUIRED) an den Response-Records" (+ Zwischenruf „Commit")
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 28
 |„Commit" / „Ja, so committen"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 27
 |„Erstelle ein Frontend, welches das Backend als BFF verwendet." (+ Zwischenfrage „Mit welcher URL kann ich auf das Frontend zugreifen?")
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 26
 |„Commit des aktuellen Standes." / „Ja, so committen"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 25
 |„Ergänze im Masterprompt die Rolle eines Du bist ein Senior Typescript Entwickler. Der Tech-Stack wird um vite, vitest und React."
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 24
 |„Commit des aktuellen Standes." / „Ja, so committen"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 23
 |„Ergänze ein ADR zur Verwendung des \"unbroken-dome/gradle-testsets-plugin\" und ergänze damit Systemtest mit gradle Task \"systemtest\", mit denen die Swagger AI der gestarteten Anwenung getestet wird. Die Durchführung der \"systemtest\" Task wir in der DoD ergänzt!"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 22
 |„commite das"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 21
 |„Add newest swagger to application and add this for future as ADR."
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 20
 |„Ja!" (Bestätigung, die uncommitteten develop.md-Änderungen zu committen)
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 19
 |„Erweitere develop.md so, dass vor dem commit die message im Prompt bestätigt werden muß."
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 18
 |„Erweitere develop.md so, dass vor dem commit ein erfolgreicher test durchgeführt wird!"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 17
 |„commit!"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 16
 |„Erweitere in develop.md so, dass als Commit-Message eine kurze Zeile vorgeschlagen wird. Dieser wird von dir eine kurze Zusammenfassung des Inhaltes das Commits in der Commit-Message ergänzt."
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 15
 |„Ändere den Titel in develop.md so, dass er nicht auch das Session-Protokoll beschränkt ist."
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 14
 |„Ergänze in develop.md, dass beim commit Claude als Author verwendet wird!"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 13
 |„Ja, committe das mit deiner vorgeschlagenen Message und in den nächsten Zeilen ein kurze Zusammenfassung!"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 12
 |„Erzeuge einen neuen Skill develop.md, der zur Pflege des claudeLog.md in zukünftigen Sessions führt."
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 11
 |„Committe den Stand mit der message \"Add claudeLog.md\" aber erst nachdem claudeLog.md aktualisiert wurde!"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 10
 |„Sortiere in claudeLog.md die Prompts chronologisch absteigend. Füge als neue Prompt immer vorne ein!"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 9
 |„Halte ab jetzt claudeLog.md immer aktuell!"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 8
 |„Speichere dort den gesamten Verlauf im Kontext!"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 7
 |„Speichere diesen Prompt am Anfang der der Datei docs/log/claudeLog.md"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 6
 |„Nein, als getrennten commit mit meiner Anweisung als commit message!"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 5
 |„Ja, lauf gradle test"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 4
 |„Fix für \"Unused exception parameter should use the unnamed variable pattern\" in RecipeIntegrationTest.java"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 3
 |„Erstelle für die Umstellung auf liqibase eine commit message!"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 2
 |„Welchen Account hat die DB?"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 1
 |„Start die Java-Anwendung!"
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | 0
 |„Wieso hast du keine ADRs erstellt?" (Commit `d02045e`, 18.07.2026 23:12)
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | -1
 |„Erstelle ein backend zur Verwaltung von Rezepten. Ich möchte über eine REST API Rezepte erstellen, bearbeiten und in einer postgres DB speichen können. Löschen soll auch möglich sein" (Commit `13c4737`, 18.07.2026 21:15)
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | -2
 |Commit: „Add .gitignore" (Commit `bb6db40`, 18.07.2026 19:02)
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | -3
 |Commit: „Add first AI skills" (Commit `4d8be77`, 18.07.2026 19:00)
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 
 | -4
 |Commit: „Initial commit" (Commit `b0dd66f`, 18.07.2026 18:08)
 | –
-| –
-| –
-| –
-| –
-| –
-| –
 | 0 s
+| –
 | 0
+| –
 | 0
+| –
+| –
+| –
+| –
 |===

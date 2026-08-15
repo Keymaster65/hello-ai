@@ -80,6 +80,11 @@ Zwölf Spalten, neuester Eintrag oben – dieselbe Sortierung wie das Protokoll:
   darin als null, damit die Summe durchläuft – sie ist deshalb eine Untergrenze
 |===
 
+Die Reihenfolge der Spalten paart Einzelwert und Summe: Jede `Summe`-Spalte steht *direkt
+hinter* der Spalte, die sie aufsummiert (`Dauer`, `Summe Dauer`, `out`, `Summe out`, …). Die
+drei `Stand`-Spalten bleiben am Ende beieinander – sie sind eine eigene Sicht, keine
+Fortschreibung der Spalte davor.
+
 Zwei Festlegungen tragen das Format:
 
 * *Die Prompt-Spalte ist literal* (`l` im `cols`-Attribut). Ein wörtlich zitierter Prompt darf

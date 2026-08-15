@@ -54,10 +54,11 @@ AsciiDoc wertet dort nichts aus.
   beginnt dort eine neue Session und der Stand springt zurück.
 
 | Summe …
-| Dieselben Größen *kumuliert über alle Einträge* – Dauer, `out` und `in (neu)`. Anders als
-  `Stand …` läuft die Summe über die Sessions hinweg durch und springt nirgends zurück; die
-  *oberste* Zeile trägt damit den Gesamtaufwand des Projekts. Sie wird gerechnet, nicht aus
-  dem Protokoll gelesen
+| Dieselben Größen *kumuliert über alle Einträge* – Dauer, `out` und `in (neu)`. Jede dieser
+  Spalten steht *direkt hinter der Spalte, die sie aufsummiert*, damit Einzelwert und Summe
+  nebeneinander zu lesen sind. Anders als `Stand …` läuft die Summe über die Sessions hinweg
+  durch und springt nirgends zurück; die *oberste* Zeile trägt damit den Gesamtaufwand des
+  Projekts. Sie wird gerechnet, nicht aus dem Protokoll gelesen
   (link:{adr}/0039-summenspalten-in-der-kennzahlen-tabelle{adrext}[ADR 0039]).
 
 | `–`

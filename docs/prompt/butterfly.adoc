@@ -91,6 +91,12 @@ aufgehobener Commit oder ein Vertipper erzeugt einen Verweis ins Leere – und d
 Build („possible invalid reference"). Den Hash deshalb aus `+git log+` kopieren, nicht tippen,
 und ihn *nach* dem Commit eintragen, nicht davor.
 
+WARNING: Dasselbe passiert, wenn die Historie *nachträglich umgeschrieben* wird – `+rebase+`,
+`+--amend+`, `+squash+`, auch aus einer IDE heraus. Der Commit bekommt dabei einen neuen Hash,
+der eingetragene zeigt ins Leere, und der Build wird rot, obwohl niemand den Log angefasst hat.
+Die Meldung nennt den Hash; der neue steht unter demselben Betreff in `+git log+`. Wer
+umschreibt, zieht die Zeile mit nach.
+
 IMPORTANT: Die Zeile hinkt dem Commit um einen Schritt hinterher, und das ist unvermeidlich:
 Der Eintrag steht *vor* dem Commit (Develop-Skill, „Log vor Commit"), der Hash entsteht *mit*
 ihm. Sie wird deshalb *nach* dem Commit nachgetragen und reist mit dem *nächsten* mit. Ein

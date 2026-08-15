@@ -9,12 +9,47 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-136]]
+== 136. Prompt: „Bewege in kennzahlen die akkumulierten Summen jeweils hinter die Spalte die akkumuliert ist" (aus dem Backlog, `next`)
+
+_Delta: 4:45 min · 27.578 Token out · 842.095 Token in (neu) · 10.108.427 Token gesamt_
+_Stand (Session, 9 Prompts): 1:34:14 h · 350.620 Token out · 76.061.913 Token gesamt_
+
+*Aktionen:*
+
+* *Gezogen:* `+git pull --ff-only+` meldete „Already up to date" auf `main`; kein Eintrag aktiv.
+  Der Eintrag war diesmal korrekt als `+: +` geschrieben und damit ungebunden – anders als beim
+  vorigen Mal. Wortlaut vorgelegt, Marker gesetzt, gearbeitet.
+* *Umgesetzt in `+kennzahlen.py+`:* Spaltenreihenfolge paart jetzt Einzelwert und Summe –
+  `Dauer`, `Summe Dauer`, `out`, `Summe out`, `in (neu)`, `Summe in (neu)`, dann `gesamt` und
+  die drei `Stand`-Spalten. Die `Stand`-Spalten bleiben am Ende beieinander: Sie sind eine
+  eigene Sicht, keine Fortschreibung der Spalte davor.
+* *Invariante geprüft statt angenommen:* Ein Abgleich gegen die committete Fassung zeigt, dass
+  alle 140 Zeilen *dieselbe Zellmenge* tragen wie vorher – geändert hat sich ausschließlich die
+  Reihenfolge, keine einzige Zahl.
+* *Roter Build – Ursache lag nicht in dieser Aufgabe:* `+asciidoctor+` meldete „possible
+  invalid reference: commit-f801294". Ein *interaktiver Rebase aus IntelliJ* hatte den Commit
+  des vorigen Prompts neu geschrieben (`+f801294+` → `+b70b043+`, gleicher Betreff); der im
+  Protokoll eingetragene Hash existierte damit nicht mehr. Die Zeile nachgezogen, danach grün.
+* *Genau der Fall, den ADR 0038 vorhergesehen hat* – dort als „ein Commit, den die Tabelle
+  nicht führt" beschrieben, mit Merge, Revert und Vertipper als Beispielen. *Rebase fehlte* in
+  der Aufzählung, obwohl er die wahrscheinlichste Ursache ist: Er trifft einen Log, den niemand
+  angefasst hat. Der Butterfly-Skill nennt ihn jetzt ausdrücklich, samt `+--amend+` und
+  `+squash+`.
+* *Alle Verweise gegengeprüft:* 11 `+<<commit-…>>+` im Protokoll gegen 92 Anker der Tabelle –
+  kein toter Verweis mehr.
+* *Nachgezogen:* Spaltenbeschreibung in `+anhang-kennzahlen.adoc+` und das Format im
+  Manager-Skill. *Kein neues ADR:* ADR 0039 legt die drei Spalten fest, nicht ihre Reihenfolge –
+  eine Anordnung ist keine Ablösung.
+
+'''
+
 [[prompt-135]]
 == 135. Prompt: „Ergänze in kennzahlen.adoc für Dauer, out toke und in token 3 Spalten mit den akkumulierten Summen" (aus dem Backlog, `next`)
 
 _Delta: 11:46 min · 78.545 Token out · 719.343 Token in (neu) · 19.260.284 Token gesamt_
 _Stand (Session, 7 Prompts): 1:14:34 h · 304.484 Token out · 57.003.836 Token gesamt_
-_Commit: <<commit-f801294,f801294>>_
+_Commit: <<commit-b70b043,b70b043>>_
 
 *Aktionen:*
 

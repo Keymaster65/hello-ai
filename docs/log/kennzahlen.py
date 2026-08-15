@@ -64,15 +64,15 @@ HEADER = """\
 | Nr.
 | Prompt
 | Dauer
+| Summe Dauer
 | out / Token
+| Summe out / Token
 | in (neu) / Token
+| Summe in (neu) / Token
 | gesamt / Token
 | Stand Dauer
 | Stand out / Token
 | Stand gesamt / Token
-| Summe Dauer
-| Summe out / Token
-| Summe in (neu) / Token
 """
 
 # `2:09 min`, `45 s`, `1:47:30 h` – die drei Formen, die der Butterfly-Skill vorgibt.
@@ -215,15 +215,15 @@ def render(entries: list[Entry]) -> str:
             f"\n| {entry.nr}\n"
             f"|{prompt_cell(entry.text)}\n"
             f"| {entry.cell(entry.delta, 'dauer')}\n"
+            f"| {dauer_formatieren(entry.summe_dauer)}\n"
             f"| {entry.cell(entry.delta, 'out')}\n"
+            f"| {zahl_formatieren(entry.summe_out)}\n"
             f"| {entry.cell(entry.delta, 'neu')}\n"
+            f"| {zahl_formatieren(entry.summe_neu)}\n"
             f"| {entry.cell(entry.delta, 'gesamt')}\n"
             f"| {entry.cell(entry.stand, 'dauer')}\n"
             f"| {entry.cell(entry.stand, 'out')}\n"
             f"| {entry.cell(entry.stand, 'gesamt')}\n"
-            f"| {dauer_formatieren(entry.summe_dauer)}\n"
-            f"| {zahl_formatieren(entry.summe_out)}\n"
-            f"| {zahl_formatieren(entry.summe_neu)}\n"
         )
     rows.append("|===\n")
     return "".join(rows)
