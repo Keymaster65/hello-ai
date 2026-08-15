@@ -5,7 +5,8 @@ ifndef::adrext[:adrext: .adoc]
 [[kennzahlen]]
 = Kennzahlen der Sessions
 
-Das Session-Protokoll `docs/log/claudeLog.adoc` führt unter jeder Überschrift zwei
+Das Session-Protokoll `docs/log/claudeLog.adoc` – eingebunden als Anhang <<aenderungen>> –
+führt unter jeder Überschrift zwei
 Kennzahlenzeilen mit: *Delta* – der Aufwand dieses einen Prompts – und *Stand* – der
 kumulierte Aufwand der Session bis dorthin. So geschrieben sind sie gut zu pflegen, aber
 schlecht zu vergleichen: Wer wissen will, welcher Prompt teuer war, blättert durch hundert
@@ -19,11 +20,10 @@ Protokoll *erzeugt* und als `docs/log/kennzahlen.adoc` hier eingebunden. Der Log
 einzige Quelle; die Werte werden übernommen, nicht neu gerechnet. Gepflegt wird sie nach dem
 Skill `docs/prompt/manager.adoc` (link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]).
 
-Das Protokoll selbst steht seit
-link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033] als Anhang <<aenderungen>>
-daneben – Text und Zahlen desselben Eintrags sind damit im selben Dokument. Für diese Tabelle
-ändert das nichts: Ihre Prompt-Spalte ist *literal* gesetzt (`l` im `cols`-Attribut), AsciiDoc
-wertet dort nichts aus.
+Text und Zahlen desselben Eintrags stehen seit
+link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033] im selben Dokument. Für diese
+Tabelle ändert das nichts: Ihre Prompt-Spalte ist *literal* gesetzt (`l` im `cols`-Attribut),
+AsciiDoc wertet dort nichts aus.
 
 .Zu den Spalten
 [cols="2,3", options="header"]

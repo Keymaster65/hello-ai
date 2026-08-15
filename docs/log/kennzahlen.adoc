@@ -16,6 +16,26 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| 124
+|„ja, commit"
+| 21 s
+| 2.388
+| 4.622
+| 637.780
+| 5:30 min
+| 38.289
+| 4.592.766
+
+| 123
+|„Erzeuge entsprechenden Links, wenn claudeLog in der Systemdocumentation referenziert wird." (aus dem Backlog, `next`)
+| 3:20 min
+| 29.493
+| 155.314
+| 2.799.255
+| 3:39 min
+| 31.052
+| 3.038.231
+
 | 122
 |„Ergänze in ADR-0032: Arbeitsbranches sollen zunächst vom remote mit pull aktualisiert werden" (aus dem Backlog, `nex` – gemeint war `next`)
 | 8:26 min

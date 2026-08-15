@@ -53,7 +53,7 @@ herein, also gibt es keine zweite Fassung, die veralten kann.
 
 | `docs/prompt/butterfly.adoc`
 | Skill: Session-Protokoll `docs/log/claudeLog.adoc` – Format, Ermittlung von Dauer und
-  Tokenzahl, Ablauf je Prompt.
+  Tokenzahl, Ablauf je Prompt. Das Protokoll selbst ist der Anhang <<aenderungen>>.
 
 | `docs/prompt/manager.adoc`
 | Skill: Kennzahlen-Tabelle `docs/log/kennzahlen.adoc` – aus dem Protokoll erzeugt, im Anhang

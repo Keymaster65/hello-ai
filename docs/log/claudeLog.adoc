@@ -1,10 +1,69 @@
 // Session-Protokoll; das Format regelt der Skill docs/prompt/butterfly.adoc.
-// Diese Datei wird bewusst nicht vom Build gerendert – siehe ADR 0025.
+// Diese Datei ist als Anhang „Änderungen" in die Systemdokumentation eingebunden und wird
+// mitgerendert – siehe ADR 0033.
 = Claude Log
 
 Chronologischer Verlauf der Session (Prompts des Nutzers + Zusammenfassung meiner Aktionen).
 *Sortierung: absteigend — neuester Eintrag oben.* Neue Prompts werden immer vorne eingefügt.
 Datum: 2026-07-19
+
+'''
+
+== 124. Prompt: „ja, commit"
+
+_Delta: 21 s · 2.388 Token out · 4.622 Token in (neu) · 637.780 Token gesamt_
+_Stand (Session, 5 Prompts): 5:30 min · 38.289 Token out · 4.592.766 Token gesamt_
+
+*Aktionen:*
+
+* *DoD geprüft:* reine Doku-Änderung, kein Code angefasst – `+asciidoctor+`,
+  `+asciidoctorPrompt+` und `+asciidoctorAdr+` grün; der letzte grüne Lauf von `+test+`,
+  `+systemtest+` und `+e2eTest+` gilt weiter (Butterfly-Skill, „Hinweise").
+* *Commit-Message vorgelegt und bestätigt* („Verlinke das Protokoll in der Systemdoku"), dann
+  committet mit `+--author="Claude <noreply@anthropic.com>"+` auf Branch `doc`.
+* *Trailer:* `+Co-Authored-By: Claude Opus 5 (1M context)+` – das tatsächlich arbeitende Modell,
+  abweichend vom wörtlich im Develop-Skill stehenden „Opus 4.8"; dazu liegt der `KI`-Eintrag
+  „Halte den Co-Authored-By-Trailer im Develop-Skill modellunabhängig" im Backlog.
+* *Branches zusammengeführt* (ADR 0032, ADR 0034): einmal `+git fetch origin+`, dann `+main+`,
+  `+sm+` und `+doc+` über ihre `+origin/+`-Refs gemergt – alle drei „Already up to date", also
+  kein Merge-Commit. `+dev+` existiert weder lokal noch am Remote und wurde übergangen.
+
+'''
+
+== 123. Prompt: „Erzeuge entsprechenden Links, wenn claudeLog in der Systemdocumentation referenziert wird." (aus dem Backlog, `next`)
+
+_Delta: 3:20 min · 29.493 Token out · 155.314 Token in (neu) · 2.799.255 Token gesamt_
+_Stand (Session, 4 Prompts): 3:39 min · 31.052 Token out · 3.038.231 Token gesamt_
+
+*Aktionen:*
+
+* *Pull vor `next`* (ADR 0030): „Already up to date", nichts geholt. Branch `doc`; von den drei
+  an `doc` gebundenen ready-Einträgen wurde der erste gezogen, ungebundene gab es keine.
+* *`ueberblick.adoc`* – Tabelle „Technische Bausteine": Das Session-Protokoll verweist jetzt auf
+  den Anhang `+<<aenderungen>>+`. Dabei fiel der von ADR 0033 abgelöste Satz auf, das Protokoll
+  werde „als einziges AsciiDoc-Dokument *nicht* gerendert" – ersetzt durch den Ist-Zustand
+  (eingebunden, Teil des Builds).
+* *`anhang-kennzahlen.adoc`* – die *erste* Nennung des Protokolls verlinkt den Anhang; der
+  spätere Absatz nennt ihn dafür nicht mehr doppelt, sondern nur noch ADR 0033.
+* *`arbeitsgrundlage.adoc`* – die Butterfly-Zeile der Dateitabelle verweist auf
+  `+<<aenderungen>>+`, wie die Manager-Zeile auf `+<<kennzahlen>>+` und die PO-Zeile auf
+  `+<<backlog>>+`.
+* *`systemdoku.adoc`* (AsciiDoc-Konventionen) – neue Regel, damit die Verweise nicht wieder
+  verfallen: Anhänge werden verlinkt statt nur mit Pfad genannt, und zwar dort, wo sie
+  *eingeführt* werden. Mit dem Hinweis, dass in den Skills selbst kein solcher Verweis stehen
+  darf – `+asciidoctorPrompt+` rendert sie allein, das Ziel fehlte dort und der Verweis bräche
+  den Build.
+* *Kopfkommentar des Logs* korrigiert: stand noch auf „wird bewusst nicht vom Build gerendert –
+  ADR 0025", gilt seit ADR 0033 nicht mehr.
+* *Nicht angefasst:* `system.adoc` (die Tabelle „Zweck und Abgrenzung" verlinkt bereits) und die
+  Wiederholungen weiter unten – verlinkt wird die Einführung, nicht jede Nennung.
+* *Nachweis:* `+./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr+` BUILD SUCCESSFUL, keine
+  neue Meldung; die zwei bekannten Asciidoctor-Warnungen sind unverändert (offener KI-Eintrag im
+  Backlog). Kein Querverweis ins Leere: `prompt.html` zeigt `+<<aenderungen>>+` literal, in
+  `system.html` sind die Anker aufgelöst.
+* *Reine Doku-Änderung* – kein Code angefasst, der letzte grüne Lauf von `test`, `systemtest`
+  und `e2eTest` gilt weiter (Butterfly-Skill, „Hinweise").
+* *Backlog:* Eintrag entfernt.
 
 '''
 

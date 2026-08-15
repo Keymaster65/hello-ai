@@ -182,6 +182,12 @@ Arbeitsgrundlage unter `docs/prompt`
   (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026]).
 * Anker als Kleinschreibung mit Bindestrich: `+[[offene-punkte]]+`, Verweis
   `+<<offene-punkte>>+`. *Keine Leerzeichen in IDs* – das bricht den Build (siehe unten).
+* Was als Anhang im Dokument steht, wird auch *verlinkt*, nicht nur mit Pfad genannt: das
+  Session-Protokoll als `+<<aenderungen>>+`, dazu `+<<kennzahlen>>+`, `+<<backlog>>+`,
+  `+<<quelldateien>>+` und `+<<wortlaut>>+`. Verlinkt wird die Stelle, an der ein Dokument
+  *eingeführt* wird, nicht jede Wiederholung seines Namens. In den Skills selbst steht
+  *kein* solcher Verweis – sie werden auch allein gerendert (`+asciidoctorPrompt+`), wo das
+  Ziel fehlt und der Verweis den Build bräche.
 * Literale geschweifte Klammern escapen: `\{id}`. Unescaped liest AsciiDoc sie als
   Attribut-Referenz. Dasselbe gilt für Beispiele mit Anker- oder Verweis-Syntax: in
   Monospace-Text greift die Makro-Substitution, deshalb dort `+…+` als Passthrough.

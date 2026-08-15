@@ -117,12 +117,13 @@ Es ruft von sich aus kein Fremdsystem auf.
 | Dokumentation
 | `docs/`
 | ADRs (`docs/adr/`), diese Systemdokumentation (`docs/system/`), das Session-Protokoll
-  (`docs/log/claudeLog.adoc`) und das Backlog (`docs/backlog.adoc`, Anhang <<backlog>>) –
-  alles AsciiDoc
-  (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026]). Das Protokoll wird als einziges
-  AsciiDoc-Dokument *nicht* gerendert
-  (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]); seine Kennzahlen stehen als
-  erzeugte Tabelle `docs/log/kennzahlen.adoc` im Anhang <<kennzahlen>>
+  (`docs/log/claudeLog.adoc`, Anhang <<aenderungen>>) und das Backlog (`docs/backlog.adoc`,
+  Anhang <<backlog>>) – alles AsciiDoc
+  (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026],
+  link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]). Das Protokoll ist seit
+  link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033] eingebunden und damit
+  Teil des Builds; seine Kennzahlen stehen als erzeugte Tabelle `docs/log/kennzahlen.adoc` im
+  Anhang <<kennzahlen>>
   (link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]).
 
 | Arbeitsgrundlage
