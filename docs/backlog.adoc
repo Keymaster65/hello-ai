@@ -41,6 +41,11 @@ Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt
 was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
 `git`.
 
+
+== Ergänze
+
+== :Ergänze in kennzahlen.adoc für Dauer, out toke und in token 3 Spalten mit den akkumulierten Summen
+
 == doc Ergänze ein Plant UML Diagram für die Abhängigkeiten der gradle Module in der Asciidoc Systemdocumentation. Ergänze die Pflege der Abhängigkeiten in den Skills. Ergänze ein ADR für Plant UML.
 
 == doc Verwende im "Systemkontext" plantuml diagram.
