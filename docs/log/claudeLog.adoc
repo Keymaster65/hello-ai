@@ -9,6 +9,29 @@ Datum: 2026-07-19
 
 '''
 
+== 126. Prompt: „ja, commit"
+
+_Delta: 36 s · 2.929 Token out · 5.770 Token in (neu) · 1.035.865 Token gesamt_
+_Stand (Session, 5 Prompts): 8:55 min · 81.334 Token out · 7.273.438 Token gesamt_
+
+*Aktionen:*
+
+* *DoD geprüft:* reine Doku-Änderung, kein Code angefasst – `+asciidoctor+`,
+  `+asciidoctorPrompt+` und `+asciidoctorAdr+` grün; der letzte grüne Lauf von `+test+`,
+  `+systemtest+` und `+e2eTest+` gilt weiter (Butterfly-Skill, „Hinweise").
+* *Commit-Message vorgelegt und bestätigt* („Ergänze einen Security-Skill für das Backend"),
+  dann committet mit `+--author="Claude <noreply@anthropic.com>"+` auf Branch `sm`: `+a09ffa9+`,
+  13 Dateien, darunter der neue Skill und ADR 0035.
+* *Trailer:* `+Co-Authored-By: Claude Opus 5 (1M context)+` – das tatsächlich arbeitende Modell,
+  abweichend vom wörtlich im Develop-Skill stehenden „Opus 4.8"; der `KI`-Eintrag dazu liegt
+  weiter im Backlog.
+* *Branches zusammengeführt* (ADR 0032, ADR 0034): einmal `+git fetch origin+` – ohne neue Refs
+  –, dann `+main+`, `+sm+` und `+doc+` über ihre `+origin/+`-Refs gemergt, alle drei „Already up
+  to date", also kein Merge-Commit. `+dev+` existiert weder lokal noch am Remote und wurde
+  übergangen.
+
+'''
+
 == 125. Prompt: „Erstelle security Skills für das backend. Füge dort die Einhaltung von RFC 9116 (definiert den Standard security.txt) hinzu" (aus dem Backlog, `next`)
 
 _Delta: 6:27 min · 69.140 Token out · 190.355 Token in (neu) · 5.112.285 Token gesamt_
