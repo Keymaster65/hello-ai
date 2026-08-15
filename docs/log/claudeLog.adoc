@@ -8,6 +8,33 @@ Datum: 2026-07-19
 
 '''
 
+== 119. Prompt: „Nach einem commit, sollen andere Branches des git Repositories mit "merge" hinzugefügt werden: Nur main, ai1, ai2 usw. Merge-Konflikte sollen behoben werden. Danach soll ein erneuter commit durchgeführt werden. Das soll wiederholt werden, bis alle Branches gemerged sind." (aus dem Backlog, `next`)
+
+_Delta: 26 s · 3.534 Token out · 4.798 Token in (neu) · 494.102 Token gesamt_
+_Stand (Session, 5 Prompts): 4:14 min · 31.128 Token out · 2.689.447 Token gesamt_
+
+*Aktionen:*
+
+* *Pull vor `next`* (ADR 0030): „Already up to date". Der Nutzer hatte zwischenzeitlich den
+  lokalen Branch `ai1` in `sm` umbenannt (er trackt weiter `origin/ai1`) – damit war der an
+  `+:sm+` gebundene Eintrag der erste der Ziehreihenfolge. Nach Rückfrage im Wortlaut auf
+  `+*sm+` gesetzt, nach Abschluss entfernt.
+* *Erster Commit* `+c95caa2+` („Log 118: next auf ai1 ohne ziehbaren Eintrag") – die vom
+  Eintrag geforderte Vorbedingung. DoD: reine Doku-Änderung, `asciidoctor`,
+  `asciidoctorPrompt` und `asciidoctorAdr` grün, seither kein Code angefasst.
+* *Merge-Schleife, Runde 1:* `git merge main` und `git merge origin/ai1` melden beide
+  *„Already up to date"*. Ein lokaler `ai2` existiert nicht. Keine Konflikte, damit auch kein
+  zweiter Commit aus der Schleife – es gab nichts zu committen.
+* *Gegenprobe:* Für jede Ref aus `+refs/heads+` und `+refs/remotes+` geprüft, ob sie Vorfahr
+  von `HEAD` ist – `main`, `origin/main`, `origin/ai1` und die Streu-Ref `origin` sind alle in
+  `sm` enthalten. Die Schleife endet damit nach einer Runde.
+* *Befund:* `sm` liegt 10 Commits *vor* `main`; der Eintrag merged nur *in* den aktuellen
+  Branch hinein, verteilt also nichts zurück. `main` bleibt zurück.
+* Die *Rückfrage* lief im vorigen Turn (2:54 min · 19.990 Token out · 1.290.205 Token gesamt);
+  das Delta oben misst nur den Ausführungs-Turn, der Stand umfasst beide.
+
+'''
+
 == 118. Prompt: „next"
 
 _Delta: 19 s · 3.074 Token out · 55.318 Token in (neu) · 396.536 Token gesamt_

@@ -16,6 +16,16 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| 119
+|„Nach einem commit, sollen andere Branches des git Repositories mit "merge" hinzugefügt werden: Nur main, ai1, ai2 usw. Merge-Konflikte sollen behoben werden. Danach soll ein erneuter commit durchgeführt werden. Das soll wiederholt werden, bis alle Branches gemerged sind." (aus dem Backlog, `next`)
+| 26 s
+| 3.534
+| 4.798
+| 494.102
+| 4:14 min
+| 31.128
+| 2.689.447
+
 | 118
 |„next"
 | 19 s
