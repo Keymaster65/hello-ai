@@ -115,8 +115,10 @@ Es ruft von sich aus kein Fremdsystem auf.
 
 | Dokumentation
 | `docs/`
-| ADRs (`docs/adr/`), diese Systemdokumentation (`docs/system/`), Session-Protokoll
-  (`docs/log/`).
+| ADRs (`docs/adr/`, Markdown), diese Systemdokumentation (`docs/system/`) und das
+  Session-Protokoll (`docs/log/claudeLog.adoc`) – beide AsciiDoc. Das Protokoll wird als
+  einziges AsciiDoc-Dokument *nicht* gerendert
+  (link:{adr}/0025-claudelog-als-asciidoc.md[ADR 0025]).
 
 | Arbeitsgrundlage
 | `docs/prompt/` und `CLAUDE.md`

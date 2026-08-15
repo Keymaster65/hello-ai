@@ -72,7 +72,7 @@ gelesen – anders als dieser Master-Prompt, der in jeder Session gilt
 
 | Butterfly / Session-Protokoll
 | `docs/prompt/butterfly.adoc`
-| In *jeder* Session aktiv; pflegt `docs/log/claudeLog.md` fortlaufend
+| In *jeder* Session aktiv; pflegt `docs/log/claudeLog.adoc` fortlaufend
 
 | Develop
 | `docs/prompt/develop.adoc`

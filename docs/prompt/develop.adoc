@@ -8,7 +8,7 @@ Aktiviere diesen Skill, wenn eine Arbeitseinheit *abgeschlossen* wird: Er regelt
 welchen Bedingungen committet wird, wie die Commit-Message zustande kommt und was danach
 folgt.
 
-Das Session-Protokoll `docs/log/claudeLog.md` gehört *nicht* hierher, sondern in den
+Das Session-Protokoll `docs/log/claudeLog.adoc` gehört *nicht* hierher, sondern in den
 Butterfly-Skill (`docs/prompt/butterfly.adoc`) – er gilt in jeder Session, dieser hier nur
 beim Commit.
 
@@ -20,7 +20,7 @@ beim Commit.
   Prüfschritte, damit sie nur an *einer* Stelle gepflegt werden. Ist ein Punkt offen, wird
   *nicht* committet, sondern zuerst die Ursache behoben.
 * *Log vor Commit:* Der Eintrag zum laufenden Prompt steht *vor* dem Commit in
-  `docs/log/claudeLog.md`; das Format regelt der Butterfly-Skill.
+  `docs/log/claudeLog.adoc`; das Format regelt der Butterfly-Skill.
 * *Author = Claude:* Beim Committen wird als Git-*Author* Claude gesetzt, nicht der bisherige
   Nutzer. Konkret pro Commit:
 +
@@ -55,7 +55,7 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
   werden; die Aufforderung ist deshalb der verbindliche Teil. Zwei Konsequenzen, die daraus
   folgen:
 ** Alles, was nach dem Commit noch gebraucht wird, muss *vorher* in einer Datei stehen
-   (`docs/log/claudeLog.md`, ADR, README) – nicht nur im Gesprächsverlauf.
+   (`docs/log/claudeLog.adoc`, ADR, README) – nicht nur im Gesprächsverlauf.
 ** `/clear` startet ein neues Transkript, damit beginnt der *Stand* der Kennzahlen bei null
    (siehe Butterfly-Skill, Abschnitt „Dauer und Tokenanzahl"). Das ist gewollt und kein
    Messfehler.

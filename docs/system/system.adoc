@@ -116,6 +116,7 @@ wirkt.
 | link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system.md[0022] | AsciiDoc-Systemdokumentation in `docs/system`
 | link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[0023] | AsciiDoc für Master-Prompt und Skills in `docs/prompt`
 | link:{adr}/0024-systemdokumentation-im-boot-jar.md[0024] | Systemdokumentation im Boot-Jar unter `/recipes/docs/`
+| link:{adr}/0025-claudelog-als-asciidoc.md[0025] | Session-Protokoll `claudeLog` als AsciiDoc
 |===
 
 [[pflege-dieser-dokumentation]]

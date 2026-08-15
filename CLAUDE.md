@@ -19,7 +19,7 @@ mit Pfad und Anlass:
 - `docs/prompt/architektur.adoc` – Architektur
 - `docs/prompt/tests.adoc` – Tests
 - `docs/prompt/systemdoku.adoc` – Systemdokumentation (`docs/system/*.adoc`)
-- `docs/prompt/butterfly.adoc` – Butterfly / Session-Protokoll (`docs/log/claudeLog.md`)
+- `docs/prompt/butterfly.adoc` – Butterfly / Session-Protokoll (`docs/log/claudeLog.adoc`)
 - `docs/prompt/develop.adoc` – Develop / Commits
 
 **Keine Regel wird in dieser Datei ergänzt** – sonst gibt es die Arbeitsgrundlage an zwei

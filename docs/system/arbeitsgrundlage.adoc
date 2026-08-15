@@ -47,7 +47,7 @@ herein, also gibt es keine zweite Fassung, die veralten kann.
   die AsciiDoc-Konventionen des Projekts.
 
 | `docs/prompt/butterfly.adoc`
-| Skill: Session-Protokoll `docs/log/claudeLog.md` – Format, Ermittlung von Dauer und
+| Skill: Session-Protokoll `docs/log/claudeLog.adoc` – Format, Ermittlung von Dauer und
   Tokenzahl, Ablauf je Prompt.
 
 | `docs/prompt/develop.adoc`

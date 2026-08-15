@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Ermittelt Dauer und Tokenverbrauch je Prompt aus dem Claude-Code-Transkript.
 
-Hintergrund: Für `docs/log/claudeLog.md` sollen Dauer und Tokenanzahl mitgeführt werden.
+Hintergrund: Für `docs/log/claudeLog.adoc` sollen Dauer und Tokenanzahl mitgeführt werden.
 Beides ist dem Assistenten nicht direkt bekannt – wohl aber dem Transkript, das Claude Code
 pro Session schreibt: Jeder Eintrag trägt einen Zeitstempel, jede Assistant-Nachricht ihre
 `usage`. Dieses Skript liest das aus, statt Zahlen zu schätzen.
@@ -127,7 +127,7 @@ def german(number: int) -> str:
 
 
 def log_line(turns: list[dict], index: int) -> str:
-    """Die zwei Zeilen, die unter die Überschrift in claudeLog.md gehören.
+    """Die zwei Zeilen, die unter die Überschrift in claudeLog.adoc gehören.
 
     `Delta` ist der Aufwand dieses einen Prompts, `Stand` der kumulierte Aufwand der
     Session bis hierher – der Prompt ist damit als Delta zum vorigen Stand lesbar.
@@ -152,7 +152,7 @@ def main() -> None:
     parser.add_argument("-n", type=int, default=1, help="Anzahl der letzten Turns (Default: 1)")
     parser.add_argument("--all", action="store_true", help="alle Turns ausgeben")
     parser.add_argument("--log-line", action="store_true",
-                        help="nur die Markdown-Zeile für den letzten Turn ausgeben")
+                        help="nur die Kennzahlenzeile für den letzten Turn ausgeben")
     parser.add_argument("--transcript", help="Pfad zum Transkript (Default: neuestes)")
     args = parser.parse_args()
 
