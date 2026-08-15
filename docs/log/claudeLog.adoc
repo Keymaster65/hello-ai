@@ -8,6 +8,69 @@ Datum: 2026-07-19
 
 '''
 
+== 103. Prompt: „commit"
+
+_Delta: 2:38 min · 7.973 Token out · 8.932 Token in (neu) · 2.094.064 Token gesamt_
+_Stand (Session, 7 Prompts): 32:45 min · 164.056 Token out · 21.717.585 Token gesamt_
+
+*Aktionen:*
+
+* *Vor dem Commit nachgezogen:* Der Nutzer hat im Backlog einen vierten Marker eingeführt –
+  `+KI+` = „Vorschlag einer KI", nicht ready – und alle vier fachlichen Einträge darauf
+  gesetzt. `+po.adoc+` (Statustabelle, zwei Zeilen in „Auslöser → Pflicht") und ADR 0028
+  (Optionen, Entscheidung, Vorteile, Prüfung) ziehen nach; sonst hätte der Commit Text
+  enthalten, der der Datei widerspricht.
+* *Regel daraus:* Der Assistent vergibt `+KI+`, *nie* `+:+`. Vorschlagen und Freigeben sind
+  getrennt – sonst erteilt sich der Assistent über `+next+` seine eigene Arbeit.
+* `+./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr+` erneut grün; im HTML trägt C.1 den
+  Marker `+*+`, C.2–C.5 tragen `+KI+`.
+* Message vorgelegt und bestätigt, dann Eintrag 103 ergänzt, Tabelle neu erzeugt und committet
+  (Author = Claude): `Backlog mit po.adoc-Skill und next-Befehl ergänzen`.
+* Grundlage ist der grüne DoD-Lauf aus Eintrag 95; seither wurde nur unter `+docs/+` gearbeitet,
+  kein Produktionscode.
+
+'''
+
+== 102. Prompt: „Erstelle ein docs/backlog.adoc im Projekt, welche die nächsten Prompts als Unterkapitelüberschriften zur Abarbeitung enthält. Also z. B. = Backlog und == Prompt1 == Prompt2. Ergänze einen po.adoc Skill, der backlog.adoc als Prompt abarbeiten kann. Mit dem Befehl \"next\" wird der nächste Prompt im Status \"ready\" nach Rückfrage ausgeführt. Der Anfang der Überschrift bestimmt den Status. : ready für Prompt, *: Prompt bereits aktiv sonst nicht \"ready\". Erster Eintrag soll sein \"Erstelle ein Backlog\". Das Backlog soll als letzter Anhang in der Systemdocumentation ergänzt werden." (+ Rückfrage: erledigte Einträge werden gelöscht)
+
+_Delta: 7:24 min · 46.753 Token out · 49.582 Token in (neu) · 7.500.513 Token gesamt_
+_Stand (Session, 6 Prompts): 29:09 min · 152.525 Token out · 18.783.279 Token gesamt_
+
+*Aktionen:*
+
+* *Rückfrage statt Raten:* Das Statusschema kennt ready, aktiv und nicht-ready, aber kein
+  „erledigt". Entscheidung des Nutzers: erledigte Einträge werden *entfernt*, die Historie
+  steht im `+claudeLog+` und in `+git+`.
+* *Backlog* `+docs/backlog.adoc+`: `+= Backlog+` mit Legende, dann ein Prompt je
+  `+==+`-Überschrift. Fünf Einträge – einer aktiv (`+*+` „Erstelle ein Backlog", dieser
+  Auftrag), zwei ready (`+:+`), zwei ohne Marker. Die vier fachlichen stammen aus „Offene
+  Punkte" in `+betrieb.adoc+`, sind also nicht erfunden.
+* *Neuer Skill* `+docs/prompt/po.adoc+`: Aufbau des Backlogs (die Überschrift *ist* der Prompt,
+  der Rumpf ist Notiz), Statustabelle, achtschrittiger Ablauf von `+next+` – aktiver Eintrag
+  zuerst prüfen, Rückfrage als Pflicht, Marker *vor* der Arbeit setzen, genau *ein* Eintrag je
+  `+next+`, Eintrag danach löschen und im Log vermerken.
+* *Anhang C:* `+docs/backlog.adoc+` per `+include+` als letzter Anhang in `+system.adoc+` –
+  hinter „Quelldateien" (A) und „Kennzahlen der Sessions" (B).
+* *ADR 0028* `+backlog-als-anhang-mit-status-im-titel+`: Optionen zum Ort (Issues, Abschnitt im
+  Log, Kapitel unter `+docs/system+`) und zur Form des Status (Tabellenspalte, Abschnitte je
+  Status); „Bewusst nicht getan": kein Werkzeug, keine IDs, kein automatisches Abarbeiten
+  mehrerer Einträge.
+* *Registriert* (sieben → acht Skills): Skill-Tabelle im Master-Prompt, `+include+` und
+  Pflegezeile in `+prompt.adoc+`, Liste in `+CLAUDE.md+`, Dateitabelle / Ladeweg / Wortlaut in
+  `+arbeitsgrundlage.adoc+`, Kapitel- und Auslöser-Tabelle in `+systemdoku.adoc+`,
+  ADR-Wegweiser in `+adr.adoc+`, ADR-Index und Anhang-`+include+` in `+system.adoc+`,
+  Bausteintabelle in `+ueberblick.adoc+`. Die Tabelle „Dokumentationsarten" steht in
+  `+system.adoc+` *und* `+prompt.adoc+` – beide von vier auf fünf Arten erweitert.
+* *Nachweis:* `+./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr+` BUILD SUCCESSFUL ohne
+  Asciidoctor-Meldung; „Anhang C: Backlog" mit allen fünf Einträgen im HTML, `+*+` und `+:+`
+  stehen unverändert in den Überschriften, ADR 0028 gerendert, PO-Skill in beiden Dokumenten.
+* *Offen:* Der Eintrag „Erstelle ein Backlog" wäre nach der Löschregel jetzt zu entfernen; er
+  bleibt aktiv stehen, weil der Nutzer ihn ausdrücklich als ersten Eintrag verlangt hat.
+* Reine Doku-Änderung, kein Produktionscode angefasst; der letzte grüne Test-, Systemtest- und
+  E2E-Lauf gilt weiter.
+
+'''
+
 == 101. Prompt: „commit"
 
 _Delta: 28 s · 5.782 Token out · 6.252 Token in (neu) · 650.253 Token gesamt_

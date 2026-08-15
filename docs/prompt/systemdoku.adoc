@@ -54,6 +54,10 @@ zuständig ist – und nur das.
 | `anhang-kennzahlen.adoc`
 | Anhang: Deutung der Spalten der Kennzahlen-Tabelle; die Tabelle selbst ist erzeugt und wird
   aus `docs/log/kennzahlen.adoc` eingebunden (Manager-Skill)
+
+| `../backlog.adoc`
+| Letzter Anhang: das Backlog. Liegt außerhalb von `docs/system`, weil es plant statt zu
+  beschreiben; gepflegt wird es nach dem PO-Skill
 |===
 
 == Auslöser → Pflicht
@@ -102,7 +106,9 @@ Schritt* geändert, nicht später.
 | `betrieb.adoc`, „Offene Punkte" – Zeile *entfernen*, nicht stehen lassen
 
 | Eine neue Lücke entsteht bewusst
-| `betrieb.adoc`, „Offene Punkte" – Zeile *ergänzen*
+| `betrieb.adoc`, „Offene Punkte" – Zeile *ergänzen*. Soll sie *abgearbeitet* werden, gehört
+  zusätzlich ein Eintrag ins Backlog (PO-Skill): „Offene Punkte" beschreibt den Zustand, das
+  Backlog plant die Änderung
 
 | Neue Datei in `docs/prompt`, geänderter Ladeweg oder geänderte Aufteilung zwischen
   Master-Prompt und Skills

@@ -16,6 +16,26 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| 103
+|„commit"
+| 2:38 min
+| 7.973
+| 8.932
+| 2.094.064
+| 32:45 min
+| 164.056
+| 21.717.585
+
+| 102
+|„Erstelle ein docs/backlog.adoc im Projekt, welche die nächsten Prompts als Unterkapitelüberschriften zur Abarbeitung enthält. Also z. B. = Backlog und == Prompt1 == Prompt2. Ergänze einen po.adoc Skill, der backlog.adoc als Prompt abarbeiten kann. Mit dem Befehl \"next\" wird der nächste Prompt im Status \"ready\" nach Rückfrage ausgeführt. Der Anfang der Überschrift bestimmt den Status. : ready für Prompt, *: Prompt bereits aktiv sonst nicht \"ready\". Erster Eintrag soll sein \"Erstelle ein Backlog\". Das Backlog soll als letzter Anhang in der Systemdocumentation ergänzt werden." (+ Rückfrage: erledigte Einträge werden gelöscht)
+| 7:24 min
+| 46.753
+| 49.582
+| 7.500.513
+| 29:09 min
+| 152.525
+| 18.783.279
+
 | 101
 |„commit"
 | 28 s

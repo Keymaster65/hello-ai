@@ -50,7 +50,7 @@ bearbeiteten Datei bzw. Aufgabe.
 
 == Skills
 
-Die sieben Skills stehen als eigene AsciiDoc-Dateien neben dieser Datei und werden *bei Bedarf*
+Die acht Skills stehen als eigene AsciiDoc-Dateien neben dieser Datei und werden *bei Bedarf*
 gelesen – anders als dieser Master-Prompt, der in jeder Session gilt
 (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]).
 
@@ -84,6 +84,11 @@ gelesen – anders als dieser Master-Prompt, der in jeder Session gilt
 | `docs/prompt/manager.adoc`
 | Nach *jedem* Log-Eintrag; erzeugt daraus `docs/log/kennzahlen.adoc` – die Kennzahlen in
   Spalten, im Anhang der Systemdokumentation
+
+| PO / Backlog
+| `docs/prompt/po.adoc`
+| Beim Befehl `next` und bei jedem Wunsch, der nicht sofort umgesetzt wird; pflegt
+  `docs/backlog.adoc`
 
 | Develop
 | `docs/prompt/develop.adoc`

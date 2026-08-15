@@ -116,8 +116,9 @@ Es ruft von sich aus kein Fremdsystem auf.
 
 | Dokumentation
 | `docs/`
-| ADRs (`docs/adr/`), diese Systemdokumentation (`docs/system/`) und das Session-Protokoll
-  (`docs/log/claudeLog.adoc`) – alles AsciiDoc
+| ADRs (`docs/adr/`), diese Systemdokumentation (`docs/system/`), das Session-Protokoll
+  (`docs/log/claudeLog.adoc`) und das Backlog (`docs/backlog.adoc`, Anhang <<backlog>>) –
+  alles AsciiDoc
   (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026]). Das Protokoll wird als einziges
   AsciiDoc-Dokument *nicht* gerendert
   (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]); seine Kennzahlen stehen als
@@ -126,7 +127,7 @@ Es ruft von sich aus kein Fremdsystem auf.
 
 | Arbeitsgrundlage
 | `docs/prompt/` und `CLAUDE.md`
-| Master-Prompt und sieben Skills – die Anweisungen, unter denen entwickelt wird. Kein Baustein
+| Master-Prompt und acht Skills – die Anweisungen, unter denen entwickelt wird. Kein Baustein
   der Anwendung, aber Teil des Repositorys; siehe <<arbeitsgrundlage>>.
 |===
 

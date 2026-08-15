@@ -15,13 +15,13 @@
 :adrext: .adoc
 
 Dieses Dokument bündelt die Anweisungen, unter denen an *recipes* gearbeitet wird: den
-Master-Prompt, der in jeder Session gilt, und die sieben Skills, die bei Bedarf hinzukommen.
+Master-Prompt, der in jeder Session gilt, und die acht Skills, die bei Bedarf hinzukommen.
 Entscheidung und Begründung:
 link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023].
 
 == Zweck und Abgrenzung
 
-Das Projekt kennt vier Dokumentationsarten mit klar getrennten Aufgaben. Wer etwas ergänzt,
+Das Projekt kennt fünf Dokumentationsarten mit klar getrennten Aufgaben. Wer etwas ergänzt,
 wählt danach den Ort:
 
 [cols="1,2,3", options="header"]
@@ -40,6 +40,12 @@ wählt danach den Ort:
 | `docs/system/`
 | Was gibt es, und wie greift es ineinander?
 | Zusammenhängende Sicht auf das System im *Ist-Zustand*
+
+| `docs/backlog.adoc`
+| Was kommt als Nächstes?
+| Ein Prompt je Überschrift; der Status steht im Anfang der Überschrift. Gezogen wird mit
+  `next` (Skill `po.adoc`,
+  link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028])
 
 | `docs/prompt/` (hier)
 | Wie wird an diesem Projekt gearbeitet?
@@ -94,6 +100,8 @@ include::butterfly.adoc[leveloffset=+1]
 
 include::manager.adoc[leveloffset=+1]
 
+include::po.adoc[leveloffset=+1]
+
 include::develop.adoc[leveloffset=+1]
 
 [[pflege]]
@@ -137,6 +145,9 @@ gepflegt, die sie betrifft.
 
 | Andere Spalten, andere Sortierung oder anderer Erzeugungsweg der Kennzahlen-Tabelle
 | `manager.adoc`; die Deutung der Spalten steht in `docs/system/anhang-kennzahlen.adoc`
+
+| Geänderte Regel für das Backlog (Statuszeichen, Ablauf von `next`, Umgang mit Erledigtem)
+| `po.adoc`; die Liste selbst bleibt `docs/backlog.adoc`, die Legende dort kommt mit
 
 | Geänderte Commit-Regel (Vorbedingung, Message, `/clear`)
 | `develop.adoc`

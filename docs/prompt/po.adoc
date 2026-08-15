@@ -1,0 +1,129 @@
+// Skill der Arbeitsgrundlage; siehe prompt.adoc.
+ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
+= Skill: PO – Backlog abarbeiten
+
+== Zweck
+
+Aktiviere diesen Skill, wenn der Nutzer `next` schreibt oder wenn ein Wunsch aufkommt, der
+*nicht sofort* umgesetzt wird: Er regelt, wie das Backlog `docs/backlog.adoc` geführt und wie
+daraus der nächste Prompt gezogen wird
+(link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028]).
+
+Das Backlog ist die *Zukunft*, das Session-Protokoll die *Vergangenheit*. Was erledigt ist,
+verschwindet hier und steht dort (Butterfly-Skill, `docs/prompt/butterfly.adoc`).
+
+== Aufbau des Backlogs
+
+Ein Prompt je Überschrift, von oben nach unten abzuarbeiten. Die *Überschrift ist der Prompt*
+– sie wird wörtlich als Aufgabe genommen; ein Rumpftext darunter ist Notiz für den Menschen
+und geht nicht in die Aufgabe ein.
+
+Der *Anfang der Überschrift* trägt den Status:
+
+[cols="1,1,3", options="header"]
+|===
+| Anfang | Status | Bedeutung
+
+| `+:+`
+| ready
+| Darf mit `next` gezogen werden. Der *oberste* ready-Eintrag ist der nächste.
+
+| `+*+`
+| aktiv
+| Wird gerade abgearbeitet. Höchstens *einer* ist aktiv.
+
+| `+KI+`
+| nicht ready
+| *Vorschlag einer KI*, vom Nutzer noch nicht freigegeben. `next` übergeht ihn; ready wird er
+  erst, wenn der Nutzer `+KI+` durch `+:+` ersetzt.
+
+| sonst
+| nicht ready
+| Idee oder Notiz, noch nicht spruchreif. `next` übergeht sie – auch dann, wenn darüber kein
+  ready-Eintrag steht.
+|===
+
+IMPORTANT: Ein Eintrag, den der Assistent selbst vorschlägt, bekommt `+KI+` – *nie* `+:+`. Was
+gearbeitet wird, entscheidet der Nutzer; der Assistent darf vorschlagen, nicht freigeben.
+
+Es gibt *kein* Zeichen für „erledigt": Der Eintrag wird entfernt. Ein Backlog, das seine
+Historie mitschleppt, ist nach zwanzig Prompts keine Arbeitsliste mehr.
+
+== Der Befehl `next`
+
+. *Backlog lesen* (`docs/backlog.adoc`).
+. *Ist schon ein Eintrag aktiv* (`+*+`)? Dann wird *nicht* gezogen, sondern gefragt: erst
+  abschließen oder bewusst wechseln. Zwei aktive Einträge sind ein Zustand, den niemand mehr
+  auflöst.
+. *Obersten ready-Eintrag bestimmen.* Gibt es keinen, wird das gesagt – zusammen mit den
+  nicht-ready-Einträgen, die in Frage kämen. Nichts wird ersatzweise ausgeführt.
+. *Rückfrage (Pflicht):* Den Eintrag im *Wortlaut* vorlegen und fragen, ob er jetzt
+  ausgeführt wird. Ohne Bestätigung passiert nichts – wie bei der Commit-Message im
+  Develop-Skill.
+. *Marker setzen:* `+:+` → `+*+` in der Überschrift, Datei speichern – *vor* der Arbeit. Bricht
+  der Turn danach ab, steht der Zustand trotzdem richtig in der Datei.
+. *Prompt ausführen* wie einen Prompt des Nutzers. Alle übrigen Skills gelten unverändert:
+  Architektur, ADR, Tests, Systemdokumentation, Butterfly, Manager, Develop.
+. *Eintrag entfernen*, sobald die Aufgabe erledigt ist – Überschrift, Rumpf und die zugehörige
+  Leerzeile.
+. *Im Log vermerken*, dass der Prompt aus dem Backlog kam (Butterfly-Skill). Der Log ist danach
+  die einzige Spur des Eintrags.
+
+`next` führt *genau einen* Eintrag aus. Der übernächste braucht ein neues `next` – sonst
+arbeitet der Assistent eine Liste ab, die der Nutzer zwischendurch nicht mehr steuern kann.
+
+== Auslöser → Pflicht
+
+[cols="2,3", options="header"]
+|===
+| Anlass | Zu tun
+
+| Nutzer schreibt `next`
+| Ablauf oben, inklusive Rückfrage
+
+| Wunsch *des Nutzers*, der jetzt nicht umgesetzt wird
+| Als Eintrag *ohne* Marker ans Ende des Backlogs – auch wenn er im Gespräch nur nebenbei
+  fiel. Was nur im Verlauf steht, ist nach `/clear` weg (Develop-Skill)
+
+| Vorschlag *des Assistenten*
+| Als Eintrag mit `+KI+` ans Ende. Er wartet dort auf die Freigabe durch den Nutzer
+
+| Ein Eintrag ist spruchreif geworden
+| `+:+` an den Anfang der Überschrift – das tut der *Nutzer*; nach oben sortieren, wenn er
+  vorgeht
+
+| Eintrag erledigt
+| Entfernen. Kein Abhaken, kein „(done)" – der Nachweis steht im `claudeLog`
+
+| Aufgabe abgebrochen oder nur halb erledigt
+| Marker bleibt `+*+`, der Rumpf bekommt eine Notiz, was noch fehlt
+
+| Ein Eintrag ist zu groß für einen Prompt
+| Teilen statt halb erledigen: mehrere Überschriften, jede für sich ausführbar
+|===
+
+== Prüfen
+
+[source,bash]
+----
+./gradlew asciidoctor      # → build/docs/asciidoc/system.html
+----
+
+Das Backlog ist der letzte Anhang der Systemdokumentation. Anders als das Protokoll steht es
+damit *im Build*: Eine kaputte Auszeichnung bricht ihn
+(link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022]).
+
+WARNING: Der Build prüft die Auszeichnung, nicht die Statuszeichen. Ein `+*+`, das seit drei
+Sessions hängt, fällt nur beim Lesen auf – deshalb beginnt `next` mit dem Blick auf die aktiven
+Einträge.
+
+== Hinweise
+
+* *Die Überschrift ist selbst geschrieben, kein Zitat.* Sie soll als Prompt taugen: imperativ,
+  eine Aufgabe, ohne Sonderzeichen, die AsciiDoc deuten könnte. Der Log darf beliebigen Text
+  zitieren, das Backlog nicht – es steht im Build.
+* *Der Status steht nur an einer Stelle*, im Anfang der Überschrift. Keine zweite Liste, keine
+  Statustabelle daneben.
+* *Reihenfolge ist Priorität.* Umsortieren ist die Priorisierung; eine eigene Prioritätsspalte
+  gibt es nicht.

@@ -5,7 +5,7 @@ ifndef::adrext[:adrext: .adoc]
 = Arbeitsgrundlage: Master-Prompt und Skills
 
 Das Repository enthält nicht nur die Anwendung, sondern auch die Anweisungen, unter denen an
-ihr gearbeitet wird: einen *Master-Prompt*, der in jeder Entwicklungs-Session gilt, und sieben
+ihr gearbeitet wird: einen *Master-Prompt*, der in jeder Entwicklungs-Session gilt, und acht
 *Skills*, die bei einem bestimmten Anlass hinzukommen. Beides liegt als AsciiDoc unter
 `docs/prompt` (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]).
 
@@ -59,6 +59,10 @@ herein, also gibt es keine zweite Fassung, die veralten kann.
 | Skill: Kennzahlen-Tabelle `docs/log/kennzahlen.adoc` – aus dem Protokoll erzeugt, im Anhang
   <<kennzahlen>> eingebunden.
 
+| `docs/prompt/po.adoc`
+| Skill: Backlog `docs/backlog.adoc` – Statuszeichen im Anfang der Überschrift, Ablauf des
+  Befehls `next`, Umgang mit Erledigtem. Die Liste selbst ist der Anhang <<backlog>>.
+
 | `docs/prompt/develop.adoc`
 | Skill: Commit-Regeln – Definition of Done als Vorbedingung, Author, Message-Bestätigung,
   `/clear` danach.
@@ -78,7 +82,7 @@ vorgegeben und deshalb Markdown. Von dort führt ein `@`-Import zum Master-Promp
 CLAUDE.md ──@-Import──> docs/prompt/masterprompt.adoc      (jede Session, vollständig)
     │
     └── nennt mit Pfad ─> architektur | adr | tests | systemdoku | butterfly | manager |
-                          develop      (nur bei Anlass, vom Assistenten gelesen)
+                          po | develop (nur bei Anlass, vom Assistenten gelesen)
 ----
 
 Zwei Eigenschaften dieses Wegs bestimmen, wie die Dateien geschrieben sind:
@@ -134,7 +138,7 @@ entspricht, stellt kein Task fest – das entscheidet der Blick beim Ändern.
 [[wortlaut]]
 == Wortlaut
 
-Es folgen der Master-Prompt und die sieben Skills im Original, aus `docs/prompt` eingebunden.
+Es folgen der Master-Prompt und die acht Skills im Original, aus `docs/prompt` eingebunden.
 Der Master-Prompt gilt in jeder Session; die Skills gelten bei ihrem jeweiligen Anlass, der
 im Abschnitt „Skills" des Master-Prompts steht.
 
@@ -158,5 +162,7 @@ include::../prompt/systemdoku.adoc[leveloffset=+2]
 include::../prompt/butterfly.adoc[leveloffset=+2]
 
 include::../prompt/manager.adoc[leveloffset=+2]
+
+include::../prompt/po.adoc[leveloffset=+2]
 
 include::../prompt/develop.adoc[leveloffset=+2]

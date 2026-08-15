@@ -27,7 +27,7 @@ wenn diese Bindung nicht mehr passt.
 
 == Vor der Arbeit: welche ADRs gelten
 
-Nicht alle 27 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
+Nicht alle 28 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
 Zusammenfassung: *Was* gilt, steht im ADR selbst.
 
 [cols="2,3", options="header"]
@@ -72,13 +72,14 @@ Zusammenfassung: *Was* gilt, steht im ADR selbst.
   link:{adr}/0010-gradle-kotlin-dsl{adrext}[0010],
   link:{adr}/0018-versionskatalog-libs-versions-toml{adrext}[0018]
 
-| Dokumentation, Arbeitsgrundlage, Session-Protokoll
+| Dokumentation, Arbeitsgrundlage, Session-Protokoll, Backlog
 | link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[0022],
   link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[0023],
   link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[0024],
   link:{adr}/0025-claudelog-als-asciidoc{adrext}[0025],
   link:{adr}/0026-adrs-als-asciidoc{adrext}[0026],
-  link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[0027]
+  link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[0027],
+  link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[0028]
 |===
 
 Der vollständige Index steht in `docs/system/system.adoc`, Abschnitt

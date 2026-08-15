@@ -1,0 +1,60 @@
+// Backlog des Projekts; abgearbeitet nach dem Skill docs/prompt/po.adoc.
+// Eingebunden als letzter Anhang der Systemdokumentation (docs/system/system.adoc).
+ifndef::adr[:adr: adr]
+ifndef::adrext[:adrext: .adoc]
+[appendix]
+[[backlog]]
+= Backlog
+
+Was als Nächstes zu tun ist – *ein Prompt je Überschrift*, von oben nach unten abzuarbeiten.
+Die Überschrift *ist* der Prompt: Sie wird wörtlich als Aufgabe genommen, ein Rumpftext
+darunter ist nur Notiz. Gezogen wird mit dem Befehl `next`, den der Skill
+`docs/prompt/po.adoc` beschreibt
+(link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028]).
+
+.Der Anfang der Überschrift ist der Status
+[cols="1,3", options="header"]
+|===
+| Anfang | Bedeutung
+
+| `+:+`
+| *ready* – darf mit `next` gezogen werden. Der oberste ready-Eintrag ist der nächste.
+
+| `+*+`
+| *aktiv* – wird gerade abgearbeitet. Es ist immer höchstens einer aktiv.
+
+| `+KI+`
+| *nicht ready* – Vorschlag einer KI. `next` übergeht sie.
+
+| sonst
+| *nicht ready* – Idee, Notiz, noch nicht spruchreif. `next` übergeht sie.
+|===
+
+Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt die Zukunft;
+was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
+`git`.
+
+== * Erstelle ein Backlog
+
+Dieser Eintrag – die Datei hier, der Skill `docs/prompt/po.adoc` und die Einbindung als
+Anhang. Er zeigt zugleich den Zustand *aktiv*.
+
+== KI Ergänze eine CHECK-Bedingung auf der Spalte `difficulty`
+
+Aus `docs/system/betrieb.adoc`, „Offene Punkte": Die Spalte ist ein `VARCHAR` ohne `CHECK`, ein
+per Hand eingefügter Fremdwert fällt erst beim Lesen auf.
+
+== KI Ergänze Paginierung für `GET /api/recipes`
+
+Ebenfalls aus „Offene Punkte": Die Antwort enthält heute *alle* Rezepte und wächst mit dem
+Bestand unbegrenzt.
+
+== KI Binde Actuator für Health- und Metrik-Endpunkte ein
+
+Nicht ready: Erst ist zu klären, welche Endpunkte offen erreichbar sein dürfen – solange es
+keine Authentifizierung gibt, ist das eine Entscheidung mit Folgen.
+
+== KI Ergänze Authentifizierung und sichere `/recipes/docs/**` mit ab
+
+Nicht ready: braucht eine Festlegung auf ein Verfahren und damit ein eigenes ADR; siehe
+„Offene Punkte" in `docs/system/betrieb.adoc`.

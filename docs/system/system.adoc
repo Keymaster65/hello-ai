@@ -22,7 +22,7 @@ betrieben und geprüft wird.
 
 == Zweck und Abgrenzung
 
-Das Projekt kennt vier Dokumentationsarten mit klar getrennten Aufgaben. Wer etwas ergänzt,
+Das Projekt kennt fünf Dokumentationsarten mit klar getrennten Aufgaben. Wer etwas ergänzt,
 wählt danach den Ort:
 
 [cols="1,2,3", options="header"]
@@ -41,6 +41,12 @@ wählt danach den Ort:
 | `docs/system/` (hier)
 | Was gibt es, und wie greift es ineinander?
 | Zusammenhängende Sicht auf das System im *Ist-Zustand*
+
+| `docs/backlog.adoc`
+| Was kommt als Nächstes?
+| Ein Prompt je Überschrift, von oben abzuarbeiten; der Status steht im Anfang der Überschrift
+  (link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028]). Eingebunden als
+  letzter Anhang <<backlog>>
 
 | `docs/prompt/`
 | Wie wird an diesem Projekt gearbeitet?
@@ -122,6 +128,7 @@ wirkt.
 | link:{adr}/0025-claudelog-als-asciidoc{adrext}[0025] | Session-Protokoll `claudeLog` als AsciiDoc
 | link:{adr}/0026-adrs-als-asciidoc{adrext}[0026] | ADRs als AsciiDoc, gerendert im Boot-Jar
 | link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[0027] | Kennzahlen des `claudeLog` als erzeugte Tabelle im Anhang
+| link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[0028] | Backlog als Anhang, Status im Anfang der Überschrift
 |===
 
 [[pflege-dieser-dokumentation]]
@@ -154,3 +161,5 @@ Quelldateien*: Sie sind eingebunden, ein Umzug bricht den Build.
 include::anhang-quellen.adoc[leveloffset=+1]
 
 include::anhang-kennzahlen.adoc[leveloffset=+1]
+
+include::../backlog.adoc[leveloffset=+1]
