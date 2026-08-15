@@ -12,7 +12,7 @@
 :adr: ../adr
 
 Dieses Dokument bündelt die Anweisungen, unter denen an *recipes* gearbeitet wird: den
-Master-Prompt, der in jeder Session gilt, und die vier Skills, die bei Bedarf hinzukommen.
+Master-Prompt, der in jeder Session gilt, und die fünf Skills, die bei Bedarf hinzukommen.
 Entscheidung und Begründung:
 link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills.md[ADR 0023].
 
@@ -85,6 +85,8 @@ include::tests.adoc[leveloffset=+1]
 
 include::systemdoku.adoc[leveloffset=+1]
 
+include::butterfly.adoc[leveloffset=+1]
+
 include::develop.adoc[leveloffset=+1]
 
 [[pflege]]
@@ -119,7 +121,10 @@ gepflegt, die sie betrifft.
 | Neue Regel zur Pflege der Systemdokumentation
 | `systemdoku.adoc`
 
-| Geänderter Session-Ablauf, Log-Format oder Commit-Regel
+| Geändertes Log-Format, andere Kennzahlen, geänderter Ablauf je Prompt
+| `butterfly.adoc`
+
+| Geänderte Commit-Regel (Vorbedingung, Message, `/clear`)
 | `develop.adoc`
 
 | Neuer Skill

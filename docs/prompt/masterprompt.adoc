@@ -70,9 +70,13 @@ gelesen – anders als dieser Master-Prompt, der in jeder Session gilt
 | Bei *jeder* Änderung am Ist-Zustand des Systems; pflegt `docs/system/*.adoc`
   (link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system.md[ADR 0022])
 
-| Develop / Session-Protokoll
-| `docs/prompt/develop.adoc`
+| Butterfly / Session-Protokoll
+| `docs/prompt/butterfly.adoc`
 | In *jeder* Session aktiv; pflegt `docs/log/claudeLog.md` fortlaufend
+
+| Develop
+| `docs/prompt/develop.adoc`
+| Abschluss einer Arbeitseinheit: Commit-Vorbedingungen, Message, `/clear`
 |===
 
 Wie diese Arbeitsgrundlage selbst gepflegt wird – welche Änderung welche Datei berührt –

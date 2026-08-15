@@ -6,6 +6,175 @@ Datum: 2026-07-19
 
 ---
 
+## 93. Prompt: „commit"
+
+_Delta: 6:15 · 19.447 out · 30.412 in (neu) · 2.016.140 gesamt_
+_Stand (Session, 5 Prompts): 20:41 · 100.772 out · 11.332.538 gesamt_
+
+**Aktionen:**
+- Definition of Done vollständig gefahren, statt mich auf die Ausnahme für reine
+  Doku-Änderungen zu berufen. Grund: Die geänderte Systemdoku wird nach ADR 0024 *gerendert
+  ins Boot-Jar gepackt* und von Systemtests geprüft – „kein Code angefasst" heißt hier also
+  nicht „Artefakt unverändert".
+  - `./gradlew clean build`: **grün**. Damit ist der Punkt geschlossen, den Eintrag 90
+    ausdrücklich offen gelassen hatte.
+  - Java-Tests aus dem Build: **43** (domain 5, application 7, adapter 7, bootstrap 24),
+    dazu **24** Vitest-Tests in 4 Dateien.
+  - `cleanSystemtest systemtest`: **19** grün – darunter
+    `shouldServeEveryAdrTheDocumentationLinksTo`, das jeden ADR-Verweis der geänderten
+    Dokumentation abläuft, und `shouldServeTheSystemDocumentationUnderDocs`.
+  - `e2eTest`: **9** Playwright-Tests in Chromium, 17,4 s.
+- Die laufende Instanz aus Eintrag 91 vorher gestoppt (`clean` löscht das Jar, das sie
+  ausführt; die E2E-Stufe braucht den Port selbst). PostgreSQL aus Eintrag 91 lief weiter und
+  wurde von der E2E-Stufe genutzt.
+- Commit-Message dem Nutzer zur Bestätigung vorgelegt – nach dem Develop-Skill erfolgt *ohne*
+  sie kein Commit. Dieser Eintrag entsteht deshalb vor dem Commit und trägt noch keinen Hash;
+  er wandert selbst in den Commit.
+- **Abweichung dokumentiert:** `develop.adoc` schreibt den Trailer
+  `Co-Authored-By: Claude Opus 4.8 (1M context)` vor, die letzten Commits nutzen aber bereits
+  `Opus 5`. Ich folge der gelebten Praxis (Opus 5); die fest verdrahtete Modellversion im
+  Skill veraltet bei jedem Modellwechsel und sollte dort gelockert werden.
+
+---
+
+## 92. Prompt: „Erstelle die Pflege von claudeLog.md einen eigenen Skill."
+
+_Delta: 5:35 · 41.336 out · 96.487 in (neu) · 4.296.328 gesamt_
+_Stand (Session, 4 Prompts): 13:41 · 77.597 out · 8.557.747 gesamt_
+
+**Aktionen:**
+- Rückfrage gestellt, weil `docs/system/arbeitsgrundlage.adoc` ausdrücklich zwischen den
+  Projekt-Skills (`docs/prompt/*.adoc`) und echten Claude-Code-Skills
+  (`.claude/skills/<name>/SKILL.md`) unterscheidet. Antwort des Nutzers: **`butterfly.adoc`** –
+  also ein Projekt-Skill.
+- **Neu: `docs/prompt/butterfly.adoc`** – aus `develop.adoc` herausgelöst: Zweck, „Wann
+  anwenden", Format, „Dauer und Tokenanzahl" (inkl. `turn-stats.py`), „Ablauf pro Prompt",
+  Vorlage und die log-bezogenen Hinweise.
+- **`develop.adoc` behält die Commits** (DoD als Vorbedingung, Author, Message-Bestätigung,
+  `/clear`) und den Gradle-Daemon-Hinweis. Neu darin die Zeile „Log vor Commit", die auf den
+  Butterfly-Skill verweist statt das Format zu wiederholen – Pflegeregel 1 („eine Regel an
+  genau einer Stelle").
+- Der Querverweis `<<commits>>` zeigt jetzt aus `butterfly.adoc` in `develop.adoc`; umgekehrt
+  verweist `develop.adoc` auf den Abschnitt „Dauer und Tokenanzahl". Beide lösen im
+  gerenderten HTML auf (geprüft: `href="#commits"` → „9.2. Commits").
+- Die vier Pflichtstellen für einen neuen Skill nachgezogen (`prompt.adoc`, Abschnitt „Pflege
+  dieser Arbeitsgrundlage", Zeile „Neuer Skill"): `include` in `prompt.adoc`, Zeile in der
+  Skill-Tabelle des Master-Prompts, `include` + Dateitabelle + Ladeweg-Skizze in
+  `docs/system/arbeitsgrundlage.adoc`, Skill-Liste in `CLAUDE.md`. Dazu „vier Skills" → „fünf
+  Skills" an fünf Stellen (`prompt.adoc`, `arbeitsgrundlage.adoc` ×3, `ueberblick.adoc`).
+- Die Pflege-Tabelle in `prompt.adoc` hat statt einer Zeile jetzt zwei: Log-Format →
+  `butterfly.adoc`, Commit-Regel → `develop.adoc`.
+- `./gradlew asciidoctorPrompt asciidoctor` grün – beide Tasks brechen bei einem fehlenden
+  `include` oder einem toten Querverweis ab, das ist hier die eigentliche Prüfung.
+- Kein ADR angelegt: Die Aufteilung eines Skills ist keine neue Entscheidung, sondern der in
+  ADR 0023 vorgesehene Fall; die Pflege-Tabelle beschreibt ihn ohne ADR-Pflicht.
+- **Reine Doku-Änderung** – kein Code angefasst. Es gilt weiter der grüne Lauf aus Eintrag 90
+  (43 Java-, 24 Vitest-, 19 System-, 9 E2E-Tests).
+
+---
+
+## 91. Prompt: „/run"
+
+_Delta: 7:29 · 32.217 out · 161.990 in (neu) · 4.006.972 gesamt_
+_Stand (Session, 3 Prompts): 7:29 · 32.217 out · 4.006.972 gesamt_
+
+**Aktionen:**
+- Keine Code-Änderung – die Anwendung wurde gestartet und als Nutzer durchgespielt
+  (Skill `/run`: die echte App bedienen, nicht die Testsuite).
+- `.claude/skills/run-recipes/` existiert, ist aber **leer** – keine `SKILL.md`, also kein
+  projekteigener Startpfad. Vorgehen deshalb nach den eingebauten Mustern (Web-Server +
+  Browser).
+- Startpfad (Container ohne Docker, wie gehabt): `initdb -D /tmp/pgdata --auth=trust
+  -U postgres`, `pg_ctl … -o "-p 5432 -k /tmp" start`, Rolle+DB `recipes` angelegt;
+  `:modules:backend:bootstrap:bootJar` gebaut und mit `--server.port=8080` gestartet
+  (Port 80 aus `application.yml` ist ohne Root nicht bindbar). Liquibase lief sauber durch,
+  71 Zeilen, Start in 6,5 s.
+- **Playwright-Browser waren nicht installiert** (`~/.cache/ms-playwright` fehlte) –
+  `npx playwright install chromium` nachgeholt (114 MiB). Das trifft auch `./gradlew e2eTest`
+  nach einem Container-Neustart.
+- API über `curl` durchgespielt: `GET /api/recipes` (200, 6 Seed-Rezepte), `POST` (201 +
+  `Location`), `GET /{id}` (200), `PUT` (200), `DELETE` (204), unbekannte ID → 404 mit
+  `{"status":404,"error":"NOT_FOUND",…}`.
+- SPA im echten Chromium bedient (eigenes Treiberskript, danach wieder gelöscht):
+  Liste → Detail per Klick → Deep-Link `/recipes/3` direkt aufgerufen (200, SPA-Fallback nach
+  ADR 0017 greift) → „Neues Rezept" über das Formular angelegt → Rezept über „Löschen"
+  wieder entfernt. Screenshots gesichtet, alles rendert korrekt; keine JS-Fehler außer den
+  erwarteten 400/404 der Negativfälle.
+- Statische Endpunkte: `/recipes/docs/` 200, `/recipes/v3/api-docs` 200,
+  `/recipes/swagger-ui.html` 302 (Redirect auf die UI).
+- **Beobachtung (kein Fix):** Die Feldfehlermeldung im Formular kommt unübersetzt vom
+  Bean-Validation-Default – „must not be blank" steht englisch in einer sonst deutschen
+  Oberfläche.
+- Datenstand am Ende wieder wie vorgefunden: 6 Rezepte; die Testanlagen sind gelöscht.
+  Instanz läuft weiter auf `:8080`.
+
+---
+
+## 90. Prompt: „Führe alle Tests aus"
+
+_Delta: 6:40 · 11.193 out · 19.770 in (neu) · 1.767.479 gesamt_
+_Stand (Session, 5 Prompts): 12:36 · 30.391 out · 4.037.602 gesamt_
+
+**Aktionen:**
+- Keine Code-Änderung – nur Testläufe. Die laufende Instanz aus Eintrag 88 wurde dafür
+  gestoppt (paralleler Gradle-Build wartet sonst auf den Projekt-Lock, und die Systemtests
+  brauchen die Ports selbst) und danach wieder gestartet.
+- **Wichtig zur Methode:** `test` und `systemtest` meldeten zunächst nur `UP-TO-DATE` – also
+  „grün" ohne einen einzigen ausgeführten Test. Beide Stufen deshalb mit `cleanTest` bzw.
+  `cleanSystemtest` erzwungen; erst diese Zahlen sind belastbar.
+- Alle vier Stufen grün (`-g /tmp/gradle-home --no-daemon`):
+  - `cleanTest test`: **43** Java-Tests, 0 Fehler, 0 übersprungen (domain 5, application 7,
+    adapter 7, bootstrap 24). `RecipeIntegrationTest` lief mit – die Zonky-`@EnabledIf`-Bremse
+    hat *nicht* gegriffen.
+  - `frontendTest --rerun-tasks`: **24** Vitest-Tests in 4 Dateien.
+  - `cleanSystemtest systemtest`: **19** Tests (Documentation 4, Frontend 5, Swagger 10).
+  - `cleanE2eTest e2eTest`: **9** Playwright-Tests in Chromium, 18,8 s.
+- `./gradlew clean build` wurde bewusst *nicht* gefahren – der Prompt verlangte die Tests;
+  für die DoD vor einem Commit fehlt dieser Punkt damit noch.
+- Instanz läuft wieder auf `:8080` (Start 17,6 s, `/recipes/` und `/recipes/api/recipes` je 200).
+
+---
+
+## 89. Prompt: „ja, installiere den browser und mach den screenshot"
+
+_Delta: nicht ermittelbar (Kennzahlen erst im Folgeturn gemessen)_
+
+**Aktionen:**
+- `npx playwright install chromium` im Frontend-Modul: Chrome Headless Shell 151 und FFmpeg
+  nach `~/.cache/ms-playwright` geladen (Playwright warnt, dass das OS nicht offiziell
+  unterstützt ist, und nimmt den ubuntu24.04-x64-Fallback).
+- Zwei Screenshots am laufenden Server: Übersicht `/recipes/` (Rezeptkarten mit Titel,
+  Beschreibung, `EASY · N Portionen · N min`, „Bearbeiten"/„Löschen", oben „Neues Rezept")
+  und Detailansicht `/recipes/3` (Zutatenliste mit 9 Positionen, 5 nummerierte
+  Zubereitungsschritte, „Zurück"/„Bearbeiten"). Keine Konsolenfehler.
+- Fallstrick im Treiberskript, nicht in der Anwendung: `waitForLoadState('networkidle')`
+  kehrt nach dem Klick sofort zurück, bevor der Detail-Fetch läuft – der erste Screenshot
+  zeigte deshalb noch die Liste. Mit echtem Warten ist die Detailseite vollständig da.
+
+---
+
+## 88. Prompt: „start app"
+
+_Delta: 3:34 · 11.938 out · 68.694 in (neu) · 1.261.400 gesamt_
+_Stand (Session, 3 Prompts): 3:34 · 11.938 out · 1.261.400 gesamt_
+
+**Aktionen:**
+- Keine Code-Änderung – nur die Anwendung gestartet und am laufenden Prozess geprüft.
+- PostgreSQL neu aufgesetzt (`/tmp/pgdata` überlebt den Container-Neustart nicht):
+  `initdb -D /tmp/pgdata --auth=trust -U postgres`, Start mit `-p 5432 -k /tmp`, danach
+  Rolle `recipes` und Datenbank `recipes` angelegt.
+- App per `./gradlew -g /tmp/gradle-home --no-daemon :modules:backend:bootstrap:bootRun
+  --args='--server.port=8080'` gestartet (Port 80 aus `application.yml` braucht Root).
+  Liquibase hat beide Changesets frisch eingespielt (71 Zeilen), Start in 17,2 s.
+- Am laufenden Server geprüft: `/recipes/` 200 inklusive beider Vite-Assets (JS/CSS je 200),
+  `/recipes/api/recipes` 200 mit den gesäten Fasten-Rezepten, `/recipes/v3/api-docs` 200,
+  `/recipes/docs/` 200.
+- Screenshot der SPA nicht möglich: Playwright ist installiert, aber ohne Browser-Binary
+  (`chromium_headless_shell` fehlt im Cache); der Download wurde nicht ungefragt angestoßen.
+- Die Instanz läuft weiter auf `:8080`, bis der Nutzer sie stoppen lässt.
+
+---
+
 ## 87. Prompt: „commit"
 
 _Delta: 18s · 1.573 out · 524.314 gesamt_
