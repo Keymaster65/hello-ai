@@ -34,7 +34,8 @@ Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt
 was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
 `git`.
 
-== 
+== : Unterstütze im po Skill das ziehen etwas tiefer im Backlog mit next+1, next+2 use.
+
 == : Ergänze claudeLog in der Systemdocumentation als neuen Anhang "Änderungen" vor dem Anhang "Quelldateien" ein.
 
 == : Erzeuge entsprechenden Links, wenn claudeLog in der Systemdocumentation referenziert wird.
