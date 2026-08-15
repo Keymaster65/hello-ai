@@ -48,9 +48,12 @@ zuständig ist – und nur das.
   und Änderungsort bleiben die Dateien dort
 
 | `anhang-aenderungen.adoc`
-| Anhang: die Entstehung des Systems. Bindet das Session-Protokoll `docs/log/claudeLog.adoc`
-  ein (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]); gepflegt wird das
-  Protokoll dort und nach dem Butterfly-Skill, nicht hier
+| Anhang: die Entstehung des Systems, in zwei Kapiteln. „Git-Historie" bindet die vom
+  Gradle-Task `gitChangelog` erzeugte Tabelle ein
+  (link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036]), „Session-Protokoll"
+  das Protokoll `docs/log/claudeLog.adoc`
+  (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]). Beides wird an seiner
+  Quelle gepflegt – das Protokoll nach dem Butterfly-Skill, die Tabelle gar nicht –, nicht hier
 
 | `anhang-quellen.adoc`
 | Anhang: die Quelldateien des Projekts, per `include` eingebunden und in Klapp-Blöcken je

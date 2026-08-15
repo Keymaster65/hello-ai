@@ -7,19 +7,49 @@ ifndef::adrext[:adrext: .adoc]
 
 Die Kapitel beschreiben den *Ist-Zustand*, die ADRs die *Entscheidungen* dahinter. Beides sagt
 nicht, wie dieser Zustand entstanden ist: In welcher Reihenfolge die Bausteine kamen, welcher
-Prompt eine Änderung ausgelöst hat, was ein Schritt gekostet hat. Das führt das
-Session-Protokoll `docs/log/claudeLog.adoc` mit – ein Eintrag je Prompt, neuester oben.
+Prompt eine Änderung ausgelöst hat, was ein Schritt gekostet hat.
 
-Dieser Anhang bindet es ein
-(link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]). Damit steht die
-Entstehung neben dem Ergebnis, in *einem* Dokument, das auch die laufende Anwendung unter
-`/recipes/docs/` ausliefert
+Dieser Anhang sagt es – aus zwei Blickwinkeln auf dieselbe Arbeit:
+
+* die *Git-Historie* – *was* das Repository verändert hat, ein Eintrag je Commit
+  (link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036]);
+* das *Session-Protokoll* `docs/log/claudeLog.adoc` – *woraufhin* es geschah, ein Eintrag je
+  Prompt (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]).
+
+Beides ist *eingebunden, nicht kopiert* – wie die Quelldateien in <<quelldateien>> und die
+Kennzahlen-Tabelle in <<kennzahlen>>. Damit steht die Entstehung neben dem Ergebnis, in *einem*
+Dokument, das auch die laufende Anwendung unter `/recipes/docs/` ausliefert
 (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]).
 
-*Eingebunden, nicht kopiert* – wie die Quelldateien in <<quelldateien>> und die
-Kennzahlen-Tabelle in <<kennzahlen>>. Gepflegt wird das Protokoll ausschließlich in
-`docs/log/claudeLog.adoc`, nach dem Skill `docs/prompt/butterfly.adoc`; hier steht keine
-zweite Fassung, die veralten könnte.
+== Git-Historie
+
+Die Tabelle unten wird bei jedem Build aus der git-Historie *erzeugt* – vom Gradle-Task
+`gitChangelog` (link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036]). Sie liegt
+deshalb nicht im Repository, sondern entsteht unter `build/` und wird von dort eingebunden: Ein
+Commit kann sich selbst nicht enthalten, eine eingecheckte Fassung wäre ab ihrem Entstehen um
+genau einen Commit alt.
+
+Neuester Commit oben – dieselbe Richtung wie im Protokoll darunter, im ADR-Index und in der
+Kennzahlen-Tabelle. Der Kurz-Hash benennt den Commit, der Betreff ist die *erste Zeile* seiner
+Message; der Rumpf samt `Co-Authored-By`-Zeile bleibt draußen.
+
+Zwei Auslassungen gehören dazugesagt, damit die Tabelle nicht als lückenlose Liste gelesen wird:
+
+* *Von git erzeugte Zusammenführungen* (`Merge branch …`) fehlen. Sie tragen keine eigene
+  Änderung, sondern nur die Naht zwischen zwei Branches
+  (link:{adr}/0032-branches-nach-jedem-commit-mergen{adrext}[ADR 0032]).
+* *Aufgehobene Commits* fehlen samt ihrem `Revert`. Das Werkzeug erkennt die Zeile
+  `This reverts commit …` und lässt beide Seiten weg. Die Tabelle zeigt damit, was *geblieben*
+  ist – nicht jeden Schritt, der einmal getan wurde. Vollständig ist allein `git log`.
+
+include::../../build/docs/changelog/gitchangelog.adoc[]
+
+== Session-Protokoll
+
+Das Protokoll führt `docs/log/claudeLog.adoc` mit – ein Eintrag je Prompt, neuester oben. Es
+wird hier eingebunden und ausschließlich dort gepflegt, nach dem Skill
+`docs/prompt/butterfly.adoc`; eine zweite Fassung, die veralten könnte, gibt es nicht
+(link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]).
 
 Zwei Folgen sind zu kennen:
 
@@ -27,7 +57,7 @@ Zwei Folgen sind zu kennen:
   ein Listenmarker aussieht, ist ab jetzt ein Fehler in der Auslieferung und nicht mehr nur
   eine Unschönheit im Text. Der Butterfly-Skill nennt den Schutz, der das verhindert
   (Passthrough `+…+` um Code-Spans mit Sonderzeichen).
-* *Die Einträge stehen tief.* Sie liegen zwei Ebenen unter diesem Anhang und damit unterhalb
+* *Die Einträge stehen tief.* Sie liegen zwei Ebenen unter diesem Abschnitt und damit unterhalb
   von `+:toclevels:+` – sonst trüge das Inhaltsverzeichnis über hundert Prompt-Überschriften.
 
 Die Kennzahlen derselben Einträge stehen als Tabelle in <<kennzahlen>>: dieselbe Quelle,

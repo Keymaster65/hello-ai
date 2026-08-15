@@ -1,0 +1,149 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= ADR 0036: Git-Historie als erzeugtes Kapitel im Anhang „Änderungen"
+
+== Status
+
+Akzeptiert – 2026-08-15
+
+Ergänzt link:0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033], ohne es abzulösen: Der
+Anhang „Änderungen" bekommt neben dem Session-Protokoll ein zweites Kapitel.
+
+== Kontext
+
+Der Anhang „Änderungen" beantwortet die Frage, wie der beschriebene Zustand entstanden ist –
+bisher allein aus dem Session-Protokoll `docs/log/claudeLog.adoc`, also *aus der Sicht der
+Prompts*. Was daraus im Repository wurde, steht nur in `git log`: außerhalb der Dokumentation
+und für jeden unerreichbar, der die ausgelieferte Fassung unter `/recipes/docs/` liest
+(link:0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]).
+
+Die beiden Sichten sind nicht deckungsgleich. Ein Prompt kann null, einen oder mehrere Commits
+erzeugen; ein Commit fasst regelmäßig mehrere Prompts zusammen, weil nach jedem Commit `/clear`
+läuft (Develop-Skill). Wer eine Änderung sucht, hat deshalb zwei Fragen – „welcher Prompt?" und
+„welcher Commit?" –, und die Dokumentation beantwortete bisher nur die erste.
+
+Gefragt war die Historie als Kapitel *im selben Dokument*, neuester Commit zuerst.
+
+== Optionen
+
+. *`git log` von Hand in eine Datei schreiben und einbinden.* Verworfen: eine zweite Fassung
+  derselben Information, die beim ersten vergessenen Handgriff veraltet – derselbe Einwand, an
+  dem in link:0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027] die
+  Hand-Pflege scheiterte.
+. *Eigener Gradle-Task mit `git log --pretty=…` über `Exec`.* Verworfen: Der Build hinge an
+  einem `git` im `PATH` und an dessen Ausgabeformat, und das Zitieren für AsciiDoc – Trennzeichen,
+  Umlaute, mehrzeilige Messages – wäre selbstgeschriebene Zeichenkettenarbeit an einer Stelle,
+  an der ein Fehler den Build der Auslieferung bricht.
+. *Python-Skript wie `docs/log/kennzahlen.py`, Ergebnis eingecheckt.* Verworfen: Die Quelle ist
+  hier nicht eine Datei im Repository, sondern das Repository selbst. Eine eingecheckte Tabelle
+  wäre ab ihrem Entstehen um genau einen Commit alt – den, der sie einführt. Für die
+  Kennzahlen-Tabelle gilt das nicht, deshalb bleibt sie eingecheckt.
+. *Das Gradle-Plugin `se.bjurr.gitchangelog.git-changelog-gradle-plugin`* – gewählt. Es liest
+  die Historie über JGit, braucht also kein `git` im `PATH`, und rendert sie über eine
+  Handlebars-Vorlage. Die Vorlage bestimmt das Format vollständig; AsciiDoc statt des
+  voreingestellten Markdown ist damit eine Frage der Vorlage, nicht des Werkzeugs.
+. *Zusätzlich Tags als Gliederung nutzen* (die Stärke des Plugins). Verworfen, weil das Projekt
+  keine Tags führt: Eine Gliederung nach Releases hätte genau einen Abschnitt.
+
+== Entscheidung
+
+Das Wurzelprojekt wendet das Plugin an; der von ihm gelieferte Task `gitChangelog` schreibt
+`build/docs/changelog/gitchangelog.adoc`. `docs/system/anhang-aenderungen.adoc` bindet die Datei
+als Kapitel „Git-Historie" ein, vor dem Kapitel „Session-Protokoll"; `asciidoctor` hängt am
+Task, damit der `include` nie ins Leere zeigt.
+
+Vier Festlegungen tragen die Entscheidung:
+
+*Das Ergebnis liegt in `build/`, nicht im Repository.* Es wird bei jedem Lauf neu erzeugt und
+ist damit so aktuell wie der Build – anders als die Kennzahlen-Tabelle, die eingecheckt ist,
+weil ihre Quelle im Repository liegt (ADR 0027). Der Preis steht unter „Nachteile".
+
+*Der Task ist nie up-to-date.* Ein Commit ändert weder Buildskript noch Arbeitsverzeichnis;
+Gradle hätte keine Eingabe, an der es die Änderung bemerkt. Der Task läuft deshalb immer –
+er kostet Sekundenbruchteile. Ob das *Ergebnis* neu ist, entscheidet danach der Asciidoctor-Task
+an seinem Eingabe-Hash.
+
+*Die Spalte „Betreff" ist literal* (`l` im `cols`-Attribut). In einer Commit-Message steht
+beliebiger Text; literal gesetzt kann er die Auslieferung nicht brechen. Es ist dieselbe
+Zusicherung, die die Prompt-Spalte der Kennzahlen-Tabelle trägt (ADR 0027).
+
+*Die Voreinstellung `+^Merge.*+` wird verengt* auf die von git selbst erzeugten Messages
+(`Merge branch`, `Merge remote-tracking branch`, `Merge pull request`). Unverändert hätte sie
+auch einen Commit verschluckt, der bloß mit dem Wort „Merge" beginnt – im Bestand gibt es
+genau einen.
+
+== Konsequenzen
+
+=== Vorteile
+
+* Die Historie steht dort, wo die Beschreibung steht: in *einem* Dokument, das auch die
+  laufende Anwendung ausliefert (ADR 0024). Ein `git log` ist dafür nicht mehr nötig.
+* Die Tabelle kann nicht veralten. Sie hat keine Pflegestelle, an der ein Handgriff vergessen
+  werden könnte – im Unterschied zur Kennzahlen-Tabelle, deren Lauf im Ermessen steht
+  (ADR 0027, „Nachteile").
+* Das Format steht in der Vorlage im Buildskript, an einer Stelle. Eine weitere Spalte ist eine
+  Zeile Änderung, kein neues Skript.
+* Prompt-Sicht und Commit-Sicht liegen nebeneinander und sind damit überhaupt erst vergleichbar.
+
+=== Nachteile
+
+* *Der Build braucht das `.git`-Verzeichnis.* Aus einem exportierten Quell-Archiv ohne Historie
+  läuft `asciidoctor` nicht mehr durch – der Task fände kein Repository.
+* *Die Tabelle steht nicht im Repository.* Wer `docs/system/anhang-aenderungen.adoc` auf GitHub
+  oder im Editor liest, sieht an ihrer Stelle einen unaufgelösten `include` auf `build/`. Das
+  gilt zwar für jeden `include` dieser Dokumentation, hier aber für eine Datei, die es ohne
+  Build gar nicht gibt.
+* *Eine neue Abhängigkeit im Build*, mit JGit im Schlepptau – für eine Information, die `git
+  log` in einer Zeile liefert. Bezahlt wird das mit der Zusicherung, dass die Zeile nicht
+  vergessen wird.
+* *Aufgehobene Commits fehlen.* Das Plugin erkennt `This reverts commit …` und lässt Revert und
+  Reverted weg; im Bestand betrifft das ein Paar. Abschaltbar ist das nicht – es steht fest in
+  der Bibliothek. Der Anhang sagt es deshalb im Text dazu.
+* *Ein `+|+` in einer Commit-Message bräche die Tabelle.* Die literale Spalte schützt vor allem
+  außer dem Zellentrenner selbst; anders als beim erzeugenden Skript der Kennzahlen-Tabelle gibt
+  es in der Handlebars-Vorlage keine Stelle, an der er ersetzt werden könnte.
+
+=== Bewusst nicht getan
+
+* *Keine Gruppierung nach Tags und keine Conventional Commits.* Das Projekt führt weder Tags
+  noch ein Commit-Message-Schema; beides wäre eine eigene Entscheidung und keine Nebenwirkung
+  dieser hier.
+* *Keine Querverweise zwischen Commit und Log-Eintrag.* Sie wären der eigentliche Gewinn aus
+  zwei Sichten auf dieselbe Arbeit – aber ein eigener Schritt. Er steht im Backlog.
+* *Kein Link auf ein Forge-Portal.* Das Plugin könnte GitHub, GitLab und Jira anbinden; das
+  Repository hat keinen festen Ort, auf den zu verlinken wäre.
+* *Der Develop-Skill bleibt unverändert.* Commit-Messages müssen für diese Tabelle nichts
+  Neues erfüllen.
+* *`gitChangelogSemanticVersion` bleibt ungenutzt.* Das Plugin bringt den Task mit; eine
+  Versionierung aus Commit-Messages ist hier nicht entschieden.
+
+== Prüfung
+
+* `./gradlew gitChangelog` schreibt `build/docs/changelog/gitchangelog.adoc`: *80* Zeilen
+  Tabelle bei *82* Commits in `git log` – die Differenz sind das Paar „Fix planning 1" und sein
+  `Revert`.
+* Erste Zeile der Tabelle ist der jüngste Commit, letzte der `Initial commit` vom 2026-07-18 –
+  die Sortierung ist absteigend, ohne dass die Vorlage sortiert.
+* `./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr` läuft durch; die Tabelle steht als
+  erstes Kapitel des Anhangs „Änderungen" im Ergebnis.
+* `./gradlew clean asciidoctor` läuft ebenfalls durch – der `include` auf `build/` zeigt also
+  auch dann nicht ins Leere, wenn das Verzeichnis vorher gelöscht wurde.
+* Die Meldung „section title out of sequence" für `docs/log/claudeLog.adoc` ist weg: Das
+  Protokoll steht jetzt unter der Ebene-2-Überschrift „Session-Protokoll" statt direkt unter dem
+  Anhang. Übrig bleibt die zweite bekannte Meldung („missing attribute: id").
+* `./gradlew clean build` (7:28 min), `./gradlew systemtest` und `./gradlew e2eTest` (9 Tests)
+  sind grün – die Definition of Done ist vollständig durchlaufen, nicht nur der Doku-Teil.
+
+== Referenzen
+
+* link:0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033] – Session-Protokoll als Anhang
+  „Änderungen"
+* link:0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027] – erzeugte Tabelle, aber
+  eingecheckt: die Gegenprobe zur Ablage in `build/`
+* link:0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022] – fehlender `include`
+  ist ein Build-Fehler
+* link:0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018] – Version des Plugins im
+  Versionskatalog
+* link:0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024] – Auslieferung unter
+  `/recipes/docs/`
+* `build.gradle.kts`, `docs/system/anhang-aenderungen.adoc`

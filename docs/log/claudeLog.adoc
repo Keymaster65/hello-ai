@@ -9,6 +9,58 @@ Datum: 2026-07-19
 
 '''
 
+== 126. Prompt: „Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein." (aus dem Backlog, `next`)
+
+_Delta: 11:16 min · 72.313 Token out · 210.900 Token in (neu) · 7.989.015 Token gesamt_
+_Stand (Session, 4 Prompts): 11:40 min · 74.997 Token out · 8.229.618 Token gesamt_
+
+*Aktionen:*
+
+* *Werkzeug geprüft, bevor es eingebaut wurde:* Plugin-Jar und `+git-changelog-lib+` gelesen –
+  registrierter Task `+gitChangelog+`, Wurzel-Modell mit flacher Liste `+commits+`, keine
+  Tags im Projekt, also Tabelle statt Gruppierung nach Release.
+* *Versionskatalog:* `+gitChangelog = "3.1.2"+` und Plugin-Alias `+git-changelog+` in
+  `+gradle/libs.versions.toml+` (ADR 0018).
+* *`+build.gradle.kts+`:* Plugin im Wurzelprojekt angewendet; Task `+gitChangelog+` schreibt
+  `+build/docs/changelog/gitchangelog.adoc+` aus einer Handlebars-Vorlage – Spalten Datum,
+  Commit, Betreff, Spalte „Betreff" *literal*. Der Task ist nie up-to-date (ein Commit ändert
+  keine Datei, die Gradle beobachtet); `+asciidoctor+` hängt daran, damit der `include` nie
+  ins Leere zeigt.
+* *Voreinstellung verengt:* `+^Merge.*+` hätte auch den Commit „Merge-Eintrag abgearbeitet …"
+  verschluckt – ausgelassen werden jetzt nur die von git erzeugten Zusammenführungen.
+* *Anhang „Änderungen" in zwei Kapitel geteilt:* „Git-Historie" (erzeugte Tabelle) vor
+  „Session-Protokoll". Nebeneffekt: Die Asciidoctor-Meldung „section title out of sequence"
+  für `+claudeLog.adoc+` ist weg – der Log steht jetzt unter einer Ebene-2-Überschrift. Die
+  zweite Meldung („missing attribute: id") bleibt.
+* *Gefunden und dokumentiert:* Das Werkzeug lässt aufgehobene Commits samt ihrem `Revert` weg
+  (hier das Paar „Fix planning 1"). 80 Tabellenzeilen bei 82 Commits – das steht als
+  Auslassung im Anhang und unter „Nachteile" im ADR.
+* *ADR 0036* „Git-Historie als erzeugtes Kapitel im Anhang „Änderungen"" geschrieben, mit der
+  Gegenprobe zu ADR 0027: erzeugt *und* eingecheckt dort, erzeugt *und nicht* eingecheckt hier,
+  weil die Quelle hier das Repository selbst ist.
+* *Nachgezogen:* ADR-Index in `+system.adoc+`, Befehlstabelle in `+betrieb.adoc+`,
+  Wegweiser-Tabelle im ADR-Skill, Dateitabelle im Systemdoku-Skill; Backlog-Eintrag entfernt.
+* *Geprüft (DoD vollständig):* `+./gradlew clean build+` grün (7:28 min), `+systemtest+` grün,
+  `+e2eTest+` grün (9 Tests); `+asciidoctor+`, `+asciidoctorPrompt+` und `+asciidoctorAdr+`
+  ohne neue Meldung. `+./gradlew clean asciidoctor+` läuft auch nach `+clean+` durch – der
+  `include` auf `+build/+` trägt.
+
+'''
+
+== 125. Prompt: „next"
+
+_Delta: 24 s · 2.684 Token out · 52.149 Token in (neu) · 240.603 Token gesamt_
+_Stand (Session, 3 Prompts): 24 s · 2.684 Token out · 240.603 Token gesamt_
+
+*Aktionen:*
+
+* `+git pull --ff-only+` auf `doc`: „Already up to date"; kein Eintrag stand auf aktiv.
+* Ziehreihenfolge auf `doc` gebildet: zwei an den Branch gebundene `+:doc+`-Einträge, keine
+  ungebundenen – `+:sm+` ist fremd gebunden und damit hier nicht ziehbar.
+* Ersten Eintrag im Wortlaut vorgelegt und zur Bestätigung gefragt; nichts ausgeführt.
+
+'''
+
 == 124. Prompt: „ja, commit"
 
 _Delta: 21 s · 2.388 Token out · 4.622 Token in (neu) · 637.780 Token gesamt_

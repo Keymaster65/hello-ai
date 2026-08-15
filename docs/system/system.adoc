@@ -114,6 +114,7 @@ erste Zeile.
 |===
 | ADR | Thema
 
+| link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[0036] | Git-Historie als erzeugtes Kapitel im Anhang „Änderungen"
 | link:{adr}/0034-arbeitsbranches-vor-dem-merge-holen{adrext}[0034] | Arbeitsbranches vor dem Merge vom Remote holen
 | link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[0033] | Session-Protokoll als Anhang „Änderungen" der Systemdokumentation
 | link:{adr}/0032-branches-nach-jedem-commit-mergen{adrext}[0032] | Nach jedem Commit die Arbeitsbranches mergen
