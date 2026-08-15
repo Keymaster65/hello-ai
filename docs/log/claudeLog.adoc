@@ -9,6 +9,34 @@ Datum: 2026-07-19
 
 '''
 
+== 129. Prompt: „commit"
+
+_Delta: 18:27 min · 24.131 Token out · 273.337 Token in (neu) · 8.579.131 Token gesamt_
+_Stand (Session, 5 Prompts): 43:38 min · 122.929 Token out · 23.845.676 Token gesamt_
+
+*Aktionen:*
+
+* *Commit* `+66a5ae4+` „Git-Historie als Kapitel im Anhang Änderungen", Author Claude.
+* *Merge nach ADR 0032/0034:* einmal `+git fetch origin+`, dann `main`, `sm`, `doc`, `dev` –
+  `main` und `doc` „Already up to date", `dev` gibt es nicht.
+* *Kollision gefunden:* `origin/sm` hat ebenfalls ein *ADR 0035* angelegt (Security-Skill,
+  RFC 9116), zwölf Minuten vor meinem. Zwei ADRs mit derselben Nummer widersprechen dem
+  ADR-Skill – die Auflösung ist eine Entscheidung über fremde Arbeit, deshalb `+git merge
+  --abort+` und gefragt.
+* *Antwort des Nutzers:* Security behält 0035. Mein ADR ist zu
+  `+0036-git-historie-als-erzeugtes-kapitel.adoc+` geworden, alle elf Verweise nachgezogen
+  (Buildskript, ADR, Log, zwei Skills, drei Kapitel); der Commit wurde vor dem Push amendiert,
+  statt eine Umbenennung nachzuschieben.
+* *Merge aufgelöst* (`+da9b744+`): ADR-Index und Backlog behalten *beide* Seiten; im Protokoll
+  behält `sm` 125/126, meine Einträge wurden zu 127/128 – neuester oben, wie es die Datei
+  vorgibt. `+kennzahlen.adoc+` nicht von Hand aufgelöst, sondern neu erzeugt (ADR 0027):
+  133 Einträge.
+* *DoD nach dem Merge erneut durchlaufen:* `+clean build+` grün (7:42 min), `+systemtest+`
+  grün, `+e2eTest+` grün (9 Tests), alle drei Asciidoctor-Tasks ohne neue Meldung.
+* Nach dem Merge sind `+origin/main+`, `+origin/sm+` und `+origin/doc+` Vorfahren von `HEAD`.
+
+'''
+
 == 128. Prompt: „Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein." (aus dem Backlog, `next`)
 
 _Delta: 11:16 min · 72.313 Token out · 210.900 Token in (neu) · 7.989.015 Token gesamt_

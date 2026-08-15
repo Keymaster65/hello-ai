@@ -16,6 +16,16 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| 129
+|„commit"
+| 18:27 min
+| 24.131
+| 273.337
+| 8.579.131
+| 43:38 min
+| 122.929
+| 23.845.676
+
 | 128
 |„Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein." (aus dem Backlog, `next`)
 | 11:16 min
