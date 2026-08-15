@@ -45,7 +45,9 @@ wählt danach den Ort:
 | `docs/backlog.adoc`
 | Was kommt als Nächstes?
 | Ein Prompt je Überschrift, von oben abzuarbeiten; der Status steht im Anfang der Überschrift
-  (link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028]). Eingebunden als
+  (link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028]) und darf einen
+  Branch nennen, an den der Eintrag gebunden ist
+  (link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031]). Eingebunden als
   letzter Anhang <<backlog>>
 
 | `docs/prompt/`
@@ -105,6 +107,7 @@ erste Zeile.
 |===
 | ADR | Thema
 
+| link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[0031] | `next` bevorzugt Einträge, die an den aktuellen Branch gebunden sind
 | link:{adr}/0030-pull-vor-next{adrext}[0030] | `git pull --ff-only` vor jedem `next`
 | link:{adr}/0029-next-mit-versatz{adrext}[0029] | `next` mit Versatz – `next+1`, `next+2`
 | link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[0028] | Backlog als Anhang, Status im Anfang der Überschrift

@@ -10,7 +10,8 @@ aufkommt, der *nicht sofort* umgesetzt wird: Er regelt, wie das Backlog `docs/ba
 geführt und wie daraus der nächste Prompt gezogen wird
 (link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028],
 link:{adr}/0029-next-mit-versatz{adrext}[ADR 0029],
-link:{adr}/0030-pull-vor-next{adrext}[ADR 0030]).
+link:{adr}/0030-pull-vor-next{adrext}[ADR 0030],
+link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031]).
 
 Das Backlog ist die *Zukunft*, das Session-Protokoll die *Vergangenheit*. Was erledigt ist,
 verschwindet hier und steht dort (Butterfly-Skill, `docs/prompt/butterfly.adoc`).
@@ -29,7 +30,14 @@ Der *Anfang der Überschrift* trägt den Status:
 
 | `+:+`
 | ready
-| Darf mit `next` gezogen werden. Der *oberste* ready-Eintrag ist der nächste.
+| Darf mit `next` gezogen werden – auf *jedem* Branch. Der oberste dieser Einträge ist der
+  nächste, sofern kein gebundener davorsteht.
+
+| `+:+`<branch>
+| ready, gebunden
+| An einen Branch gebunden, z. B. `+:ai1+` – ohne Leerzeichen hinter dem `+:+`. Auf *diesem*
+  Branch steht der Eintrag *vor* allen ungebundenen; auf jedem anderen ist er *nicht ziehbar*
+  (link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031]).
 
 | `+*+`
 | aktiv
@@ -71,14 +79,17 @@ Historie mitschleppt, ist nach zwanzig Prompts keine Arbeitsliste mehr.
 . *Ist schon ein Eintrag aktiv* (`+*+`)? Dann wird *nicht* gezogen, sondern gefragt: erst
   abschließen oder bewusst wechseln. Zwei aktive Einträge sind ein Zustand, den niemand mehr
   auflöst.
-. *Obersten ready-Eintrag bestimmen* – bei `next+N` den *N-ten darunter*, siehe unten. Gibt es
-  keinen, wird das gesagt – zusammen mit den nicht-ready-Einträgen, die in Frage kämen. Nichts
-  wird ersatzweise ausgeführt.
+. *Ziehreihenfolge bilden* – erst die an den *aktuellen* Branch gebundenen ready-Einträge, dann
+  die ungebundenen, jeweils in Dokumentreihenfolge (siehe „Bindung an einen Branch"). Der
+  *erste* dieser Liste wird gezogen, bei `next+N` der *(N+1)-te*. Ist die Liste leer, wird das
+  gesagt – zusammen mit den Einträgen, die in Frage kämen: nicht-ready-Einträge und solche, die
+  an einen anderen Branch gebunden sind. Nichts wird ersatzweise ausgeführt.
 . *Rückfrage (Pflicht):* Den Eintrag im *Wortlaut* vorlegen und fragen, ob er jetzt
   ausgeführt wird. Ohne Bestätigung passiert nichts – wie bei der Commit-Message im
   Develop-Skill.
 . *Marker setzen:* `+:+` → `+*+` in der Überschrift, Datei speichern – *vor* der Arbeit. Bricht
-  der Turn danach ab, steht der Zustand trotzdem richtig in der Datei.
+  der Turn danach ab, steht der Zustand trotzdem richtig in der Datei. Ersetzt wird nur das
+  *erste Zeichen*; eine Bindung bleibt stehen (`+:ai1+` → `+*ai1+`).
 . *Prompt ausführen* wie einen Prompt des Nutzers. Alle übrigen Skills gelten unverändert:
   Architektur, ADR, Tests, Systemdokumentation, Butterfly, Manager, Develop.
 . *Eintrag entfernen*, sobald die Aufgabe erledigt ist – Überschrift, Rumpf und die zugehörige
@@ -100,6 +111,36 @@ steht der *tatsächlich getippte* Befehl, also gegebenenfalls `+(aus dem Backlog
 `next` führt *genau einen* Eintrag aus. Der übernächste braucht ein neues `next` – sonst
 arbeitet der Assistent eine Liste ab, die der Nutzer zwischendurch nicht mehr steuern kann.
 
+=== Bindung an einen Branch: `+:ai1+`
+
+Gearbeitet wird auf mehreren Branches – `main`, `ai1`, `ai2` – und oft *gleichzeitig*. Weil
+alle dasselbe Backlog lesen, zöge `next` überall denselben obersten Eintrag: zwei Sessions,
+dieselbe Aufgabe, zwei Ergebnisse. Deshalb darf der ready-Marker einen Branch nennen
+(link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031]):
+
+[source,asciidoc]
+----
+== : Eintrag ohne Bindung – auf jedem Branch ziehbar
+== :ai1 Eintrag, der auf ai1 gearbeitet werden soll
+----
+
+* *Kein Leerzeichen hinter dem `+:+`.* Alles bis zum ersten Leerzeichen ist der Branchname,
+  danach beginnt der Prompt. `+: text+` ist ungebunden, `+:ai1 text+` ist gebunden.
+* *Die Ziehreihenfolge* ist: erst die an den aktuellen Branch gebundenen Einträge, dann die
+  ungebundenen – jede Gruppe in Dokumentreihenfolge. Ein gebundener Eintrag steht damit vorn,
+  auch wenn er weiter unten in der Datei steht.
+* *Fremde Bindung heißt: nicht ziehbar.* `+:ai2+` wird auf `ai1` übergangen wie eine Notiz und
+  zählt beim Versatz nicht mit. Steht *nur* so etwas bereit, wird das gesagt – es wird kein
+  Branch gewechselt und nichts ersatzweise gezogen.
+* *Verglichen wird zeichengenau* mit dem ausgecheckten Branch. Ob der genannte Branch existiert,
+  wird nicht geprüft: Ein Eintrag darf auf einen Branch warten, den es noch nicht gibt.
+* *Die Bindung setzt der Nutzer*, zusammen mit der Freigabe. Ein `+KI+`-Vorschlag des
+  Assistenten trägt *keinen* Branch – sonst entschiede der Assistent mit, wo gearbeitet wird.
+
+WARNING: Ein Tippfehler im Branchnamen ist *still*: Der Eintrag sieht ready aus und wird nie
+gezogen, weil er zu keinem Branch passt. Der Build merkt davon nichts – Branchnamen deshalb
+kopieren, nicht tippen.
+
 === Tiefer ziehen: `next+1`, `next+2` …
 
 Manchmal ist der oberste ready-Eintrag gerade nicht der richtige – er wartet auf eine Antwort,
@@ -111,19 +152,20 @@ oder der Nutzer will erst den darunter erledigen. Dafür trägt der Befehl einen
 | Befehl | Zieht
 
 | `next`
-| den *ersten* ready-Eintrag (gleichbedeutend mit `next+0`)
+| den *ersten* Eintrag der Ziehreihenfolge (gleichbedeutend mit `next+0`)
 
 | `next+1`
-| den *zweiten* ready-Eintrag
+| den *zweiten* Eintrag der Ziehreihenfolge
 
 | `next+N`
-| den *(N+1)-ten* ready-Eintrag
+| den *(N+1)-ten* Eintrag der Ziehreihenfolge
 |===
 
-* *Gezählt werden nur ready-Einträge* (`+:+`). Was `next` übergeht – `+KI+`, Ideen, Notizen –
-  zählt auch beim Versatz nicht mit; sonst hinge die Bedeutung von `next+2` daran, wie viele
-  Notizen gerade dazwischenstehen.
-* *Gibt es so viele ready-Einträge nicht*, wird das gesagt – mit der Zahl der vorhandenen.
+* *Gezählt wird über die Ziehreihenfolge* – also über die ready-Einträge (`+:+`) in der
+  Reihenfolge, in der `next` sie zieht: die an den aktuellen Branch gebundenen zuerst. Was
+  `next` übergeht – `+KI+`, Ideen, Notizen und fremd gebundene Einträge – zählt nicht mit;
+  sonst hinge die Bedeutung von `next+2` daran, wie viele Notizen gerade dazwischenstehen.
+* *Gibt es so viele ziehbare Einträge nicht*, wird das gesagt – mit der Zahl der vorhandenen.
   Ersatzweise wird *nichts* gezogen, auch nicht der letzte.
 * *Alles Übrige bleibt wie bei `next`*: Pull vor dem Lesen, Blick auf aktive Einträge,
   Rückfrage im Wortlaut, Marker vor der Arbeit, Entfernen danach, Log-Eintrag – und *genau ein*
@@ -157,7 +199,12 @@ oder der Nutzer will erst den darunter erledigen. Dafür trägt der Befehl einen
 
 | Ein Eintrag ist spruchreif geworden
 | `+:+` an den Anfang der Überschrift – das tut der *Nutzer*; nach oben sortieren, wenn er
-  vorgeht
+  vorgeht. Gehört er auf einen bestimmten Branch, schreibt er ihn direkt dahinter (`+:ai1+`)
+
+| Nur Einträge mit *fremder* Bindung stehen bereit
+| Sagen, welche es sind und auf welchen Branch sie zeigen. Kein `git checkout`, kein
+  ersatzweises Ziehen (link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR
+  0031])
 
 | Eintrag erledigt
 | Entfernen. Kein Abhaken, kein „(done)" – der Nachweis steht im `claudeLog`
@@ -193,3 +240,6 @@ Anfang von `next`, gleich hinter dem Pull.
   Statustabelle daneben.
 * *Reihenfolge ist Priorität.* Umsortieren ist die Priorisierung; eine eigene Prioritätsspalte
   gibt es nicht – auch `next+N` ist keine: Es zieht einmalig tiefer, ohne die Liste zu ändern.
+* *Die Bindung ist kein Rang, sondern ein Ort.* `+:ai1+` sagt, *wo* gearbeitet wird, nicht
+  *wie wichtig* es ist. Wer einen Eintrag nur vorziehen will, verschiebt ihn nach oben, statt
+  ihm einen Branch anzuhängen.

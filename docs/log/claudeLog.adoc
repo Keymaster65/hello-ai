@@ -8,6 +8,41 @@ Datum: 2026-07-19
 
 '''
 
+== 117. Prompt: „Bevorzuge bei einem "next" Befehl den Prompt, dem der aktuelle Branchname folgt, also z. B. :ai1" (aus dem Backlog, `next`)
+
+_Delta: 7:48 min · 55.787 Token out · 189.417 Token in (neu) · 4.273.767 Token gesamt_
+_Stand (Session, 3 Prompts): 7:48 min · 55.787 Token out · 4.273.767 Token gesamt_
+
+*Aktionen:*
+
+* *Pull vor `next`* (ADR 0030): `git pull --ff-only` holte `+61f4c07..177bd6e+` als
+  Fast-Forward – der neue Commit hatte genau diesen Backlog-Eintrag ergänzt, er war damit der
+  oberste ready-Eintrag. Nach Bestätigung auf `+*+` gesetzt, nach Abschluss entfernt.
+* *Rückfrage zur Deutung:* Ob ein fremd gebundener Eintrag (`+:ai2+` auf `ai1`) nachrangig
+  ziehbar oder gar nicht ziehbar ist. Der Nutzer entschied: *Reservierung* – auf einem fremden
+  Branch nicht ziehbar.
+* *ADR 0031 geschrieben*
+  (`+docs/adr/0031-next-bevorzugt-branchgebundene-eintraege.adoc+`): Der ready-Marker darf
+  unmittelbar vom Branchnamen gefolgt werden (`+:ai1+`); Ziehreihenfolge ist erst gebunden,
+  dann ungebunden, jeweils in Dokumentreihenfolge; fremde Bindung heißt nicht ziehbar und zählt
+  beim Versatz nicht mit. Verworfene Optionen: nichts tun, ein Backlog je Branch, Abschnitt je
+  Branch, Angabe im Rumpftext – sowie „nur Vorrang" statt Reservierung. Führt ADR 0028/0029/0030
+  fort.
+* *PO-Skill erweitert* (`docs/prompt/po.adoc`): neuer Abschnitt „Bindung an einen Branch",
+  zweite Zeile in der Statustabelle, Schritt 4 zur *Ziehreihenfolge* umformuliert, Marker-Regel
+  (`+:ai1+` → `+*ai1+`), Versatz zählt über die Ziehreihenfolge, Zeile in der
+  Auslöser-Tabelle (nur fremde Bindungen → sagen, kein `checkout`) und ein Hinweis „Bindung ist
+  kein Rang, sondern ein Ort".
+* *Nachgezogen:* Statustabelle und Kopf in `docs/backlog.adoc`; ADR-Index als erste Zeile und
+  Backlog-Zeile in `docs/system/system.adoc`; PO-Zeile in `docs/system/arbeitsgrundlage.adoc`;
+  Wegweiser in `docs/prompt/adr.adoc` (dort fehlte auch 0030) samt Zahl 29 → 31.
+* *Gegenprobe im HTML:* `+:ai1+` steht unverändert in Backlog und Skill, `+<branch>+` wird
+  escaped – AsciiDoc deutet nichts um.
+* *DoD:* reine Doku-Änderung, kein Code angefasst – `asciidoctor`, `asciidoctorPrompt` und
+  `asciidoctorAdr` grün ohne Asciidoctor-Meldung; der letzte grüne Test-/E2E-Lauf gilt weiter.
+
+'''
+
 == 116. Prompt: „Vor einem "next" Befehl soll ein "pull" des aktuellen git Branches durchgeführt werden" (aus dem Backlog, `next`)
 
 _Delta: 3:15 min · 21.813 Token out · 69.644 Token in (neu) · 2.441.614 Token gesamt_

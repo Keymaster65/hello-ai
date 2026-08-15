@@ -16,6 +16,16 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| 117
+|„Bevorzuge bei einem "next" Befehl den Prompt, dem der aktuelle Branchname folgt, also z. B. :ai1" (aus dem Backlog, `next`)
+| 7:48 min
+| 55.787
+| 189.417
+| 4.273.767
+| 7:48 min
+| 55.787
+| 4.273.767
+
 | 116
 |„Vor einem "next" Befehl soll ein "pull" des aktuellen git Branches durchgeführt werden" (aus dem Backlog, `next`)
 | 3:15 min
