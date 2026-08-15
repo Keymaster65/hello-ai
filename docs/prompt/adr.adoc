@@ -89,7 +89,8 @@ Zusammenfassung: *Was* gilt, steht im ADR selbst.
   link:{adr}/0029-next-mit-versatz{adrext}[0029],
   link:{adr}/0030-pull-vor-next{adrext}[0030],
   link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[0031],
-  link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[0033]
+  link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[0033],
+  link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[0036]
 
 | Commit, Zusammenführen von Branches
 | link:{adr}/0030-pull-vor-next{adrext}[0030],

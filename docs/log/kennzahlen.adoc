@@ -16,7 +16,17 @@
 | Stand out / Token
 | Stand gesamt / Token
 
-| 127
+| 131
+|„ja, commit"
+| 53:14 min
+| 32.053
+| 1.287.590
+| 16.536.341
+| 1:47:30 h
+| 158.536
+| 41.664.065
+
+| 130
 |„Wende ARD 0035 auf die Anwendung an und startet sie" (aus dem Backlog, `next`)
 | 52:54 min
 | 121.256
@@ -25,6 +35,36 @@
 | 52:54 min
 | 121.256
 | 23.849.634
+
+| 129
+|„commit"
+| 18:27 min
+| 24.131
+| 273.337
+| 8.579.131
+| 43:38 min
+| 122.929
+| 23.845.676
+
+| 128
+|„Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein." (aus dem Backlog, `next`)
+| 11:16 min
+| 72.313
+| 210.900
+| 7.989.015
+| 11:40 min
+| 74.997
+| 8.229.618
+
+| 127
+|„next"
+| 24 s
+| 2.684
+| 52.149
+| 240.603
+| 24 s
+| 2.684
+| 240.603
 
 | 126
 |„ja, commit"

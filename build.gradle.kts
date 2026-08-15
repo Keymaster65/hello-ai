@@ -1,4 +1,5 @@
 import org.asciidoctor.gradle.jvm.AsciidoctorTask
+import se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask
 
 // Root project: no sources of its own – it aggregates, and it renders the documentation that
 // belongs to the repository as a whole.
@@ -25,6 +26,11 @@ plugins {
     // `docs/system` und gehört deshalb hierher und in kein Modul (ADR 0022). Das ist das
     // einzige Plugin, das im Wurzelprojekt auch angewendet wird.
     alias(libs.plugins.asciidoctor.convert)
+
+    // Liest die git-Historie und schreibt daraus die Tabelle für den Anhang „Änderungen"
+    // (ADR 0036). Gehört aus demselben Grund hierher: Die Historie beschreibt das Repository
+    // als Ganzes, nicht eine Schicht.
+    alias(libs.plugins.git.changelog)
 
     // Liefert `clean` und `build` im Wurzelprojekt, damit die Doku am gewohnten Befehl hängt
     // und `./gradlew clean` das gerenderte Ergebnis wieder entfernt.
@@ -97,6 +103,56 @@ val asciidoctorAdr by tasks.registering(AsciidoctorTask::class) {
     )
 }
 
+// Die git-Historie als Tabelle für den Anhang „Änderungen" (ADR 0036). Sie wird bei jedem Lauf
+// neu erzeugt und *nicht* eingecheckt – anders als die Kennzahlen-Tabelle (ADR 0027), deren
+// Quelle im Repository liegt. Hier ist die Quelle das Repository selbst: Ein Commit kann sich
+// nicht enthalten, eine eingecheckte Fassung wäre ab ihrem Entstehen um genau einen Commit alt.
+val gitChangelogAdoc = layout.buildDirectory.file("docs/changelog/gitchangelog.adoc")
+
+tasks.named<GitChangelogTask>("gitChangelog") {
+    group = "documentation"
+    description = "Schreibt die git-Historie als AsciiDoc-Tabelle für den Anhang „Änderungen\"."
+
+    file.set(gitChangelogAdoc.get().asFile)
+    outputs.file(gitChangelogAdoc)
+    // Die Eingabe ist die git-Historie, nicht eine Datei, die Gradle beobachten könnte: Ein
+    // `commit` ändert weder das Buildskript noch das Arbeitsverzeichnis. Der Task läuft deshalb
+    // immer – er kostet Sekundenbruchteile. Ob das Ergebnis *neu* ist, entscheidet danach der
+    // Asciidoctor-Task an seinem Eingabe-Hash.
+    outputs.upToDateWhen { false }
+
+    dateFormat.set("yyyy-MM-dd HH:mm")
+    timeZone.set("Europe/Berlin")
+    // Voreinstellung des Plugins ist `^Merge.*` – das verschluckt auch Commits, die nur mit dem
+    // Wort „Merge" beginnen. Ausgelassen werden sollen die von git selbst erzeugten
+    // Zusammenführungen, sonst nichts.
+    ignoreCommitsIfMessageMatches.set(
+        "^Merge branch .*|^Merge remote-tracking branch .*|^Merge pull request .*",
+    )
+
+    // Handlebars-Vorlage. `commits` ist die flache Liste aller Commits, neuester zuerst; das
+    // Projekt kennt keine Tags, nach denen sich gruppieren ließe. Die Spalte „Betreff" ist
+    // *literal* (`l`) – aus demselben Grund wie die Prompt-Spalte der Kennzahlen-Tabelle
+    // (ADR 0027): In einer Commit-Message steht beliebiger Text, und der darf den Build nicht
+    // brechen.
+    templateContent.set(
+        """
+        // Erzeugt vom Gradle-Task `gitChangelog` aus der git-Historie – nicht von Hand ändern,
+        // nicht eingecheckt. Eingebunden in docs/system/anhang-aenderungen.adoc (ADR 0036).
+
+        [[git-historie-tabelle]]
+        .Commits, neuester zuerst
+        [cols="2,1m,6l", options="header"]
+        |===
+        | Datum | Commit | Betreff
+        {{#commits}}
+        | {{commitTime}} | {{hash}} | {{{messageTitle}}}
+        {{/commits}}
+        |===
+        """.trimIndent(),
+    )
+}
+
 tasks.named<AsciidoctorTask>("asciidoctor") {
     group = "documentation"
     description = "Rendert die Systemdokumentation aus docs/system nach HTML."
@@ -104,6 +160,10 @@ tasks.named<AsciidoctorTask>("asciidoctor") {
     inputs.files(provider { includesAusserhalb(file("docs/system")) })
         .withPropertyName("eingebundeneDateienAusserhalb")
         .withPathSensitivity(PathSensitivity.RELATIVE)
+
+    // Der Anhang „Änderungen" bindet die erzeugte Tabelle ein; ohne diese Kante stünde
+    // Asciidoctor vor einem fehlenden `include` – und der ist als Build-Fehler konfiguriert.
+    dependsOn(tasks.named("gitChangelog"))
 
     setSourceDir(file("docs/system"))
     // Ohne das löst Asciidoctor `include::` gegen das Projektverzeichnis auf, nicht gegen die

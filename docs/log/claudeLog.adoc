@@ -9,7 +9,37 @@ Datum: 2026-07-19
 
 '''
 
-== 127. Prompt: „Wende ARD 0035 auf die Anwendung an und startet sie" (aus dem Backlog, `next`)
+== 131. Prompt: „ja, commit"
+
+_Delta: 53:14 min · 32.053 Token out · 1.287.590 Token in (neu) · 16.536.341 Token gesamt_
+_Stand (Session, 4 Prompts): 1:47:30 h · 158.536 Token out · 41.664.065 Token gesamt_
+
+*Aktionen:*
+
+* *Commit-Message bestätigt und committet* („Liefere die security.txt nach RFC 9116 am Ursprung
+  aus"), Author Claude, Trailer `+Co-Authored-By: Claude Opus 5 (1M context)+`.
+* *Nummernkollision beim Merge:* `+origin/main+` trägt bereits ein *ADR 0036* („Git-Historie als
+  erzeugtes Kapitel"), gepusht, während meines nur lokal lag. Merge abgebrochen, mein ADR zu
+  `+0037-security-txt-am-ursprung-per-engine-valve.adoc+` umbenannt und alle Verweise nachgezogen
+  (neun Dateien, darunter JavaDoc in vier Java-Klassen); der Commit wurde *amendiert* statt eine
+  Umbenennung nachzuschieben – dieselbe Auflösung wie zwei Prompts zuvor bei ADR 0035/0036.
+* *DoD nach der Umnummerierung wiederholt*, weil Quelldateien angefasst waren: `+build+` grün,
+  `+systemtest+` grün, `+e2eTest+` grün (9 Tests).
+* *Merge `+origin/main+` aufgelöst:* ADR-Index behält *beide* Zeilen (0037 über 0036); im
+  Protokoll ist mein Eintrag von 127 auf *130* gerückt, weil `main` schon 127–129 vergeben hat;
+  im Backlog greifen *beide* Streichungen (mein `+:sm+`-Eintrag, ihr `+:doc+`-Eintrag).
+  `+kennzahlen.adoc+` neu erzeugt (ADR 0027), nicht von Hand aufgelöst.
+* *Backlog zusätzlich bereinigt:* Der nicht-ready-Eintrag „Realisiere RFC 9116 … für die
+  Anwendung" beschreibt genau die eben ausgelieferte Arbeit und ist entfernt.
+* *DoD für den Merge-Commit erneut vollständig:* `+clean build+` grün (8:27 min), `+systemtest+`
+  grün, `+e2eTest+` grün – der Merge hatte mit dem `+gitChangelog+`-Plugin fremden Build-Code
+  hereingeholt.
+* *Beobachtung nebenbei:* Ein `+e2eTest+` bei laufender Anwendung auf `+:8080+` blieb hängen
+  (`+reuseExistingServer+`); nach dem Stoppen der Instanz lief die Suite in 32 s durch.
+
+'''
+
+== 130. Prompt: „Wende ARD 0035 auf die Anwendung an und startet sie" (aus dem Backlog, `next`)
 
 _Delta: 52:54 min · 121.256 Token out · 924.307 Token in (neu) · 23.849.634 Token gesamt_
 _Stand (Session, 3 Prompts): 52:54 min · 121.256 Token out · 23.849.634 Token gesamt_
@@ -50,6 +80,85 @@ _Stand (Session, 3 Prompts): 52:54 min · 121.256 Token out · 23.849.634 Token 
   Security-Skill.
 * *Backlog:* Eintrag entfernt; zwei `+KI+`-Vorschläge ergänzt (vertraulicher Meldeweg,
   Signatur der Datei).
+'''
+
+== 129. Prompt: „commit"
+
+_Delta: 18:27 min · 24.131 Token out · 273.337 Token in (neu) · 8.579.131 Token gesamt_
+_Stand (Session, 5 Prompts): 43:38 min · 122.929 Token out · 23.845.676 Token gesamt_
+
+*Aktionen:*
+
+* *Commit* `+66a5ae4+` „Git-Historie als Kapitel im Anhang Änderungen", Author Claude.
+* *Merge nach ADR 0032/0034:* einmal `+git fetch origin+`, dann `main`, `sm`, `doc`, `dev` –
+  `main` und `doc` „Already up to date", `dev` gibt es nicht.
+* *Kollision gefunden:* `origin/sm` hat ebenfalls ein *ADR 0035* angelegt (Security-Skill,
+  RFC 9116), zwölf Minuten vor meinem. Zwei ADRs mit derselben Nummer widersprechen dem
+  ADR-Skill – die Auflösung ist eine Entscheidung über fremde Arbeit, deshalb `+git merge
+  --abort+` und gefragt.
+* *Antwort des Nutzers:* Security behält 0035. Mein ADR ist zu
+  `+0036-git-historie-als-erzeugtes-kapitel.adoc+` geworden, alle elf Verweise nachgezogen
+  (Buildskript, ADR, Log, zwei Skills, drei Kapitel); der Commit wurde vor dem Push amendiert,
+  statt eine Umbenennung nachzuschieben.
+* *Merge aufgelöst* (`+da9b744+`): ADR-Index und Backlog behalten *beide* Seiten; im Protokoll
+  behält `sm` 125/126, meine Einträge wurden zu 127/128 – neuester oben, wie es die Datei
+  vorgibt. `+kennzahlen.adoc+` nicht von Hand aufgelöst, sondern neu erzeugt (ADR 0027):
+  133 Einträge.
+* *DoD nach dem Merge erneut durchlaufen:* `+clean build+` grün (7:42 min), `+systemtest+`
+  grün, `+e2eTest+` grün (9 Tests), alle drei Asciidoctor-Tasks ohne neue Meldung.
+* Nach dem Merge sind `+origin/main+`, `+origin/sm+` und `+origin/doc+` Vorfahren von `HEAD`.
+
+'''
+
+== 128. Prompt: „Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein." (aus dem Backlog, `next`)
+
+_Delta: 11:16 min · 72.313 Token out · 210.900 Token in (neu) · 7.989.015 Token gesamt_
+_Stand (Session, 4 Prompts): 11:40 min · 74.997 Token out · 8.229.618 Token gesamt_
+
+*Aktionen:*
+
+* *Werkzeug geprüft, bevor es eingebaut wurde:* Plugin-Jar und `+git-changelog-lib+` gelesen –
+  registrierter Task `+gitChangelog+`, Wurzel-Modell mit flacher Liste `+commits+`, keine
+  Tags im Projekt, also Tabelle statt Gruppierung nach Release.
+* *Versionskatalog:* `+gitChangelog = "3.1.2"+` und Plugin-Alias `+git-changelog+` in
+  `+gradle/libs.versions.toml+` (ADR 0018).
+* *`+build.gradle.kts+`:* Plugin im Wurzelprojekt angewendet; Task `+gitChangelog+` schreibt
+  `+build/docs/changelog/gitchangelog.adoc+` aus einer Handlebars-Vorlage – Spalten Datum,
+  Commit, Betreff, Spalte „Betreff" *literal*. Der Task ist nie up-to-date (ein Commit ändert
+  keine Datei, die Gradle beobachtet); `+asciidoctor+` hängt daran, damit der `include` nie
+  ins Leere zeigt.
+* *Voreinstellung verengt:* `+^Merge.*+` hätte auch den Commit „Merge-Eintrag abgearbeitet …"
+  verschluckt – ausgelassen werden jetzt nur die von git erzeugten Zusammenführungen.
+* *Anhang „Änderungen" in zwei Kapitel geteilt:* „Git-Historie" (erzeugte Tabelle) vor
+  „Session-Protokoll". Nebeneffekt: Die Asciidoctor-Meldung „section title out of sequence"
+  für `+claudeLog.adoc+` ist weg – der Log steht jetzt unter einer Ebene-2-Überschrift. Die
+  zweite Meldung („missing attribute: id") bleibt.
+* *Gefunden und dokumentiert:* Das Werkzeug lässt aufgehobene Commits samt ihrem `Revert` weg
+  (hier das Paar „Fix planning 1"). 80 Tabellenzeilen bei 82 Commits – das steht als
+  Auslassung im Anhang und unter „Nachteile" im ADR.
+* *ADR 0036* „Git-Historie als erzeugtes Kapitel im Anhang „Änderungen"" geschrieben, mit der
+  Gegenprobe zu ADR 0027: erzeugt *und* eingecheckt dort, erzeugt *und nicht* eingecheckt hier,
+  weil die Quelle hier das Repository selbst ist.
+* *Nachgezogen:* ADR-Index in `+system.adoc+`, Befehlstabelle in `+betrieb.adoc+`,
+  Wegweiser-Tabelle im ADR-Skill, Dateitabelle im Systemdoku-Skill; Backlog-Eintrag entfernt.
+* *Geprüft (DoD vollständig):* `+./gradlew clean build+` grün (7:28 min), `+systemtest+` grün,
+  `+e2eTest+` grün (9 Tests); `+asciidoctor+`, `+asciidoctorPrompt+` und `+asciidoctorAdr+`
+  ohne neue Meldung. `+./gradlew clean asciidoctor+` läuft auch nach `+clean+` durch – der
+  `include` auf `+build/+` trägt.
+
+'''
+
+== 127. Prompt: „next"
+
+_Delta: 24 s · 2.684 Token out · 52.149 Token in (neu) · 240.603 Token gesamt_
+_Stand (Session, 3 Prompts): 24 s · 2.684 Token out · 240.603 Token gesamt_
+
+*Aktionen:*
+
+* `+git pull --ff-only+` auf `doc`: „Already up to date"; kein Eintrag stand auf aktiv.
+* Ziehreihenfolge auf `doc` gebildet: zwei an den Branch gebundene `+:doc+`-Einträge, keine
+  ungebundenen – `+:sm+` ist fremd gebunden und damit hier nicht ziehbar.
+* Ersten Eintrag im Wortlaut vorgelegt und zur Bestätigung gefragt; nichts ausgeführt.
 
 '''
 
