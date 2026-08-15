@@ -16,6 +16,26 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| 111
+|„commit"
+| 2:40 min
+| 720
+| 1.064
+| 493.052
+| 35:41 min
+| 214.531
+| 35.499.078
+
+| 110
+|„Stelle die ADRs in der Systemdocumentation in umgekehrter Reihenfolge das, so dass die neuesten ADRs oben beginnen." (aus dem Backlog, `next`)
+| 1:44 min
+| 9.030
+| 17.088
+| 4.790.675
+| 32:23 min
+| 211.980
+| 34.271.138
+
 | 109
 |„commit"
 | 11 s

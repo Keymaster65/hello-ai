@@ -97,38 +97,42 @@ absichtlich nicht zusammenfasst, weil eine Zusammenfassung die Optionen und dami
 eines ADR verliert. Die Kapitel verweisen jeweils an der Stelle, an der die Entscheidung
 wirkt.
 
+Die Tabelle ist *absteigend* sortiert – das neueste ADR steht oben, wie im Session-Protokoll
+und in der Kennzahlen-Tabelle. Wer wissen will, was zuletzt entschieden wurde, liest die
+erste Zeile.
+
 [cols="1,3", options="header"]
 |===
 | ADR | Thema
 
-| link:{adr}/0001-jooq-codegen-aus-flyway-skripten{adrext}[0001] | jOOQ-Codegen aus Migrationsskripten
-| link:{adr}/0002-embedded-postgres-statt-testcontainers{adrext}[0002] | Embedded PostgreSQL statt Testcontainers
-| link:{adr}/0003-kein-lombok-records-und-konstruktor-injektion{adrext}[0003] | Kein Lombok, Records, Konstruktor-Injektion
-| link:{adr}/0004-liquibase-statt-flyway{adrext}[0004] | Liquibase statt Flyway
-| link:{adr}/0005-springdoc-openapi-und-swagger-ui{adrext}[0005] | springdoc-openapi und Swagger UI
-| link:{adr}/0006-testsets-plugin-und-systemtests{adrext}[0006] | test-sets-Plugin und Systemtests
-| link:{adr}/0007-react-frontend-mit-backend-als-bff{adrext}[0007] | React-Frontend mit Backend als BFF
-| link:{adr}/0008-playwright-fuer-e2e-tests{adrext}[0008] | Playwright für E2E-Tests
-| link:{adr}/0009-gradle-wrapper-verbindlich{adrext}[0009] | Gradle-Wrapper verbindlich
-| link:{adr}/0010-gradle-kotlin-dsl{adrext}[0010] | Gradle Kotlin-DSL
-| link:{adr}/0011-backend-als-gradle-modul{adrext}[0011] | Backend als Gradle-Modul
-| link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[0012] | ArchUnit für die Schichtenregel
-| link:{adr}/0013-ein-gradle-modul-je-schicht{adrext}[0013] | Ein Gradle-Modul je Schicht
-| link:{adr}/0014-schichtmodule-unter-backend{adrext}[0014] | Schichtmodule unter `backend`
-| link:{adr}/0015-alle-bausteine-unter-modules{adrext}[0015] | Alle Bausteine unter `modules`
-| link:{adr}/0016-context-path-recipes{adrext}[0016] | Context-Path `/recipes`
-| link:{adr}/0017-router-mit-spa-fallback{adrext}[0017] | Router mit SPA-Fallback
-| link:{adr}/0018-versionskatalog-libs-versions-toml{adrext}[0018] | Versionskatalog `libs.versions.toml`
-| link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[0019] | Onion-Architecture-Regel in ArchUnit
-| link:{adr}/0020-domain-in-model-und-services-teilen{adrext}[0020] | Domäne in `model` und `services` teilen
-| link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[0021] | Currying für Records mit mehr als zwei Komponenten
-| link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[0022] | AsciiDoc-Systemdokumentation in `docs/system`
-| link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[0023] | AsciiDoc für Master-Prompt und Skills in `docs/prompt`
-| link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[0024] | Systemdokumentation im Boot-Jar unter `/recipes/docs/`
-| link:{adr}/0025-claudelog-als-asciidoc{adrext}[0025] | Session-Protokoll `claudeLog` als AsciiDoc
-| link:{adr}/0026-adrs-als-asciidoc{adrext}[0026] | ADRs als AsciiDoc, gerendert im Boot-Jar
-| link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[0027] | Kennzahlen des `claudeLog` als erzeugte Tabelle im Anhang
 | link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[0028] | Backlog als Anhang, Status im Anfang der Überschrift
+| link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[0027] | Kennzahlen des `claudeLog` als erzeugte Tabelle im Anhang
+| link:{adr}/0026-adrs-als-asciidoc{adrext}[0026] | ADRs als AsciiDoc, gerendert im Boot-Jar
+| link:{adr}/0025-claudelog-als-asciidoc{adrext}[0025] | Session-Protokoll `claudeLog` als AsciiDoc
+| link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[0024] | Systemdokumentation im Boot-Jar unter `/recipes/docs/`
+| link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[0023] | AsciiDoc für Master-Prompt und Skills in `docs/prompt`
+| link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[0022] | AsciiDoc-Systemdokumentation in `docs/system`
+| link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[0021] | Currying für Records mit mehr als zwei Komponenten
+| link:{adr}/0020-domain-in-model-und-services-teilen{adrext}[0020] | Domäne in `model` und `services` teilen
+| link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[0019] | Onion-Architecture-Regel in ArchUnit
+| link:{adr}/0018-versionskatalog-libs-versions-toml{adrext}[0018] | Versionskatalog `libs.versions.toml`
+| link:{adr}/0017-router-mit-spa-fallback{adrext}[0017] | Router mit SPA-Fallback
+| link:{adr}/0016-context-path-recipes{adrext}[0016] | Context-Path `/recipes`
+| link:{adr}/0015-alle-bausteine-unter-modules{adrext}[0015] | Alle Bausteine unter `modules`
+| link:{adr}/0014-schichtmodule-unter-backend{adrext}[0014] | Schichtmodule unter `backend`
+| link:{adr}/0013-ein-gradle-modul-je-schicht{adrext}[0013] | Ein Gradle-Modul je Schicht
+| link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[0012] | ArchUnit für die Schichtenregel
+| link:{adr}/0011-backend-als-gradle-modul{adrext}[0011] | Backend als Gradle-Modul
+| link:{adr}/0010-gradle-kotlin-dsl{adrext}[0010] | Gradle Kotlin-DSL
+| link:{adr}/0009-gradle-wrapper-verbindlich{adrext}[0009] | Gradle-Wrapper verbindlich
+| link:{adr}/0008-playwright-fuer-e2e-tests{adrext}[0008] | Playwright für E2E-Tests
+| link:{adr}/0007-react-frontend-mit-backend-als-bff{adrext}[0007] | React-Frontend mit Backend als BFF
+| link:{adr}/0006-testsets-plugin-und-systemtests{adrext}[0006] | test-sets-Plugin und Systemtests
+| link:{adr}/0005-springdoc-openapi-und-swagger-ui{adrext}[0005] | springdoc-openapi und Swagger UI
+| link:{adr}/0004-liquibase-statt-flyway{adrext}[0004] | Liquibase statt Flyway
+| link:{adr}/0003-kein-lombok-records-und-konstruktor-injektion{adrext}[0003] | Kein Lombok, Records, Konstruktor-Injektion
+| link:{adr}/0002-embedded-postgres-statt-testcontainers{adrext}[0002] | Embedded PostgreSQL statt Testcontainers
+| link:{adr}/0001-jooq-codegen-aus-flyway-skripten{adrext}[0001] | jOOQ-Codegen aus Migrationsskripten
 |===
 
 [[pflege-dieser-dokumentation]]

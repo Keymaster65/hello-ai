@@ -86,6 +86,11 @@ Der vollständige Index steht in `docs/system/system.adoc`, Abschnitt
 „Architekturentscheidungen" – er ist die einzige Liste aller ADRs; hier wird sie nicht
 zweitgeführt.
 
+IMPORTANT: Der Index ist *absteigend* sortiert. Ein neues ADR kommt als *erste* Tabellenzeile
+dazu, nicht ans Ende – dieselbe Richtung wie im `claudeLog` und in der Kennzahlen-Tabelle.
+Angehängt statt eingefügt fällt es niemandem auf: Die Tabelle bleibt gültiges AsciiDoc, nur
+die Sortierung ist still gebrochen.
+
 == Was der Build erzwingt – und was nicht
 
 Ein Teil der Entscheidungen ist maschinell abgesichert; der Rest hängt am Lesen. Der zweite
