@@ -41,11 +41,11 @@ Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt
 was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
 `git`.
 
-== : doc Erzeuge entsprechenden Links, wenn claudeLog in der Systemdocumentation referenziert wird.
+== :doc Erzeuge entsprechenden Links, wenn claudeLog in der Systemdocumentation referenziert wird.
 
-== : doc Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein.
+== :doc Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein.
 
-== : doc Füge die Querverweise zwischen den Prompts in claudeLog und den Commits im gitChangeLog hinzu.
+== :doc Füge die Querverweise zwischen den Prompts in claudeLog und den Commits im gitChangeLog hinzu.
 
 == doc Ergänze ein Plant UML Diagram für die Abhängigkeiten der gradle Module in der Asciidoc Systemdocumentation. Ergänze die Pflege der Abhängigkeiten in den Skills. Ergänze ein ADR für Plant UML.
 
@@ -55,7 +55,7 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 
 == ?dev Ergänze einen MCP Service für den Zugriff auf Rezepte.
 
-== : sm Erstelle security Skills für das backend. Füge dort die Einhaltung von RFC 9116 (definiert den Standard security.txt) hinzu
+== :sm Erstelle security Skills für das backend. Füge dort die Einhaltung von RFC 9116 (definiert den Standard security.txt) hinzu
 
     cooldown
     Updates
