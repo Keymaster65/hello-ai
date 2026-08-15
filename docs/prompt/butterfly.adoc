@@ -31,6 +31,8 @@ sondern im Develop-Skill (`docs/prompt/develop.adoc`).
   Eintrag). Nummerierung fortlaufend hochzählen.
 * Direkt unter der Überschrift zwei *Kennzahlenzeilen*: *Delta* (dieser Prompt) und *Stand*
   (kumuliert über die Session) – siehe unten.
+* *Jede Zahl trägt ihre Einheit*: die Dauer `s`, `min` oder `h`, jede Tokenzahl das Wort
+  `Token`. Eine nackte Zahl ist im Log nicht lesbar.
 * Je Eintrag ein `*Aktionen:*`-Block (bzw. `*Antwort:*` bei reinen Fragen) mit knapper
   Stichpunkt-Zusammenfassung von Tun und Ergebnis.
 * Zwischen zwei Einträgen ein Trenner `'''`.
@@ -64,12 +66,15 @@ Ergebnis (Beispiel):
 
 [source,asciidoc]
 ----
-_Delta: 1:00 · 9.290 out · 3.656 in (neu) · 3.003.002 gesamt_
-_Stand (Session, 68 Prompts): 4:04:54 · 764.504 out · 289.620.079 gesamt_
+_Delta: 1:00 min · 9.290 Token out · 3.656 Token in (neu) · 3.003.002 Token gesamt_
+_Stand (Session, 68 Prompts): 4:04:54 h · 764.504 Token out · 289.620.079 Token gesamt_
 ----
 
 * *Delta* = Aufwand *dieses einen* Prompts. *Stand* = kumuliert über alle Prompts der
   Session; der Prompt ist damit als Delta zum vorigen Stand lesbar.
+* *Einheiten setzt das Skript selbst*: `s` unter einer Minute, `min` bei `m:ss`, `h` bei
+  `h:mm:ss`; Tokenzahlen mit nachgestelltem `Token`. Von Hand geschriebene Zeilen folgen
+  derselben Form.
 * *Dauer* = Wanduhrzeit von der Ankunft des Prompts bis zur letzten Antwort, inklusive
   Wartezeit auf Werkzeuge und Builds. Die Stand-Dauer ist die *Summe der Turn-Dauern*, nicht
   die Zeit seit Session-Beginn – Wartezeit auf den Nutzer zählt nicht.
@@ -102,8 +107,8 @@ _Stand (Session, 68 Prompts): 4:04:54 · 764.504 out · 289.620.079 gesamt_
 ----
 == <N>. Prompt: „<Original-Prompt>"
 
-_Delta: <m:ss> · <out> out · <in> in (neu) · <gesamt> gesamt_
-_Stand (Session, <k> Prompts): <h:mm:ss> · <out> out · <gesamt> gesamt_
+_Delta: <m:ss> min · <out> Token out · <in> Token in (neu) · <gesamt> Token gesamt_
+_Stand (Session, <k> Prompts): <h:mm:ss> h · <out> Token out · <gesamt> Token gesamt_
 
 *Aktionen:*
 

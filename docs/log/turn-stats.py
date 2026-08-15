@@ -111,6 +111,14 @@ def format_seconds(total: int) -> str:
     return f"{hours}:{minutes:02d}:{secs:02d}" if hours else f"{minutes}:{secs:02d}"
 
 
+def with_unit(formatted: str) -> str:
+    """Hängt die Einheit an eine Dauer an: `30s` → `30 s`, `4:52` → `4:52 min`,
+    `1:04:52` → `1:04:52 h`. Eine Zahl ohne Einheit ist im Log nicht lesbar."""
+    if formatted.endswith("s"):
+        return f"{formatted[:-1]} s"
+    return f"{formatted} h" if formatted.count(":") == 2 else f"{formatted} min"
+
+
 def cumulative(turns: list[dict], upto: int) -> dict:
     """Stand über alle Turns dieser Session bis einschließlich Index `upto`."""
     window = turns[: upto + 1]
@@ -140,10 +148,12 @@ def log_line(turns: list[dict], index: int) -> str:
     fresh = turn["input"] + turn["cache_write"]
     state = cumulative(turns, index)
     return (
-        f"_Delta: {format_seconds(seconds(turn))} · {german(turn['output'])} out · "
-        f"{german(fresh)} in (neu) · {german(total_tokens(turn))} gesamt_\n"
-        f"_Stand (Session, {state['turns']} Prompts): {format_seconds(state['seconds'])} · "
-        f"{german(state['output'])} out · {german(state['total'])} gesamt_"
+        f"_Delta: {with_unit(format_seconds(seconds(turn)))} · "
+        f"{german(turn['output'])} Token out · {german(fresh)} Token in (neu) · "
+        f"{german(total_tokens(turn))} Token gesamt_\n"
+        f"_Stand (Session, {state['turns']} Prompts): "
+        f"{with_unit(format_seconds(state['seconds']))} · "
+        f"{german(state['output'])} Token out · {german(state['total'])} Token gesamt_"
     )
 
 
@@ -173,15 +183,16 @@ def main() -> None:
 
     first = 0 if args.all else max(0, len(turns) - max(1, args.n))
     print(f"# {os.path.basename(path)} – {len(turns)} Turns\n")
-    print(f"{'#':>4}  {'Dauer':>7}  {'out':>8}  {'gesamt':>12}  "
-          f"{'Stand Dauer':>11}  {'Stand out':>10}  Prompt")
+    print(f"{'#':>4}  {'Dauer':>10}  {'out/Token':>10}  {'gesamt/Token':>13}  "
+          f"{'Stand Dauer':>12}  {'Stand out/Token':>15}  Prompt")
     for index in range(first, len(turns)):
         turn = turns[index]
         state = cumulative(turns, index)
         prompt = " ".join(turn["prompt"].split())[:44]
-        print(f"{index + 1:>4}  {duration(turn):>7}  {turn['output']:>8,}  "
-              f"{total_tokens(turn):>12,}  {format_seconds(state['seconds']):>11}  "
-              f"{state['output']:>10,}  {prompt}")
+        print(f"{index + 1:>4}  {with_unit(duration(turn)):>10}  {turn['output']:>10,}  "
+              f"{total_tokens(turn):>13,}  "
+              f"{with_unit(format_seconds(state['seconds'])):>12}  "
+              f"{state['output']:>15,}  {prompt}")
 
 
 if __name__ == "__main__":

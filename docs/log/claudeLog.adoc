@@ -8,10 +8,51 @@ Datum: 2026-07-19
 
 '''
 
+== 99. Prompt: „commit"
+
+_Delta: 29 s · 1.230 Token out · 4 Token in (neu) · 241.374 Token gesamt_
+_Stand (Session, 6 Prompts): 9:19 min · 98.915 Token out · 7.942.629 Token gesamt_
+
+*Aktionen:*
+
+* Eintrag 99 zuerst ergänzt, dann committet (Author = Claude):
+  `Einheiten in den Kennzahlen des claudeLog ergänzen`.
+* Grundlage ist der grüne DoD-Lauf aus Eintrag 95; seither wurden nur Doku, Log und
+  `+turn-stats.py+` angefasst, kein Produktionscode.
+* *Nachtrag:* Der vorangegangene Commit-Turn („commit" zu Eintrag 97, Commit `5b50d3b`) hat
+  keinen eigenen Log-Eintrag bekommen – das wird hier vermerkt statt nachträglich
+  umnummeriert.
+
+'''
+
+== 98. Prompt: „Ergänze im claudeLog die fehlenden Einheiten wie Token oder Zeiteinheiten."
+
+_Delta: 2:09 min · 26.783 Token out · 37.809 Token in (neu) · 2.434.527 Token gesamt_
+_Stand (Session, 5 Prompts): 7:57 min · 94.102 Token out · 6.989.047 Token gesamt_
+
+*Aktionen:*
+
+* *Einheiten festgelegt:* Dauer als `+s+` (unter einer Minute), `+min+` (`+m:ss+`) oder
+  `+h+` (`+h:mm:ss+`); jede Tokenzahl mit nachgestelltem `+Token+`. Aus
+  `+_Delta: 30s · 4.403 out …+` wird `+_Delta: 30 s · 4.403 Token out …+`.
+* *84 Kennzahlenzeilen* im Log per Skript umgestellt (alle `+_Delta:+`- und `+_Stand:+`-Zeilen
+  aller sechs vorhandenen Formvarianten); die eine Zeile „nicht ermittelbar" blieb unberührt.
+  Danach geprüft: Jede Zeile trifft das erwartete Muster, `git diff` zeigt 84 Zeilen geändert –
+  keine Zeile sonst.
+* `+turn-stats.py+`: neue Funktion `+with_unit()+` hängt die Zeit-Einheit an, `+log_line()+`
+  setzt `+Token+`; die Übersichtstabelle (`+-n+` / `+--all+`) trägt die Einheiten jetzt in
+  Kopf und Werten (`+out/Token+`, `+gesamt/Token+`).
+* `+butterfly.adoc+`: Einheiten-Regel im Abschnitt „Format", Beispiel, Erläuterung und Vorlage
+  nachgezogen – die Vorlage ist damit wieder das, was das Skript ausgibt.
+* Reine Doku-/Werkzeugänderung, kein Produktionscode angefasst; der letzte grüne Test-,
+  Systemtest- und E2E-Lauf gilt weiter.
+
+'''
+
 == 97. Prompt: „Ergänze die Einhaltung der ADR einen eigenen Skill adr.adoc"
 
-_Delta: 4:52 · 60.054 out · 208.939 in (neu) · 3.593.346 gesamt_
-_Stand (Session, 3 Prompts): 4:52 · 60.054 out · 3.593.346 gesamt_
+_Delta: 4:52 min · 60.054 Token out · 208.939 Token in (neu) · 3.593.346 Token gesamt_
+_Stand (Session, 3 Prompts): 4:52 min · 60.054 Token out · 3.593.346 Token gesamt_
 
 *Aktionen:*
 
@@ -40,8 +81,8 @@ _Stand (Session, 3 Prompts): 4:52 · 60.054 out · 3.593.346 gesamt_
 
 == 96. Prompt: „Stelle alle ADR auf Asciidoc um"
 
-_Delta: 47:19 · 261.951 out · 678.882 in (neu) · 34.620.667 gesamt_
-_Stand (Session, 3 Prompts): 47:19 · 261.951 out · 34.620.667 gesamt_
+_Delta: 47:19 min · 261.951 Token out · 678.882 Token in (neu) · 34.620.667 Token gesamt_
+_Stand (Session, 3 Prompts): 47:19 min · 261.951 Token out · 34.620.667 Token gesamt_
 
 *Aktionen:*
 
@@ -84,8 +125,8 @@ _Stand (Session, 3 Prompts): 47:19 · 261.951 out · 34.620.667 gesamt_
 
 == 95. Prompt: „commit"
 
-_Delta: 30s · 4.403 out · 5.562 in (neu) · 1.087.124 gesamt_
-_Stand (Session, 8 Prompts): 39:32 · 217.262 out · 31.139.710 gesamt_
+_Delta: 30 s · 4.403 Token out · 5.562 Token in (neu) · 1.087.124 Token gesamt_
+_Stand (Session, 8 Prompts): 39:32 min · 217.262 Token out · 31.139.710 Token gesamt_
 
 *Aktionen:*
 
@@ -102,8 +143,8 @@ _Stand (Session, 8 Prompts): 39:32 · 217.262 out · 31.139.710 gesamt_
 
 == 94. Prompt: „Stelle claudeLog.md auf Asciidoc um."
 
-_Delta: 15:34 · 101.302 out · 143.783 in (neu) · 15.825.012 gesamt_
-_Stand (Session, 7 Prompts): 37:24 · 208.230 out · 28.562.741 gesamt_
+_Delta: 15:34 min · 101.302 Token out · 143.783 Token in (neu) · 15.825.012 Token gesamt_
+_Stand (Session, 7 Prompts): 37:24 min · 208.230 Token out · 28.562.741 Token gesamt_
 
 *Aktionen:*
 
@@ -150,8 +191,8 @@ _Stand (Session, 7 Prompts): 37:24 · 208.230 out · 28.562.741 gesamt_
 
 == 93. Prompt: „commit"
 
-_Delta: 6:15 · 19.447 out · 30.412 in (neu) · 2.016.140 gesamt_
-_Stand (Session, 5 Prompts): 20:41 · 100.772 out · 11.332.538 gesamt_
+_Delta: 6:15 min · 19.447 Token out · 30.412 Token in (neu) · 2.016.140 Token gesamt_
+_Stand (Session, 5 Prompts): 20:41 min · 100.772 Token out · 11.332.538 Token gesamt_
 
 *Aktionen:*
 
@@ -182,8 +223,8 @@ _Stand (Session, 5 Prompts): 20:41 · 100.772 out · 11.332.538 gesamt_
 
 == 92. Prompt: „Erstelle die Pflege von claudeLog.md einen eigenen Skill."
 
-_Delta: 5:35 · 41.336 out · 96.487 in (neu) · 4.296.328 gesamt_
-_Stand (Session, 4 Prompts): 13:41 · 77.597 out · 8.557.747 gesamt_
+_Delta: 5:35 min · 41.336 Token out · 96.487 Token in (neu) · 4.296.328 Token gesamt_
+_Stand (Session, 4 Prompts): 13:41 min · 77.597 Token out · 8.557.747 Token gesamt_
 
 *Aktionen:*
 
@@ -219,8 +260,8 @@ _Stand (Session, 4 Prompts): 13:41 · 77.597 out · 8.557.747 gesamt_
 
 == 91. Prompt: „/run"
 
-_Delta: 7:29 · 32.217 out · 161.990 in (neu) · 4.006.972 gesamt_
-_Stand (Session, 3 Prompts): 7:29 · 32.217 out · 4.006.972 gesamt_
+_Delta: 7:29 min · 32.217 Token out · 161.990 Token in (neu) · 4.006.972 Token gesamt_
+_Stand (Session, 3 Prompts): 7:29 min · 32.217 Token out · 4.006.972 Token gesamt_
 
 *Aktionen:*
 
@@ -257,8 +298,8 @@ _Stand (Session, 3 Prompts): 7:29 · 32.217 out · 4.006.972 gesamt_
 
 == 90. Prompt: „Führe alle Tests aus"
 
-_Delta: 6:40 · 11.193 out · 19.770 in (neu) · 1.767.479 gesamt_
-_Stand (Session, 5 Prompts): 12:36 · 30.391 out · 4.037.602 gesamt_
+_Delta: 6:40 min · 11.193 Token out · 19.770 Token in (neu) · 1.767.479 Token gesamt_
+_Stand (Session, 5 Prompts): 12:36 min · 30.391 Token out · 4.037.602 Token gesamt_
 
 *Aktionen:*
 
@@ -302,8 +343,8 @@ _Delta: nicht ermittelbar (Kennzahlen erst im Folgeturn gemessen)_
 
 == 88. Prompt: „start app"
 
-_Delta: 3:34 · 11.938 out · 68.694 in (neu) · 1.261.400 gesamt_
-_Stand (Session, 3 Prompts): 3:34 · 11.938 out · 1.261.400 gesamt_
+_Delta: 3:34 min · 11.938 Token out · 68.694 Token in (neu) · 1.261.400 Token gesamt_
+_Stand (Session, 3 Prompts): 3:34 min · 11.938 Token out · 1.261.400 Token gesamt_
 
 *Aktionen:*
 
@@ -325,8 +366,8 @@ _Stand (Session, 3 Prompts): 3:34 · 11.938 out · 1.261.400 gesamt_
 
 == 87. Prompt: „commit"
 
-_Delta: 18s · 1.573 out · 524.314 gesamt_
-_Stand (Session, 5 Prompts): 34:37 · 156.655 out · 20.181.589 gesamt_
+_Delta: 18 s · 1.573 Token out · 524.314 Token gesamt_
+_Stand (Session, 5 Prompts): 34:37 min · 156.655 Token out · 20.181.589 Token gesamt_
 
 *Aktionen:*
 
@@ -340,8 +381,8 @@ _Stand (Session, 5 Prompts): 34:37 · 156.655 out · 20.181.589 gesamt_
 
 == 86. Prompt: „start"
 
-_Delta: 44s · 5.973 out · 1.208.959 gesamt_
-_Stand (Session, 4 Prompts): 34:19 · 155.082 out · 19.657.275 gesamt_
+_Delta: 44 s · 5.973 Token out · 1.208.959 Token gesamt_
+_Stand (Session, 4 Prompts): 34:19 min · 155.082 Token out · 19.657.275 Token gesamt_
 
 *Aktionen:*
 
@@ -358,8 +399,8 @@ _Stand (Session, 4 Prompts): 34:19 · 155.082 out · 19.657.275 gesamt_
 
 == 85. Prompt: „Deploy die Systemdocumentation aus HTML in der Anwendung."
 
-_Delta: 32:28 · 145.521 out · 342.987 in (neu) · 17.781.075 gesamt_
-_Stand (Session, 3 Prompts): 32:28 · 145.521 out · 17.781.075 gesamt_
+_Delta: 32:28 min · 145.521 Token out · 342.987 Token in (neu) · 17.781.075 Token gesamt_
+_Stand (Session, 3 Prompts): 32:28 min · 145.521 Token out · 17.781.075 Token gesamt_
 
 *Aktionen:*
 
@@ -398,8 +439,8 @@ _Stand (Session, 3 Prompts): 32:28 · 145.521 out · 17.781.075 gesamt_
 
 == 84. Prompt: „Für die referenzierten Sourcen in der Asciidoc Systemdocumentation, erstelle einen Anhang, der die Sourcen gut lesbar enthält. Verlinke diese Sourcen an den entsprechenden Stellen."
 
-_Delta: 12:10 · 131.885 out · 151.429 in (neu) · 18.884.136 gesamt_
-_Stand (Session, 10 Prompts): 44:18 · 371.462 out · 42.895.458 gesamt_
+_Delta: 12:10 min · 131.885 Token out · 151.429 Token in (neu) · 18.884.136 Token gesamt_
+_Stand (Session, 10 Prompts): 44:18 min · 371.462 Token out · 42.895.458 Token gesamt_
 
 *Aktionen:*
 
@@ -449,8 +490,8 @@ _Stand (Session, 10 Prompts): 44:18 · 371.462 out · 42.895.458 gesamt_
 
 == 83. Prompt: „Bette master prompt und skills in der Systemdocumentation ein, so dass so dort lesbar sind."
 
-_Delta: 3:32 · 33.802 out · 27.744 in (neu) · 4.242.226 gesamt_
-_Stand (Session, 7 Prompts): 31:01 · 233.950 out · 22.803.098 gesamt_
+_Delta: 3:32 min · 33.802 Token out · 27.744 Token in (neu) · 4.242.226 Token gesamt_
+_Stand (Session, 7 Prompts): 31:01 min · 233.950 Token out · 22.803.098 Token gesamt_
 
 *Aktionen:*
 
@@ -487,8 +528,8 @@ _Stand (Session, 7 Prompts): 31:01 · 233.950 out · 22.803.098 gesamt_
 
 == 82. Prompt: „Ergänze master prompt und skills in der Systemdocumentation."
 
-_Delta: 3:22 · 39.244 out · 62.998 in (neu) · 4.389.005 gesamt_
-_Stand (Session, 5 Prompts): 26:06 · 192.536 out · 16.580.715 gesamt_
+_Delta: 3:22 min · 39.244 Token out · 62.998 Token in (neu) · 4.389.005 Token gesamt_
+_Stand (Session, 5 Prompts): 26:06 min · 192.536 Token out · 16.580.715 Token gesamt_
 
 *Aktionen:*
 
@@ -528,8 +569,8 @@ _Stand (Session, 5 Prompts): 26:06 · 192.536 out · 16.580.715 gesamt_
 
 == 81. Prompt: „Wandle skills und master prompt in asciidoc um. Füge ADR für die zukünftige Pflege dafür hinzu."
 
-_Delta: 18:08 · 133.233 out · 292.445 in (neu) · 6.568.724 gesamt_
-_Stand (Session, 3 Prompts): 18:08 · 133.233 out · 6.568.724 gesamt_
+_Delta: 18:08 min · 133.233 Token out · 292.445 Token in (neu) · 6.568.724 Token gesamt_
+_Stand (Session, 3 Prompts): 18:08 min · 133.233 Token out · 6.568.724 Token gesamt_
 
 *Aktionen:*
 
@@ -580,8 +621,8 @@ _Stand (Session, 3 Prompts): 18:08 · 133.233 out · 6.568.724 gesamt_
 
 == 80. Prompt: „Erstelle eine Asciidoc Systemdocumentation in "docs/system" und Pflege diese in Zukunft mit. Ergänze das als ADR."
 
-_Delta: 37:50 · 176.921 out · 608.818 in (neu) · 23.137.633 gesamt_
-_Stand (Session, 1 Prompts): 37:50 · 176.921 out · 23.137.633 gesamt_
+_Delta: 37:50 min · 176.921 Token out · 608.818 Token in (neu) · 23.137.633 Token gesamt_
+_Stand (Session, 1 Prompts): 37:50 min · 176.921 Token out · 23.137.633 Token gesamt_
 
 *Aktionen:*
 
@@ -625,8 +666,8 @@ _Stand (Session, 1 Prompts): 37:50 · 176.921 out · 23.137.633 gesamt_
 
 == 79. Prompt: „Ergänze Currying für Java-record Klassen mit mehr als 2 Members. Ergänze das als ADR."
 
-_Delta: 15:49 · 86.319 out · 221.592 in (neu) · 5.987.902 gesamt_
-_Stand (Session, 3 Prompts): 15:49 · 86.319 out · 5.987.902 gesamt_
+_Delta: 15:49 min · 86.319 Token out · 221.592 Token in (neu) · 5.987.902 Token gesamt_
+_Stand (Session, 3 Prompts): 15:49 min · 86.319 Token out · 5.987.902 Token gesamt_
 
 *Aktionen:*
 
@@ -662,8 +703,8 @@ _Stand (Session, 3 Prompts): 15:49 · 86.319 out · 5.987.902 gesamt_
 
 == 78. Prompt: „Teile das "domain" Java Package im "domain" gradle Modul auf in "domain/model" und "domain/services"."
 
-_Delta: 9:45 · 28.577 out · 104.834 in (neu) · 2.675.738 gesamt_
-_Stand (Session, 3 Prompts): 9:45 · 28.577 out · 2.675.738 gesamt_
+_Delta: 9:45 min · 28.577 Token out · 104.834 Token in (neu) · 2.675.738 Token gesamt_
+_Stand (Session, 3 Prompts): 9:45 min · 28.577 Token out · 2.675.738 Token gesamt_
 
 *Aktionen:*
 
@@ -689,8 +730,8 @@ _Stand (Session, 3 Prompts): 9:45 · 28.577 out · 2.675.738 gesamt_
 
 == 77. Prompt: „warte auf den build und committe dann"
 
-_Delta: 1:13 · 9.322 out · 1.644.108 gesamt_
-_Stand (Session, 5 Prompts): 10:09 · 53.111 out · 4.974.240 gesamt_
+_Delta: 1:13 min · 9.322 Token out · 1.644.108 Token gesamt_
+_Stand (Session, 5 Prompts): 10:09 min · 53.111 Token out · 4.974.240 Token gesamt_
 
 *Aktionen:*
 
@@ -707,8 +748,8 @@ _Stand (Session, 5 Prompts): 10:09 · 53.111 out · 4.974.240 gesamt_
 
 == 76. Prompt: „commit"
 
-_Delta: 1:28 · 7.333 out · 764.087 gesamt_
-_Stand (Session, 4 Prompts): 8:56 · 43.789 out · 3.330.132 gesamt_
+_Delta: 1:28 min · 7.333 Token out · 764.087 Token gesamt_
+_Stand (Session, 4 Prompts): 8:56 min · 43.789 Token out · 3.330.132 Token gesamt_
 
 *Aktionen:*
 
@@ -724,8 +765,8 @@ _Stand (Session, 4 Prompts): 8:56 · 43.789 out · 3.330.132 gesamt_
 
 == 75. Prompt: „Ergänze einen archunit Test mit onionArchitecture()"
 
-_Delta: 7:28 · 36.456 out · 2.566.045 gesamt_
-_Stand (Session, 3 Prompts): 7:28 · 36.456 out · 2.566.045 gesamt_
+_Delta: 7:28 min · 36.456 Token out · 2.566.045 Token gesamt_
+_Stand (Session, 3 Prompts): 7:28 min · 36.456 Token out · 2.566.045 Token gesamt_
 
 *Aktionen:*
 
@@ -755,8 +796,8 @@ _Stand (Session, 3 Prompts): 7:28 · 36.456 out · 2.566.045 gesamt_
 
 == 74. Prompt: „commit"
 
-_Delta: 28s · 2.212 out · 2.309 in (neu) · 401.386 gesamt_
-_Stand (Session, 4 Prompts): 23:26 · 65.323 out · 4.632.597 gesamt_
+_Delta: 28 s · 2.212 Token out · 2.309 Token in (neu) · 401.386 Token gesamt_
+_Stand (Session, 4 Prompts): 23:26 min · 65.323 Token out · 4.632.597 Token gesamt_
 
 *Aktionen:*
 
@@ -773,8 +814,8 @@ _Stand (Session, 4 Prompts): 23:26 · 65.323 out · 4.632.597 gesamt_
 
 == 73. Prompt: „Stelle die gradle Dependencies um auf den Versionskatalog libs.versions.toml. Ergänze ein entsprechendes ADR."
 
-_Delta: 22:16 · 58.048 out · 240.721 in (neu) · 3.842.517 gesamt_
-_Stand (Session, 3 Prompts): 22:16 · 58.048 out · 3.842.517 gesamt_
+_Delta: 22:16 min · 58.048 Token out · 240.721 Token in (neu) · 3.842.517 Token gesamt_
+_Stand (Session, 3 Prompts): 22:16 min · 58.048 Token out · 3.842.517 Token gesamt_
 
 *Aktionen:*
 
@@ -801,8 +842,8 @@ _Stand (Session, 3 Prompts): 22:16 · 58.048 out · 3.842.517 gesamt_
 
 == 72. Prompt: „commit"
 
-_Delta: 8s · 682 out · 8.060 in (neu) · 254.330 gesamt_
-_Stand (Session, 4 Prompts): 5:00 · 28.311 out · 2.099.579 gesamt_
+_Delta: 8 s · 682 Token out · 8.060 Token in (neu) · 254.330 Token gesamt_
+_Stand (Session, 4 Prompts): 5:00 min · 28.311 Token out · 2.099.579 Token gesamt_
 
 *Aktionen:*
 
@@ -816,8 +857,8 @@ _Stand (Session, 4 Prompts): 5:00 · 28.311 out · 2.099.579 gesamt_
 
 == 71. Prompt: „Ergänze die ersten commits des Branches chronologisch umgekehrt am Ende von claudeLod.md bis zu dem Punkt, ab welchem sie schon im claudeLod.md enthalten sind"
 
-_Delta: 4:52 · 27.629 out · 105.952 in (neu) · 1.845.249 gesamt_
-_Stand (Session, 3 Prompts): 4:52 · 27.629 out · 1.845.249 gesamt_
+_Delta: 4:52 min · 27.629 Token out · 105.952 Token in (neu) · 1.845.249 Token gesamt_
+_Stand (Session, 3 Prompts): 4:52 min · 27.629 Token out · 1.845.249 Token gesamt_
 
 *Aktionen:*
 
@@ -845,8 +886,8 @@ _Stand (Session, 3 Prompts): 4:52 · 27.629 out · 1.845.249 gesamt_
 
 == 70. Prompt: „commit"
 
-_Delta: 10s · 2.148 out · 18 in (neu) · 181.503 gesamt_
-_Stand (Session, 4 Prompts): 1:38 · 16.921 out · 1.153.574 gesamt_
+_Delta: 10 s · 2.148 Token out · 18 Token in (neu) · 181.503 Token gesamt_
+_Stand (Session, 4 Prompts): 1:38 min · 16.921 Token out · 1.153.574 Token gesamt_
 
 *Aktionen:*
 
@@ -864,8 +905,8 @@ _Stand (Session, 4 Prompts): 1:38 · 16.921 out · 1.153.574 gesamt_
 
 == 69. Prompt: „/clear" / „Do /clear after each commit"
 
-_Delta: 31s · 4.639 out · 105.339 in (neu) · 337.591 gesamt_
-_Stand (Session, 3 Prompts): 31s · 4.639 out · 337.591 gesamt_
+_Delta: 31 s · 4.639 Token out · 105.339 Token in (neu) · 337.591 Token gesamt_
+_Stand (Session, 3 Prompts): 31 s · 4.639 Token out · 337.591 Token gesamt_
 
 *Aktionen:*
 
@@ -889,8 +930,8 @@ _Stand (Session, 3 Prompts): 31s · 4.639 out · 337.591 gesamt_
 
 == 68. Prompt: „commit" / „start" / „commit"
 
-_Delta: 2:41 · 7.381 out · 9.185 in (neu) · 15.814.811 gesamt_
-_Stand (Session, 89 Prompts): 6:40:04 · 1.012.570 out · 530.666.585 gesamt_
+_Delta: 2:41 min · 7.381 Token out · 9.185 Token in (neu) · 15.814.811 Token gesamt_
+_Stand (Session, 89 Prompts): 6:40:04 h · 1.012.570 Token out · 530.666.585 Token gesamt_
 
 *Aktionen:*
 
@@ -909,8 +950,8 @@ _Stand (Session, 89 Prompts): 6:40:04 · 1.012.570 out · 530.666.585 gesamt_
 
 == 67. Prompt: „Ergänze einen Router mit SPA-Fallback für teilbare Rezept-URLs"
 
-_Delta: 47:15 · 58.448 out · 2.362.346 in (neu) · 50.126.519 gesamt_
-_Stand (Session, 86 Prompts): 6:37:23 · 1.005.189 out · 514.851.774 gesamt_
+_Delta: 47:15 min · 58.448 Token out · 2.362.346 Token in (neu) · 50.126.519 Token gesamt_
+_Stand (Session, 86 Prompts): 6:37:23 h · 1.005.189 Token out · 514.851.774 Token gesamt_
 
 *Aktionen:*
 
@@ -937,8 +978,8 @@ _Stand (Session, 86 Prompts): 6:37:23 · 1.005.189 out · 514.851.774 gesamt_
 
 == 66. Prompt: „commit" / „Ja, so committen"
 
-_Delta: 6s · 155 out · 11 in (neu) · 746.115 gesamt_
-_Stand (Session, 84 Prompts): 5:48:31 · 944.080 out · 458.740.047 gesamt_
+_Delta: 6 s · 155 Token out · 11 Token in (neu) · 746.115 Token gesamt_
+_Stand (Session, 84 Prompts): 5:48:31 h · 944.080 Token out · 458.740.047 Token gesamt_
 
 *Aktionen:*
 
@@ -952,8 +993,8 @@ _Stand (Session, 84 Prompts): 5:48:31 · 944.080 out · 458.740.047 gesamt_
 
 == 65. Prompt: „Ändere die Applikations Basis-URL auf \"recipes\"" / „retry"
 
-_Delta: 35:18 · 32.095 out · 3.567.310 in (neu) · 41.613.717 gesamt_
-_Stand (Session, 82 Prompts): 5:47:28 · 941.070 out · 455.013.588 gesamt_
+_Delta: 35:18 min · 32.095 Token out · 3.567.310 Token in (neu) · 41.613.717 Token gesamt_
+_Stand (Session, 82 Prompts): 5:47:28 h · 941.070 Token out · 455.013.588 Token gesamt_
 
 *Aktionen:*
 
@@ -991,8 +1032,8 @@ _Stand (Session, 82 Prompts): 5:47:28 · 941.070 out · 455.013.588 gesamt_
 
 == 64. Prompt: „commit" / „Ja, so committen"
 
-_Delta: 5s · 155 out · 11 in (neu) · 711.988 gesamt_
-_Stand (Session, 80 Prompts): 5:11:10 · 902.175 out · 408.398.997 gesamt_
+_Delta: 5 s · 155 Token out · 11 Token in (neu) · 711.988 Token gesamt_
+_Stand (Session, 80 Prompts): 5:11:10 h · 902.175 Token out · 408.398.997 Token gesamt_
 
 *Aktionen:*
 
@@ -1006,8 +1047,8 @@ _Stand (Session, 80 Prompts): 5:11:10 · 902.175 out · 408.398.997 gesamt_
 
 == 63. Prompt: „Ändere dem Projektnamen von \"recipe-backend\" auf \"receipes"
 
-_Delta: 13:59 · 9.671 out · 1.396.550 in (neu) · 10.608.423 gesamt_
-_Stand (Session, 78 Prompts): 5:10:19 · 899.904 out · 404.841.951 gesamt_
+_Delta: 13:59 min · 9.671 Token out · 1.396.550 Token in (neu) · 10.608.423 Token gesamt_
+_Stand (Session, 78 Prompts): 5:10:19 h · 899.904 Token out · 404.841.951 Token gesamt_
 
 *Aktionen:*
 
@@ -1033,8 +1074,8 @@ _Stand (Session, 78 Prompts): 5:10:19 · 899.904 out · 404.841.951 gesamt_
 
 == 62. Prompt: „Was soll modules-broken?" / „commit"
 
-_Delta: 32s · 1.000 out · 2.496 in (neu) · 2.086.775 gesamt_
-_Stand (Session, 76 Prompts): 4:54:56 · 887.409 out · 390.039.896 gesamt_
+_Delta: 32 s · 1.000 Token out · 2.496 Token in (neu) · 2.086.775 Token gesamt_
+_Stand (Session, 76 Prompts): 4:54:56 h · 887.409 Token out · 390.039.896 Token gesamt_
 
 *Antwort/Aktionen:*
 
@@ -1060,8 +1101,8 @@ _Stand (Session, 76 Prompts): 4:54:56 · 887.409 out · 390.039.896 gesamt_
 
 == 61. Prompt: „Bewege die gradle Module backend und frontend als Untermodule in ein neues \"modules\""
 
-_Delta: 21:50 · 64.616 out · 82.628 in (neu) · 46.694.974 gesamt_
-_Stand (Session, 74 Prompts): 4:44:22 · 869.664 out · 372.749.163 gesamt_
+_Delta: 21:50 min · 64.616 Token out · 82.628 Token in (neu) · 46.694.974 Token gesamt_
+_Stand (Session, 74 Prompts): 4:44:22 h · 869.664 Token out · 372.749.163 Token gesamt_
 
 *Aktionen:*
 
@@ -1099,8 +1140,8 @@ _Stand (Session, 74 Prompts): 4:44:22 · 869.664 out · 372.749.163 gesamt_
 
 == 60. Prompt: „commit" / „Ja, so committen"
 
-_Delta: 6s · 148 out · 11 in (neu) · 634.678 gesamt_
-_Stand (Session, 73 Prompts): 4:21:47 · 803.588 out · 323.506.093 gesamt_
+_Delta: 6 s · 148 Token out · 11 Token in (neu) · 634.678 Token gesamt_
+_Stand (Session, 73 Prompts): 4:21:47 h · 803.588 Token out · 323.506.093 Token gesamt_
 
 *Aktionen:*
 
@@ -1114,8 +1155,8 @@ _Stand (Session, 73 Prompts): 4:21:47 · 803.588 out · 323.506.093 gesamt_
 
 == 59. Prompt: „Bewege die Module \"bootstrap → adapter → application → domain\" als Untermodule in ein neues backend Modul"
 
-_Delta: 8:32 · 20.014 out · 23.315 in (neu) · 14.272.774 gesamt_
-_Stand (Session, 71 Prompts): 4:16:59 · 800.883 out · 319.704.624 gesamt_
+_Delta: 8:32 min · 20.014 Token out · 23.315 Token in (neu) · 14.272.774 Token gesamt_
+_Stand (Session, 71 Prompts): 4:16:59 h · 800.883 Token out · 319.704.624 Token gesamt_
 
 *Aktionen:*
 
@@ -1143,8 +1184,8 @@ _Stand (Session, 71 Prompts): 4:16:59 · 800.883 out · 319.704.624 gesamt_
 
 == 58. Prompt: „commit" / „commit"
 
-_Delta: 12s · 546 out · 682 in (neu) · 1.831.603 gesamt_
-_Stand (Session, 70 Prompts): 4:07:43 · 779.092 out · 302.983.291 gesamt_
+_Delta: 12 s · 546 Token out · 682 Token in (neu) · 1.831.603 Token gesamt_
+_Stand (Session, 70 Prompts): 4:07:43 h · 779.092 Token out · 302.983.291 Token gesamt_
 
 *Aktionen:*
 
@@ -1162,8 +1203,8 @@ _Stand (Session, 70 Prompts): 4:07:43 · 779.092 out · 302.983.291 gesamt_
 
 == 57. Prompt: „Ergänze Dauer und Tokenanzahl immer im claudeLog.md auch für einen Prompt als Delta zu letzten Stand."
 
-_Delta: 2:10 · 19.657 out · 12.400 in (neu) · 9.052.479 gesamt_
-_Stand (Session, 68 Prompts): 4:06:04 · 774.871 out · 295.669.556 gesamt_
+_Delta: 2:10 min · 19.657 Token out · 12.400 Token in (neu) · 9.052.479 Token gesamt_
+_Stand (Session, 68 Prompts): 4:06:04 h · 774.871 Token out · 295.669.556 Token gesamt_
 
 *Aktionen:*
 
@@ -1186,8 +1227,8 @@ _Stand (Session, 68 Prompts): 4:06:04 · 774.871 out · 295.669.556 gesamt_
 
 == 56. Prompt: „commit" / „Ja, so committen"
 
-_Delta: 1:35 · 5.223 out · 3.663 in (neu) · 7.143.965 gesamt_
-_Stand (Session, 67 Prompts): 4:03:54 · 755.214 out · 286.617.077 gesamt_
+_Delta: 1:35 min · 5.223 Token out · 3.663 Token in (neu) · 7.143.965 Token gesamt_
+_Stand (Session, 67 Prompts): 4:03:54 h · 755.214 Token out · 286.617.077 Token gesamt_
 
 *Aktionen:*
 
@@ -1204,8 +1245,8 @@ _Stand (Session, 67 Prompts): 4:03:54 · 755.214 out · 286.617.077 gesamt_
 
 == 55. Prompt: „Ergänze Dauer und Tokenanzahl immer im claudeLog.md"
 
-_Delta: 3:42 · 25.154 out · 21.955 in (neu) · 14.047.520 gesamt_
-_Stand (Session, 65 Prompts): 4:02:19 · 749.991 out · 279.473.112 gesamt_
+_Delta: 3:42 min · 25.154 Token out · 21.955 Token in (neu) · 14.047.520 Token gesamt_
+_Stand (Session, 65 Prompts): 4:02:19 h · 749.991 Token out · 279.473.112 Token gesamt_
 
 *Aktionen:*
 
