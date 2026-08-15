@@ -16,6 +16,26 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| 107
+|„commit"
+| 19 s
+| 2.821
+| 4.201
+| 856.965
+| 23:55 min
+| 182.657
+| 21.587.376
+
+| 106
+|„Ersetze im claudeLog den "" durch den tatsächlichen Prompt, der ausgeführt wurde. Mache das zukünftig für alle "next" Befehle." (aus dem Backlog, `next`)
+| 2:49 min
+| 15.178
+| 26.916
+| 5.124.572
+| 22:48 min
+| 177.480
+| 19.882.205
+
 | 105
 |„commit"
 | 26 s
@@ -27,7 +47,7 @@
 | 12.802.300
 
 | 104
-|„next"
+|„Strukturiere die Inhalte in den ADR in Kapitel, wie z. B. in ADR-0026. Die ADR, wie z. B. ADR-0001 sollen inhaltlich nicht verändert werden. Referenzen sollen bei Bedarf ergänzt werden. Die Optionen oder Konsequenzen sollen als Aufzählung strukturiert werden." (aus dem Backlog, `next`)
 | 17:00 min
 | 147.984
 | 382.321

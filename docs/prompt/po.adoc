@@ -68,7 +68,17 @@ Historie mitschleppt, ist nach zwanzig Prompts keine Arbeitsliste mehr.
 . *Eintrag entfernen*, sobald die Aufgabe erledigt ist – Überschrift, Rumpf und die zugehörige
   Leerzeile.
 . *Im Log vermerken*, dass der Prompt aus dem Backlog kam (Butterfly-Skill). Der Log ist danach
-  die einzige Spur des Eintrags.
+  die einzige Spur des Eintrags. In der Überschrift steht deshalb *nicht* `next`, sondern der
+  *Wortlaut des gezogenen Eintrags*, gefolgt von `+(aus dem Backlog, `next`)+`:
++
+[source,asciidoc]
+----
+== 104. Prompt: „Strukturiere die Inhalte in den ADR in Kapitel …" (aus dem Backlog, `next`)
+----
++
+`next` ist der Befehl, mit dem der Prompt gezogen wurde – nicht der Prompt. Stünde er in der
+Überschrift, wäre nach dem Entfernen des Eintrags nirgends mehr nachlesbar, *was* gearbeitet
+wurde; die Kennzahlen-Tabelle (Manager-Skill) trüge eine Zeile ohne Aussage.
 
 `next` führt *genau einen* Eintrag aus. Der übernächste braucht ein neues `next` – sonst
 arbeitet der Assistent eine Liste ab, die der Nutzer zwischendurch nicht mehr steuern kann.

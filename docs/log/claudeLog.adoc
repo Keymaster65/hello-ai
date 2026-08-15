@@ -8,6 +8,48 @@ Datum: 2026-07-19
 
 '''
 
+== 107. Prompt: „commit"
+
+_Delta: 19 s · 2.821 Token out · 4.201 Token in (neu) · 856.965 Token gesamt_
+_Stand (Session, 6 Prompts): 23:55 min · 182.657 Token out · 21.587.376 Token gesamt_
+
+*Aktionen:*
+
+* *DoD geprüft:* Seit dem grünen Lauf in Eintrag 104 wurde kein Code angefasst – nur `+docs/+`.
+  `asciidoctor` und `asciidoctorPrompt` grün.
+* *Commit-Message vorgelegt und bestätigt* („Backlog-Prompt statt next im claudeLog führen"),
+  dann committet mit `+--author="Claude <noreply@anthropic.com>"+`.
+
+'''
+
+== 106. Prompt: „Ersetze im claudeLog den "" durch den tatsächlichen Prompt, der ausgeführt wurde. Mache das zukünftig für alle "next" Befehle." (aus dem Backlog, `next`)
+
+_Delta: 2:49 min · 15.178 Token out · 26.916 Token in (neu) · 5.124.572 Token gesamt_
+_Stand (Session, 5 Prompts): 22:48 min · 177.480 Token out · 19.882.205 Token gesamt_
+
+*Aktionen:*
+
+* *Eintrag 104 korrigiert:* Die Überschrift trug den Befehl `+next+` statt der Aufgabe. Sie
+  nennt jetzt den Wortlaut des gezogenen Backlog-Eintrags (ADR-Kapitelstruktur), gefolgt von
+  `+(aus dem Backlog, `next`)+`. Es war der einzige betroffene Eintrag im Bestand.
+* *Regel in `+po.adoc+` verankert* (Schritt 8 des `+next+`-Ablaufs), mit Beispielzeile und
+  Begründung: `+next+` ist der Befehl, mit dem gezogen wurde, nicht der Prompt. Nach dem
+  Entfernen des Backlog-Eintrags wäre sonst nirgends mehr nachlesbar, *was* gearbeitet wurde –
+  und die Kennzahlen-Tabelle trüge eine Zeile ohne Aussage.
+* *Querverweis in `+butterfly.adoc+`:* Der Hinweis „Prompt-Text möglichst wörtlich übernehmen"
+  hätte der Regel sonst widersprochen; er nennt jetzt die Ausnahme und verweist auf den
+  PO-Skill. Die Regel selbst steht nur an einer Stelle (`+prompt.adoc+`, „Eine Regel steht an
+  genau einer Stelle").
+* *Kennzahlen-Tabelle neu erzeugt* – die Prompt-Spalte liest die Überschrift, Zeile 104 trug
+  vorher „next".
+* *Prüfung:* `asciidoctorPrompt` und `asciidoctor` grün. Kein Code angefasst, es gilt der grüne
+  Lauf aus Eintrag 104 weiter (`+clean build+`, `systemtest` 19/19, `e2eTest` 9/9).
+* *Nebenbefund, nicht angefasst:* Commit `+e604e33+` trägt die Message „Add springdoc-openapi
+  3.1 and ADR 0005", geändert wurde darin aber nur `+docs/backlog.adoc+` (2 Zeilen). Message
+  und Inhalt passen nicht zusammen.
+
+'''
+
 == 105. Prompt: „commit"
 
 _Delta: 26 s · 5.099 Token out · 6.111 Token in (neu) · 959.714 Token gesamt_
@@ -26,7 +68,7 @@ _Stand (Session, 4 Prompts): 18:56 min · 159.084 Token out · 12.802.300 Token 
 
 '''
 
-== 104. Prompt: „next"
+== 104. Prompt: „Strukturiere die Inhalte in den ADR in Kapitel, wie z. B. in ADR-0026. Die ADR, wie z. B. ADR-0001 sollen inhaltlich nicht verändert werden. Referenzen sollen bei Bedarf ergänzt werden. Die Optionen oder Konsequenzen sollen als Aufzählung strukturiert werden." (aus dem Backlog, `next`)
 
 _Delta: 17:00 min · 147.984 Token out · 382.321 Token in (neu) · 9.973.322 Token gesamt_
 _Stand (Session, 3 Prompts): 17:00 min · 147.984 Token out · 9.973.322 Token gesamt_
