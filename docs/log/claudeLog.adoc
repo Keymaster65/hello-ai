@@ -8,6 +8,26 @@ Datum: 2026-07-19
 
 '''
 
+== 118. Prompt: „next"
+
+_Delta: 19 s · 3.074 Token out · 55.318 Token in (neu) · 396.536 Token gesamt_
+_Stand (Session, 3 Prompts): 19 s · 3.074 Token out · 396.536 Token gesamt_
+
+*Aktionen:*
+
+* *Pull vor `next`* (ADR 0030): `git pull --ff-only` holte `+9626206..14c3b66+` als
+  Fast-Forward – der Commit hat die fünf ready-Einträge des Backlogs an die Branches `sm` und
+  `doc` gebunden.
+* *Kein Eintrag gezogen* (ADR 0031): Auf dem ausgecheckten Branch `ai1` gibt es weder einen
+  gebundenen noch einen ungebundenen ready-Eintrag – alle fünf tragen eine *fremde* Bindung
+  (`+:sm+` einmal, `+:doc+` viermal). Kein `+*+`-Marker gesetzt, kein Branch gewechselt, nichts
+  ersatzweise ausgeführt.
+* *Kein aktiver Eintrag* im Backlog vorgefunden; die Branches `sm` und `doc` existieren lokal
+  noch nicht – laut ADR 0031 zulässig, ein Eintrag darf auf einen Branch warten.
+* Keine Code-Änderung; der letzte grüne Testlauf gilt unverändert weiter.
+
+'''
+
 == 117. Prompt: „Bevorzuge bei einem "next" Befehl den Prompt, dem der aktuelle Branchname folgt, also z. B. :ai1" (aus dem Backlog, `next`)
 
 _Delta: 7:48 min · 55.787 Token out · 189.417 Token in (neu) · 4.273.767 Token gesamt_
