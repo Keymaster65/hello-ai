@@ -16,6 +16,16 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| 125
+|„Erstelle security Skills für das backend. Füge dort die Einhaltung von RFC 9116 (definiert den Standard security.txt) hinzu" (aus dem Backlog, `next`)
+| 6:27 min
+| 69.140
+| 190.355
+| 5.112.285
+| 6:49 min
+| 71.589
+| 5.350.722
+
 | 124
 |„ja, commit"
 | 21 s

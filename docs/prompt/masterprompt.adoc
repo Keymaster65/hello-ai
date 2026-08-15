@@ -50,7 +50,7 @@ bearbeiteten Datei bzw. Aufgabe.
 
 == Skills
 
-Die acht Skills stehen als eigene AsciiDoc-Dateien neben dieser Datei und werden *bei Bedarf*
+Die neun Skills stehen als eigene AsciiDoc-Dateien neben dieser Datei und werden *bei Bedarf*
 gelesen – anders als dieser Master-Prompt, der in jeder Session gilt
 (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]).
 
@@ -70,6 +70,12 @@ gelesen – anders als dieser Master-Prompt, der in jeder Session gilt
 | Tests
 | `docs/prompt/tests.adoc`
 | Schreiben, Prüfen oder Refactoring von Tests
+
+| Security
+| `docs/prompt/security.adoc`
+| Änderungen, die die Angriffsfläche des Backends berühren: Endpunkt, Fehlerbild, Abfrage,
+  Protokoll, Konfiguration, Abhängigkeit, offener Pfad; enthält die Bindung an RFC 9116
+  (link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035])
 
 | Systemdokumentation
 | `docs/prompt/systemdoku.adoc`

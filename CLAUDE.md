@@ -13,12 +13,13 @@ Workflow, Befehle, Definition of Done). Er wird hier importiert:
 Sollte der Import einmal nicht greifen, ist `docs/prompt/masterprompt.adoc` zu Beginn der
 Session zu lesen – ohne ihn fehlen die verbindlichen Regeln.
 
-Die acht Skills werden **bei Bedarf** gelesen, nicht importiert; der Master-Prompt nennt sie
+Die neun Skills werden **bei Bedarf** gelesen, nicht importiert; der Master-Prompt nennt sie
 mit Pfad und Anlass:
 
 - `docs/prompt/architektur.adoc` – Architektur
 - `docs/prompt/adr.adoc` – ADR / Architekturentscheidungen (`docs/adr/*.adoc`)
 - `docs/prompt/tests.adoc` – Tests
+- `docs/prompt/security.adoc` – Security (Backend, inklusive RFC 9116 / `security.txt`)
 - `docs/prompt/systemdoku.adoc` – Systemdokumentation (`docs/system/*.adoc`)
 - `docs/prompt/butterfly.adoc` – Butterfly / Session-Protokoll (`docs/log/claudeLog.adoc`)
 - `docs/prompt/manager.adoc` – Manager / Kennzahlen-Tabelle (`docs/log/kennzahlen.adoc`)

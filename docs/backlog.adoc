@@ -53,13 +53,6 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 
 == ?dev Ergänze einen MCP Service für den Zugriff auf Rezepte.
 
-== :sm Erstelle security Skills für das backend. Füge dort die Einhaltung von RFC 9116 (definiert den Standard security.txt) hinzu
-
-    cooldown
-    Updates
-    write-lock
-    org.gradle.dependency.verification=strict
-
 == sm Erstelle security Skills für frontend und backend.
 
 == sm Realisiere "RFC 9116 A File Format to Aid in Security Vulnerability Disclosure" für die Anwendung.
@@ -138,6 +131,15 @@ eingebunden ist (ADR 0033): „section title out of sequence: expected level 2, 
 eine Ebene zu tief unter dem Anhang – und „skipping reference to missing attribute: id". Der
 Build bleibt grün, aber die Definition of Done verlangt „keine kritischen Warnungen";
 `+asciidoctorPrompt+` und `+asciidoctorAdr+` laufen meldungsfrei.
+
+== KI Härte den Abhängigkeitsweg des Builds gegen fremde Artefakte
+
+Der Security-Skill verlangt bisher nur Versionskatalog und Herkunftsprüfung von Hand
+(link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035], „Bewusst nicht getan").
+Gemeint sind die Gradle-Mittel dafür: `+dependency-verification.xml+` mit
+`+org.gradle.dependency.verification=strict+`, ein Schreibschutz für die Lockdatei und eine
+Wartezeit, bevor eine frisch veröffentlichte Version verwendet wird. Jedes davon ist eine
+Entscheidung mit Folgen für jeden Build – deshalb zuerst ein ADR.
 
 == KI Schreibe ein ADR über die Kapitelstruktur der ADRs
 

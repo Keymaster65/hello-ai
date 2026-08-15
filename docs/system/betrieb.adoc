@@ -228,6 +228,13 @@ Umgebung betreibt, ohne sie zu kennen.
 | Es gibt kein Deployment-Artefakt jenseits des Boot-Jars und keine automatisierte
   Auslieferung.
 
+| `security.txt` nach RFC 9116
+| Es gibt keinen maschinenlesbaren Meldeweg für Schwachstellen. Der Skill
+  `docs/prompt/security.adoc` verlangt die Datei unter `+/.well-known/security.txt+`
+  (link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035]); ausgeliefert wird sie
+  noch nicht. Offen ist dabei auch, wie der Ursprungs-Pfad neben dem Context-Path `/recipes`
+  bedient wird (link:{adr}/0016-context-path-recipes{adrext}[ADR 0016]).
+
 | Prüfbedingung auf `difficulty`
 | Die Spalte ist ein `VARCHAR` ohne `CHECK`. Ein per Hand eingefügter Fremdwert fällt erst
   beim Lesen auf – dann als Fehler in der Anwendung.
