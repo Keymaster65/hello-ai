@@ -41,7 +41,7 @@ Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt
 was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
 `git`.
 
-== :sm Diese Regel soll dem developer Skill hinzugefügt werden: Nach einem commit, sollen andere Branches des git Repositories mit "merge" hinzugefügt werden: Nur main, sm, doc und dev. Merge-Konflikte sollen behoben werden. Danach soll ein erneuter commit durchgeführt werden. Das soll wiederholt werden, bis alle Branches gemerged sind. Vor dem merge der Arbeitsbanches sollen diese zunächst vom remote mit pull aktualisiert werden.
+== :sm Ergänze in ADR-0032: Arbeitsbranches sollen zunächst vom remote mit pull aktualisiert werden
 
 == :doc Erzeuge entsprechenden Links, wenn claudeLog in der Systemdocumentation referenziert wird.
 
