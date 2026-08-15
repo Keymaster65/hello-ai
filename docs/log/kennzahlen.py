@@ -7,8 +7,12 @@ diese Zeilen aus und schreibt sie als Tabelle nach `docs/log/kennzahlen.adoc`, d
 Anhang der Systemdokumentation einbindet.
 
 Die Tabelle ist damit *abgeleitet*: Der Log bleibt die einzige Quelle, die Zahlen werden
-nicht zweitgeführt. Die Werte werden als Zeichenkette übernommen, nicht neu gerechnet –
-was im Log steht, steht in der Tabelle.
+nicht zweitgeführt. Die Werte je Zeile werden als Zeichenkette übernommen, nicht neu
+gerechnet – was im Log steht, steht in der Tabelle.
+
+Ausgenommen sind die drei `Summe`-Spalten: Sie werden *gerechnet* (ADR 0039), weil eine
+laufende Summe im Log nicht steht und dort auch nicht hingehört. Gezählt wird über alle
+Einträge hinweg, anders als die `Stand`-Spalten, die je Session gelten.
 
 Aufruf:
 
@@ -55,7 +59,7 @@ HEADER = """\
 
 [[kennzahlen-tabelle]]
 .Dauer und Tokenverbrauch je Prompt, neuester zuerst
-[cols=">1,6l,>1,>1,>1,>1,>1,>1,>1", options="header"]
+[cols=">1,6l,>1,>1,>1,>1,>1,>1,>1,>1,>1,>1", options="header"]
 |===
 | Nr.
 | Prompt
@@ -66,7 +70,59 @@ HEADER = """\
 | Stand Dauer
 | Stand out / Token
 | Stand gesamt / Token
+| Summe Dauer
+| Summe out / Token
+| Summe in (neu) / Token
 """
+
+# `2:09 min`, `45 s`, `1:47:30 h` – die drei Formen, die der Butterfly-Skill vorgibt.
+DAUER_SEKUNDEN = re.compile(r"^(\d+) s$")
+DAUER_MINUTEN = re.compile(r"^(\d+):(\d\d) min$")
+DAUER_STUNDEN = re.compile(r"^(\d+):(\d\d):(\d\d) h$")
+
+
+def dauer_in_sekunden(text: str) -> int | None:
+    """Eine Dauer aus dem Log als Sekunden – oder `None`, wenn sie dort fehlt.
+
+    Erkannt werden genau die drei Formen des Butterfly-Skills. Alles andere – `–`,
+    „nicht ermittelbar", eine von Hand verunglückte Zeile – gilt als *unbekannt* und
+    nicht als Null: Der Unterschied steht in der Fußnote des Anhangs.
+    """
+    text = text.strip()
+    for muster, faktoren in (
+        (DAUER_SEKUNDEN, (1,)),
+        (DAUER_MINUTEN, (60, 1)),
+        (DAUER_STUNDEN, (3600, 60, 1)),
+    ):
+        treffer = muster.match(text)
+        if treffer:
+            return sum(int(g) * f for g, f in zip(treffer.groups(), faktoren))
+    return None
+
+
+def dauer_formatieren(sekunden: int) -> str:
+    """Sekunden in der Schreibweise des Butterfly-Skills: `s`, dann `m:ss`, dann `h:mm:ss`."""
+    if sekunden < 60:
+        return f"{sekunden} s"
+    if sekunden < 3600:
+        return f"{sekunden // 60}:{sekunden % 60:02d} min"
+    return f"{sekunden // 3600}:{sekunden % 3600 // 60:02d}:{sekunden % 60:02d} h"
+
+
+def zahl_lesen(text: str) -> int | None:
+    """`153.418` → `153418`; `–` → `None`. Der Punkt ist Tausendertrenner, kein Dezimalpunkt."""
+    text = text.strip()
+    if not text or text == MISSING:
+        return None
+    try:
+        return int(text.replace(".", ""))
+    except ValueError:
+        return None
+
+
+def zahl_formatieren(wert: int) -> str:
+    """`153418` → `153.418` – dieselbe Gruppierung wie im Log."""
+    return f"{wert:,}".replace(",", ".")
 
 
 class Entry:
@@ -77,6 +133,11 @@ class Entry:
         self.text = text
         self.delta: re.Match | None = None
         self.stand: re.Match | None = None
+        # Laufende Summen über *alle* Einträge bis hierher (ADR 0039); von `akkumulieren`
+        # gesetzt, nicht aus dem Log gelesen.
+        self.summe_dauer = 0
+        self.summe_out = 0
+        self.summe_neu = 0
 
     def cell(self, match: re.Match | None, group: str) -> str:
         """Ein Wert aus dem Log – oder `–`, wenn er dort fehlt. Nichts wird geschätzt."""
@@ -123,7 +184,31 @@ def prompt_cell(text: str) -> str:
     return text.replace("|", r"\|")
 
 
+def akkumulieren(entries: list[Entry]) -> None:
+    """Setzt je Eintrag die laufende Summe über *alle* Einträge bis zu ihm (ADR 0039).
+
+    Gezählt wird von der *ältesten* Zeile aufwärts – die Liste steht absteigend, deshalb
+    `reversed`. Die oberste Zeile trägt damit die Gesamtsumme des Projekts.
+
+    Abgegrenzt gegen die vorhandenen `Stand`-Spalten: Die stammen aus dem Log und gelten je
+    *Session*, springen nach jedem `/clear` also auf null zurück. Diese hier laufen über die
+    Sessions hinweg durch.
+
+    Ein fehlender Wert zählt als *null*, nicht als Lücke: Die Summe läuft weiter, statt
+    abzureißen. Sie ist damit eine *Untergrenze* – 64 der Einträge tragen keine Kennzahlen.
+    """
+    dauer = out = neu = 0
+    for entry in reversed(entries):
+        dauer += dauer_in_sekunden(entry.cell(entry.delta, "dauer")) or 0
+        out += zahl_lesen(entry.cell(entry.delta, "out")) or 0
+        neu += zahl_lesen(entry.cell(entry.delta, "neu")) or 0
+        entry.summe_dauer = dauer
+        entry.summe_out = out
+        entry.summe_neu = neu
+
+
 def render(entries: list[Entry]) -> str:
+    akkumulieren(entries)
     rows = [HEADER]
     for entry in entries:
         rows.append(
@@ -136,6 +221,9 @@ def render(entries: list[Entry]) -> str:
             f"| {entry.cell(entry.stand, 'dauer')}\n"
             f"| {entry.cell(entry.stand, 'out')}\n"
             f"| {entry.cell(entry.stand, 'gesamt')}\n"
+            f"| {dauer_formatieren(entry.summe_dauer)}\n"
+            f"| {zahl_formatieren(entry.summe_out)}\n"
+            f"| {zahl_formatieren(entry.summe_neu)}\n"
         )
     rows.append("|===\n")
     return "".join(rows)

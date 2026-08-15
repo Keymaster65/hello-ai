@@ -16,12 +16,16 @@ wenn der Commit läuft.
 
 == Grundsatz
 
-. *Der Log ist die Quelle, die Tabelle ist abgeleitet.* Jede Zahl steht im Protokoll; die
-  Tabelle ordnet sie nur in Spalten. Eine Zahl, die nur in der Tabelle steht, ist ein Fehler.
+. *Der Log ist die Quelle, die Tabelle ist abgeleitet.* Jede Zahl steht im Protokoll oder ist
+  daraus errechnet; die Tabelle ordnet sie in Spalten. Eine Zahl, die nur in der Tabelle steht
+  und sich nicht aus dem Log ergibt, ist ein Fehler.
 . *Die Tabelle wird erzeugt, nicht getippt.* `docs/log/kennzahlen.py` schreibt sie vollständig
   neu. Von Hand geändert wird sie nie – die Änderung wäre beim nächsten Lauf weg.
-. *Nichts wird gerechnet und nichts geschätzt.* Die Werte werden als Zeichenkette aus dem Log
-  übernommen. Fehlt eine Kennzahl dort, steht in der Tabelle `–`.
+. *Geschätzt wird nichts.* Fehlt eine Kennzahl im Log, steht in der Tabelle `–`.
+. *Gerechnet wird nur in den drei `Summe`-Spalten*
+  (link:{adr}/0039-summenspalten-in-der-kennzahlen-tabelle{adrext}[ADR 0039]). Alle übrigen
+  Werte werden als Zeichenkette übernommen. Wer eine weitere gerechnete Spalte erwägt, braucht
+  ein ADR – bis ADR 0039 galt „nichts wird gerechnet" ausnahmslos.
 
 == Ablauf pro Prompt
 
@@ -49,7 +53,7 @@ python3 docs/log/kennzahlen.py --stdout     # Ergebnis ansehen, ohne zu schreibe
 
 == Format der Tabelle
 
-Neun Spalten, neuester Eintrag oben – dieselbe Sortierung wie das Protokoll:
+Zwölf Spalten, neuester Eintrag oben – dieselbe Sortierung wie das Protokoll:
 
 [cols="1,3", options="header"]
 |===
@@ -66,7 +70,14 @@ Neun Spalten, neuester Eintrag oben – dieselbe Sortierung wie das Protokoll:
 | Die `+_Delta:+`-Zeile des Eintrags
 
 | Stand Dauer, Stand out, Stand gesamt
-| Die `+_Stand (Session, …)+`-Zeile des Eintrags
+| Die `+_Stand (Session, …)+`-Zeile des Eintrags – kumuliert *je Session*, springt nach `/clear`
+  auf null zurück
+
+| Summe Dauer, Summe out, Summe in (neu)
+| *Errechnet*, nicht gelesen: die laufende Summe über *alle* Einträge von unten bis zu dieser
+  Zeile; die oberste trägt damit den Gesamtaufwand
+  (link:{adr}/0039-summenspalten-in-der-kennzahlen-tabelle{adrext}[ADR 0039]). Ein `–` zählt
+  darin als null, damit die Summe durchläuft – sie ist deshalb eine Untergrenze
 |===
 
 Zwei Festlegungen tragen das Format:

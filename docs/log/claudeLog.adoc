@@ -9,6 +9,63 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-135]]
+== 135. Prompt: „Ergänze in kennzahlen.adoc für Dauer, out toke und in token 3 Spalten mit den akkumulierten Summen" (aus dem Backlog, `next`)
+
+_Delta: 11:46 min · 78.545 Token out · 719.343 Token in (neu) · 19.260.284 Token gesamt_
+_Stand (Session, 7 Prompts): 1:14:34 h · 304.484 Token out · 57.003.836 Token gesamt_
+
+*Aktionen:*
+
+* *Gezogen:* `+git pull --ff-only+` meldete „Already up to date"; der Branch ist inzwischen
+  `main` (vorher `doc`), kein Eintrag war aktiv.
+* *Stiller Tippfehler im Backlog gefunden:* Der Eintrag stand als `+:Ergänze …+` da – *ohne
+  Leerzeichen* hinter dem `+:+`. Nach ADR 0031 ist damit alles bis zum ersten Leerzeichen der
+  Branchname, der Eintrag galt also als an einen Branch „Ergänze" gebunden und war auf `main`
+  *nicht ziehbar*; die Ziehreihenfolge war leer. Genau davor warnt der PO-Skill. Nicht
+  eigenmächtig umgedeutet, sondern vorgelegt – der Nutzer bestätigte den Tippfehler, danach
+  `+: Ergänze …+` korrigiert, Marker gesetzt und gearbeitet.
+* *Konflikt mit ADR 0027 erkannt und vorgelegt:* Der Auftrag widerspricht dort *zwei*
+  Festlegungen – „Die Werte werden als Zeichenkette übernommen, nicht neu gerechnet"
+  (Entscheidung) und „Keine Summenzeile und keine Auswertung je Session" („Bewusst nicht
+  getan"). Der ADR-Skill verlangt bei einer Ablösung ausdrücklich Rückfrage, weil sie „nie eine
+  Nebenwirkung einer anderen Aufgabe" sein darf. Der Nutzer entschied für ein neues ADR.
+* *ADR 0039 geschrieben* („Summenspalten in der Kennzahlen-Tabelle"): löst genau diese zwei
+  Sätze aus ADR 0027 ab, das im Übrigen unverändert weitergilt und wortgleich stehen bleibt.
+  Fünf Optionen, darunter die verworfene Summenzeile am Fuß und das Umdeuten der
+  `Stand`-Spalten.
+* *Der Unterschied, um den es geht:* Die vorhandenen `Stand`-Spalten sehen aus wie Summen, sind
+  aber *je Session* – nach jedem `/clear` springen sie auf null. Über 139 Einträge gab es damit
+  keine Zahl für den Gesamtaufwand, nur Sägezähne.
+* *Umgesetzt in `+kennzahlen.py+`:* drei Spalten *Summe Dauer*, *Summe out*, *Summe in (neu)*;
+  gezählt von der ältesten Zeile aufwärts, sodass die *oberste* Zeile den Gesamtaufwand trägt.
+  Das Skript rechnet dafür die drei Dauer-Formen des Butterfly-Skills (`+45 s+`, `+2:09 min+`,
+  `+1:47:30 h+`) in Sekunden um und zurück. `gesamt` bekam bewusst *keine* Summe: Die Größe
+  enthält Cache-Reads und zählte denselben Kontext dutzendfach.
+* *Ergebnis:* 12 Spalten, 139 Zeilen. Gesamtaufwand oben: *12:21:12 h*, *2.836.586* Token `out`,
+  *17.199.452* Token `in (neu)`.
+* *Zweimal gegengeprüft statt geglaubt:* Ein vom Skript unabhängiges Auslesen der 75
+  verwertbaren `+_Delta:+`-Zeilen ergibt exakt dieselben drei Zahlen (44.472 s); zusätzlich
+  sind alle 139 Zeilen von unten nach oben monoton steigend. Der erste Prüfversuch erfasste
+  null Zeilen – der Fehler lag im Prüf-Regex, nicht in der Tabelle, und wurde nachgezogen.
+* *Ehrlichkeit der Zahl:* 64 der 139 Einträge tragen keine Kennzahlen und gehen als null ein.
+  Die Summe ist damit der *belegte* Teil des Aufwands, nicht der tatsächliche – Anhang und ADR
+  sagen das ausdrücklich.
+* *Nachgezogen:* Index in `+system.adoc+` (erste Zeile, absteigend), ADR-Wegweiser,
+  `+anhang-kennzahlen.adoc+` (Spaltenbeschreibung samt Untergrenzen-Hinweis) und der
+  Manager-Skill, dessen Grundsatz „Nichts wird gerechnet" nicht mehr ausnahmslos gilt.
+* *DoD vollständig durchlaufen*, obwohl nur Doku und das Werkzeug `+kennzahlen.py+` berührt
+  waren (das nach ADR 0027 nicht im Build hängt): `+clean build+` grün (8:03 min),
+  `+systemtest+` grün (2:33 min), `+e2eTest+` grün (9 Tests, 38,5 s), alle drei
+  Asciidoctor-Tasks grün. Im HTML stehen 12 Spaltenköpfe, und der Verweis auf ADR 0039 löst
+  auf. Die beiden fremden Commits seit dem letzten vollen Lauf (`+9f05235+`, `+7221ff0+`)
+  hatten ebenfalls nur Doku berührt.
+* *Randfälle des Skripts einzeln geprüft:* Die Dauer-Rundreise ist an den Grenzen verlustfrei
+  (59/60 s, 3599/3600 s), `–` und „nicht ermittelbar" ergeben `None` statt null, und zweimal
+  `+render+` liefert dasselbe Ergebnis – die Summen verdoppeln sich also nicht.
+
+'''
+
 [[prompt-134]]
 == 134. Prompt: „Füge die Querverweise zwischen den Prompts in claudeLog und den Commits im gitChangeLog hinzu." (aus dem Backlog, `next`)
 

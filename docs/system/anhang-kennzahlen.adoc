@@ -17,8 +17,12 @@ Kennzahl in einer eigenen Spalte, neuester Prompt oben wie im Protokoll selbst.
 
 *Abgeleitet, nicht zweitgeführt.* Die Tabelle wird von `docs/log/kennzahlen.py` aus dem
 Protokoll *erzeugt* und als `docs/log/kennzahlen.adoc` hier eingebunden. Der Log bleibt die
-einzige Quelle; die Werte werden übernommen, nicht neu gerechnet. Gepflegt wird sie nach dem
-Skill `docs/prompt/manager.adoc` (link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]).
+einzige Quelle; die Werte je Zeile werden übernommen, nicht neu gerechnet. Gepflegt wird sie
+nach dem Skill `docs/prompt/manager.adoc`
+(link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]). Die drei
+`Summe`-Spalten sind die *einzige* Ausnahme: Sie werden gerechnet, weil eine laufende Summe im
+Protokoll nicht steht (link:{adr}/0039-summenspalten-in-der-kennzahlen-tabelle{adrext}[ADR
+0039]).
 
 Text und Zahlen desselben Eintrags stehen seit
 link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033] im selben Dokument. Für diese
@@ -49,6 +53,13 @@ AsciiDoc wertet dort nichts aus.
 | Dieselben Größen *kumuliert über die Session*. Nach jedem Commit läuft `/clear`, also
   beginnt dort eine neue Session und der Stand springt zurück.
 
+| Summe …
+| Dieselben Größen *kumuliert über alle Einträge* – Dauer, `out` und `in (neu)`. Anders als
+  `Stand …` läuft die Summe über die Sessions hinweg durch und springt nirgends zurück; die
+  *oberste* Zeile trägt damit den Gesamtaufwand des Projekts. Sie wird gerechnet, nicht aus
+  dem Protokoll gelesen
+  (link:{adr}/0039-summenspalten-in-der-kennzahlen-tabelle{adrext}[ADR 0039]).
+
 | `–`
 | Im Protokoll steht für diesen Eintrag keine Kennzahl. Frühe Einträge entstanden vor der
   Messung, für die nachgetragenen Commits gibt es kein Transkript mehr. Geschätzt wird nicht.
@@ -56,5 +67,9 @@ AsciiDoc wertet dort nichts aus.
 
 NOTE: Die Werte sind eine *Untergrenze*. Gemessen wird bis zum Schreiben des Log-Eintrags;
 die abschließende Antwort des Turns fehlt darin zwangsläufig.
+
+IMPORTANT: Für die `Summe`-Spalten gilt das doppelt. Ein `–` zählt darin als *null*, damit die
+Summe durchläuft statt abzureißen – und 64 der 139 Einträge tragen keine Kennzahlen. Die
+Gesamtsumme ist deshalb der belegte Teil des Aufwands, nicht der tatsächliche.
 
 include::../log/kennzahlen.adoc[]

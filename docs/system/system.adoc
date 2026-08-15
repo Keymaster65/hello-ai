@@ -114,6 +114,7 @@ erste Zeile.
 |===
 | ADR | Thema
 
+| link:{adr}/0039-summenspalten-in-der-kennzahlen-tabelle{adrext}[0039] | Summenspalten in der Kennzahlen-Tabelle (löst zwei Festlegungen aus 0027 ab)
 | link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[0038] | Querverweise zwischen Prompt und Commit im Anhang „Änderungen"
 | link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[0037] | `security.txt` am Ursprung, ausgeliefert von einem Engine-Valve
 | link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[0036] | Git-Historie als erzeugtes Kapitel im Anhang „Änderungen"
