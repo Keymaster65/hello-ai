@@ -34,11 +34,6 @@ Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt
 was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
 `git`.
 
-== * Erstelle ein Backlog
-
-Dieser Eintrag – die Datei hier, der Skill `docs/prompt/po.adoc` und die Einbindung als
-Anhang. Er zeigt zugleich den Zustand *aktiv*.
-
 == KI Ergänze eine CHECK-Bedingung auf der Spalte `difficulty`
 
 Aus `docs/system/betrieb.adoc`, „Offene Punkte": Die Spalte ist ein `VARCHAR` ohne `CHECK`, ein
@@ -58,3 +53,16 @@ keine Authentifizierung gibt, ist das eine Entscheidung mit Folgen.
 
 Nicht ready: braucht eine Festlegung auf ein Verfahren und damit ein eigenes ADR; siehe
 „Offene Punkte" in `docs/system/betrieb.adoc`.
+
+== KI Halte den Co-Authored-By-Trailer im Develop-Skill modellunabhängig
+
+`docs/prompt/develop.adoc` schreibt den Trailer wörtlich mit „Claude Opus 4.8 (1M context)"
+vor. Der Trailer soll das tatsächlich arbeitende Modell benennen; als fester Text veraltet er
+mit jedem Modellwechsel.
+
+== KI Schreibe ein ADR über die Kapitelstruktur der ADRs
+
+Die 19 älteren ADRs sind auf Kapitel umgestellt worden, ohne dass eine Entscheidung dazu
+festgehalten wäre. ADR 0026 hatte „Keine Umbenennung der Überschriften" ausdrücklich unter
+„Bewusst nicht getan" geführt – der Schritt darüber hinaus gehört begründet, samt der Grenze:
+Struktur ja, Text nein.

@@ -2,54 +2,62 @@
 ifndef::adrext[:adrext: .adoc]
 = 0012 – ArchUnit erzwingt die Schichten- und Abhängigkeitsregel
 
-Status: akzeptiert und umgesetzt +
+== Status
+
+Akzeptiert und umgesetzt +
 Datum: 2026-08-09
 
-[cols="1,4", options="header"]
-|===
-| Abschnitt | Inhalt
+== Kontext
 
-| *Kontext*
-| `+.claude/skills/architecture.md+` schreibt die Schichtung fest:
-  `+bootstrap → adapter → application → domain+`, Abhängigkeiten zeigen *nach innen*. Bislang
-  war das eine Regel auf Papier – eingehalten wurde sie durch Disziplin und Review. Eine
-  versehentliche Abhängigkeit von `domain` auf einen DTO oder von `application` auf einen
-  Adapter kompiliert einwandfrei und fällt im Diff leicht durch. Mit inzwischen sieben
-  Paketen, generiertem jOOQ-Code und mehreren Adaptern wächst die Wahrscheinlichkeit, dass
-  genau das unbemerkt passiert.
+`+.claude/skills/architecture.md+` schreibt die Schichtung fest:
+`+bootstrap → adapter → application → domain+`, Abhängigkeiten zeigen *nach innen*. Bislang
+war das eine Regel auf Papier – eingehalten wurde sie durch Disziplin und Review. Eine
+versehentliche Abhängigkeit von `domain` auf einen DTO oder von `application` auf einen
+Adapter kompiliert einwandfrei und fällt im Diff leicht durch. Mit inzwischen sieben
+Paketen, generiertem jOOQ-Code und mehreren Adaptern wächst die Wahrscheinlichkeit, dass
+genau das unbemerkt passiert.
 
-| *Optionen*
-| 1. *ArchUnit* – Regeln als normale JUnit-Tests, laufen in `+./gradlew test+` mit.
-  2. *Gradle-Modul pro Schicht* – die Abhängigkeitsrichtung würde vom Build erzwungen, ist
-  aber ein tiefer Eingriff in die Struktur und macht `domain`/`application`/`adapter` zu
-  separaten Artefakten. 3. *Java Module System (JPMS)* – erzwingt Kapselung, verträgt sich
-  aber schlecht mit Spring Boot und dem generierten jOOQ-Code. 4. *Nur Review* – Status quo.
+== Optionen
 
-| *Entscheidung*
-| *Option 1 – ArchUnit 1.5.0* (`+com.tngtech.archunit:archunit-junit5+`), Regeln in
-  `+backend/src/test/java/.../architecture/LayeredArchitectureTest.java+`. Fünf Regeln: die
-  `+layeredArchitecture()+`-Definition der vier Schichten, zwei explizite Negativregeln für
-  `domain` und `application` (deutlichere Fehlermeldungen als die Sammelregel), die
-  Framework-Freiheit des Domänenmodells und „Ports sind Interfaces". Tests sind über
-  `+ImportOption.DoNotIncludeTests+` aus der Analyse ausgenommen: Ein Test darf in jede
-  Schicht greifen, und die Systemtests starten die Anwendung bewusst über `bootstrap`.
-  Option 2 wurde verworfen, weil sie die Architektur ändern würde, um sie zu prüfen.
+. *ArchUnit* – Regeln als normale JUnit-Tests, laufen in `+./gradlew test+` mit.
+. *Gradle-Modul pro Schicht* – die Abhängigkeitsrichtung würde vom Build erzwungen, ist aber
+  ein tiefer Eingriff in die Struktur und macht `domain`/`application`/`adapter` zu separaten
+  Artefakten.
+. *Java Module System (JPMS)* – erzwingt Kapselung, verträgt sich aber schlecht mit Spring
+  Boot und dem generierten jOOQ-Code.
+. *Nur Review* – Status quo.
 
-| *Konsequenzen*
-| *{plus}* Ein Verstoß bricht den Build, statt ein Review zu überleben – die Regel ist damit
-  ausführbar statt bloß dokumentiert. *{plus}* Die Regeln stehen als Code neben dem Projekt
-  und sind bei Umbauten mitversionierbar; ihre `+as(...)+`-Beschreibungen benennen die Absicht
-  auf Deutsch, so wie im Skill formuliert. *{plus}* Die Framework-Freiheit des Domänenmodells
-  ist erstmals überhaupt geprüft; bisher hätte eine Spring-Annotation im Record niemandem
-  wehgetan. *−* Läuft in `+./gradlew test+` mit und kostet Laufzeit (Bytecode-Import des
-  Produktionscodes). *−* ArchUnit sieht *Bytecode*: Abhängigkeiten, die nur in generischen
-  Typargumenten stehen (`+ResponseEntity<RecipeResponse>+`), sind dort teils nicht mehr
-  sichtbar. Die Regel „Controller kennt keine Entities direkt" ist deshalb *nicht* über
-  Methodensignaturen abgebildet – sie ließe sich nur unvollständig prüfen und würde falsche
-  Sicherheit erzeugen. *−* Der generierte jOOQ-Code liegt unter `+..adapter..+` und wird
-  mitanalysiert; das ist korrekt, bindet die Regeln aber an die Wahl des Zielpakets im
-  Codegen.
-|===
+== Entscheidung
+
+*Option 1 – ArchUnit 1.5.0* (`+com.tngtech.archunit:archunit-junit5+`), Regeln in
+`+backend/src/test/java/.../architecture/LayeredArchitectureTest.java+`. Fünf Regeln: die
+`+layeredArchitecture()+`-Definition der vier Schichten, zwei explizite Negativregeln für
+`domain` und `application` (deutlichere Fehlermeldungen als die Sammelregel), die
+Framework-Freiheit des Domänenmodells und „Ports sind Interfaces". Tests sind über
+`+ImportOption.DoNotIncludeTests+` aus der Analyse ausgenommen: Ein Test darf in jede
+Schicht greifen, und die Systemtests starten die Anwendung bewusst über `bootstrap`.
+Option 2 wurde verworfen, weil sie die Architektur ändern würde, um sie zu prüfen.
+
+== Konsequenzen
+
+*Vorteile*
+
+* Ein Verstoß bricht den Build, statt ein Review zu überleben – die Regel ist damit ausführbar
+  statt bloß dokumentiert.
+* Die Regeln stehen als Code neben dem Projekt und sind bei Umbauten mitversionierbar; ihre
+  `+as(...)+`-Beschreibungen benennen die Absicht auf Deutsch, so wie im Skill formuliert.
+* Die Framework-Freiheit des Domänenmodells ist erstmals überhaupt geprüft; bisher hätte eine
+  Spring-Annotation im Record niemandem wehgetan.
+
+*Nachteile*
+
+* Läuft in `+./gradlew test+` mit und kostet Laufzeit (Bytecode-Import des Produktionscodes).
+* ArchUnit sieht *Bytecode*: Abhängigkeiten, die nur in generischen Typargumenten stehen
+  (`+ResponseEntity<RecipeResponse>+`), sind dort teils nicht mehr sichtbar. Die Regel
+  „Controller kennt keine Entities direkt" ist deshalb *nicht* über Methodensignaturen
+  abgebildet – sie ließe sich nur unvollständig prüfen und würde falsche Sicherheit erzeugen.
+* Der generierte jOOQ-Code liegt unter `+..adapter..+` und wird mitanalysiert; das ist
+  korrekt, bindet die Regeln aber an die Wahl des Zielpakets im Codegen.
 
 == Nachweis, dass die Regeln greifen
 
@@ -78,3 +86,12 @@ Konstruktor als Fundstelle (`+layers_are_respected+` und
   geändert – dann mit eigenem ADR.
 * Neue Regeln nur, wenn sie tatsächlich prüfbar sind. Was ArchUnit im Bytecode nicht sieht,
   gehört nicht als Scheinprüfung hinein (siehe die Einschränkung zu generischen Typen).
+
+== Referenzen
+
+* link:0013-ein-gradle-modul-je-schicht{adrext}[ADR 0013] – setzt die hier verworfene Option 2
+  später doch um, zusätzlich zu diesen Regeln
+* link:0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019] – ergänzt die
+  Zwiebelschalen-Regel und trägt die Bytecode-Einschränkung nach
+* link:0020-domain-in-model-und-services-teilen{adrext}[ADR 0020] – die Aufteilung der
+  Domäne, die diese Regeln mitziehen müssen

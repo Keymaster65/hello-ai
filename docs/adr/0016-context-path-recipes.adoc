@@ -2,51 +2,59 @@
 ifndef::adrext[:adrext: .adoc]
 = 0016 – Basis-URL der Anwendung: Context-Path `/recipes`
 
-Status: akzeptiert und umgesetzt +
+== Status
+
+Akzeptiert und umgesetzt +
 Datum: 2026-08-09
 
-[cols="1,4", options="header"]
-|===
-| Abschnitt | Inhalt
+== Kontext
 
-| *Kontext*
-| Bisher lag die Anwendung im Wurzelpfad des Servers: SPA unter `+/+`, API unter
-  `+/api/recipes+`, Swagger UI unter `+/swagger-ui.html+`. Damit belegt sie die gesamte
-  Origin. Wird sie hinter einem gemeinsamen Reverse-Proxy oder neben anderen Anwendungen
-  betrieben, kollidiert das; außerdem trägt die URL keinen Hinweis auf die Anwendung. Nach der
-  Umbenennung des Projekts auf `recipes` soll die Basis-URL denselben Namen tragen.
+Bisher lag die Anwendung im Wurzelpfad des Servers: SPA unter `+/+`, API unter
+`+/api/recipes+`, Swagger UI unter `+/swagger-ui.html+`. Damit belegt sie die gesamte
+Origin. Wird sie hinter einem gemeinsamen Reverse-Proxy oder neben anderen Anwendungen
+betrieben, kollidiert das; außerdem trägt die URL keinen Hinweis auf die Anwendung. Nach der
+Umbenennung des Projekts auf `recipes` soll die Basis-URL denselben Namen tragen.
 
-| *Optionen*
-| 1. *`+server.servlet.context-path: /recipes+`* – die vollständige Anwendung zieht um: SPA,
-  API, Swagger UI, OpenAPI-Dokument. 2. Nur den REST-Basispfad ändern
-  (`+@RequestMapping("/recipes")+` statt `+/api/recipes+`) – die SPA bliebe unter `+/+`, und
-  `+/recipes+` würde später mit einem SPA-Router kollidieren. 3. Ein zusätzliches Präfix nur
-  für die API (`+/recipes/api/...+`) – trennt zwar, lässt die SPA aber im Wurzelpfad. 4. Den
-  Pfad erst im Reverse-Proxy setzen – verlagert die Frage aus dem Projekt heraus und macht
+== Optionen
+
+. *`+server.servlet.context-path: /recipes+`* – die vollständige Anwendung zieht um: SPA,
+  API, Swagger UI, OpenAPI-Dokument.
+. Nur den REST-Basispfad ändern (`+@RequestMapping("/recipes")+` statt `+/api/recipes+`) –
+  die SPA bliebe unter `+/+`, und `+/recipes+` würde später mit einem SPA-Router kollidieren.
+. Ein zusätzliches Präfix nur für die API (`+/recipes/api/...+`) – trennt zwar, lässt die SPA
+  aber im Wurzelpfad.
+. Den Pfad erst im Reverse-Proxy setzen – verlagert die Frage aus dem Projekt heraus und macht
   lokale Läufe und Produktion unterschiedlich.
 
-| *Entscheidung*
-| *Option 1.* `+server.servlet.context-path: /recipes+`. Damit liegt *alles* unter
-  `+/recipes+`: `+/recipes/+` (SPA), `+/recipes/api/recipes+` (API),
-  `+/recipes/swagger-ui.html+`, `+/recipes/v3/api-docs+`. Der Context-Path ist an *vier*
-  Stellen zu spiegeln, die Spring nicht kennt: die Vite-`base`, der Basispfad des
-  API-Clients, die Systemtests und die Playwright-Konfiguration.
+== Entscheidung
 
-| *Konsequenzen*
-| *{plus}* Die Anwendung belegt nur noch ihren eigenen Pfad und ist ohne Sonderregeln neben
-  anderen betreibbar. *{plus}* Der Name taucht dort auf, wo Nutzende ihn sehen. *{plus}* Der
-  Frontend-Code bleibt *frei von absoluten URLs*: Der API-Basispfad wird aus
+*Option 1.* `+server.servlet.context-path: /recipes+`. Damit liegt *alles* unter
+`+/recipes+`: `+/recipes/+` (SPA), `+/recipes/api/recipes+` (API),
+`+/recipes/swagger-ui.html+`, `+/recipes/v3/api-docs+`. Der Context-Path ist an *vier*
+Stellen zu spiegeln, die Spring nicht kennt: die Vite-`base`, der Basispfad des
+API-Clients, die Systemtests und die Playwright-Konfiguration.
+
+== Konsequenzen
+
+*Vorteile*
+
+* Die Anwendung belegt nur noch ihren eigenen Pfad und ist ohne Sonderregeln neben anderen
+  betreibbar.
+* Der Name taucht dort auf, wo Nutzende ihn sehen.
+* Der Frontend-Code bleibt *frei von absoluten URLs*: Der API-Basispfad wird aus
   `+import.meta.env.BASE_URL+` abgeleitet, das Vite aus `base` erzeugt – ändert sich der
-  Context-Path, genügt eine Stelle im Frontend. *−* Der Context-Path ist an fünf Orten
-  redundant (Backend, Vite, Systemtests, Playwright, Doku); laufen sie auseinander, bricht es
-  erst zur Laufzeit. Die Systemtests halten ihn deshalb in einer Konstante
-  `+RunningApplication.CONTEXT_PATH+`, die Playwright-Konfiguration exportiert
-  `+CONTEXT_PATH+` für die Specs. *−* Der Vite-Dev-Server darf *nicht* `+/recipes+` als Ganzes
-  proxyen, sonst verschluckt der Proxy die SPA, die unter derselben Basis ausgeliefert wird;
-  es werden gezielt `+/recipes/api+`, `+/recipes/v3+` und `+/recipes/swagger-ui+`
-  weitergeleitet. *−* Bestehende Lesezeichen und externe Aufrufe auf `+/api/recipes+` liefern
-  jetzt 404.
-|===
+  Context-Path, genügt eine Stelle im Frontend.
+
+*Nachteile*
+
+* Der Context-Path ist an fünf Orten redundant (Backend, Vite, Systemtests, Playwright,
+  Doku); laufen sie auseinander, bricht es erst zur Laufzeit. Die Systemtests halten ihn
+  deshalb in einer Konstante `+RunningApplication.CONTEXT_PATH+`, die
+  Playwright-Konfiguration exportiert `+CONTEXT_PATH+` für die Specs.
+* Der Vite-Dev-Server darf *nicht* `+/recipes+` als Ganzes proxyen, sonst verschluckt der
+  Proxy die SPA, die unter derselben Basis ausgeliefert wird; es werden gezielt
+  `+/recipes/api+`, `+/recipes/v3+` und `+/recipes/swagger-ui+` weitergeleitet.
+* Bestehende Lesezeichen und externe Aufrufe auf `+/api/recipes+` liefern jetzt 404.
 
 == Wo der Context-Path gespiegelt wird
 
@@ -99,3 +107,14 @@ Dazu `+./gradlew clean build+` grün (30 Java-Tests, 24 Vitest), `+./gradlew sys
   `+import.meta.env.BASE_URL+` abgeleitet.
 * Die Vite-Proxy-Regeln bleiben auf die Backend-Pfade beschränkt. Ein Proxy auf den gesamten
   Context-Path würde im Dev-Betrieb die SPA selbst abfangen.
+
+== Referenzen
+
+* link:0007-react-frontend-mit-backend-als-bff{adrext}[ADR 0007] – die Same-Origin-Auslieferung
+  von SPA und API, die hier gemeinsam umziehen
+* link:0005-springdoc-openapi-und-swagger-ui{adrext}[ADR 0005] – Swagger UI und
+  OpenAPI-Dokument, die den Präfix mitbekommen
+* link:0017-router-mit-spa-fallback{adrext}[ADR 0017] – der SPA-Router, dessen Basis auf
+  diesem Context-Path aufsetzt
+* link:0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024] – die Dokumentation unter
+  `+/recipes/docs/+`

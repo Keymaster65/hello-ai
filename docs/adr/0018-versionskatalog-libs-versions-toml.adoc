@@ -2,56 +2,66 @@
 ifndef::adrext[:adrext: .adoc]
 = 0018 – Abhängigkeiten im Versionskatalog `libs.versions.toml`
 
-Status: akzeptiert und umgesetzt +
+== Status
+
+Akzeptiert und umgesetzt +
 Datum: 2026-08-09
 
-[cols="1,4", options="header"]
-|===
-| Abschnitt | Inhalt
+== Kontext
 
-| *Kontext*
-| Koordinaten und Versionen standen verteilt in fünf Buildskripten. Drei Stellen waren bereits
-  redundant und mussten von Hand synchron gehalten werden: die jOOQ-Version *dreimal* in
-  `+adapter/build.gradle.kts+` (`+extra["jooq.version"]+`, `jooqGenerator`,
-  `+jooq { version }+`), Zonkys `+embedded-postgres+` samt BOM *zweimal* in `bootstrap` (für
-  `test` und `systemtest`), jqwik in zwei Modulen. Läuft eine dieser Kopien auseinander, fällt
-  das nicht beim Konfigurieren auf, sondern als schwer deutbarer Laufzeitfehler – bei jOOQ
-  etwa, wenn generierter Code und Runtime verschiedene Versionen haben.
-  link:0010-gradle-kotlin-dsl{adrext}[ADR 0010] hatte „Version Catalog" als Option 3
-  ausdrücklich betrachtet und zurückgestellt, weil sie *nur* die Abhängigkeitsverwaltung löst
-  und nicht die Typisierung. Die Typisierung ist seitdem erledigt; damit ist der Katalog der
-  fällige nächste Schritt.
+Koordinaten und Versionen standen verteilt in fünf Buildskripten. Drei Stellen waren bereits
+redundant und mussten von Hand synchron gehalten werden: die jOOQ-Version *dreimal* in
+`+adapter/build.gradle.kts+` (`+extra["jooq.version"]+`, `jooqGenerator`,
+`+jooq { version }+`), Zonkys `+embedded-postgres+` samt BOM *zweimal* in `bootstrap` (für
+`test` und `systemtest`), jqwik in zwei Modulen. Läuft eine dieser Kopien auseinander, fällt
+das nicht beim Konfigurieren auf, sondern als schwer deutbarer Laufzeitfehler – bei jOOQ
+etwa, wenn generierter Code und Runtime verschiedene Versionen haben.
+link:0010-gradle-kotlin-dsl{adrext}[ADR 0010] hatte „Version Catalog" als Option 3
+ausdrücklich betrachtet und zurückgestellt, weil sie *nur* die Abhängigkeitsverwaltung löst
+und nicht die Typisierung. Die Typisierung ist seitdem erledigt; damit ist der Katalog der
+fällige nächste Schritt.
 
-| *Optionen*
-| 1. *`+gradle/libs.versions.toml+`* – der Gradle-Standard seit 7.0, mit typsicheren
-  Accessoren (`+libs.spring.boot.starter.web+`). 2. Versionen als Properties in
-  `+gradle.properties+` oder `extra` – zentral, aber untypisiert und ohne
-  Werkzeugunterstützung. 3. Konstanten in `buildSrc` bzw. einem Convention-Plugin – typsicher,
-  aber ein eigenes Kompilat und deutlich mehr Apparat für ein Projekt dieser Größe. 4. Status
-  quo beibehalten.
+== Optionen
 
-| *Entscheidung*
-| *Option 1.* Alle Bibliotheken und alle Plugins wandern in den Katalog – auch die, deren
-  Version das *Spring-Boot-BOM* bestimmt. Diese stehen dort als `+{ module = "…" }+` *ohne*
-  `version`: Der Katalog führt damit die vollständige Liste der Abhängigkeiten, die
-  Versionshoheit bleibt aber beim BOM. Nur was das BOM _nicht_ verwaltet, trägt eine Version
-  (jqwik, springdoc, jOOQ-Codegen, Zonky, ArchUnit) – der `+[versions]+`-Block ist genau die
-  Liste der Versionen, für die wir selbst verantwortlich sind. Plugins werden über
-  `+alias(libs.plugins.…)+` deklariert.
+. *`+gradle/libs.versions.toml+`* – der Gradle-Standard seit 7.0, mit typsicheren Accessoren
+  (`+libs.spring.boot.starter.web+`).
+. Versionen als Properties in `+gradle.properties+` oder `extra` – zentral, aber untypisiert
+  und ohne Werkzeugunterstützung.
+. Konstanten in `buildSrc` bzw. einem Convention-Plugin – typsicher, aber ein eigenes
+  Kompilat und deutlich mehr Apparat für ein Projekt dieser Größe.
+. Status quo beibehalten.
 
-| *Konsequenzen*
-| *{plus}* Die jOOQ-Version steht an *einer* Stelle; die drei Verwendungen greifen über
+== Entscheidung
+
+*Option 1.* Alle Bibliotheken und alle Plugins wandern in den Katalog – auch die, deren
+Version das *Spring-Boot-BOM* bestimmt. Diese stehen dort als `+{ module = "…" }+` *ohne*
+`version`: Der Katalog führt damit die vollständige Liste der Abhängigkeiten, die
+Versionshoheit bleibt aber beim BOM. Nur was das BOM _nicht_ verwaltet, trägt eine Version
+(jqwik, springdoc, jOOQ-Codegen, Zonky, ArchUnit) – der `+[versions]+`-Block ist genau die
+Liste der Versionen, für die wir selbst verantwortlich sind. Plugins werden über
+`+alias(libs.plugins.…)+` deklariert.
+
+== Konsequenzen
+
+*Vorteile*
+
+* Die jOOQ-Version steht an *einer* Stelle; die drei Verwendungen greifen über
   `+libs.versions.jooq.get()+` bzw. `+version.ref+` darauf zu und können nicht mehr
-  auseinanderlaufen. *{plus}* Ein Tippfehler im Alias ist ein *Kompilierfehler des
-  Buildskripts*, kein Auflösungsfehler zur Ausführungszeit. *{plus}* Ein Blick in eine
-  55-Zeilen-Datei beantwortet „welche Version benutzen wir?", ohne fünf Skripte zu lesen.
-  *{plus}* Das TOML-Format ist ein Standard, den Werkzeuge zur Abhängigkeitsaktualisierung
-  (Dependabot, Renovate) kennen. *−* Eine Indirektion mehr: Im Buildskript steht nicht länger
-  die Version, man springt in den Katalog. *−* Bindestriche im Alias werden im Accessor zu
-  Punkten (`+spring-boot-starter-web+` → `+libs.spring.boot.starter.web+`) –
-  gewöhnungsbedürftig, wenn man die Koordinate erwartet. *−* In `subprojects`-Blöcken ist
-  `libs` nicht ohne Weiteres verfügbar (siehe unten).
-|===
+  auseinanderlaufen.
+* Ein Tippfehler im Alias ist ein *Kompilierfehler des Buildskripts*, kein Auflösungsfehler
+  zur Ausführungszeit.
+* Ein Blick in eine 55-Zeilen-Datei beantwortet „welche Version benutzen wir?", ohne fünf
+  Skripte zu lesen.
+* Das TOML-Format ist ein Standard, den Werkzeuge zur Abhängigkeitsaktualisierung
+  (Dependabot, Renovate) kennen.
+
+*Nachteile*
+
+* Eine Indirektion mehr: Im Buildskript steht nicht länger die Version, man springt in den
+  Katalog.
+* Bindestriche im Alias werden im Accessor zu Punkten (`+spring-boot-starter-web+` →
+  `+libs.spring.boot.starter.web+`) – gewöhnungsbedürftig, wenn man die Koordinate erwartet.
+* In `subprojects`-Blöcken ist `libs` nicht ohne Weiteres verfügbar (siehe unten).
 
 == Fallstricke
 
@@ -104,3 +114,12 @@ der Umstellung erzeugt (der Vorher-Stand aus einem `+git worktree+` auf `HEAD`).
 * In `subprojects`/`allprojects` immer `+rootProject.libs+` verwenden.
 * Vor dem Anheben einer Version prüfen, ob sie mehrfach referenziert wird (`+version.ref+`);
   der Katalog macht das sichtbar, verhindert es aber nicht.
+
+== Referenzen
+
+* link:0010-gradle-kotlin-dsl{adrext}[ADR 0010] – dort war der Versionskatalog als Option 3
+  zurückgestellt worden; von dort stammt auch der Maßstab für den Gleichwertigkeitsnachweis
+* link:0009-gradle-wrapper-verbindlich{adrext}[ADR 0009] – die Gradle-Version selbst, die
+  nicht im Katalog steht, sondern im Wrapper
+* link:0014-schichtmodule-unter-backend{adrext}[ADR 0014] – der `subprojects`-Block in
+  `+modules/backend/build.gradle.kts+`, an dem der Fallstrick auftritt

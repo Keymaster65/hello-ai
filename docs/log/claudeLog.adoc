@@ -8,6 +8,66 @@ Datum: 2026-07-19
 
 '''
 
+== 105. Prompt: „commit"
+
+_Delta: 26 s · 5.099 Token out · 6.111 Token in (neu) · 959.714 Token gesamt_
+_Stand (Session, 4 Prompts): 18:56 min · 159.084 Token out · 12.802.300 Token gesamt_
+
+*Aktionen:*
+
+* *DoD geprüft:* Seit dem letzten grünen Lauf im Turn 104 wurde kein Code angefasst – nur
+  `+docs/+`. `+./gradlew clean build+` grün (43 Java-Tests, Vitest), `+systemtest+` 19/19,
+  `+e2eTest+` 9/9, `asciidoctor` und `asciidoctorAdr` ohne Warnung.
+* *Commit-Message vorgelegt und bestätigt* („ADR 0001 bis 0019 in Kapitel gliedern"), dann
+  committet mit `+--author="Claude <noreply@anthropic.com>"+`.
+* *Trailer:* `+Co-Authored-By: Claude Opus 5 (1M context)+`. Der Develop-Skill nennt an dieser
+  Stelle noch „Opus 4.8" – der Trailer benennt das tatsächlich arbeitende Modell, die Zeile im
+  Skill ist veraltet und im Backlog vermerkt.
+
+'''
+
+== 104. Prompt: „next"
+
+_Delta: 17:00 min · 147.984 Token out · 382.321 Token in (neu) · 9.973.322 Token gesamt_
+_Stand (Session, 3 Prompts): 17:00 min · 147.984 Token out · 9.973.322 Token gesamt_
+
+*Aktionen:*
+
+* *Backlog gezogen* (PO-Skill): Der aktive Eintrag „Erstelle ein Backlog" war erledigt und
+  wurde nach Rückfrage entfernt; gezogen wurde der oberste ready-Eintrag – „Strukturiere die
+  Inhalte in den ADR in Kapitel, wie z. B. in ADR-0026 …". Marker `+:+` → `+*+` *vor* der
+  Arbeit gesetzt.
+* *19 ADRs umgebaut* (0001–0019). Sie trugen ihren Inhalt bisher in einer Tabelle
+  `+Abschnitt | Inhalt+`; daraus sind jetzt Kapitel geworden: `+== Status+`, `+== Kontext+`,
+  `+== Optionen+`, `+== Entscheidung+`, `+== Konsequenzen+` – der Aufbau von ADR 0026.
+* *Optionen als nummerierte Liste*, statt „1. … 2. … 3. …" im Fließtext. Wo ein ADR mehrere
+  Optionsgruppen hat, tragen sie ihre eigene Nummerierung: ADR 0007 und 0017 nutzen
+  `+[loweralpha]+` (a, b, c) und `+[lowerroman]+` (i, ii) – die Buchstaben aus dem alten Text
+  bleiben damit gültig, ohne getippt zu sein.
+* *Konsequenzen als `+*Vorteile*+` / `+*Nachteile*+`* mit Aufzählung, statt `+{plus}+` und
+  `+−+` als Marker im Fließtext. Reihenfolge unverändert – die Pluspunkte standen im Bestand
+  ohnehin vor den Minuspunkten. Die `+*To do:*+`-Notiz in ADR 0002 bleibt als eigener Absatz
+  stehen.
+* *Referenzen ergänzt*: 19 neue `+== Referenzen+`-Abschnitte plus einer in ADR 0025, das als
+  einziges der bereits strukturierten ADRs keinen hatte.
+* *Vorhandene Kapitel unangetastet gelassen* – „Regel für die Zukunft", „Nachweis",
+  „Fallstricke", „Artefakte", „Bestehende ADRs". Sie in „Prüfung" umzubenennen wäre ein
+  Umschreiben, kein Strukturieren.
+* *Nachweis, dass der Inhalt unverändert ist* (Maßstab aus ADR 0026, „Prüfung"): Für jede der
+  19 Dateien wurde die Wort-Multimenge aus `HEAD` gegen die neue verglichen. *Entfernt* wurden
+  ausschließlich das Tabellengerüst (`cols`, `options`, `header`, `Abschnitt`, `Inhalt`), die
+  von Hand getippten Optionsnummern und -buchstaben sowie die `+{plus}+`-Marker. *Ergänzt*
+  wurden ausschließlich `+Vorteile+`/`+Nachteile+` und die Referenz-Abschnitte. Kein Satz des
+  Bestands ist verloren gegangen oder umformuliert.
+* *Prüfung:* `+./gradlew clean build+` grün (43 Java-Tests, Vitest), `+systemtest+` 19/19,
+  `+e2eTest+` 9/9, `asciidoctorAdr` ohne Warnung. Im gerenderten HTML stimmen die
+  Buchstaben-Listen (a/b bzw. i/ii/iii).
+* *Backlog-Eintrag entfernt*, neuer `+KI+`-Vorschlag angehängt: ein ADR über diese
+  Strukturierung – ADR 0026 hatte „Keine Umbenennung der Überschriften" ausdrücklich unter
+  „Bewusst nicht getan" geführt, das gehört festgehalten.
+
+'''
+
 == 103. Prompt: „commit"
 
 _Delta: 2:38 min · 7.973 Token out · 8.932 Token in (neu) · 2.094.064 Token gesamt_

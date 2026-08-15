@@ -2,53 +2,60 @@
 ifndef::adrext[:adrext: .adoc]
 = 0019 – ArchUnit prüft die Struktur zusätzlich als Zwiebelschalen
 
-Status: akzeptiert und umgesetzt +
+== Status
+
+Akzeptiert und umgesetzt +
 Datum: 2026-08-09
 
-[cols="1,4", options="header"]
-|===
-| Abschnitt | Inhalt
+== Kontext
 
-| *Kontext*
-| link:0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012] sichert die Regel
-  `+bootstrap → adapter → application → domain+` mit `+layeredArchitecture()+` ab. Diese Sicht
-  kennt aber nur *eine* Adapter-Schicht: `+..adapter..+`. Damit ist ein Zugriff des
-  REST-Adapters auf den Persistenz-Adapter – etwa ein Controller, der direkt am generierten
-  jOOQ-Code hängt und den Port umgeht – schichtenkonform und bricht den Build *nicht*. Genau
-  das ist der Verstoß, der in einer Hexagonal-/Clean-Struktur am ehesten passiert, weil beide
-  Adapter im selben Gradle-Modul liegen und die Abhängigkeit deshalb auch compiliert.
+link:0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012] sichert die Regel
+`+bootstrap → adapter → application → domain+` mit `+layeredArchitecture()+` ab. Diese Sicht
+kennt aber nur *eine* Adapter-Schicht: `+..adapter..+`. Damit ist ein Zugriff des
+REST-Adapters auf den Persistenz-Adapter – etwa ein Controller, der direkt am generierten
+jOOQ-Code hängt und den Port umgeht – schichtenkonform und bricht den Build *nicht*. Genau
+das ist der Verstoß, der in einer Hexagonal-/Clean-Struktur am ehesten passiert, weil beide
+Adapter im selben Gradle-Modul liegen und die Abhängigkeit deshalb auch compiliert.
 
-| *Optionen*
-| 1. *`+onionArchitecture()+`* – ArchUnits zweite Architektur-Sicht; kennt Adapter als
-  *benannte, gegenseitig unbekannte* Ringe. 2. *`+layeredArchitecture()+` erweitern* –
-  `+..adapter.in..+` und `+..adapter.out..+` als zwei zusätzliche Schichten deklarieren;
-  drückt dasselbe aus, aber als Stapel, in dem die beiden Adapter künstlich übereinander
-  stehen. 3. *Eigenes Gradle-Modul je Adapter* – vom Build erzwungen, zerlegt aber das
-  Adapter-Modul und dupliziert die jOOQ-Codegen-Konfiguration. 4. *Nichts tun* – der Verstoß
-  bleibt unentdeckt.
+== Optionen
 
-| *Entscheidung*
-| *Option 1* – `OnionArchitectureTest` neben dem bestehenden `LayeredArchitectureTest`, eine
-  Regel `+rings_are_respected+`. Ringe: `+..domain..+` als _domain model_, `+..application..+`
-  (Ports *und* Services) als _application service_, dazu drei Adapter `rest`, `persistence`
-  und `bootstrap`. Option 2 wurde verworfen, weil sie die Aussage „Adapter kennen einander
-  nicht" in eine Reihenfolge zwingt, die es nicht gibt; Option 3, weil sie die Struktur ändern
-  würde, um sie zu prüfen (dasselbe Argument wie in ADR 0012).
+. *`+onionArchitecture()+`* – ArchUnits zweite Architektur-Sicht; kennt Adapter als
+  *benannte, gegenseitig unbekannte* Ringe.
+. *`+layeredArchitecture()+` erweitern* – `+..adapter.in..+` und `+..adapter.out..+` als zwei
+  zusätzliche Schichten deklarieren; drückt dasselbe aus, aber als Stapel, in dem die beiden
+  Adapter künstlich übereinander stehen.
+. *Eigenes Gradle-Modul je Adapter* – vom Build erzwungen, zerlegt aber das Adapter-Modul und
+  dupliziert die jOOQ-Codegen-Konfiguration.
+. *Nichts tun* – der Verstoß bleibt unentdeckt.
 
-| *Konsequenzen*
-| *{plus}* Der Zugriff Adapter → Adapter bricht jetzt den Build; er war vorher unsichtbar
-  (Nachweis unten). *{plus}* Die beiden Sichten sind bewusst redundant: Wo sie sich
-  überschneiden, prüfen sie dasselbe zweimal – das kostet nur Laufzeit, während die Lücke
-  Korrektheit gekostet hat. *−* `+withOptionalLayers(true)+` ist nötig, weil es keinen _domain
-  service_-Ring gibt (die Domäne ist reines Modell). Der Preis: Ein Ring, der durch eine
-  Paket-Umbenennung versehentlich leer läuft, fällt nicht mehr auf – die leere Schale wird
-  nicht mehr gemeldet. *−* `bootstrap` ist als Adapter modelliert. Das trifft die Sache
-  (Composition Root im äußersten Ring) und ist heute korrekt, weil `bootstrap` keine
-  Kompilier-Abhängigkeit auf einen anderen Adapter hat – Spring verdrahtet über
-  Component-Scan. Verdrahtet dort künftig eine `@Bean`-Methode einen Adapter *explizit*,
-  meldet die Regel einen Verstoß; dann ist `+ignoreDependency(...)+` das Mittel, nicht das
-  Aufweichen der Regel.
-|===
+== Entscheidung
+
+*Option 1* – `OnionArchitectureTest` neben dem bestehenden `LayeredArchitectureTest`, eine
+Regel `+rings_are_respected+`. Ringe: `+..domain..+` als _domain model_, `+..application..+`
+(Ports *und* Services) als _application service_, dazu drei Adapter `rest`, `persistence`
+und `bootstrap`. Option 2 wurde verworfen, weil sie die Aussage „Adapter kennen einander
+nicht" in eine Reihenfolge zwingt, die es nicht gibt; Option 3, weil sie die Struktur ändern
+würde, um sie zu prüfen (dasselbe Argument wie in ADR 0012).
+
+== Konsequenzen
+
+*Vorteile*
+
+* Der Zugriff Adapter → Adapter bricht jetzt den Build; er war vorher unsichtbar (Nachweis
+  unten).
+* Die beiden Sichten sind bewusst redundant: Wo sie sich überschneiden, prüfen sie dasselbe
+  zweimal – das kostet nur Laufzeit, während die Lücke Korrektheit gekostet hat.
+
+*Nachteile*
+
+* `+withOptionalLayers(true)+` ist nötig, weil es keinen _domain service_-Ring gibt (die
+  Domäne ist reines Modell). Der Preis: Ein Ring, der durch eine Paket-Umbenennung
+  versehentlich leer läuft, fällt nicht mehr auf – die leere Schale wird nicht mehr gemeldet.
+* `bootstrap` ist als Adapter modelliert. Das trifft die Sache (Composition Root im äußersten
+  Ring) und ist heute korrekt, weil `bootstrap` keine Kompilier-Abhängigkeit auf einen anderen
+  Adapter hat – Spring verdrahtet über Component-Scan. Verdrahtet dort künftig eine
+  `@Bean`-Methode einen Adapter *explizit*, meldet die Regel einen Verstoß; dann ist
+  `+ignoreDependency(...)+` das Mittel, nicht das Aufweichen der Regel.
 
 == Nachweis, dass die Regel greift
 
@@ -88,3 +95,12 @@ Begründung ist aber enger zu fassen als dort formuliert.
   stille Variante des Verstoßes, den diese Regel verhindern soll.
 * Beide Architektur-Tests werden zusammen gepflegt. Widersprechen sie sich, ist das kein
   Anlass, einen davon zu löschen, sondern ein Hinweis, dass die Struktur unklar ist.
+
+== Referenzen
+
+* link:0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012] – die Schichtenregel, deren
+  Lücke hier geschlossen wird, samt der hier präzisierten Bytecode-Einschränkung
+* link:0013-ein-gradle-modul-je-schicht{adrext}[ADR 0013] – warum beide Adapter im selben
+  Gradle-Modul liegen und die Abhängigkeit deshalb compiliert
+* link:0020-domain-in-model-und-services-teilen{adrext}[ADR 0020] – die Paketstruktur der
+  Domäne, auf der die Ringe aufsetzen

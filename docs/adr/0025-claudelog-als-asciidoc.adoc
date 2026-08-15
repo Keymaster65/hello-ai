@@ -95,3 +95,14 @@ Zeichen ohne Leerraum normalisiert und verglichen – *identisch*. Dazu die Stru
   Protokoll darf die Auslieferung nicht blockieren.
 . *Nur neue Einträge in AsciiDoc.* Verworfen: eine Datei mit zwei Syntaxen ist schlechter als
   eine Datei mit einer, egal welcher.
+
+== Referenzen
+
+* link:0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023] – dort stand der hier
+  korrigierte Satz „Was Markdown bleibt"
+* link:0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022] – die
+  AsciiDoc-Systemdokumentation, an deren Format der Log angeglichen wird
+* link:0026-adrs-als-asciidoc{adrext}[ADR 0026] – schließt den hier unter „Offen" verbliebenen
+  Punkt: die ADRs
+* link:0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024] – die Auslieferung, wegen der die
+  ADRs damals als `+*.md+` neben dem HTML lagen

@@ -2,47 +2,55 @@
 ifndef::adrext[:adrext: .adoc]
 = 0010 – Gradle-Buildskripte in der Kotlin-DSL
 
-Status: akzeptiert und umgesetzt +
+== Status
+
+Akzeptiert und umgesetzt +
 Datum: 2026-08-09
 
-[cols="1,4", options="header"]
-|===
-| Abschnitt | Inhalt
+== Kontext
 
-| *Kontext*
-| Das Buildskript ist über die Sessions deutlich gewachsen: jOOQ-Codegen, ein zusätzliches
-  Source-Set für Systemtests (link:0006-testsets-plugin-und-systemtests{adrext}[ADR 0006]),
-  vier `Exec`-Tasks für den Frontend-Build
-  (link:0007-react-frontend-mit-backend-als-bff{adrext}[ADR 0007]) und die E2E-Suite
-  (link:0008-playwright-fuer-e2e-tests{adrext}[ADR 0008]). In der *Groovy-DSL* ist all das
-  dynamisch typisiert: Tippfehler in Task- oder Property-Namen fallen erst zur Laufzeit auf,
-  die IDE kann kaum navigieren oder vervollständigen. Da das Projekt ohnehin auf statisch
-  typisierte Sprachen setzt (Java 25, TypeScript im `strict`-Modus), passt eine dynamisch
-  typisierte Build-Sprache schlecht ins Bild.
+Das Buildskript ist über die Sessions deutlich gewachsen: jOOQ-Codegen, ein zusätzliches
+Source-Set für Systemtests (link:0006-testsets-plugin-und-systemtests{adrext}[ADR 0006]),
+vier `Exec`-Tasks für den Frontend-Build
+(link:0007-react-frontend-mit-backend-als-bff{adrext}[ADR 0007]) und die E2E-Suite
+(link:0008-playwright-fuer-e2e-tests{adrext}[ADR 0008]). In der *Groovy-DSL* ist all das
+dynamisch typisiert: Tippfehler in Task- oder Property-Namen fallen erst zur Laufzeit auf,
+die IDE kann kaum navigieren oder vervollständigen. Da das Projekt ohnehin auf statisch
+typisierte Sprachen setzt (Java 25, TypeScript im `strict`-Modus), passt eine dynamisch
+typisierte Build-Sprache schlecht ins Bild.
 
-| *Optionen*
-| 1. *Kotlin-DSL* (`+build.gradle.kts+`) – statisch typisiert, Autovervollständigung und
-  Refactoring in der IDE, Fehler zur Konfigurationszeit. 2. *Groovy-DSL beibehalten* – kein
-  Aufwand, aber die genannten Nachteile bleiben. 3. *Version Catalog + Groovy* – löst nur die
-  Abhängigkeitsverwaltung, nicht die Typisierung. 4. Wechsel auf ein anderes Build-Tool
-  (Maven) – unverhältnismäßig.
+== Optionen
 
-| *Entscheidung*
-| *Option 1.* `+build.gradle+` und `+settings.gradle+` wurden nach `+build.gradle.kts+` bzw.
-  `+settings.gradle.kts+` überführt, die Groovy-Dateien entfernt. Inhaltlich ist der Build
-  unverändert; es wurden keine Tasks, Abhängigkeiten oder Optionen hinzugefügt oder
-  weggelassen.
+. *Kotlin-DSL* (`+build.gradle.kts+`) – statisch typisiert, Autovervollständigung und
+  Refactoring in der IDE, Fehler zur Konfigurationszeit.
+. *Groovy-DSL beibehalten* – kein Aufwand, aber die genannten Nachteile bleiben.
+. *Version Catalog + Groovy* – löst nur die Abhängigkeitsverwaltung, nicht die Typisierung.
+. Wechsel auf ein anderes Build-Tool (Maven) – unverhältnismäßig.
 
-| *Konsequenzen*
-| *{plus}* Fehler in Task- und Property-Namen fallen bereits bei der Konfiguration auf, nicht
-  erst im Lauf. *{plus}* IDE-Unterstützung: Autovervollständigung, „Gehe zu Definition",
-  sicheres Umbenennen. *{plus}* Einheitliche Typdisziplin über Backend, Frontend und Build.
-  *−* Erste Konfiguration nach einer Änderung ist langsamer, weil das Skript kompiliert wird
-  (danach greift der Cache). *−* Die Kotlin-Laufzeit (`+kotlin-stdlib+`, `+kotlin-reflect+`)
-  kommt als Build-Abhängigkeit dazu und muss einmalig geladen werden. *−* Beispiele im Netz
-  und in Plugin-READMEs sind häufig in Groovy formuliert und müssen übersetzt werden – siehe
-  die Fallstricke unten.
-|===
+== Entscheidung
+
+*Option 1.* `+build.gradle+` und `+settings.gradle+` wurden nach `+build.gradle.kts+` bzw.
+`+settings.gradle.kts+` überführt, die Groovy-Dateien entfernt. Inhaltlich ist der Build
+unverändert; es wurden keine Tasks, Abhängigkeiten oder Optionen hinzugefügt oder
+weggelassen.
+
+== Konsequenzen
+
+*Vorteile*
+
+* Fehler in Task- und Property-Namen fallen bereits bei der Konfiguration auf, nicht erst im
+  Lauf.
+* IDE-Unterstützung: Autovervollständigung, „Gehe zu Definition", sicheres Umbenennen.
+* Einheitliche Typdisziplin über Backend, Frontend und Build.
+
+*Nachteile*
+
+* Erste Konfiguration nach einer Änderung ist langsamer, weil das Skript kompiliert wird
+  (danach greift der Cache).
+* Die Kotlin-Laufzeit (`+kotlin-stdlib+`, `+kotlin-reflect+`) kommt als Build-Abhängigkeit
+  dazu und muss einmalig geladen werden.
+* Beispiele im Netz und in Plugin-READMEs sind häufig in Groovy formuliert und müssen
+  übersetzt werden – siehe die Fallstricke unten.
 
 == Fallstricke bei der Übersetzung
 
@@ -87,3 +95,14 @@ Die Migration wurde nicht nur „grün gebaut", sondern gegen den vorherigen Sta
   verschachtelten Closures, die auf JAXB- oder POJO-Bäume abbilden.
 * Konfigurationen, die erst zur Konfigurationszeit entstehen, über ihren String-Namen
   ansprechen statt auf Accessoren zu warten, die es nicht gibt.
+
+== Referenzen
+
+* link:0009-gradle-wrapper-verbindlich{adrext}[ADR 0009] – der Wrapper, über den diese Skripte
+  ausgeführt werden
+* link:0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018] – zieht die Versionen aus
+  diesen Skripten in den Versionskatalog
+* link:0006-testsets-plugin-und-systemtests{adrext}[ADR 0006],
+  link:0007-react-frontend-mit-backend-als-bff{adrext}[ADR 0007],
+  link:0008-playwright-fuer-e2e-tests{adrext}[ADR 0008] – die Build-Logik, die hier übersetzt
+  wurde
