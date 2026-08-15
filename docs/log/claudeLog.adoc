@@ -8,6 +8,45 @@ Datum: 2026-07-19
 
 '''
 
+== 113. Prompt: „commit"
+
+_Delta: 26 s · 2.384 Token out · 331.412 Token gesamt (der Bestätigungs-Turn „ja" ist darin
+nicht enthalten; `in (neu)` weist die Turn-Tabelle nicht aus)_
+_Stand (Session, 5 Prompts): 2:28 min · 14.121 Token out · 1.790.738 Token gesamt_
+
+*Aktionen:*
+
+* *DoD geprüft:* reine Doku-Änderung, kein Code angefasst – `asciidoctor`, `asciidoctorPrompt`
+  und `asciidoctorAdr` grün; der grüne Testlauf aus Eintrag 104 gilt weiter.
+* *Commit-Message vorgelegt und bestätigt* („Kapitel „Architekturentscheidungen (ADR)"
+  benennen"), dann committet mit `+--author="Claude <noreply@anthropic.com>"+` auf Branch
+  `ai1`.
+* *Trailer:* `+Co-Authored-By: Claude Opus 5 (1M context)+` – der Develop-Skill nennt noch
+  wörtlich „Opus 4.8"; die Abweichung ist mit dem Nutzer abgestimmt und ist genau der offene
+  `KI`-Backlog-Eintrag zum modellunabhängigen Trailer.
+
+'''
+
+== 112. Prompt: „Ändere in der Systemdocumentation die Kapitelüberschrift "Architekturentscheidungen" auf "Architekturentscheidungen (ADR)"" (aus dem Backlog, `next`)
+
+_Delta: 1:14 min · 8.611 Token out · 73.940 Token in (neu) · 910.542 Token gesamt_
+_Stand (Session, 3 Prompts): 1:14 min · 8.611 Token out · 910.542 Token gesamt_
+
+*Aktionen:*
+
+* *Backlog gezogen:* obersten ready-Eintrag vorgelegt, nach Bestätigung auf `+*+` gesetzt und
+  nach Abschluss entfernt (`docs/backlog.adoc`).
+* *Überschrift geändert:* `docs/system/system.adoc` – „Architekturentscheidungen" →
+  „Architekturentscheidungen (ADR)".
+* *Textverweise nachgezogen:* `docs/system/anhang-quellen.adoc` und `docs/prompt/adr.adoc`
+  nennen den Abschnitt jetzt unter dem neuen Namen; Anker oder Querverweise gibt es auf ihn
+  nicht.
+* *Doku gebaut:* `./gradlew asciidoctor asciidoctorPrompt` grün, ohne `INFO:`/`SEVERE:`.
+* Reine Doku-Änderung – kein Code angefasst, es gilt der grüne Testlauf aus Eintrag 104
+  weiter.
+
+'''
+
 == 111. Prompt: „commit"
 
 _Delta: 2:40 min · 720 Token out · 1.064 Token in (neu) · 493.052 Token gesamt_

@@ -52,7 +52,7 @@ sind damit maschinell geprüft, nicht nur gut gemeint.
 
 | `docs/**`
 | Die Dokumentation selbst. Master-Prompt und Skills stehen im Wortlaut in <<wortlaut>>, die
-  ADRs sind im Abschnitt Architekturentscheidungen verlinkt.
+  ADRs sind im Abschnitt Architekturentscheidungen (ADR) verlinkt.
 |===
 
 [[src-gruppe-domaene]]

@@ -83,7 +83,7 @@ Zusammenfassung: *Was* gilt, steht im ADR selbst.
 |===
 
 Der vollständige Index steht in `docs/system/system.adoc`, Abschnitt
-„Architekturentscheidungen" – er ist die einzige Liste aller ADRs; hier wird sie nicht
+„Architekturentscheidungen (ADR)" – er ist die einzige Liste aller ADRs; hier wird sie nicht
 zweitgeführt.
 
 IMPORTANT: Der Index ist *absteigend* sortiert. Ein neues ADR kommt als *erste* Tabellenzeile

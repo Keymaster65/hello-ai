@@ -16,6 +16,26 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| 113
+|„commit"
+| –
+| –
+| –
+| –
+| 2:28 min
+| 14.121
+| 1.790.738
+
+| 112
+|„Ändere in der Systemdocumentation die Kapitelüberschrift "Architekturentscheidungen" auf "Architekturentscheidungen (ADR)"" (aus dem Backlog, `next`)
+| 1:14 min
+| 8.611
+| 73.940
+| 910.542
+| 1:14 min
+| 8.611
+| 910.542
+
 | 111
 |„commit"
 | 2:40 min

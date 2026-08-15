@@ -90,7 +90,7 @@ include::qualitaetssicherung.adoc[leveloffset=+1]
 
 include::arbeitsgrundlage.adoc[leveloffset=+1]
 
-== Architekturentscheidungen
+== Architekturentscheidungen (ADR)
 
 Die Begründungen liegen in `docs/adr/` – ein Verzeichnis, das diese Dokumentation
 absichtlich nicht zusammenfasst, weil eine Zusammenfassung die Optionen und damit den Wert
