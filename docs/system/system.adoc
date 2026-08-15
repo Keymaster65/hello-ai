@@ -107,6 +107,7 @@ erste Zeile.
 |===
 | ADR | Thema
 
+| link:{adr}/0032-branches-nach-jedem-commit-mergen{adrext}[0032] | Nach jedem Commit die Arbeitsbranches mergen
 | link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[0031] | `next` bevorzugt Einträge, die an den aktuellen Branch gebunden sind
 | link:{adr}/0030-pull-vor-next{adrext}[0030] | `git pull --ff-only` vor jedem `next`
 | link:{adr}/0029-next-mit-versatz{adrext}[0029] | `next` mit Versatz – `next+1`, `next+2`

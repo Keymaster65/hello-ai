@@ -49,6 +49,8 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
 ----
 * Zusätzlich weiterhin den Trailer im Commit-Body:
   `Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>`.
+* *Branches mergen nach jedem Commit (Pflicht):* Vor der Aufforderung zu `/clear` werden die
+  Arbeitsbranches in den aktuellen gemergt – siehe <<merge>>.
 * *`/clear` nach jedem Commit (Pflicht):* Ein Commit schließt eine Arbeitseinheit ab – der
   Kontext der nächsten beginnt leer. Nach jedem erfolgreichen Commit fordert der Assistent den
   Nutzer als *letzte Zeile der Antwort* auf, `/clear` einzugeben. `/clear` ist ein
@@ -60,6 +62,49 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
 ** `/clear` startet ein neues Transkript, damit beginnt der *Stand* der Kennzahlen bei null
    (siehe Butterfly-Skill, Abschnitt „Dauer und Tokenanzahl"). Das ist gewollt und kein
    Messfehler.
+
+[[merge]]
+== Branches nach dem Commit zusammenführen
+
+Nach *jedem* Commit werden die Arbeitsbranches in den aktuellen gemergt – *vor* der
+Aufforderung zu `/clear` (link:{adr}/0032-branches-nach-jedem-commit-mergen{adrext}[ADR 0032]).
+So trifft ein Konflikt einzeln und im Kontext der eben getanen Arbeit ein, statt sich
+anzusammeln, bis ihn niemand mehr auflösen kann.
+
+*Welche Branches:* die *Arbeitsbranches* `main`, `sm`, `doc`, `dev` – auch den aktuellen. Kein
+anderer: ein Experiment oder ein nur zum Nachsehen geholter Zweig gehört nicht dazu.
+
+IMPORTANT: Diese Liste wird *von Hand* gepflegt. Kommt ein Arbeitsbranch dazu, gehört er hier
+ergänzt – sonst fällt er still heraus und wird nie zusammengeführt (ADR 0032, „Nachteile").
+
+*Der Ablauf:*
+
+. Für jeden Arbeitsbranch `git merge <branch>`. Gibt es ihn *nicht*, wird er übergangen;
+  existiert er nur als `+origin/<name>+`, wird dieser gemergt. Ist er bereits Vorfahr von
+  `HEAD` – das gilt immer für den aktuellen selbst –, meldet `git` „Already up to date":
+  nichts zu tun.
+. *Konfliktfrei:* `git` erzeugt den Merge-Commit selbst. Die Message-Bestätigung entfällt hier,
+  weil keine Message formuliert wird.
+. *Mit Konflikt:* auflösen, `git add`, `git commit`. Für diesen Commit gilt die *Definition of
+  Done erneut* – der Merge hat fremden Code hereingeholt, der letzte grüne Lauf gilt dafür
+  nicht.
+. *Wiederholen*, bis jeder vorhandene Arbeitsbranch Vorfahr von `HEAD` ist. Eine Runde ist kein
+  Nachweis: Ein Merge kann den nächsten erst möglich oder erst konfliktbehaftet machen.
+. Danach der Log-Eintrag (Butterfly-Skill) und die Aufforderung zu `/clear`.
+
+*Die Grenze bei Konflikten:* Aufgelöst wird, wo die Absicht *beider* Seiten aus dem Konflikt
+selbst erkennbar ist – zwei Einträge, die an dieselbe Stelle wollen (`claudeLog`, `backlog`),
+oder zwei Zeilen derselben Tabelle: Beide Seiten bleiben erhalten, die Reihenfolge folgt der
+Konvention der Datei. Ist die Absicht *nicht* erkennbar – zwei Fassungen derselben Regel, zwei
+Implementierungen derselben Methode –, dann `git merge --abort` und *fragen*. Eine Auflösung,
+die nicht zu begründen ist, ist eine stille Entscheidung über fremde Arbeit.
+
+IMPORTANT: `docs/log/kennzahlen.adoc` wird *erzeugt*, nicht von Hand aufgelöst (ADR 0027):
+erst den Konflikt im `claudeLog` auflösen, dann `python3 docs/log/kennzahlen.py` laufen lassen.
+
+WARNING: Gemergt wird nur *in* den aktuellen Branch hinein. `main` und die übrigen bleiben
+zurück – kein Push, kein Rückmerge, kein `git fetch` (geholt wird beim Pull vor `next`,
+link:{adr}/0030-pull-vor-next{adrext}[ADR 0030]).
 
 == Hinweise
 

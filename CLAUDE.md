@@ -23,7 +23,7 @@ mit Pfad und Anlass:
 - `docs/prompt/butterfly.adoc` – Butterfly / Session-Protokoll (`docs/log/claudeLog.adoc`)
 - `docs/prompt/manager.adoc` – Manager / Kennzahlen-Tabelle (`docs/log/kennzahlen.adoc`)
 - `docs/prompt/po.adoc` – PO / Backlog (`docs/backlog.adoc`, Befehl `next`)
-- `docs/prompt/develop.adoc` – Develop / Commits
+- `docs/prompt/develop.adoc` – Develop / Commits und Zusammenführen der Branches
 
 **Keine Regel wird in dieser Datei ergänzt** – sonst gibt es die Arbeitsgrundlage an zwei
 Orten. Neues gehört in den Master-Prompt oder in einen Skill; die Zuordnung steht in

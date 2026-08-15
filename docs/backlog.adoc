@@ -41,8 +41,6 @@ Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt
 was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
 `git`.
 
-== :sm Diese Regel soll dem developer Skill hinzugefügt werden: Nach einem commit, sollen andere Branches des git Repositories mit "merge" hinzugefügt werden: Nur main, sm, doc und dev. Merge-Konflikte sollen behoben werden. Danach soll ein erneuter commit durchgeführt werden. Das soll wiederholt werden, bis alle Branches gemerged sind.
-
 == :doc Ergänze claudeLog in der Systemdocumentation als neuen Anhang "Änderungen" vor dem Anhang "Quelldateien" ein.
 
 == :doc Erzeuge entsprechenden Links, wenn claudeLog in der Systemdocumentation referenziert wird.
@@ -92,10 +90,14 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 
 == AI Prozess
 === Historie
-    Kopie in Textdatei
-    claudeLog
-    backlog
-    Backlog in Projekt
+
+. Kopie in Textdatei
+. claudeLog
+. backlog
+. Backlog in Projekt
+. pull mit next
+. Getrennte Teams
+
 
 === Backlog
 AI Team

@@ -8,6 +8,51 @@ Datum: 2026-07-19
 
 '''
 
+== 120. Prompt: „Diese Regel soll dem developer Skill hinzugefügt werden: Nach einem commit, sollen andere Branches des git Repositories mit "merge" hinzugefügt werden: Nur main, sm, doc und dev. Merge-Konflikte sollen behoben werden. Danach soll ein erneuter commit durchgeführt werden. Das soll wiederholt werden, bis alle Branches gemerged sind." (aus dem Backlog, `next`)
+
+_Delta: 5:17 min · 35.896 Token out · 82.614 Token in (neu) · 4.449.493 Token gesamt_
+_Stand (Session, 8 Prompts): 11:10 min · 75.983 Token out · 8.219.989 Token gesamt_
+
+*Aktionen:*
+
+* *Pull vor `next`* (ADR 0030): „Already up to date". Der Eintrag stand in geschärfter Fassung
+  wieder im Backlog – jetzt ausdrücklich als *Regel für den Develop-Skill*, nicht als
+  einmaliger Merge-Lauf. Damit war die Mehrdeutigkeit geklärt, an der Eintrag 119 hängen
+  geblieben war. Nach Rückfrage auf `+*sm+` gesetzt, nach Abschluss entfernt.
+* *Umfang erfragt:* Skill allein oder Skill *und* ADR. Der Nutzer wählte Skill + ADR – wie bei
+  ADR 0029/0030/0031.
+* *ADR 0032 geschrieben* (`+docs/adr/0032-branches-nach-jedem-commit-mergen.adoc+`): Nach jedem
+  Commit werden die übrigen Arbeitsbranches in den aktuellen gemergt, *vor* der Aufforderung zu
+  `/clear`. Drei Optionsgruppen mit Begründung: *wann* (nicht beim Pull – ADR 0030 schließt
+  Merge dort aus, sondern nach dem Commit bei sauberem Arbeitsbaum), *welche Branches*
+  (verworfen: nur `main`, Namensmuster, alle Refs) und *was bei Konflikt* (verworfen: immer
+  selbst auflösen, immer abbrechen). Das ADR *grenzt ADR 0030 ab*, ohne es abzulösen.
+* *Liste der Branches im Lauf geändert:* Der Nutzer schärfte den Eintrag während der Arbeit von
+  „main, ai1, ai2 usw." auf „*Nur main, sm, doc und dev*". Die zuvor gewählte Option „alle Refs
+  unter `+refs/heads+`/`+refs/remotes+`" wurde daraufhin zur *verworfenen* Option und die
+  benannte Liste zur Entscheidung – samt des Preises unter „Nachteile": Ein nicht eingetragener
+  Branch fällt *still* heraus.
+* *Zweite Korrektur des Nutzers im Lauf:* im Skill „ohne den aktuellen" → „*auch* den
+  aktuellen". Übernommen und ADR wie Skill darauf ausgerichtet: Die Liste umfasst alle vier
+  Branches, der aktuelle braucht keine Ausnahme, weil `git merge` in sich selbst folgenlos ist
+  („Already up to date"). Eine Regel ohne Sonderfall statt einer mit.
+* *Develop-Skill erweitert* (`docs/prompt/develop.adoc`): neuer Abschnitt
+  „Branches nach dem Commit zusammenführen" mit Anker `+[[merge]]+`, Verweis aus der
+  Commit-Liste, Grenze bei Konflikten (auflösen, wo die Absicht beider Seiten erkennbar ist –
+  sonst `git merge --abort` und fragen), `kennzahlen.adoc` neu erzeugen statt von Hand auflösen
+  (ADR 0027), DoD gilt beim Merge-Commit *erneut*.
+* *Nachgezogen:* ADR-Index als erste Zeile in `docs/system/system.adoc`; Wegweiser-Zeile
+  „Commit, Zusammenführen von Branches" und Zahl 31 → 32 in `docs/prompt/adr.adoc`;
+  Develop-Zeile in `docs/system/arbeitsgrundlage.adoc`; Pflege-Zeile in
+  `docs/prompt/prompt.adoc`; Skill-Tabelle in `docs/prompt/masterprompt.adoc` und die
+  Skill-Liste in `CLAUDE.md`.
+* *Gegenprobe im HTML:* `./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr` ohne
+  Asciidoctor-Meldung; der neue Abschnitt steht in `prompt.html` und `system.html`, ADR 0032
+  unter `build/docs/adr/`, der Querverweis `+<<merge>>+` löst auf.
+* *Erster Anwendungsfall der neuen Regel:* der Commit dieses Prompts – siehe dort.
+
+'''
+
 == 119. Prompt: „Nach einem commit, sollen andere Branches des git Repositories mit "merge" hinzugefügt werden: Nur main, ai1, ai2 usw. Merge-Konflikte sollen behoben werden. Danach soll ein erneuter commit durchgeführt werden. Das soll wiederholt werden, bis alle Branches gemerged sind." (aus dem Backlog, `next`)
 
 _Delta: 26 s · 3.534 Token out · 4.798 Token in (neu) · 494.102 Token gesamt_

@@ -92,7 +92,8 @@ gelesen – anders als dieser Master-Prompt, der in jeder Session gilt
 
 | Develop
 | `docs/prompt/develop.adoc`
-| Abschluss einer Arbeitseinheit: Commit-Vorbedingungen, Message, `/clear`
+| Abschluss einer Arbeitseinheit: Commit-Vorbedingungen, Message, Zusammenführen der übrigen
+  Branches, `/clear`
 |===
 
 Wie diese Arbeitsgrundlage selbst gepflegt wird – welche Änderung welche Datei berührt –
