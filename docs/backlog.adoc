@@ -41,8 +41,6 @@ Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt
 was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
 `git`.
 
-== :sm Wende ARD 0035 auf die Anwendung an und startet sie
-
 == :doc Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein.
 
 == :doc Füge die Querverweise zwischen den Prompts in claudeLog und den Commits im gitChangeLog hinzu.
@@ -142,6 +140,21 @@ Gemeint sind die Gradle-Mittel dafür: `+dependency-verification.xml+` mit
 `+org.gradle.dependency.verification=strict+`, ein Schreibschutz für die Lockdatei und eine
 Wartezeit, bevor eine frisch veröffentlichte Version verwendet wird. Jedes davon ist eine
 Entscheidung mit Folgen für jeden Build – deshalb zuerst ein ADR.
+
+== KI Richte einen vertraulichen Meldeweg für Schwachstellen ein und trage ihn in die security.txt
+
+Die ausgelieferte `security.txt` nennt heute die *öffentlichen* Issues des Repositories
+(link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037]) – eine Meldung ist
+damit ab der ersten Zeile bekannt. In Frage kommen GitHub Security Advisories oder eine
+gepflegte Adresse; beides ist eine Festlegung außerhalb des Codes und braucht danach nur noch
+den Konfigurationswert `SECURITY_TXT_CONTACT`.
+
+== KI Signiere die security.txt nach RFC 9116
+
+RFC 9116 erlaubt eine Clearsign-Signatur samt `Signature`-Feld. Ohne sie ist der Inhalt der
+Datei nicht als echt nachweisbar. Der Schritt verlangt einen gepflegten Schlüssel und damit ein
+eigenes ADR – so schon in
+link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035] festgehalten.
 
 == KI Schreibe ein ADR über die Kapitelstruktur der ADRs
 

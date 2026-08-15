@@ -28,3 +28,13 @@ server:
   servlet:
     # Basis-URL der Anwendung: SPA, API und Swagger UI liegen unter /recipes (ADR 0016).
     context-path: /recipes
+
+recipes:
+  security-txt:
+    # Meldeweg für Schwachstellen nach RFC 9116, ausgeliefert unter /.well-known/security.txt –
+    # am Ursprung, also *neben* dem Context-Path (ADR 0037).
+    contact: ${SECURITY_TXT_CONTACT:https://github.com/Keymaster65/hello-ai/issues}
+    # RFC 3339; RFC 9116 empfiehlt weniger als ein Jahr in der Zukunft. SecurityTxtConfigurationTest
+    # bricht den Build, sobald das Datum abgelaufen oder zu weit entfernt ist.
+    expires: ${SECURITY_TXT_EXPIRES:2027-08-01T00:00:00Z}
+    preferred-languages: de, en

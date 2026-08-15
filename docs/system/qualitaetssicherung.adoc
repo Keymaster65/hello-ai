@@ -114,6 +114,16 @@ link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019].
 | Der komplette Stack gegen ein echtes PostgreSQL – embedded über Zonky, damit ohne Docker
   (link:{adr}/0002-embedded-postgres-statt-testcontainers{adrext}[ADR 0002]). Kann das native
   Binary nicht starten, wird die Klasse *übersprungen* statt rot zu werden.
+
+| <<src-security-txt-properties-test,`SecurityTxtPropertiesTest`>>
+| Das erzeugte `security.txt`: eine `Contact`-Zeile je Meldeweg in der Reihenfolge der
+  Priorität, `Expires` genau einmal in RFC-3339-Form, `Preferred-Languages` höchstens einmal –
+  und die Zurückweisung einer leeren Kontaktliste
+  (link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037]).
+
+| <<src-security-txt-configuration-test,`SecurityTxtConfigurationTest`>>
+| Die *ausgelieferte* Vorgabe: `Expires` liegt in der Zukunft und weniger als ein Jahr
+  entfernt. Das Datum veraltet still – dieser Test macht daraus einen roten Build.
 |===
 
 == Systemtests
@@ -132,8 +142,15 @@ Ohne `-Psystemtest.baseUrl` startet die Suite die Anwendung auf einem freien Por
 embedded PostgreSQL (<<src-running-application,`RunningApplication`>>); mit der Property läuft sie gegen eine deployte
 Instanz und startet nichts. Derselbe Testcode prüft damit beide Fälle. Geprüft werden
 Statuscodes und Contract-Details (<<src-swagger-system-test,`SwaggerSystemTest`>>), die Auslieferung der
-SPA inklusive der weitergeleiteten Routen (<<src-frontend-system-test,`FrontendSystemTest`>>)
-und die der Systemdokumentation (<<src-documentation-system-test,`DocumentationSystemTest`>>).
+SPA inklusive der weitergeleiteten Routen (<<src-frontend-system-test,`FrontendSystemTest`>>),
+die der Systemdokumentation (<<src-documentation-system-test,`DocumentationSystemTest`>>) und
+die des Meldewegs am Ursprung (<<src-security-txt-system-test,`SecurityTxtSystemTest`>>).
+
+Der Meldeweg ist der einzige Pfad *außerhalb* des Context-Path
+(link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037]); geprüft wird
+deshalb beides – dass `+/.well-known/security.txt+` am Ursprung antwortet und dass derselbe
+Pfad unter `/recipes` ein `404` bleibt. Eine Datei an zwei Orten wäre eine, die an einem
+veraltet.
 
 Der letzte Test geht dabei über einen Statuscode hinaus: Er holt `/docs/` und ruft *jeden*
 ADR-Verweis des Dokuments einzeln ab. Ein ADR, das im Jar fehlt, während die Dokumentation

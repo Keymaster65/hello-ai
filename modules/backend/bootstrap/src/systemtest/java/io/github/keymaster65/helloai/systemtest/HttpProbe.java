@@ -30,6 +30,17 @@ final class HttpProbe {
         return send(request(path).GET().build());
     }
 
+    /**
+     * Performs a GET against the <em>origin</em>, so without the context path – the address space
+     * of {@code /.well-known/security.txt} (see ADR 0037).
+     */
+    static HttpResponse<String> getFromOrigin(String path) {
+        return send(HttpRequest.newBuilder(URI.create(RunningApplication.origin() + path))
+                .timeout(Duration.ofSeconds(30))
+                .GET()
+                .build());
+    }
+
     static HttpResponse<String> post(String path, String jsonBody) {
         return send(request(path)
                 .header("Content-Type", "application/json")

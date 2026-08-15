@@ -32,14 +32,15 @@ final class RunningApplication {
      */
     static final String CONTEXT_PATH = "/recipes";
 
+    private static final String ORIGIN;
     private static final String BASE_URL;
     private static final boolean AVAILABLE;
 
     static {
         // The property carries the origin (scheme://host:port); the context path is added here.
         String configured = System.getProperty(BASE_URL_PROPERTY, "").trim();
-        String origin = configured.isEmpty() ? startLocally() : trimTrailingSlash(configured);
-        BASE_URL = origin == null ? null : origin + CONTEXT_PATH;
+        ORIGIN = configured.isEmpty() ? startLocally() : trimTrailingSlash(configured);
+        BASE_URL = ORIGIN == null ? null : ORIGIN + CONTEXT_PATH;
         AVAILABLE = BASE_URL != null;
     }
 
@@ -60,6 +61,17 @@ final class RunningApplication {
             throw new IllegalStateException("No running application available");
         }
         return BASE_URL;
+    }
+
+    /**
+     * Origin of the running application – scheme, host and port, <em>without</em> the context
+     * path. RFC 9116 puts {@code security.txt} there and nowhere else (see ADR 0037).
+     */
+    static String origin() {
+        if (ORIGIN == null) {
+            throw new IllegalStateException("No running application available");
+        }
+        return ORIGIN;
     }
 
     private static String startLocally() {

@@ -135,7 +135,9 @@ WARNING: *Der Context-Path ist hier der Stolperstein.* Die Anwendung liegt unter
 `+/recipes/.well-known/security.txt+` erreichbar ist, erfüllt RFC 9116 *nicht* – gefordert ist
 der Ursprung. Wer sie ausliefert, löst das ausdrücklich: durch eine Zuordnung, die den
 Context-Path umgeht, oder durch einen vorgelagerten Proxy. Welcher Weg gewählt wird, ist eine
-Entscheidung und gehört in ein ADR.
+Entscheidung und gehört in ein ADR – für diese Anwendung ist er in
+link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037] entschieden. Eine
+Änderung daran folgt dem Ablauf „Abweichen" des ADR-Skills, nicht der Bequemlichkeit.
 
 === Pflege
 

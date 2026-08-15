@@ -16,6 +16,16 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| 127
+|„Wende ARD 0035 auf die Anwendung an und startet sie" (aus dem Backlog, `next`)
+| 52:54 min
+| 121.256
+| 924.307
+| 23.849.634
+| 52:54 min
+| 121.256
+| 23.849.634
+
 | 126
 |„ja, commit"
 | 36 s

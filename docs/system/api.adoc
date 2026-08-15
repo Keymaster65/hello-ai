@@ -23,7 +23,16 @@ Origin. Genau das macht CORS überflüssig
   (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024])
 | ADRs | `/recipes/docs/adr/\{datei}.html` | gerendertes AsciiDoc, aus der Doku heraus
   verlinkt (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026])
+| Meldeweg | `/.well-known/security.txt` | *ohne* Context-Path – RFC 9116 kennt nur den
+  Ursprung (link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037])
 |===
+
+Die letzte Zeile ist die einzige Ausnahme von „alles unter `/recipes`". Sie ist keine
+Nachlässigkeit, sondern Vorschrift: RFC 9116 nennt genau einen Ort für den maschinenlesbaren
+Meldeweg, und der liegt im Ursprung. Ausgeliefert wird die Datei deshalb nicht von Spring MVC –
+dorthin gelangt eine Anfrage außerhalb des Context-Path gar nicht –, sondern von
+<<src-security-txt-valve,`SecurityTxtValve`>> in der Tomcat-Pipeline; ihr Inhalt stammt aus
+<<src-security-txt-properties,`SecurityTxtProperties`>> und damit aus der Konfiguration.
 
 Die Adresse der Dokumentation endet auf einen Schrägstrich. `/recipes/docs` leitet dorthin
 um, statt weiterzuleiten: Nur mit dem Schrägstrich lösen die relativen Verweise auf die ADRs

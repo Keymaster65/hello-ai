@@ -114,6 +114,18 @@ lokale Entwicklung. Es gibt bewusst keine Profil-Dateien je Umgebung.
 | `80`
 | HTTP-Port. Der Default aus `application.yml` ist `80`; Entwicklung und E2E-Tests nutzen
   üblicherweise `8080` (`--server.port=8080`).
+
+| `SECURITY_TXT_CONTACT`
+| `https://github.com/Keymaster65/hello-ai/issues`
+| Meldeweg für Schwachstellen, ausgeliefert unter `+/.well-known/security.txt+` (RFC 9116).
+  Mehrere URIs kommagetrennt, die bevorzugte zuerst
+  (link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037]).
+
+| `SECURITY_TXT_EXPIRES`
+| `2027-08-01T00:00:00Z`
+| Ablaufdatum derselben Datei nach RFC 3339. Ein unlesbarer Wert bricht den *Start*; ein
+  abgelaufener oder mehr als ein Jahr entferntes Datum bricht den *Build*
+  (`SecurityTxtConfigurationTest`).
 |===
 
 Feste Festlegungen, die *nicht* über Umgebungsvariablen wandern sollten, ohne beide Seiten
@@ -186,7 +198,9 @@ Der Anwendungscode ist in beiden Modi identisch, weil er nur relative Pfade kenn
 . Liquibase prüft `databasechangelog` und führt fehlende Changesets aus – gefiltert nach
   `SPRING_LIQUIBASE_CONTEXTS`.
 . jOOQ erhält seinen `DSLContext` auf der konfigurierten `DataSource`.
-. Der HTTP-Port wird geöffnet; SPA, API, Swagger UI und Systemdokumentation sind erreichbar.
+. Der HTTP-Port wird geöffnet; SPA, API, Swagger UI und Systemdokumentation sind erreichbar –
+  dazu, als einziger Pfad *neben* dem Context-Path, `+/.well-known/security.txt+`
+  (link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037]).
 
 Ein Rollback von Changesets ist nicht vorgesehen; das Vorgehen bei einer fehlerhaften
 Migration ist ein neues, korrigierendes Changeset.
@@ -228,12 +242,16 @@ Umgebung betreibt, ohne sie zu kennen.
 | Es gibt kein Deployment-Artefakt jenseits des Boot-Jars und keine automatisierte
   Auslieferung.
 
-| `security.txt` nach RFC 9116
-| Es gibt keinen maschinenlesbaren Meldeweg für Schwachstellen. Der Skill
-  `docs/prompt/security.adoc` verlangt die Datei unter `+/.well-known/security.txt+`
-  (link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035]); ausgeliefert wird sie
-  noch nicht. Offen ist dabei auch, wie der Ursprungs-Pfad neben dem Context-Path `/recipes`
-  bedient wird (link:{adr}/0016-context-path-recipes{adrext}[ADR 0016]).
+| Vertraulicher Meldeweg für Schwachstellen
+| Die `security.txt` ist da (link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR
+  0037]), ihr `Contact` zeigt aber auf die *öffentlichen* Issues des Repositories. Wer eine
+  Schwachstelle meldet, macht sie damit im selben Moment bekannt. Ein privater Kanal – etwa
+  GitHub Security Advisories oder eine gepflegte Adresse – steht als Vorschlag im Backlog.
+
+| Signatur der `security.txt`
+| RFC 9116 erlaubt eine Clearsign-Signatur samt `Signature`-Feld. Sie fehlt: Ohne sie ist der
+  Inhalt der Datei nicht als echt nachweisbar. Ein gepflegter Schlüssel ist eine eigene
+  Entscheidung (link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035]).
 
 | Prüfbedingung auf `difficulty`
 | Die Spalte ist ein `VARCHAR` ohne `CHECK`. Ein per Hand eingefügter Fremdwert fällt erst

@@ -9,6 +9,50 @@ Datum: 2026-07-19
 
 '''
 
+== 127. Prompt: „Wende ARD 0035 auf die Anwendung an und startet sie" (aus dem Backlog, `next`)
+
+_Delta: 52:54 min · 121.256 Token out · 924.307 Token in (neu) · 23.849.634 Token gesamt_
+_Stand (Session, 3 Prompts): 52:54 min · 121.256 Token out · 23.849.634 Token gesamt_
+
+*Aktionen:*
+
+* *Gezogen:* `+git pull --ff-only+` auf `sm` meldete „Already up to date"; kein Eintrag war
+  aktiv. Der an `sm` gebundene Eintrag stand vorn – die `+:doc+`-Einträge sind fremd gebunden.
+  Wortlaut vorgelegt, nach der Bestätigung Marker `+:sm+` → `+*sm+` gesetzt, danach gearbeitet.
+* *Rückfrage zum Meldeweg:* `Contact` ist Pflicht und darf nach ADR 0035 nicht erfunden werden.
+  Der Nutzer wählte die *öffentlichen* GitHub-Issues des Repositories und einen
+  *konfigurierbaren* Pflegeweg.
+* *ADR 0037 geschrieben* („`+security.txt+` am Ursprung, ausgeliefert von einem Engine-Valve"):
+  fünf verworfene Wege für den Ursprungs-Pfad – statische Ressource, Proxy, Context-Path ändern,
+  zweiter Tomcat-Context, `+RewriteValve+` – und die Begründung des gewählten.
+* *Umgesetzt* im Modul `+:bootstrap+`: `+SecurityTxtProperties+` (Record mit curried Factory
+  nach ADR 0021, erzeugt das Dokument selbst), `+SecurityTxtValve+` (Engine-Valve, beantwortet
+  `+/.well-known/security.txt+` mit `+text/plain; charset=utf-8+`) und `+SecurityTxtConfig+`.
+  Der Context-Path kommt darin nicht vor: Tomcat durchläuft die Pipeline auch ohne Context.
+* *Konfiguriert* in `+application.yml+`: `+SECURITY_TXT_CONTACT+` und `+SECURITY_TXT_EXPIRES+`
+  (`+2027-08-01T00:00:00Z+`), dazu `+Preferred-Languages: de, en+`.
+* *Tests:* `+SecurityTxtPropertiesTest+` (Form des Dokuments, leere Kontaktliste),
+  `+SecurityTxtConfigurationTest+` (Ablaufdatum in der Zukunft und unter einem Jahr – der Wecker
+  gegen das stille Veralten) und `+SecurityTxtSystemTest+` über HTTP am Ursprung, inklusive der
+  Gegenprobe `+404+` unterhalb von `/recipes`. `+HttpProbe.getFromOrigin+` und
+  `+RunningApplication.origin()+` ergänzt.
+* *DoD:* `+clean build+` grün, `+test+` grün, `+systemtest+` grün (23 Tests, davon 4 neue),
+  `+e2eTest+` grün (9 Tests) – die Playwright-Browser fehlten in dieser Umgebung und wurden mit
+  `+npx playwright install chromium+` nachinstalliert. Doku-Tasks meldungsfrei bis auf die zwei
+  bekannten Meldungen aus ADR 0033.
+* *Anwendung gestartet:* lokale PostgreSQL aufgesetzt, dann
+  `+java -jar recipes-0.0.1-SNAPSHOT.jar --server.port=8080+`.
+  `+GET /.well-known/security.txt+` antwortet `+200+` mit `Contact` und `Expires`;
+  `+/recipes/.well-known/security.txt+` bleibt `+404+`, SPA, API und Doku antworten `+200+`.
+* *Dokumentation nachgezogen:* ADR-Index, Adressraum in `+api.adoc+`, Konfiguration und „Offene
+  Punkte" in `+betrieb.adoc+` (Zeile `+security.txt+` ersetzt durch *vertraulicher Meldeweg* und
+  *Signatur*), Testkapitel, Quellen-Anhang, Wegweiser im ADR-Skill und der Verweis im
+  Security-Skill.
+* *Backlog:* Eintrag entfernt; zwei `+KI+`-Vorschläge ergänzt (vertraulicher Meldeweg,
+  Signatur der Datei).
+
+'''
+
 == 126. Prompt: „ja, commit"
 
 _Delta: 36 s · 2.929 Token out · 5.770 Token in (neu) · 1.035.865 Token gesamt_
