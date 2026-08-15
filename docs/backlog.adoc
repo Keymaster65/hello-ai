@@ -34,6 +34,72 @@ Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt
 was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
 `git`.
 
+== : Ergänze in der DoD den Bau der als "Systemdocumentation gebaut".
+
+== : Stelle die ADRs in der Systemdocumentation in umgekehrter Reihenfolge das, so dass die neuesten ADRs oben beginnen.
+
+== : Ändere in der Systemdocumentation die Kapitelüberschrift "Architekturentscheidungen" auf "Architekturentscheidungen (ADR)"
+
+== : Ergänze claudeLog in der Systemdocumentation als neuen Anhang "Änderungen" vor dem Anhang "Quelldateien" ein.
+
+== : Erzeuge entsprechenden Links, wenn claudeLog in der Systemdocumentation referenziert wird.
+
+== : Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein.
+
+== : Füge die Querverweise zwischen den Prompts in claudeLog und den Commits im gitChangeLog hinzu.
+== Ergänze ein Plant UML Diagram für die Abhängigkeiten der gradle Module in der Asciidoc Systemdocumentation. Ergänze die Pflege der Abhängigkeiten in den Skills. Ergänze ein ADR für Plant UML.
+
+== ? Verwende im "Systemkontext" plantuml diagram.
+
+== Verwende plantuml in der Asciidoc Systemdocumentation wo es sinnvoll ist. Ergänze das im ADR
+
+== ?Ergänze einen MCP Service für den Zugriff auf Rezepte.
+
+== Erstelle security Skills für frontend und backend.
+    Ergänze ein security Skill der zur Einhaltung von RFC 9116 (definiert den Standard security.txt)
+    cooldown
+    Updates
+    write-lock
+    org.gradle.dependency.verification=strict
+
+== Realisiere "RFC 9116 A File Format to Aid in Security Vulnerability Disclosure" für die Anwendung.
+
+== Realisiere "RFC 9457 Problem Details for HTTP API" für die Anwendung.
+
+== architecture
+    Multi Brower Support
+
+==  business
+    Barrierefrei
+    en+de
+    Händler
+    Rezeptliste für Einkaufswage
+    Bestand
+
+
+== butterfly timelines
+   as butterfly to SCOOP
+   Erzeuge Präsentation
+   Führe die Promps aus claudeLog.md ohne Rückfrage aus.
+   Warte 60 sec, dann deine Empfehung.
+   opt. Die aktuellen Skills in ".claude" und der Masterprompt "Claude.md" bleiben unverändert.
+   Run with codex/copilot
+      Verwende den Masterpromt "Claude.md" und die Skills in ".claude"
+
+== AI Prozess
+=== Historie
+    Kopie in Textdatei
+    claudeLog
+    backlog
+    Backlog in Projekt
+
+=== Backlog
+AI Team
+Retro
+github integration
+Ein Promt ... CR
+Kommentare führen zu PRs
+
 == KI Ergänze eine CHECK-Bedingung auf der Spalte `difficulty`
 
 Aus `docs/system/betrieb.adoc`, „Offene Punkte": Die Spalte ist ein `VARCHAR` ohne `CHECK`, ein
