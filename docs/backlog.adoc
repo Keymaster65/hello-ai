@@ -34,6 +34,8 @@ Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt
 was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
 `git`.
 
+== : Ersetze im claudeLog den "" durch den tatsächlichen Prompt, der ausgeführt wurde. Mache das zukünftig für alle "next" Befehle.
+
 == KI Ergänze eine CHECK-Bedingung auf der Spalte `difficulty`
 
 Aus `docs/system/betrieb.adoc`, „Offene Punkte": Die Spalte ist ein `VARCHAR` ohne `CHECK`, ein
