@@ -1,0 +1,173 @@
+// Skill der Arbeitsgrundlage; siehe prompt.adoc.
+ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
+= Skill: Security – Backend
+
+== Zweck
+
+Aktiviere diesen Skill, sobald eine Änderung im Backend die *Angriffsfläche* der Anwendung
+berührt: neuer oder geänderter Endpunkt, neues Fehlerbild, neue Datenbankabfrage, neue
+Protokollausgabe, neuer Konfigurationsschlüssel, neue Abhängigkeit, neuer offen erreichbarer
+Pfad. Er sagt, was dabei einzuhalten ist – und er bindet die Anwendung an
+<<security-txt,RFC 9116>>.
+
+*Geltungsbereich ist das Backend.* Die Regeln für das Frontend kommen als eigener Abschnitt in
+diese Datei, sobald sie festgelegt sind; bis dahin steht hier nichts über die SPA
+(link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035]).
+
+Dieser Skill schreibt vor, er beschreibt nicht. *Welche* Lücken bewusst offen sind, steht in
+`docs/system/betrieb.adoc`, Abschnitt „Offene Punkte"; *warum* es diesen Skill gibt, in
+link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035].
+
+== Grundsätze
+
+. *Sicherheit ist Teil der Aufgabe, nicht ein Schritt danach.* Sie wird mit der Änderung
+  bedacht, die sie betrifft – ein nachgelagerter Durchgang findet nur noch, was oben liegt.
+. *Nach außen geht nur, was hinausgehört.* Antworten, Fehlerbilder und Protokollzeilen tragen
+  keine Stacktraces, kein SQL, keine Dateipfade und keine Konfigurationswerte.
+. *Kein Geheimnis im Repository.* Zugangsdaten kommen aus der Umgebung; in `application.yml`
+  steht der Platzhalter, nie der echte Wert.
+. *Eine Lücke wird benannt.* Was bewusst offen bleibt, gehört in „Offene Punkte"
+  (`docs/system/betrieb.adoc`) und – wenn es abgearbeitet werden soll – ins Backlog. Eine
+  Lücke, die nirgends steht, ist von einem Versehen nicht zu unterscheiden.
+. *Abweichung braucht ein ADR*, wie jede andere Entscheidung (Skill ADR,
+  `docs/prompt/adr.adoc`). Eine gelockerte Sicherheitsregel ist nie eine Nebenwirkung.
+
+IMPORTANT: Eine gefundene Schwachstelle wird *nicht im Vorbeigehen* behoben und *nicht
+stillschweigend*. Sie wird benannt – im Log, in „Offene Punkte" und als Backlog-Eintrag –,
+damit die Behebung eine eigene, prüfbare Arbeitseinheit ist.
+
+== Auslöser → Pflicht
+
+[cols="2,3", options="header"]
+|===
+| Anlass | Zu tun
+
+| Neuer oder geänderter REST-Endpunkt
+| Eingabe *an der Grenze* validieren (Bean Validation am Request-DTO), Antwort als DTO – nie
+  eine Entity (Master-Prompt, „Coding-Konventionen"). Prüfen, wer den Pfad erreichen kann und
+  was er dort sieht; `docs/system/api.adoc` mitpflegen
+
+| Neues Fehlerbild oder neuer `+@ExceptionHandler+`
+| Meldung ohne Stacktrace, ohne SQL, ohne interne Pfade und Klassennamen. Der Statuscode trägt
+  die Aussage, der Text nur so viel, wie der Aufrufer zum Korrigieren braucht
+
+| Neue Datenbankabfrage
+| Über jOOQ mit *gebundenen Parametern*. Kein Zusammenbau von SQL aus Zeichenketten, kein
+  „plain SQL" ohne ADR
+
+| Neue Protokollausgabe
+| Keine Zugangsdaten, keine vollständigen Anfragekörper, keine personenbezogenen Daten. Wer
+  einen Fehlerfall protokolliert, protokolliert die *Kennung*, nicht den Inhalt
+
+| Neuer Konfigurationsschlüssel für ein Geheimnis
+| Nur als Umgebungsvariable mit Platzhalter (`+${DB_PASSWORD:…}+`), nie mit einem echten Wert
+  als Vorgabe; Zeile in der Konfigurationstabelle von `docs/system/betrieb.adoc`
+
+| Neue Abhängigkeit
+| Über den Versionskatalog
+  (link:{adr}/0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018]), keine Snapshot- oder
+  RC-Version, kein zusätzliches Repository ohne ADR. Herkunft und Pflegezustand prüfen, bevor
+  sie eingetragen wird
+
+| Neuer offen erreichbarer Pfad (Endpunkt, statische Datei, Dokumentation)
+| Prüfen, was er preisgibt. Was den Ist-Zustand des Systems offenlegt – etwa
+  `+/recipes/docs/**+` mit dieser Dokumentation
+  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]) –, gehört in „Offene
+  Punkte", solange es ungeschützt ist
+
+| Der Meldeweg ändert sich (Adresse, Sprache, Ablaufdatum)
+| `security.txt` nachziehen – siehe <<security-txt>>
+
+| Schwachstelle entdeckt
+| Benennen statt beheben: Log-Eintrag, Zeile in „Offene Punkte", Backlog-Eintrag. Die Behebung
+  ist eine eigene Arbeitseinheit mit eigener Definition of Done
+|===
+
+[[security-txt]]
+== RFC 9116: `security.txt`
+
+*Die Anwendung hält https://www.rfc-editor.org/rfc/rfc9116.html[RFC 9116] ein.* Wer eine
+Schwachstelle findet, soll den Meldeweg *maschinenlesbar* vorfinden, statt ihn zu erraten – ein
+Kontaktweg, den niemand findet, ist kein Kontaktweg
+(link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035]).
+
+=== Was das verlangt
+
+[cols="1,3", options="header"]
+|===
+| Punkt | Regel
+
+| Ort
+| `+/.well-known/security.txt+` – im *Ursprung* (Schema, Host, Port), nicht unterhalb des
+  Context-Path
+
+| Medientyp
+| `+text/plain; charset=utf-8+`
+
+| `Contact`
+| *Pflicht*, mindestens einmal; mehrere Felder stehen in der Reihenfolge der Priorität. Wert
+  ist eine URI – `+mailto:+`, `+tel:+` oder `+https:+`
+
+| `Expires`
+| *Pflicht*, genau einmal; Zeitstempel nach RFC 3339. Nach diesem Zeitpunkt gilt die Datei als
+  ungültig
+
+| Weitere Felder
+| `Encryption`, `Acknowledgments`, `Preferred-Languages` (höchstens *einmal*), `Canonical`,
+  `Policy`, `Hiring`, `CSAF` – optional, aber nur mit gepflegtem Inhalt
+
+| Sprache der Datei
+| Kommentare und Feldnamen bleiben englisch; `Preferred-Languages` nennt die Sprachen, in denen
+  eine Meldung entgegengenommen wird
+|===
+
+[source,text]
+----
+Contact: mailto:security@example.org
+Expires: 2027-01-01T00:00:00.000Z
+Preferred-Languages: de, en
+Canonical: https://example.org/.well-known/security.txt
+----
+
+WARNING: *Der Context-Path ist hier der Stolperstein.* Die Anwendung liegt unter `/recipes`
+(link:{adr}/0016-context-path-recipes{adrext}[ADR 0016]). Eine Datei, die nur unter
+`+/recipes/.well-known/security.txt+` erreichbar ist, erfüllt RFC 9116 *nicht* – gefordert ist
+der Ursprung. Wer sie ausliefert, löst das ausdrücklich: durch eine Zuordnung, die den
+Context-Path umgeht, oder durch einen vorgelagerten Proxy. Welcher Weg gewählt wird, ist eine
+Entscheidung und gehört in ein ADR.
+
+=== Pflege
+
+* *`Expires` liegt weniger als ein Jahr in der Zukunft* – so empfiehlt es RFC 9116. Das Datum
+  ist damit kein Beiwerk, sondern eine wiederkehrende Aufgabe.
+* *Jede Änderung am Meldeweg zieht die Datei nach*, nicht umgekehrt.
+* *Die Erreichbarkeit wird geprüft, nicht angenommen:* Wird die Datei ausgeliefert, gehört ein
+  Systemtest dazu, der sie über HTTP abruft und auf `Contact` und `Expires` prüft
+  (Skill Tests, `docs/prompt/tests.adoc`).
+
+WARNING: `Expires` veraltet *still*. Die Datei bleibt erreichbar, der Build bleibt grün, und
+ungültig ist sie trotzdem. Ein Datum, das niemand prüft, ist der wahrscheinlichste Weg, wie
+diese Regel unbemerkt aufhört zu gelten.
+
+== Prüfen
+
+[source,bash]
+----
+./gradlew test systemtest      # Validierung, Fehlerbilder, Erreichbarkeit über HTTP
+----
+
+Es gibt *keinen* Task, der Sicherheit prüft. Was hier steht, wird gelesen und befolgt; belegt
+wird es durch Tests, die die jeweilige Regel festhalten – ein Test für ein zurückgewiesenes
+Eingabefeld, einer für ein Fehlerbild ohne interne Details, einer für die ausgelieferte
+`security.txt`. Alles Übrige regelt die *Definition of Done* im Master-Prompt.
+
+== Hinweise
+
+* *Drei Modi, ein Sachverhalt:* Dieser Skill schreibt vor (*was zu tun ist*),
+  `docs/system/betrieb.adoc` beschreibt (*was ist*, samt „Offene Punkte"), das ADR begründet
+  (*warum*). Wiederholt wird nichts davon.
+* *Keine Sicherheitsbibliothek ohne ADR.* Authentifizierung, Rate Limiting, Header-Filter –
+  jedes davon ist eine Entscheidung mit sichtbaren Alternativen und damit ein eigenes ADR.
+* *Bequemlichkeit ist kein Grund.* Ein abgeschalteter Schutz „für den Testlauf" ist der Zustand,
+  der ausgeliefert wird.

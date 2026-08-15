@@ -1,0 +1,174 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= ADR 0035: Security-Skill für das Backend, mit `security.txt` nach RFC 9116
+
+== Status
+
+Akzeptiert – 2026-08-15. Ergänzt die Arbeitsgrundlage um einen neunten Skill
+(link:0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]) und legt zugleich eine
+Anforderung an die Anwendung fest. Kein bestehendes ADR wird abgelöst.
+
+== Kontext
+
+Die Arbeitsgrundlage unter `docs/prompt` regelt Architektur, ADRs, Tests, Dokumentation,
+Protokoll, Kennzahlen, Backlog und Commit. *Sicherheit kommt darin nicht vor.* Der
+Master-Prompt nennt Validierung nur mittelbar über die Coding-Konventionen (DTOs an der
+Grenze, keine Entities nach außen), der Architektur-Skill über die Schichtenregel. Wer einen
+Endpunkt ergänzt, findet nirgends eine Stelle, an der steht, was dabei sicherheitshalber zu
+prüfen ist.
+
+Das ist bisher nicht aufgefallen, weil die Anwendung ohnehin ohne Authentifizierung läuft und
+das in `docs/system/betrieb.adoc` unter „Offene Punkte" steht. Doch „Offene Punkte" beschreibt
+den Zustand; es weist niemanden an. Die Folge: Sicherheitsfragen werden von Fall zu Fall
+entschieden und sind nach `/clear` nicht mehr nachlesbar.
+
+Dazu kommt eine konkrete Lücke, die keine Frage der Umsetzung ist, sondern der Erreichbarkeit:
+Es gibt *keinen benannten Meldeweg für Schwachstellen*. Wer eine findet, hat kein Ziel.
+https://www.rfc-editor.org/rfc/rfc9116.html[RFC 9116] beschreibt dafür seit 2022 das Format
+`security.txt` – eine Textdatei unter `+/.well-known/security.txt+`, die den Kontaktweg
+maschinenlesbar nennt.
+
+== Optionen
+
+*Wo die Sicherheitsregeln stehen*
+
+. *Im Master-Prompt.* Verworfen: Er wird in *jeder* Session vollständig geladen; jede Zeile
+  kostet Kontext (`docs/prompt/prompt.adoc`, „Kurz vor vollständig"). Sicherheitsregeln
+  greifen aber nur bei bestimmten Anlässen – neuer Endpunkt, neue Abhängigkeit, neues
+  Fehlerbild –, nicht bei jeder Aufgabe.
+. *Verteilt in die bestehenden Skills* – Validierung zu `architektur.adoc`, Fehlerbilder zu
+  `tests.adoc`, offene Pfade zu `systemdoku.adoc`. Verworfen: Dieselbe Regel stünde an drei
+  Orten, und es gäbe keine Stelle, an der jemand nachschlägt, bevor er einen Endpunkt öffnet.
+  Genau das ist der heutige Zustand.
+. *Ein eigener Skill `docs/prompt/security.adoc`* – gewählt. Er folgt dem Muster der übrigen
+  acht: eigener Anlass, eigene Tabelle „Auslöser → Pflicht", gelesen, wenn der Anlass eintritt.
+
+*Zuschnitt Backend / Frontend*
+
+. *Zwei Dateien* `security-backend.adoc` und `security-frontend.adoc`. Verworfen: Die Hälfte
+  der Regeln – kein Geheimnis im Repository, Umgang mit Abhängigkeiten, der Meldeweg selbst –
+  gilt für beide Seiten und stünde zweimal da. Zwei Zeilen in der Skill-Tabelle des
+  Master-Prompts für ein Thema erschweren zudem die Zuordnung.
+. *Eine Datei `security.adoc` mit Abschnitten je Seite* – gewählt. Der Geltungsbereich ist
+  zunächst ausdrücklich das Backend; der Frontend-Abschnitt kommt in dieselbe Datei, sobald er
+  festgelegt ist (Backlog-Eintrag „Erstelle security Skills für frontend und backend"). Der
+  Titel nennt den Geltungsbereich, damit die Lücke sichtbar bleibt.
+
+*Der Meldeweg für Schwachstellen*
+
+. *Nichts festlegen.* Verworfen: Der heutige Zustand. Ein Fund erreicht das Projekt nur, wenn
+  der Finder ohnehin weiß, an wen er sich wendet.
+. *Eine Kontaktadresse in `README.md` oder in der Systemdokumentation.* Verworfen: nicht
+  maschinenlesbar und nicht auffindbar. Werkzeuge und Meldeplattformen suchen an *einer*
+  Stelle, und das ist `+/.well-known/security.txt+`.
+. *`security.txt` nach RFC 9116, verbindlich im Skill* – gewählt. Ein etablierter Standard mit
+  festem Ort, festem Medientyp und zwei Pflichtfeldern; die Anforderung ist damit prüfbar
+  formuliert, statt als guter Vorsatz.
+
+*Wann die Datei entsteht*
+
+. *Zusammen mit diesem ADR ausliefern.* Verworfen: Wohin sie technisch gehört, ist wegen des
+  Context-Path `/recipes` (link:0016-context-path-recipes{adrext}[ADR 0016]) eine eigene
+  Entscheidung, und eine Kontaktadresse liegt nicht vor. Eine `security.txt` mit erfundenem
+  `Contact` wäre schlechter als keine.
+. *Die Regel jetzt, die Datei später* – gewählt. Der Skill bindet ab sofort; dass die Anwendung
+  die Bindung noch nicht erfüllt, steht als Zeile in „Offene Punkte"
+  (`docs/system/betrieb.adoc`) und als Eintrag im Backlog. Die Lücke ist damit benannt, nicht
+  übergangen.
+
+== Entscheidung
+
+Die Arbeitsgrundlage bekommt einen neunten Skill: `docs/prompt/security.adoc`, Titel „Skill:
+Security – Backend". Er wird gelesen, wenn eine Änderung die Angriffsfläche des Backends
+berührt, und enthält:
+
+* fünf Grundsätze (Sicherheit mit der Änderung, nichts Internes nach außen, kein Geheimnis im
+  Repository, jede Lücke benannt, Abweichung nur per ADR),
+* eine Tabelle „Auslöser → Pflicht" für Endpunkt, Fehlerbild, Abfrage, Protokoll,
+  Konfiguration, Abhängigkeit, offenen Pfad und entdeckte Schwachstelle,
+* den Abschnitt zu RFC 9116.
+
+=== Was RFC 9116 hier bedeutet
+
+Die Anwendung liefert eine `security.txt` unter `+/.well-known/security.txt+` aus, als
+`+text/plain; charset=utf-8+`, mit den Pflichtfeldern `Contact` (mindestens einmal, nach
+Priorität sortiert) und `Expires` (genau einmal, RFC-3339-Zeitstempel, weniger als ein Jahr in
+der Zukunft). Optionale Felder werden nur gesetzt, wenn ihr Inhalt gepflegt wird.
+
+Der *Ort* ist der Ursprung, nicht der Context-Path: `+/recipes/.well-known/security.txt+`
+erfüllt den Standard nicht. Wie das bei Context-Path `/recipes`
+(link:0016-context-path-recipes{adrext}[ADR 0016]) aufgelöst wird – eigene Zuordnung im
+Backend oder vorgelagerter Proxy –, entscheidet das ADR, das die Umsetzung begleitet.
+
+=== Registrierung des Skills
+
+Nach `docs/prompt/prompt.adoc`, „Pflege dieser Arbeitsgrundlage": Datei anlegen, `include` in
+`prompt.adoc`, Zeile in der Skill-Tabelle des Master-Prompts, Zeile in der Skill-Liste von
+`CLAUDE.md` sowie in `docs/system/arbeitsgrundlage.adoc` Dateitabelle, Ladeweg und ein zweiter
+`include` im Abschnitt „Wortlaut".
+
+== Konsequenzen
+
+=== Vorteile
+
+* Es gibt *eine* Stelle, an der steht, was beim Öffnen eines Pfades, beim Formulieren eines
+  Fehlerbildes oder beim Aufnehmen einer Abhängigkeit zu prüfen ist – lesbar, bevor die
+  Änderung geschrieben ist.
+* Der Meldeweg für Schwachstellen ist als *Anforderung* festgehalten und nicht mehr Sache des
+  Zufalls. Die Umsetzung ist damit eine Aufgabe mit Abnahmebedingung.
+* Der Skill kostet keinen Kontext, solange sein Anlass nicht eintritt – er wird gelesen, nicht
+  importiert (ADR 0023).
+
+=== Nachteile
+
+* Die Arbeitsgrundlage wächst auf neun Skills. Jede Datei mehr erhöht die Wahrscheinlichkeit,
+  dass eine Regel an zwei Orten landet; die Abgrenzung zu `architektur.adoc` und `tests.adoc`
+  ist nur durch Sorgfalt gesichert, nicht durch den Build.
+* Der Skill bindet die Anwendung an eine Anforderung, die sie *nicht erfüllt*. Zwischen
+  Vorschrift und Zustand klafft eine Lücke – sichtbar in „Offene Punkte", aber vorhanden.
+* Kein Task prüft eine der Regeln. Sicherheit bleibt hier Lesearbeit, anders als die
+  Schichtenregel (link:0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012]).
+
+=== Bewusst nicht getan
+
+* *Keine `security.txt` ausgeliefert.* Ort, Zuordnung und Kontaktadresse sind offen; die
+  Umsetzung steht im Backlog und bekommt ihr eigenes ADR.
+* *Keine Signatur der Datei.* RFC 9116 erlaubt eine Clearsign-Signatur samt `Signature`-Feld.
+  Sie verlangt einen gepflegten Schlüssel – eine eigene Entscheidung, kein Beiwerk.
+* *Keine Prüfung des `Expires`-Datums im Build.* Das Datum veraltet still; ein Test dafür
+  gehört zur Umsetzung, nicht zur Regel.
+* *Keine Authentifizierung, kein Spring Security, kein Rate Limiting.* Der Skill verlangt für
+  jedes davon ein eigenes ADR; die Punkte stehen unverändert unter „Offene Punkte".
+* *Keine Abhängigkeitsverifikation* (`+dependency-verification.xml+`, Lockfiles). Der Skill
+  verlangt nur Herkunftsprüfung und Versionskatalog; das Härten des Build-Wegs ist eine eigene
+  Entscheidung und steht als Vorschlag im Backlog.
+* *Kein Frontend-Teil.* Er kommt in dieselbe Datei, wenn er festgelegt ist – bis dahin nennt
+  der Titel den Geltungsbereich.
+
+== Prüfung
+
+* `./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr` läuft durch; dieses ADR erscheint
+  unter `build/docs/adr/`, der neue Skill in `build/docs/prompt/prompt.html` und – über den
+  zweiten `include` – im Kapitel „Arbeitsgrundlage" von `build/docs/asciidoc/system.html`. Die
+  zwei bekannten Meldungen des `asciidoctor`-Tasks („section title out of sequence" in
+  `docs/log/claudeLog.adoc`, „missing attribute: id") bestehen seit
+  link:0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033] und stehen als Backlog-Eintrag.
+* Der Index in `docs/system/system.adoc` führt dieses ADR als *erste* Tabellenzeile.
+* Gegenprobe zum Zeitpunkt der Entscheidung: `+grep -rn "well-known\|security" modules/+`
+  findet nichts – weder eine `security.txt` noch eine Sicherheitskonfiguration. Die Lücke, die
+  dieses ADR benennt, ist damit belegt und nicht vermutet.
+
+== Referenzen
+
+* https://www.rfc-editor.org/rfc/rfc9116.html[RFC 9116] – „A File Format to Aid in Security
+  Vulnerability Disclosure"
+* link:0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023] – Master-Prompt und Skills
+  als AsciiDoc; Form und Ladeweg des neuen Skills
+* link:0016-context-path-recipes{adrext}[ADR 0016] – Context-Path `/recipes`; der Grund, warum
+  der Ort der Datei eine eigene Entscheidung braucht
+* link:0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024] – die Dokumentation unter
+  `+/recipes/docs/+`, ein offen erreichbarer Pfad
+* link:0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018] – der Versionskatalog, über
+  den neue Abhängigkeiten laufen
+* `docs/prompt/security.adoc` – der Skill selbst
+* `docs/system/betrieb.adoc`, „Offene Punkte" – der Zustand, den der Skill noch nicht deckt

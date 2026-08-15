@@ -67,6 +67,11 @@ Zusammenfassung: *Was* gilt, steht im ADR selbst.
   link:{adr}/0002-embedded-postgres-statt-testcontainers{adrext}[0002],
   link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[0012]
 
+| Sicherheit: offener Pfad, Fehlerbild, Meldeweg, `security.txt`
+| link:{adr}/0035-security-skill-und-security-txt{adrext}[0035],
+  link:{adr}/0016-context-path-recipes{adrext}[0016],
+  link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[0024]
+
 | Build, neue Abhängigkeit, neuer Gradle-Task
 | link:{adr}/0009-gradle-wrapper-verbindlich{adrext}[0009],
   link:{adr}/0010-gradle-kotlin-dsl{adrext}[0010],

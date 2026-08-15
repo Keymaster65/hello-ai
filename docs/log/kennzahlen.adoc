@@ -16,7 +16,7 @@
 | Stand out / Token
 | Stand gesamt / Token
 
-| 126
+| 128
 |„Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein." (aus dem Backlog, `next`)
 | 11:16 min
 | 72.313
@@ -26,7 +26,7 @@
 | 74.997
 | 8.229.618
 
-| 125
+| 127
 |„next"
 | 24 s
 | 2.684
@@ -35,6 +35,26 @@
 | 24 s
 | 2.684
 | 240.603
+
+| 126
+|„ja, commit"
+| 36 s
+| 2.929
+| 5.770
+| 1.035.865
+| 8:55 min
+| 81.334
+| 7.273.438
+
+| 125
+|„Erstelle security Skills für das backend. Füge dort die Einhaltung von RFC 9116 (definiert den Standard security.txt) hinzu" (aus dem Backlog, `next`)
+| 6:27 min
+| 69.140
+| 190.355
+| 5.112.285
+| 6:49 min
+| 71.589
+| 5.350.722
 
 | 124
 |„ja, commit"

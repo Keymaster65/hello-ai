@@ -15,7 +15,7 @@
 :adrext: .adoc
 
 Dieses Dokument bündelt die Anweisungen, unter denen an *recipes* gearbeitet wird: den
-Master-Prompt, der in jeder Session gilt, und die acht Skills, die bei Bedarf hinzukommen.
+Master-Prompt, der in jeder Session gilt, und die neun Skills, die bei Bedarf hinzukommen.
 Entscheidung und Begründung:
 link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023].
 
@@ -94,6 +94,8 @@ include::adr.adoc[leveloffset=+1]
 
 include::tests.adoc[leveloffset=+1]
 
+include::security.adoc[leveloffset=+1]
+
 include::systemdoku.adoc[leveloffset=+1]
 
 include::butterfly.adoc[leveloffset=+1]
@@ -135,6 +137,10 @@ gepflegt, die sie betrifft.
 
 | Neue Test-Konvention, neues Test-Werkzeug
 | `tests.adoc`; die Teststufen selbst stehen in `docs/system/qualitaetssicherung.adoc`
+
+| Neue Sicherheitsregel für das Backend, geänderte Anforderung an `security.txt`
+| `security.adoc`; der *Zustand* – welche Lücke offen ist – bleibt in
+  `docs/system/betrieb.adoc`, „Offene Punkte"
 
 | Neue Regel zur Pflege der Systemdokumentation
 | `systemdoku.adoc`

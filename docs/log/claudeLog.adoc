@@ -9,7 +9,7 @@ Datum: 2026-07-19
 
 '''
 
-== 126. Prompt: „Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein." (aus dem Backlog, `next`)
+== 128. Prompt: „Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein." (aus dem Backlog, `next`)
 
 _Delta: 11:16 min · 72.313 Token out · 210.900 Token in (neu) · 7.989.015 Token gesamt_
 _Stand (Session, 4 Prompts): 11:40 min · 74.997 Token out · 8.229.618 Token gesamt_
@@ -47,7 +47,7 @@ _Stand (Session, 4 Prompts): 11:40 min · 74.997 Token out · 8.229.618 Token ge
 
 '''
 
-== 125. Prompt: „next"
+== 127. Prompt: „next"
 
 _Delta: 24 s · 2.684 Token out · 52.149 Token in (neu) · 240.603 Token gesamt_
 _Stand (Session, 3 Prompts): 24 s · 2.684 Token out · 240.603 Token gesamt_
@@ -58,6 +58,72 @@ _Stand (Session, 3 Prompts): 24 s · 2.684 Token out · 240.603 Token gesamt_
 * Ziehreihenfolge auf `doc` gebildet: zwei an den Branch gebundene `+:doc+`-Einträge, keine
   ungebundenen – `+:sm+` ist fremd gebunden und damit hier nicht ziehbar.
 * Ersten Eintrag im Wortlaut vorgelegt und zur Bestätigung gefragt; nichts ausgeführt.
+
+'''
+
+== 126. Prompt: „ja, commit"
+
+_Delta: 36 s · 2.929 Token out · 5.770 Token in (neu) · 1.035.865 Token gesamt_
+_Stand (Session, 5 Prompts): 8:55 min · 81.334 Token out · 7.273.438 Token gesamt_
+
+*Aktionen:*
+
+* *DoD geprüft:* reine Doku-Änderung, kein Code angefasst – `+asciidoctor+`,
+  `+asciidoctorPrompt+` und `+asciidoctorAdr+` grün; der letzte grüne Lauf von `+test+`,
+  `+systemtest+` und `+e2eTest+` gilt weiter (Butterfly-Skill, „Hinweise").
+* *Commit-Message vorgelegt und bestätigt* („Ergänze einen Security-Skill für das Backend"),
+  dann committet mit `+--author="Claude <noreply@anthropic.com>"+` auf Branch `sm`: `+a09ffa9+`,
+  13 Dateien, darunter der neue Skill und ADR 0035.
+* *Trailer:* `+Co-Authored-By: Claude Opus 5 (1M context)+` – das tatsächlich arbeitende Modell,
+  abweichend vom wörtlich im Develop-Skill stehenden „Opus 4.8"; der `KI`-Eintrag dazu liegt
+  weiter im Backlog.
+* *Branches zusammengeführt* (ADR 0032, ADR 0034): einmal `+git fetch origin+` – ohne neue Refs
+  –, dann `+main+`, `+sm+` und `+doc+` über ihre `+origin/+`-Refs gemergt, alle drei „Already up
+  to date", also kein Merge-Commit. `+dev+` existiert weder lokal noch am Remote und wurde
+  übergangen.
+
+'''
+
+== 125. Prompt: „Erstelle security Skills für das backend. Füge dort die Einhaltung von RFC 9116 (definiert den Standard security.txt) hinzu" (aus dem Backlog, `next`)
+
+_Delta: 6:27 min · 69.140 Token out · 190.355 Token in (neu) · 5.112.285 Token gesamt_
+_Stand (Session, 4 Prompts): 6:49 min · 71.589 Token out · 5.350.722 Token gesamt_
+
+*Aktionen:*
+
+* *Gezogen:* `git pull --ff-only` auf `sm` meldete „Already up to date"; kein Eintrag war aktiv.
+  Der an `sm` gebundene Eintrag stand als einziger ziehbarer vorn – die beiden `+:doc+`-Einträge
+  sind fremd gebunden. Wortlaut vorgelegt, nach der Bestätigung Marker `+:sm+` → `+*sm+` gesetzt
+  und erst danach gearbeitet.
+* *Neuer Skill* `docs/prompt/security.adoc` („Skill: Security – Backend"): fünf Grundsätze,
+  Tabelle „Auslöser → Pflicht" für Endpunkt, Fehlerbild, Abfrage, Protokoll, Konfiguration,
+  Abhängigkeit, offenen Pfad und entdeckte Schwachstelle, dazu der Abschnitt zu RFC 9116 – Ort
+  `+/.well-known/security.txt+`, Medientyp, Pflichtfelder `Contact` und `Expires`, Pflege des
+  Ablaufdatums. Festgehalten ist dort auch der Stolperstein: Der Context-Path `/recipes`
+  (ADR 0016) liegt *nicht* am Ursprung, eine Datei unter `+/recipes/.well-known/…+` erfüllt den
+  Standard nicht.
+* *ADR 0035* `+0035-security-skill-und-security-txt.adoc+` – mit Optionen zu Ort der Regeln
+  (Master-Prompt / verteilt / eigener Skill), Zuschnitt (zwei Dateien / eine Datei mit
+  Abschnitten), Meldeweg (nichts / README / RFC 9116) und Zeitpunkt (Datei jetzt / Regel jetzt,
+  Datei später). Index in `docs/system/system.adoc` als erste Zeile ergänzt.
+* *Registriert* (acht → neun Skills): Skill-Tabelle im Master-Prompt, `+include+` und
+  Pflege-Zeile in `docs/prompt/prompt.adoc`, Liste in `CLAUDE.md`, in
+  `docs/system/arbeitsgrundlage.adoc` Dateitabelle, Ladeweg und zweiter `+include+` im
+  Wortlaut; Zählung „acht Skills" auch in `docs/system/ueberblick.adoc` nachgezogen.
+* *Wegweiser* in `docs/prompt/adr.adoc` um eine Zeile „Sicherheit: offener Pfad, Fehlerbild,
+  Meldeweg, `security.txt`" ergänzt (0035/0016/0024); Zahl der ADRs auf 35 gesetzt.
+* *Lücke benannt:* `docs/system/betrieb.adoc`, „Offene Punkte" – die `security.txt` wird
+  verlangt, aber noch nicht ausgeliefert. Die Umsetzung steht als Eintrag `+sm Realisiere RFC
+  9116+` bereits im Backlog.
+* *Backlog:* erledigten Eintrag entfernt; die Notiz darunter (Verifikation, Lockdatei,
+  Wartezeit vor neuen Versionen) als `+KI+`-Vorschlag „Härte den Abhängigkeitsweg des Builds
+  gegen fremde Artefakte" neu aufgenommen – sie wäre sonst mit dem Eintrag verschwunden.
+* *DoD:* reine Doku-Änderung, kein Code angefasst – `+asciidoctor+`, `+asciidoctorPrompt+` und
+  `+asciidoctorAdr+` grün (`BUILD SUCCESSFUL`), das ADR liegt unter `+build/docs/adr/+`, der
+  Skill in `+prompt.html+` und `+system.html+`. Der letzte grüne Lauf von `+test+`,
+  `+systemtest+` und `+e2eTest+` gilt weiter.
+* *Bewusst nicht getan:* keine `security.txt` ausgeliefert – Ort und Kontaktadresse sind offen
+  und gehören in das ADR der Umsetzung.
 
 '''
 
