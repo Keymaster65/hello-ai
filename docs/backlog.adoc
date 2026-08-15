@@ -44,6 +44,8 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 
 == Ergänze
 
+== : Bewege in kennzahlen die akkumulierten Summen jeweils hinter die Spalte die akkumuliert ist
+
 == doc Ergänze ein Plant UML Diagram für die Abhängigkeiten der gradle Module in der Asciidoc Systemdocumentation. Ergänze die Pflege der Abhängigkeiten in den Skills. Ergänze ein ADR für Plant UML.
 
 == doc Verwende im "Systemkontext" plantuml diagram.
