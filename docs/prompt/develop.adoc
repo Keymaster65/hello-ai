@@ -69,7 +69,9 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
 Nach *jedem* Commit werden die Arbeitsbranches in den aktuellen gemergt – *vor* der
 Aufforderung zu `/clear` (link:{adr}/0032-branches-nach-jedem-commit-mergen{adrext}[ADR 0032]).
 So trifft ein Konflikt einzeln und im Kontext der eben getanen Arbeit ein, statt sich
-anzusammeln, bis ihn niemand mehr auflösen kann.
+anzusammeln, bis ihn niemand mehr auflösen kann. Gemergt wird dabei der *zuletzt gepushte*
+Stand: Vorher wird einmal geholt
+(link:{adr}/0034-arbeitsbranches-vor-dem-merge-holen{adrext}[ADR 0034]).
 
 *Welche Branches:* die *Arbeitsbranches* `main`, `sm`, `doc`, `dev` – auch den aktuellen. Kein
 anderer: ein Experiment oder ein nur zum Nachsehen geholter Zweig gehört nicht dazu.
@@ -79,17 +81,23 @@ ergänzt – sonst fällt er still heraus und wird nie zusammengeführt (ADR 003
 
 *Der Ablauf:*
 
-. Für jeden Arbeitsbranch `git merge <branch>`. Gibt es ihn *nicht*, wird er übergangen;
-  existiert er nur als `+origin/<name>+`, wird dieser gemergt. Ist er bereits Vorfahr von
-  `HEAD` – das gilt immer für den aktuellen selbst –, meldet `git` „Already up to date":
-  nichts zu tun.
+. *Einmal* `git fetch origin` – vor der Schleife, nicht in ihr
+  (link:{adr}/0034-arbeitsbranches-vor-dem-merge-holen{adrext}[ADR 0034]). Der Stand ist damit
+  für den ganzen Durchlauf festgelegt. Schlägt das Holen fehl (kein Remote, kein Netz), wird
+  *nicht* abgebrochen: Grund nennen, mit den vorhandenen Refs weitermergen und *im Log
+  vermerken*, dass ohne frischen Stand gemergt wurde.
+. Für jeden Arbeitsbranch `+git merge origin/<branch>+`. Gibt es den Remote-Tracking-Ref nicht,
+  wird der lokale Branch gemergt; gibt es auch den nicht, wird der Branch übergangen. Ist er
+  bereits Vorfahr von `HEAD` – das gilt immer für den aktuellen selbst –, meldet `git` „Already
+  up to date": nichts zu tun.
 . *Konfliktfrei:* `git` erzeugt den Merge-Commit selbst. Die Message-Bestätigung entfällt hier,
   weil keine Message formuliert wird.
 . *Mit Konflikt:* auflösen, `git add`, `git commit`. Für diesen Commit gilt die *Definition of
   Done erneut* – der Merge hat fremden Code hereingeholt, der letzte grüne Lauf gilt dafür
   nicht.
-. *Wiederholen*, bis jeder vorhandene Arbeitsbranch Vorfahr von `HEAD` ist. Eine Runde ist kein
-  Nachweis: Ein Merge kann den nächsten erst möglich oder erst konfliktbehaftet machen.
+. *Wiederholen*, bis jeder vorhandene `+origin/<branch>+` – bzw. der lokale Ref, wo es keinen
+  gibt – Vorfahr von `HEAD` ist. Eine Runde ist kein Nachweis: Ein Merge kann den nächsten erst
+  möglich oder erst konfliktbehaftet machen. *Ohne* erneutes Holen: gefetcht wird nur einmal.
 . Danach der Log-Eintrag (Butterfly-Skill) und die Aufforderung zu `/clear`.
 
 *Die Grenze bei Konflikten:* Aufgelöst wird, wo die Absicht *beider* Seiten aus dem Konflikt
@@ -103,8 +111,9 @@ IMPORTANT: `docs/log/kennzahlen.adoc` wird *erzeugt*, nicht von Hand aufgelöst 
 erst den Konflikt im `claudeLog` auflösen, dann `python3 docs/log/kennzahlen.py` laufen lassen.
 
 WARNING: Gemergt wird nur *in* den aktuellen Branch hinein. `main` und die übrigen bleiben
-zurück – kein Push, kein Rückmerge, kein `git fetch` (geholt wird beim Pull vor `next`,
-link:{adr}/0030-pull-vor-next{adrext}[ADR 0030]).
+zurück – kein Push, kein Rückmerge. Auch die *lokalen* Refs werden nicht nachgezogen: `HEAD`
+enthält `+origin/main+`, während `git branch` `main` weiterhin auf einem alten Commit zeigt.
+Das ist kein Fehler, sieht aber wie einer aus (ADR 0034, „Nachteile").
 
 == Hinweise
 

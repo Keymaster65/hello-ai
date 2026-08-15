@@ -27,7 +27,7 @@ wenn diese Bindung nicht mehr passt.
 
 == Vor der Arbeit: welche ADRs gelten
 
-Nicht alle 33 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
+Nicht alle 34 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
 Zusammenfassung: *Was* gilt, steht im ADR selbst.
 
 [cols="2,3", options="header"]
@@ -87,7 +87,8 @@ Zusammenfassung: *Was* gilt, steht im ADR selbst.
 
 | Commit, Zusammenführen von Branches
 | link:{adr}/0030-pull-vor-next{adrext}[0030],
-  link:{adr}/0032-branches-nach-jedem-commit-mergen{adrext}[0032]
+  link:{adr}/0032-branches-nach-jedem-commit-mergen{adrext}[0032],
+  link:{adr}/0034-arbeitsbranches-vor-dem-merge-holen{adrext}[0034]
 |===
 
 Der vollständige Index steht in `docs/system/system.adoc`, Abschnitt

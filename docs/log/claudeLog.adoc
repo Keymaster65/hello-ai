@@ -8,6 +8,41 @@ Datum: 2026-07-19
 
 '''
 
+== 122. Prompt: „Ergänze in ADR-0032: Arbeitsbranches sollen zunächst vom remote mit pull aktualisiert werden" (aus dem Backlog, `nex` – gemeint war `next`)
+
+_Delta: 8:26 min · 47.348 Token out · 121.831 Token in (neu) · 4.056.044 Token gesamt_
+_Stand (Session, 4 Prompts): 8:47 min · 50.295 Token out · 4.296.505 Token gesamt_
+
+*Aktionen:*
+
+* *Pull vor `next`* (ADR 0030): „Already up to date", nichts geholt. Branch `sm`; von den zwei
+  an `sm` gebundenen ready-Einträgen wurde der erste gezogen.
+* *Konflikt mit ADR 0032 vorgelegt:* Dort steht „Kein `+git fetch+` vor dem Merge"
+  ausdrücklich unter „Bewusst nicht getan". Der Nutzer entschied für ein *neues* ADR statt für
+  eine Ergänzung in 0032 – und für `+origin/<branch>+` als Merge-Ziel statt für ein
+  Nachziehen der lokalen Refs.
+* *ADR 0034 geschrieben* (`+docs/adr/0034-arbeitsbranches-vor-dem-merge-holen.adoc+`): einmal
+  `+git fetch origin+` vor der Merge-Schleife, danach `+git merge origin/<branch>+`; lokaler
+  Ref nur ersatzweise. ADR 0032 blieb wortgleich.
+* *Der Befund dahinter:* Der Pull vor `next` bewegt nur den *ausgecheckten* Ref. `+git merge
+  main+` auf einem veralteten Ref meldet „Already up to date" – dieselbe Meldung wie bei einem
+  wirklich zusammengeführten Branch. Der Ablauf aus ADR 0032 meldete sich damit still als
+  erledigt.
+* *Nachgezogen:* `develop.adoc` (Fetch als Schritt 1, Abbruchbedingung auf
+  `+origin/<branch>+`, WARNING über die zurückbleibenden lokalen Refs), ADR-Index in
+  `system.adoc` (0034 oben), Wegweiser in `adr.adoc` (Zeile „Commit, Zusammenführen von
+  Branches"; 33 → 34 ADRs).
+* *Gegenprobe am Repository:* `+git fetch origin+` holt nichts; `+origin/main+` (`dd32278`) und
+  `+origin/sm+` (`3834981`) sind Vorfahren von `HEAD`, `doc` und `dev` existieren nicht.
+* *Nachweis:* `+./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr+` BUILD SUCCESSFUL.
+  `+asciidoctorAdr+` und `+asciidoctorPrompt+` meldungsfrei; die zwei Meldungen des
+  `+asciidoctor+`-Tasks („section title out of sequence" im Protokoll, „missing attribute: id")
+  bestanden *vorher* und stammen aus ADR 0033 – als `+KI+`-Eintrag ins Backlog gelegt, nicht
+  im Vorbeigehen behoben. Reine Doku-Änderung – kein Code angefasst, es gilt der letzte grüne
+  Testlauf.
+
+'''
+
 == 121. Prompt: „Ergänze claudeLog in der Systemdocumentation als neuen Anhang "Änderungen" vor dem Anhang "Quelldateien" ein." (aus dem Backlog, `next`)
 
 _Delta: 13:22 min · 46.353 Token out · 504.739 Token in (neu) · 7.944.910 Token gesamt_

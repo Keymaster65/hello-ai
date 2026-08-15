@@ -41,8 +41,6 @@ Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt
 was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
 `git`.
 
-== :sm Ergänze in ADR-0032: Arbeitsbranches sollen zunächst vom remote mit pull aktualisiert werden
-
 == :doc Erzeuge entsprechenden Links, wenn claudeLog in der Systemdocumentation referenziert wird.
 
 == :doc Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein.
@@ -133,6 +131,15 @@ Nicht ready: braucht eine Festlegung auf ein Verfahren und damit ein eigenes ADR
 `docs/prompt/develop.adoc` schreibt den Trailer wörtlich mit „Claude Opus 4.8 (1M context)"
 vor. Der Trailer soll das tatsächlich arbeitende Modell benennen; als fester Text veraltet er
 mit jedem Modellwechsel.
+
+== KI Beseitige die zwei Asciidoctor-Meldungen des Tasks asciidoctor
+
+`+./gradlew asciidoctor+` meldet zweierlei, seit das Protokoll als Anhang „Änderungen"
+eingebunden ist (ADR 0033): „section title out of sequence: expected level 2, got level 3" für
+`docs/log/claudeLog.adoc` Zeile 3 – der Titel `+= Claude Log+` landet mit `+leveloffset=+2+`
+eine Ebene zu tief unter dem Anhang – und „skipping reference to missing attribute: id". Der
+Build bleibt grün, aber die Definition of Done verlangt „keine kritischen Warnungen";
+`+asciidoctorPrompt+` und `+asciidoctorAdr+` laufen meldungsfrei.
 
 == KI Schreibe ein ADR über die Kapitelstruktur der ADRs
 
