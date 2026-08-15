@@ -152,5 +152,8 @@ Develop-Skill verweisen darauf, statt sie zu wiederholen.
 * [ ] Tests grün (`./gradlew test`)
 * [ ] *Systemtests grün (`./gradlew systemtest`)* – prüfen die laufende Anwendung über HTTP
 * [ ] *E2E-Tests grün (`./gradlew e2eTest`)* – prüfen die Nutzer-Flows im echten Browser
+* [ ] *Dokumentation gebaut* – Systemdokumentation (`./gradlew asciidoctor`),
+  Arbeitsgrundlage (`./gradlew asciidoctorPrompt`) und ADRs (`./gradlew asciidoctorAdr`); ein
+  fehlender `include` und ein Querverweis ins Leere sind Build-Fehler
 * [ ] Keine kritischen Warnungen/Linter-Fehler
 * [ ] Architektur- und Test-Prinzipien eingehalten

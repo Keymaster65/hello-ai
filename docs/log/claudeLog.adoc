@@ -8,6 +8,48 @@ Datum: 2026-07-19
 
 '''
 
+== 109. Prompt: „commit"
+
+_Delta: 11 s · 2.340 Token out · 90 Token in (neu) · 692.565 Token gesamt_
+_Stand (Session, 8 Prompts): 29:41 min · 201.069 Token out · 27.851.358 Token gesamt_
+
+*Aktionen:*
+
+* *DoD geprüft* – erstmals einschließlich des Punktes, der in Eintrag 108 dazugekommen ist:
+  `asciidoctor`, `asciidoctorPrompt` und `asciidoctorAdr` grün. Kein Code angefasst, es gilt
+  der grüne Lauf aus Eintrag 104 weiter.
+* *Commit-Message vorgelegt und bestätigt* („Dokumentation gebaut in die DoD aufnehmen"), dann
+  committet mit `+--author="Claude <noreply@anthropic.com>"+`.
+
+'''
+
+== 108. Prompt: „Ergänze in der DoD den Bau der als "Systemdocumentation gebaut"." (aus dem Backlog, `next`)
+
+_Delta: 4:13 min · 12.436 Token out · 620.029 Token in (neu) · 3.803.647 Token gesamt_
+_Stand (Session, 7 Prompts): 28:46 min · 196.611 Token out · 26.471.018 Token gesamt_
+
+*Aktionen:*
+
+* *Wortlaut verstümmelt* („den Bau der als"), deshalb vor der Arbeit ausgelegt und bestätigt:
+  ein Prüfschritt „Dokumentation gebaut" in der Definition of Done. Auf Rückfrage nicht nur die
+  Systemdoku, sondern *alle drei* Asciidoctor-Tasks.
+* *Neuer DoD-Punkt* in `+masterprompt.adoc+`, hinter den E2E-Tests: Systemdokumentation
+  (`+./gradlew asciidoctor+`), Arbeitsgrundlage (`+./gradlew asciidoctorPrompt+`) und ADRs
+  (`+./gradlew asciidoctorAdr+`), mit dem Hinweis, dass fehlender `+include+` und Querverweis
+  ins Leere Build-Fehler sind.
+* *Nur an dieser einen Stelle geändert.* `+prompt.adoc+` schreibt für die DoD „nur dort" vor;
+  `+docs/system/qualitaetssicherung.adoc+` und der Develop-Skill verweisen darauf, statt die
+  Liste zu wiederholen, und `+arbeitsgrundlage.adoc+` bindet den Master-Prompt per `include`
+  ein – die Änderung kommt dort von selbst an.
+* *Anmerkung im Prompt:* `asciidoctor` hängt bereits an `+./gradlew build+` und war über den
+  ersten DoD-Punkt schon abgedeckt. Der eigene Haken macht den Schritt sichtbar und einzeln
+  ausführbar; zusätzliche Absicherung ist er nicht.
+* *Prüfung:* alle drei Tasks grün, der neue Punkt rendert korrekt in
+  `+build/docs/prompt/prompt.html+`. Kein Code angefasst – es gilt der grüne Lauf aus Eintrag
+  104 weiter (`+clean build+`, `systemtest` 19/19, `e2eTest` 9/9).
+
+'''
+
 == 107. Prompt: „commit"
 
 _Delta: 19 s · 2.821 Token out · 4.201 Token in (neu) · 856.965 Token gesamt_

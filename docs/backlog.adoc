@@ -34,8 +34,6 @@ Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt
 was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
 `git`.
 
-== : Ergänze in der DoD den Bau der als "Systemdocumentation gebaut".
-
 == : Stelle die ADRs in der Systemdocumentation in umgekehrter Reihenfolge das, so dass die neuesten ADRs oben beginnen.
 
 == : Ändere in der Systemdocumentation die Kapitelüberschrift "Architekturentscheidungen" auf "Architekturentscheidungen (ADR)"

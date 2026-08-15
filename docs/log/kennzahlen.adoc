@@ -16,6 +16,26 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| 109
+|„commit"
+| 11 s
+| 2.340
+| 90
+| 692.565
+| 29:41 min
+| 201.069
+| 27.851.358
+
+| 108
+|„Ergänze in der DoD den Bau der als "Systemdocumentation gebaut"." (aus dem Backlog, `next`)
+| 4:13 min
+| 12.436
+| 620.029
+| 3.803.647
+| 28:46 min
+| 196.611
+| 26.471.018
+
 | 107
 |„commit"
 | 19 s
