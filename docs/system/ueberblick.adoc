@@ -120,11 +120,13 @@ Es ruft von sich aus kein Fremdsystem auf.
   (`docs/log/claudeLog.adoc`) – alles AsciiDoc
   (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026]). Das Protokoll wird als einziges
   AsciiDoc-Dokument *nicht* gerendert
-  (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]).
+  (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]); seine Kennzahlen stehen als
+  erzeugte Tabelle `docs/log/kennzahlen.adoc` im Anhang <<kennzahlen>>
+  (link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]).
 
 | Arbeitsgrundlage
 | `docs/prompt/` und `CLAUDE.md`
-| Master-Prompt und sechs Skills – die Anweisungen, unter denen entwickelt wird. Kein Baustein
+| Master-Prompt und sieben Skills – die Anweisungen, unter denen entwickelt wird. Kein Baustein
   der Anwendung, aber Teil des Repositorys; siehe <<arbeitsgrundlage>>.
 |===
 

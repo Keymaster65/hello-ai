@@ -50,6 +50,10 @@ zuständig ist – und nur das.
 | `anhang-quellen.adoc`
 | Anhang: die Quelldateien des Projekts, per `include` eingebunden und in Klapp-Blöcken je
   Datei. Gruppiert wie die Schichten; nichts davon wird abgeschrieben
+
+| `anhang-kennzahlen.adoc`
+| Anhang: Deutung der Spalten der Kennzahlen-Tabelle; die Tabelle selbst ist erzeugt und wird
+  aus `docs/log/kennzahlen.adoc` eingebunden (Manager-Skill)
 |===
 
 == Auslöser → Pflicht
@@ -115,6 +119,10 @@ Schritt* geändert, nicht später.
 | Quelldatei umbenannt, verschoben oder gelöscht
 | `anhang-quellen.adoc`, betroffener `include`. Das ist kein Suchspiel: Der Build *bricht* an
   der Stelle, weil ein fehlender `include` als Fehler konfiguriert ist.
+
+| Neue Spalte oder andere Sortierung der Kennzahlen-Tabelle
+| `anhang-kennzahlen.adoc`, Spaltentabelle – *und* `docs/log/kennzahlen.py` (Manager-Skill).
+  Die Tabelle selbst wird nie von Hand angefasst
 
 | Neues ADR
 | `system.adoc`, ADR-Index; zusätzlich Verweis im betroffenen Kapitel

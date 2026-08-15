@@ -15,7 +15,7 @@
 :adrext: .adoc
 
 Dieses Dokument bündelt die Anweisungen, unter denen an *recipes* gearbeitet wird: den
-Master-Prompt, der in jeder Session gilt, und die sechs Skills, die bei Bedarf hinzukommen.
+Master-Prompt, der in jeder Session gilt, und die sieben Skills, die bei Bedarf hinzukommen.
 Entscheidung und Begründung:
 link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023].
 
@@ -92,6 +92,8 @@ include::systemdoku.adoc[leveloffset=+1]
 
 include::butterfly.adoc[leveloffset=+1]
 
+include::manager.adoc[leveloffset=+1]
+
 include::develop.adoc[leveloffset=+1]
 
 [[pflege]]
@@ -130,7 +132,11 @@ gepflegt, die sie betrifft.
 | `systemdoku.adoc`
 
 | Geändertes Log-Format, andere Kennzahlen, geänderter Ablauf je Prompt
-| `butterfly.adoc`
+| `butterfly.adoc` – *und* `manager.adoc`, wenn sich die Form der Kennzahlenzeilen ändert: Die
+  Tabelle wird aus genau diesen Zeilen gelesen
+
+| Andere Spalten, andere Sortierung oder anderer Erzeugungsweg der Kennzahlen-Tabelle
+| `manager.adoc`; die Deutung der Spalten steht in `docs/system/anhang-kennzahlen.adoc`
 
 | Geänderte Commit-Regel (Vorbedingung, Message, `/clear`)
 | `develop.adoc`

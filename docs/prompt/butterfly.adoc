@@ -12,6 +12,11 @@ Nutzer-Prompts samt einer kurzen Zusammenfassung der durchgeführten Aktionen/Er
 Die Regeln rund um den *Commit* – Vorbedingungen, Message, `/clear` – stehen nicht hier,
 sondern im Develop-Skill (`docs/prompt/develop.adoc`).
 
+Aus den Kennzahlenzeilen dieses Logs entsteht die Tabelle `docs/log/kennzahlen.adoc`; sie zu
+erzeugen ist Sache des Manager-Skills (`docs/prompt/manager.adoc`), der direkt an den Ablauf
+unten anschließt. Wer hier das *Format* der Kennzahlenzeilen ändert, ändert dort das Muster
+mit.
+
 == Wann anwenden
 
 * Zu *Beginn* einer Session: Existenz von `docs/log/claudeLog.adoc` prüfen, bei Bedarf mit
@@ -99,6 +104,7 @@ _Stand (Session, 68 Prompts): 4:04:54 h · 764.504 Token out · 289.620.079 Toke
 .. Überschrift mit fortlaufender Nummer und Original-Prompt.
 .. Kennzahlenzeile aus Schritt 2.
 .. Stichpunkte zu Aktionen/Ergebnissen (Commits, Tests, Dateien, Entscheidungen).
+. `python3 docs/log/kennzahlen.py` ausführen (Manager-Skill) – die Tabelle folgt dem Log.
 . Log-Aktualisierung vor Turn-Ende sicherstellen.
 
 == Vorlage

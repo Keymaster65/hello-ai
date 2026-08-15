@@ -1,0 +1,141 @@
+// Skill der Arbeitsgrundlage; siehe prompt.adoc.
+ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
+= Skill: Manager – Kennzahlen-Tabelle des Protokolls
+
+== Zweck
+
+Aktiviere diesen Skill, sobald ein Eintrag in `docs/log/claudeLog.adoc` entstanden oder
+geändert ist: Er hält die *Kennzahlen-Tabelle* `docs/log/kennzahlen.adoc` nach, die dieselben
+Delta- und Stand-Werte in Spalten führt und im Anhang der Systemdokumentation steht
+(link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]).
+
+Der Butterfly-Skill (`docs/prompt/butterfly.adoc`) *schreibt* den Log-Eintrag; dieser Skill
+*wertet* ihn aus. Beides gehört in denselben Turn – die Tabelle ist sonst schon veraltet,
+wenn der Commit läuft.
+
+== Grundsatz
+
+. *Der Log ist die Quelle, die Tabelle ist abgeleitet.* Jede Zahl steht im Protokoll; die
+  Tabelle ordnet sie nur in Spalten. Eine Zahl, die nur in der Tabelle steht, ist ein Fehler.
+. *Die Tabelle wird erzeugt, nicht getippt.* `docs/log/kennzahlen.py` schreibt sie vollständig
+  neu. Von Hand geändert wird sie nie – die Änderung wäre beim nächsten Lauf weg.
+. *Nichts wird gerechnet und nichts geschätzt.* Die Werte werden als Zeichenkette aus dem Log
+  übernommen. Fehlt eine Kennzahl dort, steht in der Tabelle `–`.
+
+== Ablauf pro Prompt
+
+Er schließt direkt an den Ablauf des Butterfly-Skills an:
+
+. Log-Eintrag ergänzen (Butterfly-Skill).
+. Tabelle neu erzeugen:
++
+[source,bash]
+----
+python3 docs/log/kennzahlen.py
+----
+. Ausgabe lesen: Sie nennt die Zahl der Einträge und wie viele davon ohne Kennzahlen sind.
+  Wächst die Zahl der Einträge nicht, ist der Log-Eintrag nicht erkannt worden – siehe
+  <<manager-fallstricke>>.
+. Beide Dateien gehören in denselben Commit wie die Arbeit, die sie protokollieren.
+
+Ob die Tabelle zum Protokoll passt, beantwortet:
+
+[source,bash]
+----
+python3 docs/log/kennzahlen.py --check      # Exit 1, wenn sie neu zu erzeugen ist
+python3 docs/log/kennzahlen.py --stdout     # Ergebnis ansehen, ohne zu schreiben
+----
+
+== Format der Tabelle
+
+Neun Spalten, neuester Eintrag oben – dieselbe Sortierung wie das Protokoll:
+
+[cols="1,3", options="header"]
+|===
+| Spalte | Quelle im Log
+
+| Nr.
+| Die Nummer aus der Überschrift `+== <N>. Prompt: …+`; auch negative Nummern der
+  nachgetragenen Commits
+
+| Prompt
+| Der Überschriftentext ohne das führende `+Prompt: +`; `+Commit: +` bleibt stehen
+
+| Dauer, out, in (neu), gesamt
+| Die `+_Delta:+`-Zeile des Eintrags
+
+| Stand Dauer, Stand out, Stand gesamt
+| Die `+_Stand (Session, …)+`-Zeile des Eintrags
+|===
+
+Zwei Festlegungen tragen das Format:
+
+* *Die Prompt-Spalte ist literal* (`l` im `cols`-Attribut). Ein wörtlich zitierter Prompt darf
+  alles enthalten – `+*+`, `+{+`, `+<<+`, `+|+` –, ohne dass AsciiDoc es auswertet. Nur der
+  Zellentrenner `+|+` wird beim Erzeugen geschützt. Diese Zusicherung ist der Grund, warum die
+  Tabelle im Build stehen darf und das Protokoll selbst nicht
+  (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]).
+* *Die Einheit steht in der Spaltenüberschrift*, nicht in jeder Zelle (`out / Token`). Die
+  Dauer trägt ihre Einheit weiter mit, weil sie je Zeile wechselt (`s`, `min`, `h`) – die Regel
+  „jede Zahl trägt ihre Einheit" aus dem Butterfly-Skill bleibt damit erfüllt.
+
+[[manager-fallstricke]]
+== Wenn eine Zeile leer bleibt
+
+Das Skript liest die Kennzahlenzeilen mit festen Mustern. Steht eine Zeile anders im Log, als
+der Butterfly-Skill sie vorgibt, erkennt es sie nicht – und die Zeile trägt `–` statt Zahlen.
+Das ist kein Fehler des Skripts, sondern der Fund:
+
+* *Der Eintrag hat wirklich keine Kennzahlen* (frühe Einträge, nachgetragene Commits, ein
+  Turn, dessen Werte erst im Folgeturn messbar waren). Dann ist `–` richtig und bleibt.
+* *Die Zeile weicht vom Format ab* – etwa fehlende Einheit, anderer Trenner, ein Tippfehler in
+  `+_Stand (Session, N Prompts):+`. Dann wird die *Zeile im Log* korrigiert, nicht die Tabelle
+  ergänzt.
+
+WARNING: Der Build prüft die Tabelle nur auf gültiges AsciiDoc, nicht auf Vollständigkeit.
+Ein vergessener Lauf des Skripts fällt nirgends auf – deshalb steht er im Ablauf oben und
+nicht im Ermessen.
+
+== Auslöser → Pflicht
+
+[cols="2,3", options="header"]
+|===
+| Anlass | Zu tun
+
+| Neuer Log-Eintrag
+| `python3 docs/log/kennzahlen.py`; beide Dateien in denselben Commit
+
+| Kennzahlenzeile im Log nachträglich korrigiert
+| Ebenso – die Tabelle folgt dem Log, nie umgekehrt
+
+| Geändertes Format der Kennzahlenzeilen (Butterfly-Skill)
+| Muster in `docs/log/kennzahlen.py` nachziehen und mit `--check` gegen den *gesamten*
+  Bestand prüfen: Alte Einträge behalten ihre alte Form
+
+| Neue Spalte oder andere Sortierung
+| `docs/log/kennzahlen.py` *und* die Spaltenbeschreibung in
+  `docs/system/anhang-kennzahlen.adoc`; das Format steht an genau diesen zwei Stellen
+|===
+
+== Prüfen
+
+[source,bash]
+----
+python3 docs/log/kennzahlen.py --check
+./gradlew asciidoctor                       # → build/docs/asciidoc/system.html
+----
+
+Die Tabelle hängt über den Anhang an der Systemdokumentation. Ein fehlender `include` und eine
+defekte Tabelle sind *Build-Fehler*
+(link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022]) – anders als
+beim Protokoll ist die Tabelle damit maschinell geprüft.
+
+== Hinweise
+
+* *Die Tabelle ersetzt die Kennzahlenzeilen nicht.* Sie stehen weiter im Log, wo sie beim
+  Lesen des Eintrags gebraucht werden. Die Tabelle beantwortet die andere Frage: den Vergleich
+  über alle Prompts.
+* *Kein zweiter Ort für Deutung.* Was die Spalten bedeuten, steht in
+  `docs/system/anhang-kennzahlen.adoc`; wie Dauer und Tokenzahl entstehen, im Butterfly-Skill.
+  Hier steht nur, wie die Tabelle gepflegt wird.

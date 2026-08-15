@@ -8,6 +8,63 @@ Datum: 2026-07-19
 
 '''
 
+== 101. Prompt: „commit"
+
+_Delta: 28 s · 5.782 Token out · 6.252 Token in (neu) · 650.253 Token gesamt_
+_Stand (Session, 5 Prompts): 19:42 min · 102.543 Token out · 10.082.951 Token gesamt_
+
+*Aktionen:*
+
+* Message vorgelegt und vom Nutzer bestätigt, dann Eintrag 101 ergänzt, Tabelle neu erzeugt
+  und committet (Author = Claude): `Kennzahlen des claudeLog als Tabelle im Anhang`.
+* Enthalten: Skill `+manager.adoc+`, Generator `+kennzahlen.py+`, erzeugte
+  `+kennzahlen.adoc+`, Anhang B `+anhang-kennzahlen.adoc+`, ADR 0027 und die zehn Stellen, an
+  denen der siebte Skill registriert ist.
+* Grundlage ist der grüne DoD-Lauf aus Eintrag 95; seither wurden nur Doku, Log und Werkzeuge
+  unter `+docs/+` angefasst, kein Produktionscode. Der Doku-Build lief zuletzt in Eintrag 100
+  grün durch.
+
+'''
+
+== 100. Prompt: „Ergänze eine manager.adoc Skill. Er soll die folgende Aufgabe erfüllen: Erstelle eine zusätzliche Asciidoc Tabelle zum claudeLog, welche die Delta Informationen in Spalten enthält. In der ersten Spalte stehen alle Prompts mit Nummer. Diese Tabelle soll in Zukunft vom manager-Skill gepflegt werden und mit in den Anhang in der Systemdokumentation als Kapitel hinter das claudeLog Kapitel." (+ Rückfragen: „Nr soll eine eigene Spalte sein", Spalten „Delta + Stand", nur die Tabelle in den Anhang)
+
+_Delta: 9:12 min · 74.944 Token out · 114.366 Token in (neu) · 7.289.167 Token gesamt_
+_Stand (Session, 4 Prompts): 17:35 min · 87.452 Token out · 8.182.091 Token gesamt_
+
+*Aktionen:*
+
+* *Rückfrage statt Raten:* Ein „claudeLog-Kapitel" gibt es in der Systemdokumentation nicht –
+  ADR 0025 hält das Protokoll bewusst aus dem Build. Entscheidung des Nutzers: nur die
+  Kennzahlen-Tabelle in den Anhang, Nr. als eigene Spalte, Delta *und* Stand.
+* *Neuer Skill* `+docs/prompt/manager.adoc+`: Der Log ist die Quelle, die Tabelle ist
+  abgeleitet und wird erzeugt statt getippt; Ablauf je Prompt, Format der neun Spalten,
+  Fallstricke (leere Zeile = Formatabweichung im Log), Auslöser-Tabelle, Prüfschritte.
+* *Generator* `+docs/log/kennzahlen.py+` (Geschwister von `+turn-stats.py+`): liest die
+  `+_Delta:+`- und `+_Stand:+`-Zeilen, schreibt `+docs/log/kennzahlen.adoc+`; `+--check+`
+  meldet Abweichung mit Exit 1, `+--stdout+` zeigt ohne zu schreiben. Werte werden als
+  Zeichenkette übernommen, nie gerechnet; fehlt eine Kennzahl, steht `+–+`.
+* *Anhang* `+docs/system/anhang-kennzahlen.adoc+` (jetzt „Anhang B", hinter „Quelldateien"):
+  deutet die Spalten und bindet die erzeugte Tabelle ein.
+* *Build-Sicherheit gemessen statt behauptet:* Die Prompt-Spalte ist literal (`+l+` im
+  `+cols+`-Attribut) – Stichprobe im HTML zeigt `+\"+`, `+&+`, Backtick und `+→+` unverändert,
+  nichts wurde als Auszeichnung gedeutet. Nur der Zellentrenner wird geschützt.
+* *ADR 0027* `+kennzahlen-des-claudelog-als-tabelle+`: ergänzt ADR 0025, ohne es abzulösen –
+  fünf Optionen, darunter die verworfene Doppelpflege von Hand; „Bewusst nicht getan": kein
+  Gradle-Task, keine Summenzeile, der Log bleibt ungerendert.
+* *Registriert*, damit der Skill nicht unsichtbar bleibt: Skill-Tabelle im Master-Prompt,
+  `+include+` und zwei Pflegezeilen in `+prompt.adoc+`, Liste in `+CLAUDE.md+`, Dateitabelle /
+  Ladeweg / Wortlaut in `+arbeitsgrundlage.adoc+`, Kapitel- und Auslöser-Tabelle in
+  `+systemdoku.adoc+`, ADR-Wegweiser in `+adr.adoc+`, ADR-Index in `+system.adoc+`,
+  Bausteintabelle in `+ueberblick.adoc+`, Querverweis im Butterfly-Skill (sechs → sieben
+  Skills an allen Stellen).
+* *Nachweis:* `+./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr+` BUILD SUCCESSFUL ohne
+  Asciidoctor-Meldung; „Anhang B: Kennzahlen der Sessions" mit 104 Datenzeilen im HTML, ADR
+  0027 gerendert und verlinkt, Manager-Skill in beiden Dokumenten.
+* Reine Doku-/Werkzeugänderung, kein Produktionscode angefasst; der letzte grüne Test-,
+  Systemtest- und E2E-Lauf gilt weiter.
+
+'''
+
 == 99. Prompt: „commit"
 
 _Delta: 29 s · 1.230 Token out · 4 Token in (neu) · 241.374 Token gesamt_

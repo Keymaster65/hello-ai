@@ -121,6 +121,7 @@ wirkt.
 | link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[0024] | Systemdokumentation im Boot-Jar unter `/recipes/docs/`
 | link:{adr}/0025-claudelog-als-asciidoc{adrext}[0025] | Session-Protokoll `claudeLog` als AsciiDoc
 | link:{adr}/0026-adrs-als-asciidoc{adrext}[0026] | ADRs als AsciiDoc, gerendert im Boot-Jar
+| link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[0027] | Kennzahlen des `claudeLog` als erzeugte Tabelle im Anhang
 |===
 
 [[pflege-dieser-dokumentation]]
@@ -151,3 +152,5 @@ erst beim Lesen. Seit dem Anhang <<quelldateien>> gilt das auch für die *Pfade 
 Quelldateien*: Sie sind eingebunden, ein Umzug bricht den Build.
 
 include::anhang-quellen.adoc[leveloffset=+1]
+
+include::anhang-kennzahlen.adoc[leveloffset=+1]

@@ -1,0 +1,59 @@
+// Kapitel der Systemdokumentation; siehe system.adoc.
+ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
+[appendix]
+[[kennzahlen]]
+= Kennzahlen der Sessions
+
+Das Session-Protokoll `docs/log/claudeLog.adoc` führt unter jeder Überschrift zwei
+Kennzahlenzeilen mit: *Delta* – der Aufwand dieses einen Prompts – und *Stand* – der
+kumulierte Aufwand der Session bis dorthin. So geschrieben sind sie gut zu pflegen, aber
+schlecht zu vergleichen: Wer wissen will, welcher Prompt teuer war, blättert durch hundert
+Einträge.
+
+Dieser Anhang stellt dieselben Zahlen als *Tabelle* daneben – eine Zeile je Prompt, jede
+Kennzahl in einer eigenen Spalte, neuester Prompt oben wie im Protokoll selbst.
+
+*Abgeleitet, nicht zweitgeführt.* Die Tabelle wird von `docs/log/kennzahlen.py` aus dem
+Protokoll *erzeugt* und als `docs/log/kennzahlen.adoc` hier eingebunden. Der Log bleibt die
+einzige Quelle; die Werte werden übernommen, nicht neu gerechnet. Gepflegt wird sie nach dem
+Skill `docs/prompt/manager.adoc` (link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]).
+
+Das Protokoll selbst bleibt außerhalb des Builds
+(link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]): Es zitiert wörtliche Prompts und
+darf die Auslieferung nicht blockieren. Die Tabelle kann das nicht, weil die Prompt-Spalte
+*literal* gesetzt ist (`l` im `cols`-Attribut) – AsciiDoc wertet dort nichts aus.
+
+.Zu den Spalten
+[cols="2,3", options="header"]
+|===
+| Spalte | Bedeutung
+
+| Nr.
+| Nummer des Log-Eintrags. Sie zählt über alle Sessions hinweg und ist bis `-4` negativ – die
+  ältesten Einträge sind nachgetragene Commits ohne Prompt.
+
+| Prompt
+| Der Prompt im Wortlaut, wie er in der Überschrift des Log-Eintrags steht.
+
+| Dauer
+| Wanduhrzeit von der Ankunft des Prompts bis zur letzten Antwort, inklusive Wartezeit auf
+  Werkzeuge und Builds.
+
+| out / in (neu) / gesamt
+| Generierte Tokens; nicht aus dem Cache gelesene Eingabe; alles inklusive Cache-Reads – also
+  das, was abgerechnet wird.
+
+| Stand …
+| Dieselben Größen *kumuliert über die Session*. Nach jedem Commit läuft `/clear`, also
+  beginnt dort eine neue Session und der Stand springt zurück.
+
+| `–`
+| Im Protokoll steht für diesen Eintrag keine Kennzahl. Frühe Einträge entstanden vor der
+  Messung, für die nachgetragenen Commits gibt es kein Transkript mehr. Geschätzt wird nicht.
+|===
+
+NOTE: Die Werte sind eine *Untergrenze*. Gemessen wird bis zum Schreiben des Log-Eintrags;
+die abschließende Antwort des Turns fehlt darin zwangsläufig.
+
+include::../log/kennzahlen.adoc[]
