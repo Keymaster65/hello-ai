@@ -41,20 +41,21 @@ Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt
 was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
 `git`.
 
-== : Nach einem commit, sollen andere Branches des git Repositories mit "merge" hinzugefügt werden: Nur main, ai1, ai2 usw. Merge-Konflikte sollen behoben werden. Danach soll ein erneuter commit durchgeführt werden. Das soll wiederholt werden, bis alle Branches gemerged sind.
+== :sm Nach einem commit, sollen andere Branches des git Repositories mit "merge" hinzugefügt werden: Nur main, ai1, ai2 usw. Merge-Konflikte sollen behoben werden. Danach soll ein erneuter commit durchgeführt werden. Das soll wiederholt werden, bis alle Branches gemerged sind.
 
-== : Ergänze claudeLog in der Systemdocumentation als neuen Anhang "Änderungen" vor dem Anhang "Quelldateien" ein.
+== :doc Ergänze claudeLog in der Systemdocumentation als neuen Anhang "Änderungen" vor dem Anhang "Quelldateien" ein.
 
-== : Erzeuge entsprechenden Links, wenn claudeLog in der Systemdocumentation referenziert wird.
+== :doc Erzeuge entsprechenden Links, wenn claudeLog in der Systemdocumentation referenziert wird.
 
-== : Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein.
+== :doc Füge einen gitChangeLog mit dem gradle Plugin "se.bjurr.gitchangelog.git-changelog-gradle-plugin" als neues Kapitel in den Anhang "Änderungen" in die Systemdocumentation. Die Commits sollen in umgekehrter chronologischer Reihenfolge sein.
 
-== : Füge die Querverweise zwischen den Prompts in claudeLog und den Commits im gitChangeLog hinzu.
-== Ergänze ein Plant UML Diagram für die Abhängigkeiten der gradle Module in der Asciidoc Systemdocumentation. Ergänze die Pflege der Abhängigkeiten in den Skills. Ergänze ein ADR für Plant UML.
+== :doc Füge die Querverweise zwischen den Prompts in claudeLog und den Commits im gitChangeLog hinzu.
 
-== ? Verwende im "Systemkontext" plantuml diagram.
+== doc Ergänze ein Plant UML Diagram für die Abhängigkeiten der gradle Module in der Asciidoc Systemdocumentation. Ergänze die Pflege der Abhängigkeiten in den Skills. Ergänze ein ADR für Plant UML.
 
-== Verwende plantuml in der Asciidoc Systemdocumentation wo es sinnvoll ist. Ergänze das im ADR
+== doc Verwende im "Systemkontext" plantuml diagram.
+
+== doc Verwende plantuml in der Asciidoc Systemdocumentation wo es sinnvoll ist. Ergänze das im ADR
 
 == ?Ergänze einen MCP Service für den Zugriff auf Rezepte.
 
