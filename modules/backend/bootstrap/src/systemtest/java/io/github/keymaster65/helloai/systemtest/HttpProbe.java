@@ -7,6 +7,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.Map;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
 
@@ -42,15 +43,29 @@ final class HttpProbe {
     }
 
     static HttpResponse<String> post(String path, String jsonBody) {
-        return send(request(path)
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
-                .build());
+        return post(path, jsonBody, Map.of());
+    }
+
+    /**
+     * Performs a POST with additional headers. The MCP endpoint needs them: its transport insists
+     * on an {@code Accept} header naming both {@code application/json} and
+     * {@code text/event-stream}, and it answers a request carrying an {@code Origin} with 403
+     * (see ADR 0049).
+     */
+    static HttpResponse<String> post(String path, String jsonBody, Map<String, String> headers) {
+        HttpRequest.Builder builder = request(path).header("Content-Type", "application/json");
+        headers.forEach(builder::header);
+        return send(builder.POST(HttpRequest.BodyPublishers.ofString(jsonBody)).build());
     }
 
     /** Performs a GET and parses the body as JSON. */
     static JsonNode getJson(String path) {
         return JSON.readTree(get(path).body());
+    }
+
+    /** Parses a body as JSON – the MCP tests read the JSON-RPC response of a POST. */
+    static JsonNode parse(String body) {
+        return JSON.readTree(body);
     }
 
     private static HttpRequest.Builder request(String path) {

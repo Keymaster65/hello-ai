@@ -11,6 +11,10 @@ Portionen, Zubereitungszeit, Schwierigkeitsgrad), einer Liste von Zutaten und ei
 lassen sich Rezepte anlegen, lesen, ersetzen und löschen – mehr nicht. Es gibt keine
 Nutzerverwaltung, keine Suche, keine Bewertungen, keine Bilder.
 
+Für Sprachmodelle steht derselbe Bestand zusätzlich *lesend* über einen MCP-Server bereit, dazu
+die ausgelieferte Systemdokumentation
+(link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]).
+
 Fachlich vorbelegt ist die Datenbank mit dem klassischen Buchinger-Heilfastenzyklus
 (siehe <<beispieldaten>> im Kapitel Datenmodell); das ist Beispieldatenbestand, keine
 Fachlogik.
@@ -67,11 +71,14 @@ skinparam defaultTextAlignment center
 
 actor "Nutzer" as nutzer
 [Browser] as browser
-component "recipes (ein Boot-Jar)\n· SPA-Bundle aus dem Klassenpfad\n· REST-API\n· OpenAPI-Dokument + Swagger UI" as recipes
+component "MCP-Client\n(Sprachmodell)" as mcp
+component "recipes (ein Boot-Jar)\n· SPA-Bundle aus dem Klassenpfad\n· REST-API\n· OpenAPI-Dokument + Swagger UI\n· MCP-Server (lesend)\n· Systemdokumentation" as recipes
 database "PostgreSQL" as db
 
 nutzer --> browser : Rezepte pflegen
+nutzer --> mcp : fragen
 browser --> recipes : HTTPS/HTTP\nSPA-Auslieferung + JSON über /recipes/api
+mcp --> recipes : HTTP\nJSON-RPC 2.0 über /recipes/api/mcp
 recipes --> db : JDBC (jOOQ)\nSchema-Migration (Liquibase)
 @enduml
 ....
@@ -89,6 +96,13 @@ Diagramm entsteht beim Rendern aus seiner Quelle in dieser Datei
 | HTTP: SPA unter `/recipes/`, JSON-API unter `/recipes/api/recipes`, Contract unter
   `/recipes/v3/api-docs`. Ein Port, eine Origin
   (link:{adr}/0016-context-path-recipes{adrext}[ADR 0016]).
+
+| MCP-Client (Sprachmodell)
+| eingehend
+| HTTP: JSON-RPC 2.0 unter `+/recipes/api/mcp+`, zustandslos und *nur lesend* – vier Werkzeuge
+  und die Seiten der Systemdokumentation als Ressourcen
+  (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]). Siehe Kapitel
+  API.
 
 | PostgreSQL
 | ausgehend

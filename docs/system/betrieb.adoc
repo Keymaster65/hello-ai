@@ -59,7 +59,9 @@ Gebaut wird ausschließlich über den Gradle-Wrapper
   auf Maschinen ohne Node.
 | `./gradlew build -PskipDocs`
 | Überspringt das Einpacken der Systemdokumentation und damit das Rendern vor jedem `test`.
-  Das Jar enthält dann *keine* Dokumentation – `DocumentationSystemTest` schlägt fehl.
+  Das Jar enthält dann *keine* Dokumentation – `DocumentationSystemTest` schlägt fehl, und der
+  MCP-Server bietet weder Dokumentationsseiten noch Ressourcen an
+  (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]).
 |===
 
 Die Befehle funktionieren unverändert auf jeder Ebene, weil Gradle einen Task-Namen an jedes
@@ -194,7 +196,7 @@ Ein einzelner Prozess, eine Datenbank – kein Cluster, kein Cache, keine Queue.
 
 | `recipes-<version>.jar`
 | JVM-Prozess (`java -jar`)
-| Enthält Server, API, SPA und die Systemdokumentation. Java 25 zur Laufzeit.
+| Enthält Server, API, SPA, MCP-Endpunkt und die Systemdokumentation. Java 25 zur Laufzeit.
 
 | PostgreSQL
 | eigener Dienst
@@ -233,7 +235,11 @@ Der Anwendungscode ist in beiden Modi identisch, weil er nur relative Pfade kenn
 . Liquibase prüft `databasechangelog` und führt fehlende Changesets aus – gefiltert nach
   `SPRING_LIQUIBASE_CONTEXTS`.
 . jOOQ erhält seinen `DSLContext` auf der konfigurierten `DataSource`.
-. Der HTTP-Port wird geöffnet; SPA, API, Swagger UI und Systemdokumentation sind erreichbar –
+. Der Katalog der Dokumentationsseiten wird vom Klassenpfad gelesen – einmalig, weil die
+  ausgelieferte Dokumentation sich zur Laufzeit nicht ändert
+  (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]).
+. Der HTTP-Port wird geöffnet; SPA, API, MCP-Endpunkt, Swagger UI und Systemdokumentation sind
+  erreichbar –
   dazu, als einziger Pfad *neben* dem Context-Path, `+/.well-known/security.txt+`
   (link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037]).
 
@@ -254,9 +260,12 @@ Umgebung betreibt, ohne sie zu kennen.
 | Authentifizierung und Autorisierung
 | Jeder, der den Port erreicht, kann alle Rezepte lesen, ändern und löschen – und unter
   `/recipes/docs/` diese Dokumentation samt der Liste hier lesen
-  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]). Die Anwendung
+  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]). Dasselbe gilt für den
+  MCP-Endpunkt `+/recipes/api/mcp+`: Er ist offen erreichbar, dort allerdings *nur lesend*, und
+  gibt dieselben Rezepte und dieselbe Dokumentation heraus
+  (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]). Die Anwendung
   gehört daher hinter einen kontrollierten Zugang oder in ein privates Netz; kommt eine
-  Authentifizierung, ist `/recipes/docs/**` mit abzusichern.
+  Authentifizierung, sind `/recipes/docs/**` und `+/recipes/api/mcp+` mit abzusichern.
 
 | HTTPS
 | Wird nicht von der Anwendung geleistet; TLS müsste ein vorgelagerter Proxy übernehmen.
@@ -277,8 +286,8 @@ Umgebung betreibt, ohne sie zu kennen.
 | Es gilt die Spring-Boot-Voreinstellung. Es gibt keine Korrelations-IDs.
 
 | Rate Limiting, Paginierung
-| `GET /api/recipes` liefert *alle* Rezepte in einer Antwort. Bei großen Beständen wächst
-  die Antwort unbegrenzt.
+| `GET /api/recipes` liefert *alle* Rezepte in einer Antwort, und das Werkzeug `+list_recipes+`
+  des MCP-Servers tut dasselbe. Bei großen Beständen wächst die Antwort unbegrenzt.
 
 | Zielumgebung, CI-Pipeline, Container-Image
 | Es gibt kein Deployment-Artefakt jenseits des Boot-Jars und keine automatisierte

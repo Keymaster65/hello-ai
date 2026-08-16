@@ -24,9 +24,15 @@ import com.tngtech.archunit.lang.ArchRule;
  * domain service      ..domain.services..           (currently empty, see ADR 0020)
  * application service ..application..               (ports and their implementations)
  * adapter "rest"      ..adapter.in.rest..
+ * adapter "mcp"       ..adapter.in.mcp..            (tools and resources, see ADR 0049)
  * adapter "persist"   ..adapter.out.persistence..   (incl. generated jOOQ code)
+ * adapter "docs"      ..adapter.out.documentation.. (the delivered documentation, ADR 0049)
  * adapter "bootstrap" ..bootstrap..                 (composition root, outermost ring)
  * </pre>
+ *
+ * <p>The two rings added for the MCP server are where the onion view earns its keep: the MCP
+ * adapter must reach the recipes through the {@code RecipeService} port like the REST adapter does
+ * &ndash; it may neither borrow that adapter's DTOs nor read the classpath itself.
  *
  * <p>Splitting the domain into the two innermost rings buys a rule that a single {@code ..domain..}
  * ring could not state: a domain service may use the model, but the model may not reach back for a
@@ -50,7 +56,9 @@ class OnionArchitectureTest {
             .domainServices("..domain.services..")
             .applicationServices("..application..")
             .adapter("rest", "..adapter.in.rest..")
+            .adapter("mcp", "..adapter.in.mcp..")
             .adapter("persistence", "..adapter.out.persistence..")
+            .adapter("documentation", "..adapter.out.documentation..")
             .adapter("bootstrap", "..bootstrap..")
             .withOptionalLayers(true)
             .as("Zwiebelschalen: Adapter kennen die Anwendung, die Anwendung kennt nur die Domäne "

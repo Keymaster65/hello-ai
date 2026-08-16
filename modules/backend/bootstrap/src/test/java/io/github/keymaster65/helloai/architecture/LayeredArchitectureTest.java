@@ -46,6 +46,9 @@ class LayeredArchitectureTest {
         "com.fasterxml.jackson..",
         "tools.jackson..",
         "liquibase..",
+        // Das MCP-SDK ist ein Rahmenwerk wie die übrigen: Werkzeuge und Transport gehören in den
+        // Adapter bzw. den Composition Root, nicht in eine innere Schicht (ADR 0049).
+        "io.modelcontextprotocol..",
     };
 
     @ArchTest

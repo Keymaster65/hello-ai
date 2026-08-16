@@ -15,6 +15,9 @@ gitChangelog = "3.1.2"
 jooq = "3.21.6"
 jooqPlugin = "10.2.1"
 jqwik = "1.9.3"
+# Offizielles Java-SDK des Model Context Protocol (ADR 0049); bringt Protokoll und Transporte mit
+# und kennt Spring nicht.
+mcpSdk = "2.0.0"
 springBoot = "4.1.0"
 springDependencyManagement = "1.1.7"
 springdoc = "3.1.0"
@@ -44,6 +47,7 @@ spring-boot-webmvc-test = { module = "org.springframework.boot:spring-boot-webmv
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
 jooq-meta-extensions-liquibase = { module = "org.jooq:jooq-meta-extensions-liquibase", version.ref = "jooq" }
 jqwik = { module = "net.jqwik:jqwik", version.ref = "jqwik" }
+mcp-sdk = { module = "io.modelcontextprotocol.sdk:mcp", version.ref = "mcpSdk" }
 springdoc-openapi-starter-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
 zonky-embedded-postgres = { module = "io.zonky.test:embedded-postgres", version.ref = "zonkyEmbeddedPostgres" }
 zonky-postgres-binaries-bom = { module = "io.zonky.test.postgres:embedded-postgres-binaries-bom", version.ref = "zonkyPostgresBinaries" }

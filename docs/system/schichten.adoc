@@ -55,7 +55,9 @@ Entscheidend ist, dass die Regel nicht nur dokumentiert, sondern *dreifach* abge
   „Ports sind Interfaces" (link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012],
   link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045]).
 . *Von ArchUnit als Zwiebelschalen geprüft* (<<src-onion-architecture-test,`OnionArchitectureTest`>>): Adapter kennen
-  einander nicht – der REST-Adapter greift nicht am Port vorbei auf die Persistenz zu. Diese
+  einander nicht – der REST-Adapter greift nicht am Port vorbei auf die Persistenz zu, der
+  MCP-Adapter nicht auf die DTOs des REST-Adapters, und der Composition Root – selbst der
+  äußerste Adapterring – nicht auf die Klassen eines Adapters. Diese
   Lücke kann die Schichtensicht nicht schließen, weil beide Adapter im selben Modul liegen
   (link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019]).
 
@@ -73,7 +75,9 @@ Basispaket ist `io.github.keymaster65.helloai`.
 | `:modules:backend:domain`
 | `domain.model`
 | Das Domänenmodell als Records: <<src-recipe,`Recipe`>>, <<src-ingredient,`Ingredient`>>,
-  <<src-preparation-step,`PreparationStep`>>, <<src-difficulty,`Difficulty`>>.
+  <<src-preparation-step,`PreparationStep`>>, <<src-difficulty,`Difficulty`>> sowie
+  <<src-documentation-page,`DocumentationPage`>> – die ausgelieferte Dokumentation ist Teil des
+  Produkts (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]).
   Validierung im kanonischen Konstruktor.
 
 | `:modules:backend:domain`
@@ -83,17 +87,24 @@ Basispaket ist `io.github.keymaster65.helloai`.
 
 | `:modules:backend:application`
 | `application.port.in`
-| Eingehender Port <<src-recipe-service,`RecipeService`>>: die fünf Use Cases als Interface.
+| Eingehende Ports als Interfaces: <<src-recipe-service,`RecipeService`>> mit den fünf Use Cases
+  der Rezepte und <<src-documentation-service,`DocumentationService`>> mit dem lesenden Zugriff
+  auf die Dokumentation.
 
 | `:modules:backend:application`
 | `application.port.out`
-| Ausgehender Port <<src-recipe-repository,`RecipeRepository`>>: Persistenz als Interface, formuliert in
-  Domänentypen.
+| Ausgehende Ports als Interfaces, formuliert in Domänentypen:
+  <<src-recipe-repository,`RecipeRepository`>> (Persistenz) und
+  <<src-documentation-repository,`DocumentationRepository`>> (die ausgelieferten
+  Dokumentationsseiten).
 
 | `:modules:backend:application`
 | `application.service`
-| <<src-recipe-service-impl,`RecipeServiceImpl`>> (Geschäftslogik, ohne Framework-Typ) und
-  <<src-recipe-not-found-exception,`RecipeNotFoundException`>>.
+| <<src-recipe-service-impl,`RecipeServiceImpl`>> und
+  <<src-documentation-service-impl,`DocumentationServiceImpl`>> (Geschäftslogik, ohne
+  Framework-Typ) samt
+  <<src-recipe-not-found-exception,`RecipeNotFoundException`>> und
+  <<src-documentation-not-found-exception,`DocumentationNotFoundException`>>.
 
 | `:modules:backend:adapter`
 | `adapter.in.rest`
@@ -103,6 +114,22 @@ Basispaket ist `io.github.keymaster65.helloai`.
   <<src-recipe-rest-mapper,`RecipeRestMapper`>>, <<src-problem-detail,`ProblemDetail`>> samt
   <<src-problem-type,`ProblemType`>> und die
   DTOs unter `adapter.in.rest.dto` (<<src-gruppe-rest,alle Quellen im Anhang>>).
+
+| `:modules:backend:adapter`
+| `adapter.in.mcp`
+| Der MCP-Server (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]):
+  <<src-recipe-mcp-tools,`RecipeMcpTools`>>,
+  <<src-documentation-mcp-tools,`DocumentationMcpTools`>>,
+  <<src-documentation-mcp-resources,`DocumentationMcpResources`>>,
+  <<src-mcp-tool-results,`McpToolResults`>> und
+  <<src-mcp-server-config,`McpServerConfig`>>, das Server und Transport zusammensetzt
+  (<<src-gruppe-mcp,alle Quellen im Anhang>>).
+
+| `:modules:backend:adapter`
+| `adapter.out.documentation`
+| <<src-classpath-documentation-repository,`ClasspathDocumentationRepository`>>: liest die
+  gerenderte Dokumentation vom Klassenpfad, wohin der Build sie legt
+  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]).
 
 | `:modules:backend:adapter`
 | `adapter.out.persistence`
@@ -149,7 +176,14 @@ Domänentypen sind unveränderliche Records.
 | `PreparationStep.position()`, 1-basiert
 |===
 
-Die vier Records samt Paketmarkierung stehen im Original in <<src-gruppe-domaene>>.
+Neben dem Rezept steht ein zweiter, kleiner Typ in der Domäne:
+<<src-documentation-page,`DocumentationPage`>> – Kennung und Titel einer Seite der
+ausgelieferten Systemdokumentation, ohne ihren Inhalt. Sie ist hier zu Hause, weil die
+Dokumentation in diesem Projekt Teil des Produkts ist und nicht Beiwerk des Builds
+(link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024],
+link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]).
+
+Die fünf Records samt Paketmarkierung stehen im Original in <<src-gruppe-domaene>>.
 
 Records mit mehr als zwei Komponenten bieten zusätzlich eine curried Factory `curried()` –
 eine Kette benannter Einzelschritte, die Reihenfolge und Vollständigkeit über das Typsystem
@@ -185,6 +219,25 @@ keinen Statuscode.
 | `delete(long)` | Löscht; wirft `RecipeNotFoundException`, wenn nichts gelöscht wurde.
 |===
 
+Der zweite eingehende Port trägt den lesenden Zugriff auf die Systemdokumentation
+(link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]):
+
+[cols="1,3", options="header"]
+|===
+| Use Case | Verhalten
+
+| `getAll()`
+| Liefert die Seiten der ausgelieferten Dokumentation – eine leere Liste, wenn das Deployable
+  ohne sie gebaut wurde (`+-PskipDocs+`).
+
+| `getContent(String)`
+| Liefert den Inhalt einer Seite als HTML oder wirft `DocumentationNotFoundException`.
+|===
+
+`DocumentationServiceImpl` bekommt seine Bean ebenfalls aus `ApplicationServicesConfig`, aber
+*keine* Transaktionsgrenze: Gelesen wird vom Klassenpfad, nicht aus der Datenbank – ein
+`TransactionTemplate` würde hier eine Zusicherung behaupten, die es nicht einlöst.
+
 == Eingehender Adapter: REST
 
 `RecipeController` bleibt dünn – er mappt, delegiert an den Port und setzt den Statuscode;
@@ -216,6 +269,123 @@ Eine neue Route im Frontend braucht eine zusätzliche Methode in
 innerhalb der SPA, aber nicht beim direkten Aufruf. Der zugehörige Systemtest schlägt in
 diesem Fall fehl.
 ====
+
+== Eingehender Adapter: MCP
+
+Neben dem REST-Adapter steht ein zweiter eingehender Adapter für Sprachmodelle: ein Server des
+*Model Context Protocol*, gebaut mit dem offiziellen Java-SDK
+(link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]). Welche Werkzeuge
+und Ressourcen er anbietet, steht im Kapitel API; hier steht, wie er gebaut ist.
+
+[cols="1,3", options="header"]
+|===
+| Baustein | Aufgabe
+
+| <<src-mcp-server-config,`McpServerConfig`>>
+| Setzt Transport, Servlet-Registrierung und Server zusammen. Der Zusammenbau liegt *im Adapter*,
+  nicht im Composition Root: `:bootstrap` ist selbst der äußerste Adapterring und darf die
+  Klassen eines anderen Adapters nach der Zwiebelregel nicht kennen
+  (link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019]).
+
+| <<src-recipe-mcp-tools,`RecipeMcpTools`>>
+| Die Rezepte als Werkzeuge; liest über `RecipeService` und erbt damit dessen Transaktionsgrenze.
+
+| <<src-documentation-mcp-tools,`DocumentationMcpTools`>>
+| Die Dokumentation als Werkzeuge, für Clients, die keine Ressourcen unterstützen.
+
+| <<src-documentation-mcp-resources,`DocumentationMcpResources`>>
+| Dieselben Seiten als Ressourcen unter `+recipes://docs/<kennung>+`. Der Katalog entsteht beim
+  Start – die ausgelieferte Dokumentation ändert sich zur Laufzeit nicht.
+
+| <<src-mcp-tool-results,`McpToolResults`>>
+| Das Wiederkehrende: Schema für ein Werkzeug ohne Argumente, Ergebnis mit JSON, Fehlerergebnis.
+|===
+
+Drei Eigenschaften unterscheiden diesen Weg vom REST-Weg:
+
+* *Der Transport ist ein eigenes Servlet*, neben dem `DispatcherServlet` registriert. Eine
+  Anfrage an `+/api/mcp+` läuft damit *nicht* durch Spring MVC – weder durch die Bean Validation
+  noch durch den `GlobalExceptionHandler`, und springdoc sieht den Endpunkt nicht
+  (link:{adr}/0005-springdoc-openapi-und-swagger-ui{adrext}[ADR 0005]).
+* *Zustandslos.* Jede Anfrage ist für sich vollständig; es gibt keine Sitzung, weil der Server
+  von sich aus nichts sendet.
+* *Nur lesend.* Anlegen, Ändern und Löschen bleiben der REST-API.
+
+.Werkzeugaufruf: POST /recipes/api/mcp mit `tools/call`
+[plantuml,ablauf-mcp,svg]
+....
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+
+participant "MCP-Client\n(Sprachmodell)" as client
+participant "HttpServletStatelessServerTransport" as transport
+participant "McpStatelessSyncServer" as server
+participant "RecipeMcpTools" as tools
+participant "TransactionalRecipeService" as tx
+participant "RecipeServiceImpl" as service
+participant "RecipeJooqRepository" as repository
+
+client -> transport : POST /recipes/api/mcp\ntools/call get_recipe
+alt Origin-Header vorhanden
+  transport --> client : 403
+else Accept ohne text/event-stream
+  transport --> client : 400
+else Anfrage zulässig
+  transport -> server : JSON-RPC-Request
+  note right of server : prüft den Namen und\ndie Argumente gegen das Schema
+  server -> tools : callHandler(id)
+  tools -> tx : getById(id)
+  tx -> service : getById(id)
+  service -> repository : findById(id)
+  repository --> service : Optional
+  alt Optional ist leer
+    service --> tools : RecipeNotFoundException
+    tools --> server : CallToolResult mit isError
+  else Rezept vorhanden
+    service --> tools : Recipe
+    note left of tools : JSON für ein Sprachmodell,\nnicht die DTOs des REST-Adapters
+    tools --> server : CallToolResult mit JSON
+  end
+  server --> transport : JSON-RPC-Response
+  transport --> client : 200
+end
+@enduml
+....
+
+== Ausgehender Adapter: Dokumentation
+
+`ClasspathDocumentationRepository` erfüllt den Port `DocumentationRepository`: Es liest die
+gerenderte Dokumentation von dort, wohin der Build sie packt – die Kapitel als
+`static/docs/index.html`, je Architekturentscheidung eine Seite unter `static/docs/adr/`
+(link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024],
+link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026]).
+
+[cols="1,3", options="header"]
+|===
+| Aspekt | Umsetzung
+
+| Verzeichnis
+| Entsteht *einmal*, im Konstruktor. Die Dokumentation liegt im Deployable und ändert sich zur
+  Laufzeit nicht; ein Fehler beim Lesen fällt damit beim Start auf, nicht bei der ersten Anfrage.
+
+| Titel
+| Aus dem `+<title>+` der Seite, gelesen aus den ersten 64 KiB – die Kapitel tragen ihr
+  Stylesheet eingebettet, das ganze Dokument dafür zu lesen wären Megabyte je Titel. Fehlt der
+  Titel, tritt die Kennung an seine Stelle.
+
+| Kennungen
+| `system` für die Kapitel, `+adr/<dateiname ohne endung>+` je Entscheidung, in der Reihenfolge
+  ihrer Nummern.
+
+| Inhalt
+| Über das Verzeichnis nachgeschlagen, *nie* über einen aus der Kennung gebauten Pfad. Eine
+  Kennung, die nicht darin steht, ist einfach abwesend – damit ist `+../+` kein Thema.
+
+| Fehlende Dokumentation
+| Mit `+-PskipDocs+` gebaut, ist das Verzeichnis leer. Beide Port-Methoden antworten dann
+  entsprechend, statt zu scheitern.
+|===
 
 == Ausgehender Adapter: Persistenz
 
@@ -254,7 +424,8 @@ Bemerkenswerte Eigenschaften der Implementierung:
 == Laufzeitsicht
 
 Zwei Abläufe genügen, um das Zusammenspiel zu zeigen; die übrigen Use Cases folgen
-demselben Muster.
+demselben Muster. Der Weg einer MCP-Anfrage weicht davor ab und steht deshalb bei seinem
+Adapter, im Diagramm `ablauf-mcp`.
 
 .Lesen: GET /recipes/api/recipes/\{id}
 [plantuml,ablauf-lesen,svg]

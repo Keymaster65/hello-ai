@@ -9,6 +9,72 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-159]]
+== 159. Prompt: „Ergänze einen MCP Service für den Zugriff auf Rezepte und die Systemdokumentation." (aus dem Backlog, `next+1`)
+
+_Delta: 42:19 min · 262.094 Token out · 791.888 Token in (neu) · 75.338.455 Token gesamt_
+_Stand (Session, 3 Prompts): 42:19 min · 262.094 Token out · 75.338.455 Token gesamt_
+
+*Aktionen:*
+
+* *Eintrag gezogen* (PO-Skill): `+git pull --ff-only+` auf `main` → „Already up to date", kein
+  Eintrag aktiv. Ziehreihenfolge ohne Branchbindung; `+next+1+` traf den *zweiten* ready-Eintrag
+  („Ergänze einen MCP Service …"). Nach der Rückfrage bestätigt, Marker `+*+` vor der Arbeit
+  gesetzt, Eintrag nach Abschluss entfernt.
+* *Gerüst des Hooks fehlte* – dieser Abschnitt ist von Hand angelegt (Butterfly-Skill,
+  „Ablauf pro Prompt", letzter IMPORTANT).
+* *link:../adr/0049-mcp-service-fuer-rezepte-und-dokumentation.adoc[ADR 0049] geschrieben*: drei
+  Entscheidungen mit Optionen – offizielles MCP-Java-SDK statt Eigenbau, Spring AI oder Verzicht;
+  zustandsloses Streamable HTTP statt SSE oder Sitzung; Rezepte als Werkzeuge, Dokumentation
+  zusätzlich als Ressourcen. Index in `+docs/system/system.adoc+` als erste Zeile ergänzt.
+* *Neuer Weg durch die Schichten für die Dokumentation:* `+DocumentationPage+` (Domäne),
+  eingehender Port `+DocumentationService+`, ausgehender Port `+DocumentationRepository+`,
+  `+DocumentationServiceImpl+` samt `+DocumentationNotFoundException+` und der ausgehende Adapter
+  `+ClasspathDocumentationRepository+`, der das gerenderte HTML vom Klassenpfad liest. Kennungen
+  werden *nachgeschlagen*, nie zu einem Pfad zusammengebaut – damit ist `+../+` kein Thema.
+* *MCP-Adapter* `+adapter.in.mcp+` mit vier lesenden Werkzeugen (`+list_recipes+`,
+  `+get_recipe+`, `+list_documentation+`, `+read_documentation+`) und je Dokumentationsseite einer
+  Ressource unter `+recipes://docs/<kennung>+`. Endpunkt `+/recipes/api/mcp+`, Transport als
+  eigenes Servlet neben dem `+DispatcherServlet+`.
+* *ArchUnit hat den ersten Entwurf zurückgewiesen* – die Verdrahtung lag in `+:bootstrap+`, und
+  `+rings_are_respected+` meldete sechs Verstöße: In der Zwiebelsicht ist der Composition Root
+  selbst ein Adapterring und darf die Klassen eines anderen Adapters nicht kennen (ADR 0019).
+  Der Zusammenbau ist deshalb in den Adapter gewandert (`+McpServerConfig+`), das SDK dort
+  `+implementation+` statt `+api+`, die Werkzeugklassen paketprivat. Im ADR als eigener Abschnitt
+  festgehalten.
+* *Sicherheit* (Security-Backend-Skill, Auslöser „neuer offen erreichbarer Pfad"): nur lesende
+  Werkzeuge, `+DefaultServerTransportSecurityValidator+` ohne erlaubte Origin (jede Anfrage mit
+  `+Origin+` → `403`), Fehlermeldungen nennen nur die angefragte Kennung. Die offene
+  Erreichbarkeit steht als Zeile in „Offene Punkte".
+* *Tests:* `+DocumentationServiceImplTest+`, `+RecipeMcpToolsTest+`,
+  `+DocumentationMcpToolsTest+`, `+DocumentationMcpResourcesTest+`,
+  `+ClasspathDocumentationRepositoryTest+` (gegen `+src/test/resources/static/docs+`) und
+  `+McpSystemTest+` mit elf Fällen über HTTP – `initialize`, `tools/list`, `tools/call` samt
+  Fehlerfall, `resources/list`, `resources/read` und die drei Transportregeln (`403` mit
+  `+Origin+`, `400` ohne beide Medientypen im `+Accept+`, `405` auf `GET`). `:adapter` bekam
+  dafür erstmals Mockito.
+* *Gegenprobe am fertigen Jar*, weil die Systemtests aus dem entpackten Klassenpfad starten:
+  `+java -jar+`, dann `resources/list` → 50 Seiten (Kapitelwerk + 49 ADRs) mit Titeln aus dem
+  HTML-Kopf, `+read_documentation+` auf ADR 0049 liefert 18.805 Zeichen.
+* *Dokumentation nachgezogen:* `+ueberblick.adoc+` (Nachbar „MCP-Client" im Diagramm *und* in der
+  Tabelle), `+schichten.adoc+` (Modul-/Pakettabelle, Domäne, Use Cases, zwei neue
+  Adapter-Abschnitte, Diagramm `+ablauf-mcp+`), `+api.adoc+` (Adressraum, Abschnitt
+  „MCP-Schnittstelle" mit Transportregeln, Werkzeugen, Ressourcen und Fehlerbildern),
+  `+betrieb.adoc+` (Startablauf, Laufzeitumgebung, `+-PskipDocs+`, zwei Zeilen in „Offene
+  Punkte"), `+qualitaetssicherung.adoc+`, `+anhang-quellen.adoc+` (13 neue Einträge, zwei neue
+  Gruppen) und `README.md`.
+* *Definition of Done:* `+./gradlew clean build+` BUILD SUCCESSFUL, `+./gradlew build systemtest+`
+  BUILD SUCCESSFUL (elf MCP-Systemtests PASSED), `+./gradlew e2eTest+` 9 passed,
+  `+./gradlew asciidoctor asciidoctorAdr asciidoctorPrompt+` durchgelaufen – Meldungen wie zuvor
+  (`+prompt-minus2+` doppelt, fehlendes Attribut `+id+`), keine neue.
+  `+./gradlew coverageTable+` gelaufen: Summe 64,5 % Instruktionen (1.698/2.631).
+* *Nebenbefunde als `+KI+`-Einträge ins Backlog*, nicht im Vorbeigehen geändert: die zwei
+  Fremdzeilen `+</content>+`/`+</invoke>+` am Ende von ADR 0048, das Fehlerformat
+  `+ErrorResponse+` im README (seit ADR 0046 überholt) und der Abgrenzungsabsatz im
+  Security-Backend-Skill, der den Frontend-Skill noch als ausstehend beschreibt.
+
+'''
+
 [[prompt-158]]
 == 158. Prompt: „commit"
 

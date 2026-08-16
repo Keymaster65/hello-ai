@@ -16,6 +16,8 @@ Origin. Genau das macht CORS überflüssig
 
 | Oberfläche (SPA) | `/recipes/` | Bundle aus dem Klassenpfad (`static/`)
 | REST-API | `/recipes/api/recipes` | JSON
+| MCP-Server | `/recipes/api/mcp` | JSON-RPC 2.0, zustandslos, nur `POST`, nur lesend
+  (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049])
 | OpenAPI 3.1, JSON | `/recipes/v3/api-docs` | zur Laufzeit erzeugt
 | OpenAPI 3.1, YAML | `/recipes/v3/api-docs.yaml` | dasselbe Dokument
 | Swagger UI | `/recipes/swagger-ui.html` | Operationen nach Methode, Tags alphabetisch
@@ -227,6 +229,93 @@ weil er ein laufendes Backend braucht. Unterbleibt er, bleibt das Frontend gegen
 veralteten Contract typisiert – der Build ist grün und die Laufzeit falsch.
 ====
 
+== MCP-Schnittstelle
+
+Unter `+/recipes/api/mcp+` antwortet ein Server des *Model Context Protocol* – dieselben Daten
+wie die REST-API, aber in der Form, in der ein Sprachmodell sie ohne Vorwissen findet
+(link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]). Die Bausteine
+dahinter stehen im Kapitel Bausteine und Schichten, Abschnitt „Eingehender Adapter: MCP".
+
+=== Transport
+
+[cols="1,3", options="header"]
+|===
+| Regel | Verhalten
+
+| Methode
+| Nur `POST`. Ein `GET` antwortet `405`: Ohne Sitzung gibt es keinen Datenstrom, den der Server
+  offen hielte.
+
+| `Accept`
+| Muss *beide* Medientypen nennen – `application/json` und `text/event-stream`. Fehlt einer,
+  antwortet der Transport `400`. So schreibt es Streamable HTTP vor.
+
+| `Origin`
+| Eine Anfrage *mit* diesem Header wird mit `403` abgewiesen. Erlaubt ist keine Origin: Der
+  Endpunkt ist für Werkzeuge gedacht, nicht für Seiten im Browser – das ist der Schutz gegen
+  DNS-Rebinding.
+
+| Sitzung
+| Keine. Jede Anfrage ist für sich vollständig; `initialize` ist eine Auskunft, keine Anmeldung.
+|===
+
+=== Werkzeuge
+
+Alle vier sind als lesend gekennzeichnet (`+readOnlyHint+`) und beschreiben ihre Eingabe über ein
+JSON-Schema, das der Server *vor* dem Aufruf prüft.
+
+[cols="1,1,3", options="header"]
+|===
+| Name | Eingabe | Ergebnis
+
+| `+list_recipes+`
+| –
+| JSON-Array aller Rezepte mit `id`, `title`, `description`, `servings`, `prepTimeMinutes` und
+  `difficulty` – ohne Zutaten und Schritte
+
+| `+get_recipe+`
+| `id` (ganze Zahl ≥ 1)
+| Ein Rezept als JSON, zusätzlich mit `ingredients` und den `steps` samt `position`
+
+| `+list_documentation+`
+| –
+| JSON-Array der Seiten der Systemdokumentation mit `id`, `title` und `uri`
+
+| `+read_documentation+`
+| `id` (nicht leerer Text)
+| Die Seite als HTML – die Form, in der sie ausgeliefert wird
+  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024])
+|===
+
+Die Namen sind Teil der Schnittstelle: Eine Umbenennung ist für jeden Client sichtbar.
+
+=== Ressourcen
+
+Jede Seite der Dokumentation ist zusätzlich eine Ressource – `+recipes://docs/system+` für das
+Kapitelwerk, `+recipes://docs/adr/<datei ohne endung>+` je Architekturentscheidung, jeweils mit
+dem Medientyp `text/html`. Der Katalog entsteht beim Start der Anwendung; ein mit
+`+-PskipDocs+` gebautes Deployable hat ihn leer.
+
+Rezepte sind *keine* Ressourcen: Der Katalog eines zustandslosen Servers ist nach dem Start
+fest, ein neu angelegtes Rezept fehlte darin.
+
+=== Fehlerbilder
+
+Ein *fachlicher* Fehler ist ein Ergebnis, kein Protokollfehler: Das Werkzeug antwortet mit
+`+isError+` und einem Satz, der die angefragte Kennung nennt – dieselbe Sparsamkeit wie bei den
+Problem Details der REST-API (link:{adr}/0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR
+0046]), ohne Stacktrace, SQL oder Klassennamen. Ein *Protokoll*fehler – unbekannte Methode,
+unbekanntes Werkzeug, Eingabe gegen das Schema – kommt als JSON-RPC-`error` zurück.
+
+.Aufruf von Hand
+[source,bash]
+----
+curl -X POST http://localhost:8080/recipes/api/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+----
+
 == Oberfläche
 
 [cols="1,2,3", options="header"]
@@ -250,4 +339,5 @@ sind serverseitig auf Ziffern eingeschränkt (`{id:\\d+}`).
 
 Das System bietet *keine* Authentifizierung, keine Autorisierung, kein Rate Limiting, keine
 Ereignis- oder Messaging-Schnittstelle und keine Actuator-Endpunkte. Wer die Anwendung
-erreicht, darf alles. Siehe Kapitel Betrieb, Abschnitt <<offene-punkte>>.
+erreicht, darf alles – auch der MCP-Endpunkt ist offen, dort allerdings nur lesend. Siehe
+Kapitel Betrieb, Abschnitt <<offene-punkte>>.

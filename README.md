@@ -20,6 +20,8 @@ beides wird als **ein** Artefakt aus derselben Origin ausgeliefert.
 - Java 25, Spring Boot 4.1
 - jOOQ (typsicherer SQL-Zugriff), Liquibase (Migrationen), PostgreSQL
 - springdoc-openapi 3.1 (OpenAPI 3.1 + Swagger UI)
+- MCP-Java-SDK (lesender Model-Context-Protocol-Server,
+  [ADR 0049](docs/adr/0049-mcp-service-fuer-rezepte-und-dokumentation.adoc))
 - Tests: JUnit 5, Mockito, AssertJ, jqwik, ArchUnit, JaCoCo
 
 **Frontend** (`modules/frontend/`)
@@ -73,7 +75,9 @@ Hexagonal / Clean Architecture (`io.github.keymaster65.helloai`, ein Modul je Sc
 | Modul                          | Package                   | Verantwortung                                   |
 |--------------------------------|---------------------------|-------------------------------------------------|
 | `:modules:backend:adapter`     | `adapter.in.rest`         | REST-Controller, DTOs, Mapper, Fehlerbehandlung |
+| `:modules:backend:adapter`     | `adapter.in.mcp`          | MCP-Server: lesende Werkzeuge und Ressourcen    |
 | `:modules:backend:adapter`     | `adapter.out.persistence` | jOOQ-Repository (+ generierter jOOQ-Code)       |
+| `:modules:backend:adapter`     | `adapter.out.documentation` | Ausgelieferte Systemdokumentation vom Klassenpfad |
 | `:modules:backend:application` | `application.port.in/out` | Use-Case- und Repository-Interfaces (Ports)     |
 | `:modules:backend:application` | `application.service`     | Geschäftslogik                                  |
 | `:modules:backend:domain`      | `domain`                  | Domänenmodell (Records)                         |
@@ -153,6 +157,32 @@ Bei laufender Anwendung (Port `80`, Context-Path `/recipes`):
 Der Contract wird zur Laufzeit aus Controller-Signaturen, Bean-Validation und den
 `@Operation`/`@Schema`-Annotationen erzeugt – siehe
 [ADR 0005](docs/adr/0005-springdoc-openapi-und-swagger-ui.adoc).
+
+## MCP-Server (für Sprachmodelle)
+
+Unter `/recipes/api/mcp` antwortet ein **lesender** Server des Model Context Protocol –
+JSON-RPC 2.0 über zustandsloses Streamable HTTP, im selben Boot-Jar
+([ADR 0049](docs/adr/0049-mcp-service-fuer-rezepte-und-dokumentation.adoc)):
+
+| Werkzeug              | Eingabe        | Ergebnis                                                |
+|-----------------------|----------------|---------------------------------------------------------|
+| `list_recipes`        | –              | alle Rezepte ohne Zutaten und Schritte                  |
+| `get_recipe`          | `id`           | ein Rezept samt Zutaten und Schritten                   |
+| `list_documentation`  | –              | die Seiten der Systemdokumentation                      |
+| `read_documentation`  | `id`           | eine Seite als HTML                                     |
+
+Dieselben Seiten stehen zusätzlich als MCP-Ressourcen unter `recipes://docs/…` bereit.
+Anlegen, Ändern und Löschen bleiben der REST-API.
+
+```bash
+curl -X POST http://localhost:8080/recipes/api/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+```
+
+Zwei Regeln des Transports: Der `Accept`-Header muss **beide** Medientypen nennen, und eine
+Anfrage mit `Origin`-Header wird mit `403` abgewiesen (Schutz gegen DNS-Rebinding).
 
 ### Beispiel-Request (POST)
 ```json
@@ -243,6 +273,10 @@ cd modules/frontend && npm run dev
 - **Web-Slice** (`RecipeControllerTest`): REST-Schicht mit `@WebMvcTest`.
 - **Contract** (`OpenApiDocumentationTest`): prüft, dass `/v3/api-docs` alle
   Operationen und Schemata beschreibt und die Swagger UI ausgeliefert wird.
+- **MCP** (`RecipeMcpToolsTest`, `DocumentationMcpToolsTest`,
+  `DocumentationMcpResourcesTest`, `ClasspathDocumentationRepositoryTest`,
+  `DocumentationServiceImplTest`): Werkzeuge, Ressourcen und der Zugriff auf die
+  ausgelieferte Dokumentation; der Endpunkt selbst in `McpSystemTest` über HTTP.
 - **Frontend** (`modules/frontend/src/**/*.test.tsx`, Task `frontendTest`): Vitest +
   Testing Library für API-Client, Komponenten und die Zusammenschaltung in `App`.
 - **E2E** (`modules/frontend/e2e`, Task `e2eTest`): Playwright treibt einen echten Chromium

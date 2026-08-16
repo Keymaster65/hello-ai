@@ -22,12 +22,22 @@ dependencies {
     // the OpenAPI document from these types.
     api(libs.springdoc.openapi.starter.webmvc.ui)
 
+    // Das MCP-SDK: Werkzeuge, Ressourcen und Transport des MCP-Adapters sind SDK-Typen (ADR 0049).
+    // `implementation`, nicht `api`: Der Server wird in diesem Modul zusammengesetzt, und keine
+    // dieser Klassen verlässt es – :bootstrap darf sie nach der Zwiebelregel gar nicht kennen
+    // (ADR 0019).
+    implementation(libs.mcp.sdk)
+
     // Code generation: LiquibaseDatabase interprets the changelog in-memory, so no live DB is
     // required at build time. The changelog lives in this module because it describes the
     // schema this adapter talks to.
     jooqGenerator(libs.jooq.meta.extensions.liquibase)
 
     testImplementation(libs.jqwik)
+    // Die MCP-Werkzeuge werden gegen einen Mock ihres eingehenden Ports geprüft (ADR 0049);
+    // bisher brauchte dieses Modul kein Mocking.
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.mockito.junit.jupiter)
 }
 
 jooq {

@@ -67,7 +67,10 @@ Klassenpfad liegt.
 | <<src-onion-architecture-test,`OnionArchitectureTest`>>
 | Dieselbe Struktur als Ringe – und die Aussage, die der Schichtenstapel nicht ausdrücken
   kann: *Adapter kennen einander nicht*
-  (link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019])
+  (link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019]). Seit
+  link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049] sind auch der
+  MCP-Adapter und der Dokumentations-Adapter eigene Ringe; die Regel hat den Zusammenbau des
+  MCP-Servers aus dem Composition Root in den Adapter verschoben, wohin er gehört
 
 | <<src-record-currying-test,`RecordCurryingTest`>>
 | Jeder Record mit mehr als zwei Komponenten hat eine curried Factory, deren benannte
@@ -94,6 +97,23 @@ link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019].
 | Die Use Cases mit Mockito und AssertJ – insbesondere, dass ein leeres `Optional` aus dem
   Repository zur `RecipeNotFoundException` wird. Kommt ohne Spring-Kontext aus, weil die
   Schicht keinen braucht.
+
+| <<src-documentation-service-impl-test,`DocumentationServiceImplTest`>>
+| Der Zugriff auf die Dokumentation: Weitergabe an den Port, leere Liste ohne mitgeliefertes
+  HTML, und die `DocumentationNotFoundException` samt Kennung für eine unbekannte Seite
+  (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]).
+
+| <<src-recipe-mcp-tools-test,`RecipeMcpToolsTest`>>,
+  <<src-documentation-mcp-tools-test,`DocumentationMcpToolsTest`>>,
+  <<src-documentation-mcp-resources-test,`DocumentationMcpResourcesTest`>>
+| Die MCP-Werkzeuge und -Ressourcen gegen einen Mock ihres Ports: Namen und Schemata, die als
+  lesend gekennzeichneten Werkzeuge, das JSON je Werkzeug – und die Fehlerfälle als
+  `+isError+`-Ergebnis, das nur die angefragte Kennung nennt.
+
+| <<src-classpath-documentation-repository-test,`ClasspathDocumentationRepositoryTest`>>
+| Das Verzeichnis vom Klassenpfad: gefundene Seiten und ihre Reihenfolge, die Titel aus dem
+  HTML-Kopf und die Zurückweisung einer Kennung, die nicht darin steht – auch der mit `+../+`.
+  Geprüft wird gegen `src/test/resources/static/docs`, den Stellvertreter des Builds.
 
 | <<src-transactional-recipe-service-test,`TransactionalRecipeServiceTest`>>
 | Die Transaktionsgrenze, die seit
@@ -151,8 +171,15 @@ embedded PostgreSQL (<<src-running-application,`RunningApplication`>>); mit der 
 Instanz und startet nichts. Derselbe Testcode prüft damit beide Fälle. Geprüft werden
 Statuscodes und Contract-Details (<<src-swagger-system-test,`SwaggerSystemTest`>>), die Auslieferung der
 SPA inklusive der weitergeleiteten Routen (<<src-frontend-system-test,`FrontendSystemTest`>>),
-die der Systemdokumentation (<<src-documentation-system-test,`DocumentationSystemTest`>>) und
+die der Systemdokumentation (<<src-documentation-system-test,`DocumentationSystemTest`>>), der
+MCP-Endpunkt (<<src-mcp-system-test,`McpSystemTest`>>) und
 die des Meldewegs am Ursprung (<<src-security-txt-system-test,`SecurityTxtSystemTest`>>).
+
+`McpSystemTest` spricht das Protokoll, wie ein Client es spricht: `initialize`, `tools/list`,
+`tools/call` samt Fehlerfall, `resources/list` und `resources/read`. Dazu die drei Regeln des
+Transports, die man von außen nicht sieht – `403` bei gesetztem `Origin`, `400` ohne beide
+Medientypen im `Accept`, `405` auf ein `GET`
+(link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]).
 
 Der Meldeweg ist der einzige Pfad *außerhalb* des Context-Path
 (link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037]); geprüft wird

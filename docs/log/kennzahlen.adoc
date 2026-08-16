@@ -20,6 +20,20 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-159,159>>
+|„Ergänze einen MCP Service für den Zugriff auf Rezepte und die Systemdokumentation." (aus dem Backlog, `next+1`)
+| –
+| 42:19 min
+| 16:37:37 h
+| 262.094
+| 4.262.852
+| 791.888
+| 24.199.986
+| 75.338.455
+| 42:19 min
+| 262.094
+| 75.338.455
+
 | <<prompt-158,158>>
 |„commit"
 | <<commit-60cfb74,60cfb74>>

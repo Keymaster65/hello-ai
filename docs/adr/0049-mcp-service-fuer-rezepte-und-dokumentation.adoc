@@ -1,0 +1,265 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= ADR 0049: MCP-Service für Rezepte und Systemdokumentation
+
+== Status
+
+Akzeptiert – 2026-08-16. Ergänzt die bestehenden eingehenden Adapter um einen zweiten
+Zugangsweg; abgelöst wird nichts. Die REST-API
+(link:0005-springdoc-openapi-und-swagger-ui{adrext}[ADR 0005]) und die ausgelieferte
+Dokumentation (link:0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]) bleiben unverändert.
+
+== Kontext
+
+Das Projekt entsteht KI-gestützt, und seine beiden interessantesten Bestände liegen heute nur in
+Formen vor, die ein Sprachmodell selbst erschließen muss: die Rezepte hinter einer REST-API mit
+OpenAPI-Beschreibung, die Systemdokumentation als gerendertes HTML unter `+/recipes/docs/**+`.
+Ein Modell, das damit arbeiten soll, braucht pro Werkzeugkasten eine eigene Anbindung – die
+Beschreibung des Vertrags, den Aufruf, das Fehlerbild.
+
+Das *Model Context Protocol* (MCP) ist die Antwort darauf, die sich durchgesetzt hat: ein
+JSON-RPC-2.0-Protokoll, über das ein Server seine *Werkzeuge* (`tools`) und *Ressourcen*
+(`resources`) selbst beschreibt und ein Client sie ohne Vorwissen findet. Der Backlog-Eintrag
+„Ergänze einen MCP Service für den Zugriff auf Rezepte und die Systemdokumentation" verlangt
+genau diesen Zugang.
+
+Damit sind drei Fragen zu entscheiden, die einzeln Alternativen haben: *woher* die
+Protokollimplementierung kommt, *wie* sie über HTTP erreichbar ist und *welchen* Ausschnitt des
+Systems sie zeigt.
+
+== Optionen
+
+=== Woher die Protokollimplementierung kommt
+
+. *Kein MCP – bei OpenAPI und HTML bleiben.* Verworfen: Der Vertrag ist beschrieben, aber nicht
+  aufrufbar. Jeder Client baut sich denselben Adapter erneut, und die Dokumentation bliebe ein
+  Stapel HTML-Seiten ohne Verzeichnis.
+. *Das Protokoll selbst schreiben* – ein `+@RestController+`, der JSON-RPC 2.0 entgegennimmt und
+  `initialize`, `tools/list`, `tools/call`, `resources/list` und `resources/read` bedient.
+  Verworfen: Das ist machbar (rund 200 Zeilen), aber es entstünde eine eigene
+  Protokollimplementierung mit Versionsverhandlung, Fehlercodes, Schema-Validierung der
+  Werkzeugeingaben und den Transportregeln des `Accept`-Headers. Nichts daran ist Fachlichkeit
+  dieses Projekts, und sie veraltet *still*: Eine neue Protokollversion merkt niemand am grünen
+  Build.
+. *Spring AI mit `spring-ai-starter-mcp-server-webmvc`.* Verworfen: Spring AI bringt für einen
+  Server mit vier Werkzeugen die ganze Modell- und Chat-Abstraktion mit, und seine
+  Autokonfiguration nimmt die Verdrahtung aus der Hand – im Sinne von
+  link:0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045] soll sie sichtbar an einer
+  Stelle stehen. Zudem hinge die Verträglichkeit mit Spring Boot 4 an einer zweiten
+  Rahmenwerksversion.
+. *Das offizielle MCP-Java-SDK* `+io.modelcontextprotocol.sdk:mcp+` – gewählt. Es enthält das
+  Protokoll und die Transporte, kennt Spring nicht und wird von Anthropic gepflegt. Die
+  Verdrahtung bleibt Handarbeit – wo sie steht, sagt der Abschnitt „Wo der Server zusammengesetzt
+  wird" –, und die Werkzeuge sind gewöhnliche Java-Objekte, die auf die bestehenden Ports
+  zugreifen.
+
+=== Wie der Server über HTTP erreichbar ist
+
+. *stdio* – verworfen: Der Server läuft als Webanwendung, nicht als Kindprozess eines Clients.
+. *HTTP+SSE* (`HttpServletSseServerTransportProvider`) – verworfen: Der Transport ist in der
+  Spezifikation überholt und verlangt zwei Endpunkte samt Sitzung.
+. *Streamable HTTP mit Sitzung* (`HttpServletStreamableServerTransportProvider`) – verworfen: Er
+  hält Sitzungszustand je Client vor. Gebraucht wird er nur für Nachrichten, die der *Server*
+  beginnt (Fortschritt, `notifications/*`); dieser Server hat keine.
+. *Streamable HTTP ohne Sitzung* (`HttpServletStatelessServerTransport`) – gewählt: eine
+  Anfrage, eine Antwort, kein Zustand zwischen zwei Aufrufen. Damit bleibt der Endpunkt so
+  zustandslos wie die REST-API daneben, und es gibt keine Sitzungstabelle, die volllaufen oder
+  fremdgenutzt werden kann.
+
+Der Pfad ist `+/api/mcp+`, also `+/recipes/api/mcp+` mit Context-Path
+(link:0016-context-path-recipes{adrext}[ADR 0016]) – neben `+/api/recipes+`, weil es dieselbe
+Programmierschnittstelle ist, nur für einen anderen Aufrufer.
+
+=== Welchen Ausschnitt der Server zeigt
+
+. *Rezepte als Werkzeuge, Dokumentation als Ressourcen* – gewählt, mit einer Zutat: Die
+  Dokumentation ist *zusätzlich* über zwei Werkzeuge erreichbar. Die Ressourcenliste eines
+  zustandslosen Servers steht beim Start fest; das passt zur Dokumentation, die im Boot-Jar
+  liegt und sich zur Laufzeit nicht ändert (ADR 0024), und es passt *nicht* zu Rezepten, die
+  jederzeit dazukommen. Die zwei Werkzeuge gibt es, weil ein Teil der Clients ausschließlich
+  Werkzeuge unterstützt – ohne sie wäre die Dokumentation für sie unsichtbar.
+. *Alles als Werkzeuge* – verworfen: Ressourcen sind die Form, in der ein Client Inhalte
+  *anhängt*, statt sie über einen Aufruf zu holen. Für die Dokumentation ist das der passende
+  Begriff des Protokolls.
+. *Alles als Ressourcen* – verworfen: Ein Rezept, das erst nach einem Neustart in der Liste
+  steht, ist eine Fehlerquelle ohne Gegenwert.
+. *Auch schreibende Werkzeuge* (`create`, `update`, `delete`) – verworfen, siehe „Bewusst nicht
+  getan": Der Eintrag verlangt *Zugriff*, und ein offener Endpunkt, der schreibt, ist eine
+  andere Entscheidung als einer, der liest.
+
+== Entscheidung
+
+Ein *lesender* MCP-Server, gebaut mit dem offiziellen SDK, ausgeliefert im selben Deployable,
+erreichbar unter `+/recipes/api/mcp+` als zustandsloses Streamable HTTP.
+
+=== Die vier Werkzeuge
+
+[cols="1,3", options="header"]
+|===
+| Name | Wirkung
+
+| `+list_recipes+`
+| Alle Rezepte als JSON-Array, je Rezept Kennung, Titel, Beschreibung, Portionen, Zubereitungszeit
+  und Schwierigkeit – ohne Zutaten und Schritte
+
+| `+get_recipe+`
+| Ein Rezept vollständig, samt Zutaten und Schritten; Eingabe ist die Kennung
+
+| `+list_documentation+`
+| Die Seiten der ausgelieferten Systemdokumentation mit Kennung und Titel
+
+| `+read_documentation+`
+| Eine Seite als HTML; Eingabe ist ihre Kennung
+|===
+
+Jede Seite der Dokumentation ist zusätzlich eine Ressource mit der URI
+`+recipes://docs/<kennung>+` und dem Medientyp `+text/html+`.
+
+=== Der Weg durch die Schichten
+
+Der MCP-Adapter ist ein *eingehender* Adapter wie der REST-Adapter und greift wie dieser nur auf
+Ports zu (link:0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019]):
+
+* *Rezepte* über den bestehenden eingehenden Port `RecipeService`. Damit gilt dieselbe
+  Transaktionsgrenze wie für REST – der Dekorator im Composition Root (ADR 0045).
+* *Dokumentation* über einen neuen eingehenden Port `DocumentationService`, dessen Umsetzung in
+  der Anwendungsschicht liegt und die Seiten über den neuen ausgehenden Port
+  `DocumentationRepository` bezieht. Ihn erfüllt ein neuer *ausgehender* Adapter, der die im
+  Boot-Jar liegenden HTML-Seiten vom Klassenpfad liest.
+
+Der kürzere Weg – der MCP-Adapter liest den Klassenpfad selbst – ist verworfen: Er wäre ein
+Adapter, der am Port vorbei Infrastruktur anspricht, und die Zwiebelregel ist genau dagegen
+gerichtet. Die Dokumentationsseite wird damit ein Typ der Domäne
+(link:0020-domain-in-model-und-services-teilen{adrext}[ADR 0020]) – vertretbar, weil die
+ausgelieferte Dokumentation in diesem Projekt Teil des Produkts ist (ADR 0024) und nicht Beiwerk
+des Builds.
+
+=== Wo der Server zusammengesetzt wird
+
+*Im Adapter*, in `McpServerConfig` neben den Werkzeugen – nicht im Composition Root, wo die
+Bean-Erzeugung dieses Projekts sonst steht (ADR 0045).
+
+Der erste Entwurf hatte ihn dort: eine `@Configuration` in `:bootstrap`, die die Werkzeuge der
+Adapterklassen einsammelt. `OnionArchitectureTest` hat ihn zurückgewiesen, mit sechs Verstößen –
+und zu Recht: In der Zwiebelsicht ist `+..bootstrap..+` selbst ein *Adapterring*, und Adapter
+kennen einander nicht (link:0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019]). Ein
+Composition Root, der die Klassen eines Adapters benennt, bricht genau diese Regel.
+
+Der Widerspruch löst sich, wenn man die Frage anders stellt: Der REST-Adapter bringt seinen Pfad
+selbst mit (`+@RequestMapping+`); niemand verdrahtet ihn von außen. Ein eingehender Adapter, der
+seinen Endpunkt selbst aufspannt, ist die *gleiche* Form – der MCP-Adapter tut mit Servlet und
+Transport nichts anderes. Was ADR 0045 aus der Anwendungsschicht heraushalten will, ist das
+Rahmenwerk; hier steht es in einem Adapter, also da, wo es hingehört.
+
+Die Regel hat damit einen Entwurf korrigiert, statt nur einen Testlauf rot zu machen. Zwei Dinge
+folgen daraus:
+
+* `+:bootstrap+` erzeugt weiterhin die Bean des *Ports* `DocumentationService` – ein Typ der
+  Anwendungsschicht, kein Adapter (`ApplicationServicesConfig`).
+* Das SDK ist im Adapter `+implementation+`, nicht `+api+`: Keine seiner Klassen verlässt das
+  Modul, und `+:bootstrap+` soll sie nicht sehen. Die Werkzeugklassen sind aus demselben Grund
+  paketprivat.
+
+=== Sicherheit
+
+Der Endpunkt ist offen erreichbar wie die REST-API; das steht als Zeile in „Offene Punkte"
+(`docs/system/betrieb.adoc`), wie der Security-Skill es verlangt
+(link:0035-security-skill-und-security-txt{adrext}[ADR 0035],
+link:0048-security-skill-je-seite{adrext}[ADR 0048]). Drei Festlegungen begrenzen die
+Angriffsfläche:
+
+* *Nur lesende Werkzeuge.* Kein Aufruf des Servers verändert Daten.
+* *Origin-Prüfung.* Der Transport erhält den `DefaultServerTransportSecurityValidator` *ohne*
+  erlaubte Origin. Eine Anfrage mit `Origin`-Header wird damit mit `403` abgewiesen – der Schutz
+  gegen DNS-Rebinding, den die MCP-Spezifikation für lokal erreichbare Server verlangt. Ein
+  Werkzeug ohne Browserkontext sendet den Header nicht und ist nicht betroffen.
+* *Kein eigenes Fehlerformat.* Fachliche Fehler – ein unbekanntes Rezept, eine unbekannte Seite –
+  antworten als Werkzeugergebnis mit `+isError+`, mit derselben Sparsamkeit wie die
+  Problem-Details der REST-API (link:0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR
+  0046]): Kennung ja, Stacktrace nein.
+
+== Konsequenzen
+
+=== Vorteile
+
+* *Ein Client findet den Bestand selbst.* Werkzeugnamen, Beschreibungen und Eingabeschemata
+  liefert der Server; es gibt keine zweite Stelle, an der sie gepflegt werden müssten.
+* *Ein Deployable.* Der Server steckt im Boot-Jar wie SPA, API und Dokumentation – kein zweiter
+  Prozess, kein zweiter Port.
+* *Die Dokumentation wird abfragbar.* Bisher war sie eine HTML-Seite für Menschen; jetzt hat sie
+  ein Verzeichnis mit Kennungen und Titeln.
+* *Zustandslos.* Der Endpunkt verträgt beliebig viele Clients, ohne Sitzungen zu führen.
+
+=== Nachteile
+
+* *Eine neue Abhängigkeit mit Anhang.* Das SDK zieht `reactor-core` und einen
+  JSON-Schema-Validator nach, obwohl der Server synchron arbeitet. Version 2.0.0 ist jung; ein
+  Bruch in einer Nebenversion ist wahrscheinlicher als bei Spring.
+* *Der Endpunkt steht nicht in der OpenAPI-Beschreibung.* Er ist ein eigenes Servlet und läuft
+  am `DispatcherServlet` vorbei; springdoc sieht ihn nicht (ADR 0005). Beschrieben ist er
+  deshalb in `docs/system/api.adoc` – und das ist eine Stelle, die von Hand gepflegt wird.
+* *Die Ressourcenliste entsteht beim Start.* Läuft der Build mit `+-PskipDocs+`, liegt keine
+  Dokumentation im Jar, und der Server liefert eine leere Liste. Das ist richtig, sieht aber wie
+  ein Fehler aus.
+* *Zwei Wege zur Dokumentation.* Ressourcen und Werkzeuge zeigen denselben Bestand. Die
+  Doppelung ist gewollt (siehe „Optionen"), bleibt aber eine Stelle, an der zwei Dinge
+  gleichzeitig zu ändern sind.
+
+=== Bewusst nicht getan
+
+* *Keine schreibenden Werkzeuge.* Anlegen, Ändern und Löschen bleiben der REST-API. Ein
+  schreibender, unauthentifizierter Endpunkt wäre eine eigene Entscheidung – mit
+  Authentifizierung als Vorbedingung.
+* *Keine Authentifizierung.* Der Server erbt die Lage der Anwendung: Es gibt keine. Das steht in
+  „Offene Punkte" und als Backlog-Eintrag, nicht hier.
+* *Keine `prompts` und kein `completions`.* Beides sind Fähigkeiten des Protokolls, für die es
+  hier keinen Inhalt gibt; ein leeres Verzeichnis ist keine Fähigkeit.
+* *Keine AsciiDoc-Quellen.* Ausgeliefert wird, was ausgeliefert ist: das gerenderte HTML (ADR
+  0024). Die Quelldateien in `docs/` liegen nicht im Jar; sie dorthin zu packen wäre eine
+  Änderung am Deployable.
+* *Keine Paginierung.* `+list_recipes+` antwortet mit allen Rezepten – dieselbe offene Stelle wie
+  bei `+GET /api/recipes+`, geführt in „Offene Punkte" und im Backlog. Zwei Paginierungen
+  gleichzeitig zu erfinden wäre der falsche Schritt.
+* *Kein Suchwerkzeug über die Dokumentation.* Verlockend, aber es wäre Fachlichkeit ohne
+  Auftrag; der Eintrag verlangt Zugriff, nicht Suche.
+
+== Prüfung
+
+* `+./gradlew test+` – Unit-Tests der Werkzeuge gegen einen Mock des Ports (Zutaten und Schritte
+  im JSON, Fehlerfall als `+isError+`), Unit-Tests des Dokumentationsdienstes, dazu die
+  erweiterten Architekturtests: Der MCP-Adapter und der Dokumentations-Adapter sind eigene Ringe
+  in `OnionArchitectureTest` und dürfen einander und den REST-Adapter nicht kennen.
+* `+./gradlew systemtest+` – `McpSystemTest` spricht `+/recipes/api/mcp+` über HTTP: `initialize`
+  nennt Protokollversion und Fähigkeiten, `tools/list` die vier Werkzeuge, `tools/call` liefert
+  ein Rezept, `resources/list` die Seiten der Dokumentation. Dazu die Gegenprobe der
+  Origin-Prüfung: dieselbe Anfrage mit `+Origin:+` antwortet `403`.
+* `+./gradlew clean build+` – der Endpunkt liegt im Boot-Jar; die Dokumentationsseiten werden
+  beim Start vom Klassenpfad gelesen.
+* *Gegenprobe am fertigen Jar*, weil die Systemtests aus dem entpackten Klassenpfad heraus
+  starten und das Suchen *im* Jar damit nicht abdecken: `+java -jar recipes-*.jar+`, dann
+  `resources/list` – 50 Seiten (das Kapitelwerk und 49 Architekturentscheidungen), jede mit dem
+  Titel aus ihrem HTML-Kopf; `+read_documentation+` auf dieses ADR liefert 18.805 Zeichen.
+
+== Referenzen
+
+* https://modelcontextprotocol.io/specification[MCP-Spezifikation] – Werkzeuge, Ressourcen,
+  Transporte
+* link:0005-springdoc-openapi-und-swagger-ui{adrext}[ADR 0005] – die REST-API und ihre
+  Beschreibung, die diesen Endpunkt nicht erfasst
+* link:0016-context-path-recipes{adrext}[ADR 0016] – der Context-Path, unter dem der Endpunkt
+  liegt
+* link:0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019] – Adapter kennen einander
+  nicht; die Regel, die den Weg über die Ports erzwingt
+* link:0020-domain-in-model-und-services-teilen{adrext}[ADR 0020] – wohin der neue Domänentyp
+  gehört
+* link:0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024] – die ausgelieferte Dokumentation,
+  die der Server zeigt
+* link:0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045] – warum die Verdrahtung im
+  Composition Root steht
+* link:0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR 0046] – die Sparsamkeit der
+  Fehlerbilder, an der sich die Werkzeugfehler ausrichten
+* link:0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018] – wo die neue Abhängigkeit
+  eingetragen ist
+* link:0035-security-skill-und-security-txt{adrext}[ADR 0035],
+  link:0048-security-skill-je-seite{adrext}[ADR 0048] – der Security-Skill, dessen Auslöser
+  „neuer offen erreichbarer Pfad" hier greift

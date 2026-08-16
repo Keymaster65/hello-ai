@@ -44,8 +44,6 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 
 == : Konsolidiere alle Skills und ADR so, dass keine ADR mehr notwendig sind, alle die Inhalte auf die Skills verteilt werden. Wenn sinnvoll erzeuge neue Skills.
 
-== : Ergänze einen MCP Service für den Zugriff auf Rezepte und die Systemdokumentation.
-
 == : Ergänze out-port Adapter, die die Daten in einem neuen leeren Branch data sichern. Der Aufbau dort soll sein /database/entities/recipes, /database/entities/ingredients usw. Gespeichert und gelesen werden jeweils Json-Dateien, die einen Datensatz enthalten.
 
 == architecture
@@ -165,6 +163,27 @@ Aus `docs/system/betrieb.adoc`, „Offene Punkte": Weder Content Security Policy
 gilt und wo sie entsteht – in der Anwendung oder im vorgelagerten Proxy –, ist eine Entscheidung
 mit Folgen für jede Antwort und braucht deshalb zuerst ein ADR; der Frontend-Skill verweist
 darauf (`docs/prompt/security-frontend.adoc`, „Abgrenzung").
+
+== KI Entferne die zwei Fremdzeilen am Ende von ADR 0048
+
+`docs/adr/0048-security-skill-je-seite.adoc` endet mit `+</content>+` und `+</invoke>+` – Reste
+eines Werkzeugaufrufs, die beim Rendern als Text mitten im Dokument stehen. Es ist kein Satz der
+Entscheidung, also kein Umschreiben eines ADR (ADR-Skill, Grundsatz 3), sondern das Beseitigen
+eines Artefakts.
+
+== KI Nenne im README das Fehlerformat RFC 9457 statt ErrorResponse
+
+`README.md` schreibt unter „REST-API": Nicht gefundene Rezepte und Validierungsfehler kommen
+„jeweils als `ErrorResponse`". Das Format ist seit
+link:{adr}/0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR 0046] `ProblemDetail` mit
+`+application/problem+json+`; die Systemdokumentation sagt es richtig, der Einstieg nicht.
+
+== KI Zieh den Abgrenzungsabsatz des Security-Backend-Skills nach
+
+`docs/prompt/security-backend.adoc` sagt im Abschnitt „Zweck", die Frontend-Regeln bekämen einen
+eigenen Skill, „sobald sie festgelegt sind; bis dahin steht nirgends etwas über die SPA".
+`docs/prompt/security-frontend.adoc` gibt es inzwischen; der Absatz beschreibt einen Zustand von
+vorher.
 
 == KI Schreibe ein ADR über die Kapitelstruktur der ADRs
 
