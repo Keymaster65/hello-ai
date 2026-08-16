@@ -25,9 +25,17 @@ Protokoll nicht steht (link:{adr}/0039-summenspalten-in-der-kennzahlen-tabelle{a
 0039]).
 
 Text und Zahlen desselben Eintrags stehen seit
-link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033] im selben Dokument. Für diese
-Tabelle ändert das nichts: Ihre Prompt-Spalte ist *literal* gesetzt (`l` im `cols`-Attribut),
-AsciiDoc wertet dort nichts aus.
+link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033] im selben Dokument. Für die
+Prompt-Spalte ändert das nichts: Sie ist *literal* gesetzt (`l` im `cols`-Attribut), AsciiDoc
+wertet dort nichts aus.
+
+*Jede Zeile ist verlinkt* (link:{adr}/0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[ADR
+0041]): Die Nummer führt zum Eintrag des Protokolls, die Spalte „Commit" zur Zeile der
+Git-Historie – beide in <<aenderungen>>. Damit hängt die Sicht, in der man *sucht*, an den
+beiden, in denen man *nachliest*. Die Commit-Spalte ist wie alles hier abgeleitet: Gelesen wird
+allein die Zeile `+_Commit:_+` des Eintrags, dieselbe Quelle, aus der die Git-Historie ihre
+Spalte „Prompt" füllt (link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR
+0038]).
 
 .Zu den Spalten
 [cols="2,3", options="header"]
@@ -35,11 +43,17 @@ AsciiDoc wertet dort nichts aus.
 | Spalte | Bedeutung
 
 | Nr.
-| Nummer des Log-Eintrags. Sie zählt über alle Sessions hinweg und ist bis `-4` negativ – die
-  ältesten Einträge sind nachgetragene Commits ohne Prompt.
+| Nummer des Log-Eintrags, zugleich *Verweis auf ihn* im Anhang <<aenderungen>>. Sie zählt über
+  alle Sessions hinweg und ist bis `-4` negativ – die ältesten Einträge sind nachgetragene
+  Commits ohne Prompt.
 
 | Prompt
 | Der Prompt im Wortlaut, wie er in der Überschrift des Log-Eintrags steht.
+
+| Commit
+| Der Commit, aus dem dieser Prompt hervorgegangen ist, als *Verweis auf seine Zeile* in der
+  Git-Historie; mehrere durch Komma getrennt. `–` heißt hier – wie in der Gegenrichtung –
+  nicht „kein Commit", sondern *„der Eintrag schreibt sich keinen zu"*.
 
 | Dauer
 | Wanduhrzeit von der Ankunft des Prompts bis zur letzten Antwort, inklusive Wartezeit auf
@@ -70,7 +84,7 @@ NOTE: Die Werte sind eine *Untergrenze*. Gemessen wird bis zum Schreiben des Log
 die abschließende Antwort des Turns fehlt darin zwangsläufig.
 
 IMPORTANT: Für die `Summe`-Spalten gilt das doppelt. Ein `–` zählt darin als *null*, damit die
-Summe durchläuft statt abzureißen – und 64 der 139 Einträge tragen keine Kennzahlen. Die
+Summe durchläuft statt abzureißen – und 64 der 146 Einträge tragen keine Kennzahlen. Die
 Gesamtsumme ist deshalb der belegte Teil des Aufwands, nicht der tatsächliche.
 
 include::../log/kennzahlen.adoc[]

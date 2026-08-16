@@ -73,6 +73,8 @@ Zwei Folgen sind zu kennen:
   von `+:toclevels:+` – sonst trüge das Inhaltsverzeichnis über hundert Prompt-Überschriften.
 
 Die Kennzahlen derselben Einträge stehen als Tabelle in <<kennzahlen>>: dieselbe Quelle,
-andere Sicht.
+andere Sicht. Sie zeigt in *beide* Sichten dieses Anhangs zurück – die Nummer auf den Eintrag,
+ihre Spalte „Commit" auf die Zeile der Git-Historie
+(link:{adr}/0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[ADR 0041]).
 
 include::../log/claudeLog.adoc[leveloffset=+2]

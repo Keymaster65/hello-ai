@@ -81,10 +81,16 @@ _Commit: <<commit-66a5ae4,66a5ae4>>_
   darin: als Ankerziel und als sichtbarer Text.
 * *Mehrere Commits* stehen durch Komma getrennt in derselben Zeile.
 * *Die Zeile ist optional.* Die meisten Prompts erzeugen keinen Commit; dann fehlt sie.
-* *Sie ist die einzige Quelle der Zuordnung.* Der Task `gitChangelog` liest *nur* sie, nie den
-  Fließtext, und füllt daraus die Spalte „Prompt" der Git-Historie. Hashes, die anderswo im
-  Eintrag vorkommen – ein Pull-Bereich, der Stand eines Remote-Branches, ein fremder Commit als
-  Nebenbefund –, bleiben folgenlos. Das ist Absicht: Sie meinen nicht „hier entstanden".
+* *Sie ist die einzige Quelle der Zuordnung – und hat zwei Leser.* Der Task `gitChangelog`
+  füllt daraus die Spalte „Prompt" der Git-Historie, `+docs/log/kennzahlen.py+` die Spalte
+  „Commit" der Kennzahlen-Tabelle
+  (link:{adr}/0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[ADR 0041]). Beide
+  lesen *nur* sie, nie den Fließtext. Hashes, die anderswo im Eintrag vorkommen – ein
+  Pull-Bereich, der Stand eines Remote-Branches, ein fremder Commit als Nebenbefund –, bleiben
+  folgenlos. Das ist Absicht: Sie meinen nicht „hier entstanden".
+* *Sie wird nachgetragen, und die Tabelle muss folgen.* Nach dem Nachtragen läuft
+  `+python3 docs/log/kennzahlen.py+` (Manager-Skill) – sonst steht in der Kennzahlen-Tabelle
+  noch `–`, wo die Git-Historie den Verweis schon zeigt.
 
 IMPORTANT: Der Hash muss ein Commit sein, den die Tabelle *führt*. Ein `Merge`, ein
 aufgehobener Commit oder ein Vertipper erzeugt einen Verweis ins Leere – und der bricht den

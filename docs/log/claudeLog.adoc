@@ -9,6 +9,59 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-141]]
+== 141. Prompt: „Ergänze in „kennzahlen" in den Zeilen die Links auch claudeLog und gitChangeLog." (aus dem Backlog, `next`)
+
+_Delta: 13:58 min · 79.729 Token out · 325.414 Token in (neu) · 10.734.597 Token gesamt_
+_Stand (Session, 3 Prompts): 13:58 min · 79.729 Token out · 10.734.597 Token gesamt_
+
+*Aktionen:*
+
+* *`next` nach PO-Skill:* `+git pull --ff-only+` auf `main` meldete „Already up to date", kein
+  Eintrag stand auf `+*+`. Ziehreihenfolge: keine an `main` gebundenen Einträge, also der
+  oberste ungebundene. Nach Rückfrage und Freigabe Marker `+:+` → `+*+` gesetzt, *vor* der
+  Arbeit.
+* *Der Fund vor der Umsetzung:* ADR 0038 führt genau diese Änderung unter „Bewusst nicht
+  getan" – „Eine Commit-Spalte dort wäre eine dritte Sicht ohne eigenen Zweck." Der Prompt
+  verlangt sie trotzdem; nach dem ADR-Skill ist eine Abweichung deshalb ein *neues* ADR und
+  kein stiller Sonderfall.
+* *ADR 0041 geschrieben* („Die Kennzahlen-Tabelle verweist auf Protokoll und Git-Historie"):
+  löst jene eine Festlegung aus ADR 0038 ab, lässt alles Übrige dort unangetastet. Fünf
+  Optionen, darunter die verworfene, *die Prompt-Spalte* zu verlinken – sie ist literal (`l`),
+  und genau das ist die Zusicherung, die die Tabelle überhaupt in den Build lässt (ADR 0027).
+  Der Verweis sitzt deshalb auf der Nummer, die den Eintrag ohnehin benennt.
+* *`+docs/log/kennzahlen.py+` erweitert:* liest jetzt zusätzlich die Zeile `+_Commit:_+`,
+  schreibt die Spalte `Nr.` als `+<<prompt-140,140>>+` (negatives Vorzeichen ausgeschrieben,
+  `+prompt-minus2+`) und ergänzt als dritte Spalte `Commit` die Verweise
+  `+<<commit-ea0e0c0,ea0e0c0>>+`. Dieselbe Quelle wie beim Task `gitChangelog`, der die
+  Gegenrichtung füllt – die Zuordnung bleibt einmal geschrieben und zweimal gelesen.
+* *Tabelle neu erzeugt:* „146 Einträge geschrieben (64 ohne Kennzahlen)", `+--check+` meldet
+  „aktuell". 13 Zeilen tragen einen Commit-Verweis – genau so viele, wie das Protokoll Zeilen
+  `+_Commit:_+` hat.
+* *Nachgezogen:* `+docs/system/anhang-kennzahlen.adoc+` (Spalte `Commit`, Deutung des `–`, die
+  veraltete Zahl „139 Einträge" → 146), `+docs/prompt/manager.adoc+` (dreizehn Spalten,
+  Spaltenordnung „benennen vor messen", neue Auslöser-Zeile für die nachgetragene
+  `+_Commit:_+`-Zeile), `+docs/prompt/butterfly.adoc+` (die Zeile hat jetzt *zwei* Leser),
+  `+docs/system/anhang-aenderungen.adoc+`, ADR-Index in `+system.adoc+` als erste Zeile und der
+  Wegweiser in `+adr.adoc+` (Zeile „Dokumentation …"; die Zahl „40" dort war veraltet, jetzt
+  41).
+* *Nachgezählt statt nur gebaut* – die Lehre aus ADR 0038: Im gerenderten
+  `+build/docs/asciidoc/system.html+` stehen im Bereich der Kennzahlen-Tabelle *146* Links auf
+  `+#prompt-…+` und *13* auf `+#commit-…+`. Alle 159 treffen ein vorhandenes Ziel (146 Anker
+  `+id="prompt-…"+`, 99 `+id="commit-…"+`); kein Verweis läuft in einen Geviertstrich.
+* *Dokumentation gebaut:* `+asciidoctorAdr+`, `+asciidoctorPrompt+` und `+asciidoctor+` grün
+  (20 s), *ohne* „possible invalid reference". Die zwei bekannten Meldungen des
+  `+asciidoctor+`-Tasks bestehen unverändert weiter („id assigned to section already in use:
+  prompt-minus2", „skipping reference to missing attribute: id"); sie betreffen
+  `+claudeLog.adoc+`, das dieser Turn nicht angefasst hat, und haben einen eigenen
+  `+KI+`-Eintrag im Backlog.
+* *Keine Testläufe:* Berührt wurden ausschließlich `docs/` und das Doku-Werkzeug
+  `+kennzahlen.py+`, das im Gradle-Build nicht vorkommt. Der letzte grüne Lauf (Prompt 135)
+  gilt damit weiter (Butterfly-Skill).
+* *Backlog:* Der abgearbeitete Eintrag ist entfernt – der Nachweis steht hier.
+
+'''
+
 [[prompt-140]]
 == 140. Prompt: „commit"
 

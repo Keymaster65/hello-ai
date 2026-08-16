@@ -14,6 +14,13 @@ Ausgenommen sind die drei `Summe`-Spalten: Sie werden *gerechnet* (ADR 0039), we
 laufende Summe im Log nicht steht und dort auch nicht hingehört. Gezählt wird über alle
 Einträge hinweg, anders als die `Stand`-Spalten, die je Session gelten.
 
+Jede Zeile ist außerdem in beide Nachbarsichten des Anhangs „Änderungen" *verlinkt* (ADR
+0041): Die Spalte `Nr.` zeigt auf den Log-Eintrag (`+<<prompt-N>>+`), die Spalte `Commit` auf
+die Zeile der Git-Historie (`+<<commit-<kurzhash>>>+`). Beide Ziele stehen im selben
+gerenderten Dokument. Auch die Commit-Spalte ist *abgeleitet*: Gelesen wird allein die Zeile
+`+_Commit:_+` des Eintrags, dieselbe Quelle, aus der der Gradle-Task `gitChangelog` die
+Gegenrichtung füllt (ADR 0038).
+
 Aufruf:
 
     python3 docs/log/kennzahlen.py            # Tabelle neu erzeugen
@@ -50,6 +57,12 @@ STAND = re.compile(
     r"(?P<out>[\d.]+) Token out · (?P<gesamt>[\d.]+) Token gesamt_$"
 )
 
+# `_Commit: <<commit-66a5ae4,66a5ae4>>_`, bei mehreren durch Komma getrennt (ADR 0038).
+# Dieselbe Zeile, die der Gradle-Task `gitChangelog` liest – die Zuordnung steht im Protokoll
+# und wird nirgends zweitgeführt.
+COMMIT = re.compile(r"^_Commit: (?P<verweise>.+)_$")
+HASHES = re.compile(r"\b[0-9a-f]{7,40}\b")
+
 MISSING = "–"
 
 HEADER = """\
@@ -59,10 +72,11 @@ HEADER = """\
 
 [[kennzahlen-tabelle]]
 .Dauer und Tokenverbrauch je Prompt, neuester zuerst
-[cols=">1,6l,>1,>1,>1,>1,>1,>1,>1,>1,>1,>1", options="header"]
+[cols=">1,6l,1m,>1,>1,>1,>1,>1,>1,>1,>1,>1,>1", options="header"]
 |===
 | Nr.
 | Prompt
+| Commit
 | Dauer
 | Summe Dauer
 | out / Token
@@ -133,6 +147,9 @@ class Entry:
         self.text = text
         self.delta: re.Match | None = None
         self.stand: re.Match | None = None
+        # Kurz-Hashes aus der Zeile `_Commit:_`, in der Reihenfolge des Eintrags (ADR 0038).
+        # Meist leer: Die wenigsten Prompts erzeugen einen Commit.
+        self.commits: list[str] = []
         # Laufende Summen über *alle* Einträge bis hierher (ADR 0039); von `akkumulieren`
         # gesetzt, nicht aus dem Log gelesen.
         self.summe_dauer = 0
@@ -144,6 +161,29 @@ class Entry:
         if match is None:
             return MISSING
         return match.group(group) or MISSING
+
+    def anker(self) -> str:
+        """Der Anker des Log-Eintrags: `140` → `prompt-140`, `-2` → `prompt-minus2`.
+
+        Das Vorzeichen wird *ausgeschrieben*, weil Asciidoctor `--` durch einen Geviertstrich
+        ersetzt – aus `<<prompt--2,-2>>` würde dabei still ein Verweis auf ein anderes
+        Dokument (ADR 0038).
+        """
+        return "prompt-" + self.nr.replace("-", "minus")
+
+    def nr_cell(self) -> str:
+        """Die Nummer als Verweis auf den Log-Eintrag im Anhang „Änderungen" (ADR 0041)."""
+        return f"<<{self.anker()},{self.nr}>>"
+
+    def commit_cell(self) -> str:
+        """Die Commits des Eintrags als Verweise auf die Git-Historie – oder `–` (ADR 0041).
+
+        `–` heißt hier wie in der Gegenrichtung *„der Eintrag schreibt sich keinen Commit
+        zu"*, nicht „es gab keinen": Gelesen wird allein die Zeile `_Commit:_`.
+        """
+        if not self.commits:
+            return MISSING
+        return ", ".join(f"<<commit-{kurz},{kurz}>>" for kurz in self.commits)
 
 
 def read_entries(path: str) -> list[Entry]:
@@ -164,6 +204,13 @@ def read_entries(path: str) -> list[Entry]:
                 entries[-1].delta = DELTA.match(line)
             elif line.startswith("_Stand "):
                 entries[-1].stand = STAND.match(line)
+            elif line.startswith("_Commit:"):
+                treffer = COMMIT.match(line)
+                if treffer:
+                    for hash_ in HASHES.findall(treffer.group("verweise")):
+                        kurz = hash_[:7]
+                        if kurz not in entries[-1].commits:
+                            entries[-1].commits.append(kurz)
     return entries
 
 
@@ -212,8 +259,9 @@ def render(entries: list[Entry]) -> str:
     rows = [HEADER]
     for entry in entries:
         rows.append(
-            f"\n| {entry.nr}\n"
+            f"\n| {entry.nr_cell()}\n"
             f"|{prompt_cell(entry.text)}\n"
+            f"| {entry.commit_cell()}\n"
             f"| {entry.cell(entry.delta, 'dauer')}\n"
             f"| {dauer_formatieren(entry.summe_dauer)}\n"
             f"| {entry.cell(entry.delta, 'out')}\n"
