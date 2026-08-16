@@ -14,6 +14,7 @@ Datum: 2026-07-19
 
 _Delta: 6 s · 902 Token out · 2.572 Token in (neu) · 332.864 Token gesamt_
 _Stand (Session, 4 Prompts): 15:53 min · 77.053 Token out · 8.451.118 Token gesamt_
+_Commit: <<commit-da77403,da77403>>_
 
 *Aktionen:*
 
@@ -32,7 +33,11 @@ _Stand (Session, 4 Prompts): 15:53 min · 77.053 Token out · 8.451.118 Token ge
   Trailer `+Co-Authored-By: Claude Opus 4.8 (1M context)+` vor. Der Commit trägt *Opus 5* –
   eine Tatsachenangabe, die stimmen muss. Der Skill nennt noch das Modell seiner
   Entstehungszeit; das nachzuziehen ist eine eigene Änderung und steht aus.
-* *Branches zusammengeführt* nach ADR 0032/0034 – Ablauf und Ergebnis siehe unten.
+* *Commit `+da77403+`* über sieben Dateien (490 Einfügungen, 15 Löschungen), Author Claude.
+* *Branches zusammengeführt* nach ADR 0032/0034: einmal `+git fetch origin+`, dann
+  `+origin/main+`, `+origin/sm+` und `+origin/doc+` – jedes „Already up to date". `dev` hat
+  weder Remote- noch lokalen Ref und wurde übergangen. Nachgeprüft statt nur gemeldet: Alle
+  drei sind `+merge-base --is-ancestor+` von `HEAD`, eine zweite Runde erübrigt sich.
 
 '''
 
