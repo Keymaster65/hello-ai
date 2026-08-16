@@ -22,7 +22,7 @@
 
 | <<prompt-155,155>>
 |„Benenne den Skill systemdoku um in systemdokumentation" (aus dem Backlog, `next`)
-| –
+| <<commit-c9eb45b,c9eb45b>>
 | 4:42 min
 | 15:41:58 h
 | 42.158
