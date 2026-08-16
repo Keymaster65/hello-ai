@@ -44,6 +44,8 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 
 == Ergänze
 
+== dev service ohne Spring
+
 == doc Ergänze ein Plant UML Diagram für die Abhängigkeiten der gradle Module in der Asciidoc Systemdocumentation. Ergänze die Pflege der Abhängigkeiten in den Skills. Ergänze ein ADR für Plant UML.
 
 == doc Verwende im "Systemkontext" plantuml diagram.
@@ -85,10 +87,10 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 . Backlog in Projekt
 . pull mit next
 . Getrennte Teams
+. Parallel arbeitende Teams
 
 
 === Backlog
-AI Team
 Retro
 github integration
 Ein Promt ... CR
