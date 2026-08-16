@@ -22,7 +22,7 @@
 
 | <<prompt-144,144>>
 |„Ergänze die Behandlung des Branch `po` wie die Branche `main`, `sm`, `doc`, `dev`." (aus dem Backlog, `next`)
-| –
+| <<commit-e99306a,e99306a>>
 | 2:28 min
 | 13:19:33 h
 | 18.895
