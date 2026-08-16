@@ -1,0 +1,209 @@
+// Retrospektive; entstanden aus Prompt 137 des Session-Protokolls docs/log/claudeLog.adoc.
+// Diese Datei hängt (noch) an keinem Build-Task – siehe „Offene Punkte" am Ende.
+ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
+= Retrospektive: Zusammenarbeit im Projekt
+:toc: left
+:toclevels: 2
+
+*Datum:* 2026-08-16 +
+*Anlass:* Prompt 137 – „Wie können wir die Zusammenarbeit im Project verbessern?" +
+*Datenstand:* Commit `+e46c5d7+`, 101 Commits, 142 Zeilen in `docs/log/kennzahlen.adoc`
+
+Diese Retrospektive beschreibt den *Ist-Zustand der Arbeitsweise*, nicht den des Systems – der
+steht in `docs/system`. Sie schreibt auch nichts vor: Was daraus eine Regel wird, entscheidet
+der Nutzer, und es landet dann in `docs/prompt` und in einem ADR.
+
+== Methode
+
+Gemessen wurde aus drei Quellen, ohne Schätzung:
+
+* `docs/log/kennzahlen.adoc` – Dauer und Token je Prompt, erzeugt aus dem Session-Protokoll
+  (link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027],
+  link:{adr}/0039-summenspalten-in-der-kennzahlen-tabelle{adrext}[ADR 0039]).
+* `+git log+` – Autor, Betreff und Anzahl der Commits.
+* `docs/backlog.adoc`, `docs/prompt/*.adoc` und das Verzeichnis `+.claude/+` – der Zustand der
+  Arbeitsgrundlage selbst.
+
+Zwei Einschränkungen gehören zur Zahl dazu:
+
+. *Untererfassung.* 64 der 142 Tabellenzeilen tragen keine Kennzahlen und gehen als null ein.
+  Alle Dauer- und Token-Angaben unten sind damit eine *Untergrenze*, kein Gesamtaufwand.
+. *Die Trennung „Produkt" gegen „Prozess" ist eine Heuristik.* Sie stammt aus Stichwörtern im
+  Prompt-Text (`+claudeLog+`, `+kennzahlen+`, `+skill+`, `+adr+`, `+backlog+`, `+commit+`,
+  `+next+` …). Ein Prompt, der ADR 0035 auf die Anwendung anwendet, fällt dabei auf die
+  Prozess-Seite, obwohl er Code geändert hat. Die Größenordnung trägt, die zweite Stelle nicht.
+
+== Befunde
+
+=== 1. Der Prozess ist der Hauptgegenstand der Arbeit geworden
+
+[cols="3,1,1", options="header"]
+|===
+| Bereich | Prompts | Belegte Dauer
+
+| Prozess und Dokumentation (Skills, ADRs, Protokoll, Kennzahlen, Backlog, Commits)
+| 108
+| ~9,9 h
+
+| Produkt (Anwendung, Tests, Build)
+| 32
+| ~2,7 h
+|===
+
+Derselbe Befund im Umfang: *3.528 Zeilen Java* und *1.936 Zeilen TypeScript* stehen *15.252
+Zeilen* unter `docs/` gegenüber. Neun Skills, 39 ADRs und zwei erzeugte Anhänge tragen eine
+Anwendung mit rund 5.500 Zeilen Code.
+
+Das ist kein Fehler – die Arbeitsgrundlage ist sorgfältig gebaut und hat mehrfach Fehler
+verhindert (Prompt 135: Konflikt mit ADR 0027 erkannt; Prompt 136: tote Verweise gefunden).
+Es ist eine *Verhältnisfrage*: Jede neue Regel kostet Kontext in jeder Session und
+Pflegeaufwand bei jeder Änderung.
+
+=== 2. 43 % der Prompts sind Steuerbefehle
+
+60 der 140 ausgewerteten Prompts sind `commit`, `ja, commit`, `next`, `start` oder `/clear` –
+zusammen 15 % der Dauer. Ein Teil davon ist unvermeidlich (`next` und `/clear` sind bewusst
+gesetzte Taktgeber), ein Teil nicht: Der Develop-Skill verlangt, die Commit-Message
+*vorzulegen* und *bestätigen zu lassen*. Das kostet pro Arbeitseinheit einen eigenen Prompt,
+und die Bestätigung fällt praktisch immer gleich aus („ja, commit").
+
+=== 3. Zwei Prozesse arbeiten auf einer Historie
+
+[cols="3,1", options="header"]
+|===
+| Beobachtung | Zahl
+
+| Commits gesamt
+| 101
+
+| davon vom Nutzer (`+wsluyterman+`)
+| 31
+
+| davon mit Betreff „Refinement"
+| 10
+
+| davon mit Betreff „Manueller commit"
+| 7
+
+| Log-Einträge mit `+_Commit:_+`-Zeile
+| 12 von 142
+|===
+
+Die Folge: Die Spalte „Prompt" der Git-Historie
+(link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038]) bleibt für rund
+88 % der Commits leer. Die Zuordnung entsteht nur dort, wo der Assistent selbst committet.
+
+Dazu kommt die *Bruchstelle beim Umschreiben*: In Prompt 136 hat ein interaktiver Rebase aus
+IntelliJ den Kurz-Hash des vorigen Commits ersetzt, der Verweis im Protokoll zeigte ins Leere
+und der Build wurde rot – in einer Datei, die niemand angefasst hatte. Der Butterfly-Skill
+warnt seither ausdrücklich davor, aber die Warnung beseitigt die Ursache nicht: Ein Kurz-Hash
+ist als Bindeglied nicht stabil gegen `+rebase+`, `+--amend+` und `+squash+`.
+
+Auch während der Erstellung dieser Retrospektive wurde `docs/backlog.adoc` parallel im Editor
+geändert – dieselbe Klasse von Reibung, nur ohne Schaden.
+
+=== 4. Das Backlog steht still
+
+Zum Datenstand trägt *kein einziger* Eintrag den Status `+:+` (ready) oder `+*+` (aktiv):
+`next` findet nichts Ziehbares. Von 21 Überschriften tragen 10 den Marker `+KI+` (Vorschlag,
+nicht freigegeben), die übrigen beginnen mit `+dev+`, `+doc+`, `+sm+`, `+?dev+` oder gleich mit
+dem Text.
+
+Die Präfixe `+dev+`, `+doc+` und `+sm+` *sehen aus* wie die Branchbindung nach
+link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031], sind es aber nicht –
+die Bindung verlangt den Doppelpunkt (`+:doc+`). Ohne ihn gilt „sonst: nicht ready". Genau
+diese Falle hat in Prompt 135 schon einmal zugeschlagen, dort wegen eines *fehlenden
+Leerzeichens* (`+:Ergänze+` statt `+: Ergänze+`).
+
+=== 5. Die Messung hat eine systematische Lücke
+
+82 von 142 Log-Einträgen tragen Kennzahlen. `docs/log/turn-stats.py` liest nur das Transkript
+der *laufenden* Session; nach dem verbindlichen `/clear` nach jedem Commit beginnt der Stand
+wieder bei null. Deshalb waren überhaupt erst die Summenspalten nötig (ADR 0039) – und deshalb
+bleibt der Gesamtaufwand des Projekts eine Untergrenze.
+
+=== 6. Die Werkzeugseite ist ungenutzt
+
+* `+.claude/settings.json+` existiert nicht: keine Freigabeliste (jeder `+./gradlew+`-Lauf,
+  jeder `+git+`-Aufruf kann rückfragen) und kein Hook.
+* `+.claude/skills/+` ist leer – ein Verzeichnis ohne Inhalt, während das Backlog unter
+  „butterfly timelines" von „den aktuellen Skills in `+.claude+`" spricht. Die Skills liegen
+  tatsächlich in `docs/prompt` (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR
+  0023]).
+* Der `UserPromptSubmit`-Hook, den der Butterfly-Skill selbst als deterministische Absicherung
+  des Protokolls nennt, ist nicht eingerichtet – siehe Befund 5.
+
+== Vorschläge
+
+Sortiert nach Wirkung. Keiner davon ist umgesetzt; jeder, der eine bestehende Regel ändert,
+braucht nach dem ADR-Skill zuerst eine Entscheidung.
+
+[cols="1,4,2,2", options="header"]
+|===
+| Nr. | Vorschlag | Wirkt auf | Kostet
+
+| 1
+| *Prompt-Nummer als Commit-Trailer statt Hash im Protokoll.* `+Prompt: 137+` in den
+  Commit-Body, `+gitChangelog+` liest den Trailer statt der `+_Commit:_+`-Zeile. Die Zuordnung
+  entsteht *mit* dem Commit statt einen Schritt später, `+rebase+`/`+--amend+`/`+squash+`
+  werden folgenlos – und manuelle Commits des Nutzers können sie mittragen.
+| Befund 3
+| Ablösung von ADR 0038, Änderung an `+butterfly.adoc+` und am `+gitChangelog+`-Task
+
+| 2
+| *Push- und Rückmerge-Regel.* Heute wird nur *in* den aktuellen Branch gemergt, ohne Push
+  (ADR 0034, „Nachteile"). `main`, `sm` und `doc` laufen dauerhaft auseinander. Entweder nach
+  dem Merge pushen – oder die Konsequenz ausdrücklich als gewollt festhalten.
+| Befund 3
+| Änderung an `+develop.adoc+`, ADR zu 0032/0034
+
+| 3
+| *Commit in einem Schritt.* `commit` als Freigabe werten; die Message steht ohnehin im
+  Protokoll und ist bis zum nächsten Commit korrigierbar. Spart rund 30 von 140 Prompts.
+| Befund 2
+| Ablösung der Regel „Message-Bestätigung (Pflicht)" in `+develop.adoc+`
+
+| 4
+| *`+.claude/settings.json+` anlegen:* Freigabeliste für `+./gradlew+`, `+git+` und
+  `+python3 docs/log/*.py+`, dazu der `UserPromptSubmit`-Hook aus dem Butterfly-Skill. Leeres
+  `+.claude/skills/+` entfernen oder erklären.
+| Befund 5, 6
+| Eine Datei, keine Regeländerung
+
+| 5
+| *Backlog-Lint*, analog `+kennzahlen.py+`: prüft Statuszeichen, das Leerzeichen hinter `+:+`,
+  höchstens einen aktiven Eintrag und Branchbindungen an Branches, die es gibt. Läuft vor
+  `next` und im Build.
+| Befund 4
+| Ein Skript, Ergänzung in `+po.adoc+`
+
+| 6
+| *Prozessarbeit nur gegen belegte Reibung.* Eine neue Regel, ein neuer Skill oder eine neue
+  Kennzahl erst, wenn ein Log-Eintrag den Schmerz zeigt. Optional als Spalte „Produkt/Prozess"
+  in der Kennzahlen-Tabelle sichtbar halten.
+| Befund 1
+| Eine Grundregel im Master-Prompt
+|===
+
+*Stand 2026-08-16:* Vorschlag 3 ist umgesetzt –
+link:{adr}/0040-commit-freigabe-in-einem-schritt{adrext}[ADR 0040] löst die Regel
+„Message-Bestätigung (Pflicht)" des Develop-Skills ab. Die übrigen fünf stehen offen. Diese
+Retrospektive wird dabei *nicht* umgeschrieben: Sie hält den Stand vom 2026-08-16 fest, so wie
+ein ADR den Stand seiner Entscheidung hält.
+
+Der wirksamste Hebel sind *1 und 2 zusammen*: Sie machen aus zwei parallelen Arbeitsweisen –
+Nutzer in der IDE, Assistent auf der Kommandozeile – eine gemeinsame, ohne dass eine Seite ihre
+Gewohnheit aufgeben muss.
+
+== Offene Punkte dieser Datei
+
+* *Der Ort ist neu.* `docs/prompt/prompt.adoc` führt unter „Zweck und Abgrenzung" fünf
+  Dokumentationsarten; `docs/retro` ist die sechste und dort noch nicht genannt. Ob
+  Retrospektiven bleiben, wo sie hier liegen, und ob sie in die Systemdokumentation gehören,
+  ist eine Entscheidung – und damit ein ADR.
+* *Kein Build-Task erfasst diese Datei.* `+./gradlew asciidoctor+` rendert `docs/system/system.adoc`
+  samt Includes, `+asciidoctorPrompt+` die Arbeitsgrundlage, `+asciidoctorAdr+` die ADRs.
+  Diese Datei hängt an keinem davon: Ein kaputter Verweis fiele hier *nicht* auf.
+* *Die Vorschläge stehen noch nicht im Backlog.* Nach dem PO-Skill gehören sie dorthin mit dem
+  Marker `+KI+` – freigegeben werden sie erst, wenn der Nutzer ihn durch `+:+` ersetzt.

@@ -85,8 +85,10 @@ Historie mitschleppt, ist nach zwanzig Prompts keine Arbeitsliste mehr.
   gesagt – zusammen mit den Einträgen, die in Frage kämen: nicht-ready-Einträge und solche, die
   an einen anderen Branch gebunden sind. Nichts wird ersatzweise ausgeführt.
 . *Rückfrage (Pflicht):* Den Eintrag im *Wortlaut* vorlegen und fragen, ob er jetzt
-  ausgeführt wird. Ohne Bestätigung passiert nichts – wie bei der Commit-Message im
-  Develop-Skill.
+  ausgeführt wird. Ohne Bestätigung passiert nichts: *Was* gearbeitet wird, entscheidet der
+  Nutzer. Diese Rückfrage bleibt – anders als die Bestätigung der Commit-Message, die
+  link:{adr}/0040-commit-freigabe-in-einem-schritt{adrext}[ADR 0040] abgelöst hat. Der
+  Unterschied ist der Gegenstand: hier eine Aufgabe, dort eine Formulierung.
 . *Marker setzen:* `+:+` → `+*+` in der Überschrift, Datei speichern – *vor* der Arbeit. Bricht
   der Turn danach ab, steht der Zustand trotzdem richtig in der Datei. Ersetzt wird nur das
   *erste Zeichen*; eine Bindung bleibt stehen (`+:ai1+` → `+*ai1+`).

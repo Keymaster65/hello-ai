@@ -1,0 +1,147 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= ADR 0040: Commit-Freigabe in einem Schritt
+
+== Status
+
+Akzeptiert – 2026-08-16
+
+Löst die Regel *„Message-Bestätigung (Pflicht)"* aus `docs/prompt/develop.adoc` ab. Der Wortlaut
+dort lautete:
+
+[quote]
+____
+Die vorgeschlagene Commit-Message wird dem Nutzer *im Prompt vorgelegt und muss von ihm
+bestätigt werden*, bevor committet wird. Ohne Bestätigung erfolgt *kein* Commit; bei
+Änderungswunsch wird die Message angepasst und erneut zur Bestätigung vorgelegt.
+____
+
+Die Regel stand nur im Skill, nie in einem eigenen ADR. Drei ältere ADRs nennen sie beiläufig
+als geltend – link:0030-pull-vor-next{adrext}[ADR 0030],
+link:0032-branches-nach-jedem-commit-mergen{adrext}[ADR 0032] und
+link:0034-arbeitsbranches-vor-dem-merge-holen{adrext}[ADR 0034]. Sie bleiben *wortgleich*
+stehen, auch die Sätze, die dadurch überholt sind (ADR-Skill: „ADRs werden nicht
+umgeschrieben"). Wer sie liest, findet die geltende Fassung hier.
+
+== Kontext
+
+Der Ablauf einer Arbeitseinheit endete bisher mit *zwei* Prompts: `commit` – Message vorlegen –
+`ja, commit`. Das Session-Protokoll zeigt, wie oft der zweite Schritt gebraucht wurde, um etwas
+zu ändern: nie. Von 177 protokollierten Prompts sind *mindestens 18* reine Bestätigungen
+(zwölfmal „Ja, so committen", dreimal „ja, commit", dreimal ein zweites „commit", im Protokoll
+als „Bestätigung der vorgelegten Message" vermerkt) – rund jeder zehnte Prompt, ohne dass eine
+Message dabei je verworfen worden wäre.
+
+Der Schritt kostet damit einen vollen Turn: neuer Kontext, neue Werkzeugläufe, ein Eintrag im
+Protokoll, eine Zeile in der Kennzahlen-Tabelle. Der teuerste gemessene Turn dieser Art ist
+Prompt 131 („ja, commit") mit *53:14 min* – die Zeit ging in die Definition of Done und das
+Zusammenführen der Branches, die *nach* der Bestätigung laufen. Genau dieser Aufbau macht die
+Bestätigung zur Formsache: Bestätigt wird eine Message, deren eigentliche Vorbedingung – der
+grüne Lauf – erst danach geprüft wird.
+
+Dazu kommt eine Unstimmigkeit, die ADR 0032 schon benannt hat: Merge-Commits entstehen ohne
+Bestätigung („eine Lücke in der Regel des Develop-Skills, bewusst in Kauf genommen"). Die Regel
+galt also ohnehin nicht für jeden Commit.
+
+Der Anlass ist Vorschlag 3 der Retrospektive `docs/retro/2026-08-16-zusammenarbeit.adoc`.
+
+== Optionen
+
+. *Alles lassen wie es war.* Verworfen: Der Schritt kostet nachweislich rund jeden zehnten
+  Prompt und hat in 140 Einträgen keine einzige Message verändert. Eine Vorbedingung, die nie
+  greift, schützt nichts – sie gewöhnt nur daran, sie durchzuwinken.
+. *Bestätigung nur bei „großen" Commits*, etwa ab einer Zahl geänderter Dateien. Verworfen: Die
+  Schwelle wäre Auslegungssache, und ausgerechnet der Assistent entschiede, wann er sich die
+  Rückfrage erspart. Eine Regel, die der Geprüfte selbst auslöst, ist keine.
+. *Bestätigung im Editor* – `git commit` ohne `-m`, der Nutzer schreibt die Message selbst.
+  Verworfen: Der Assistent arbeitet über nicht-interaktive Shell-Aufrufe; einen Editor kann er
+  nicht bedienen, und der Nutzer säße dann in einem Werkzeug, das der Assistent nicht sieht.
+. *Message verpflichtend im Befehl mitgeben* (`+commit: <Betreff>+`). Als *alleinige* Form
+  verworfen: Sie verlagert das Formulieren auf den Nutzer, der es meist gerade nicht tun will.
+  Als *Angebot* ist sie übernommen – siehe Entscheidung, Punkt 3.
+. *`commit` ist die Freigabe, die Message bleibt danach korrigierbar* – gewählt.
+
+== Entscheidung
+
+. *Der Befehl ist die Freigabe.* Schreibt der Nutzer `commit` (oder gleichbedeutend „committe
+  das", „commit!"), formuliert der Assistent die Message und committet – ohne Zwischenfrage.
+  Ohne diesen Befehl wird weiterhin *nicht* committet: Ob committet wird, entscheidet
+  unverändert der Nutzer, nur nicht mehr zweimal.
+. *Die Message steht im Ergebnis.* Die Antwort des Turns nennt Betreff und Rumpf im Wortlaut
+  sowie den entstandenen Kurz-Hash. Sie ist damit lesbar, ohne dass jemand `+git log+` bemühen
+  muss – und sie steht ohnehin schon im Protokolleintrag, der *vor* dem Commit geschrieben wird
+  (Develop-Skill, „Log vor Commit").
+. *Der Nutzer kann die Message vorgeben:* `+commit: <Betreff>+`. Dann wird dieser Betreff
+  *wörtlich* übernommen und nur der Rumpf ergänzt.
+. *Korrektur statt Vorabprüfung.* Passt die Message nicht, wird sie mit
+  `+git commit --amend+` geändert – aber nur, solange *kein weiterer Commit* darauf liegt und
+  nichts gepusht oder gemergt wurde. Danach ist sie Historie und bleibt stehen.
++
+IMPORTANT: Der `+--amend+` vergibt einen *neuen* Kurz-Hash. Die Zeile `+_Commit: …_+` im
+Protokoll ist deshalb im selben Zug nachzuziehen, sonst zeigt sie ins Leere und der Build wird
+rot (link:0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038], Butterfly-Skill).
+Das ist der Preis dieser Entscheidung: Der Handgriff fällt beim Korrigieren an – statt bei
+jedem Commit.
+. *Bestätigungspflichtig bleibt, was inhaltlich ist*, nicht was formal ist: ein offener Punkt
+  der Definition of Done, ein Merge-Konflikt, dessen Absicht nicht aus dem Konflikt selbst
+  hervorgeht (Develop-Skill, „Die Grenze bei Konflikten"), die Ablösung eines ADR (ADR-Skill)
+  und die Rückfrage vor dem Ausführen eines gezogenen Backlog-Eintrags (PO-Skill).
+
+== Konsequenzen
+
+*Vorteile*
+
+* Eine Arbeitseinheit endet in *einem* Prompt statt in zweien; rund jeder zehnte Prompt
+  entfällt, samt Turn, Protokolleintrag und Tabellenzeile.
+* Die Regel deckt sich wieder mit der gelebten Praxis: Merge-Commits entstanden schon bisher
+  ohne Bestätigung (ADR 0032). Die Ausnahme verschwindet, weil die Regel ihr folgt – nicht
+  umgekehrt.
+* Der Nutzer liest die Message *einmal*, im Ergebnis, zusammen mit dem Nachweis, dass der
+  Commit steht.
+
+*Nachteile*
+
+* Eine unpassende Message fällt erst *nach* dem Commit auf. Die Korrektur kostet einen
+  `+--amend+` und das Nachziehen der Protokollzeile – mehr Aufwand als eine abgelehnte
+  Bestätigung vorher gekostet hätte.
+* Der natürliche Haltepunkt vor dem Commit entfällt. Wem beim Lesen der vorgelegten Message
+  auffiel, dass etwas fehlt, der konnte ihn abwenden; jetzt steht der Commit bereits. Dagegen
+  steht die Definition of Done, die *vor* dem Commit vollständig zu erfüllen ist – sie ist die
+  eigentliche Vorbedingung, und sie bleibt unangetastet.
+* Drei ältere ADRs (0030, 0032, 0034) beschreiben den Ablauf weiterhin *mit* Bestätigung. Sie
+  sind historisch und werden nicht angefasst; wer nur dort liest, findet die überholte Fassung.
+
+*Bewusst nicht getan*
+
+* *Keine Änderung an der Definition of Done* und an ihrer Stellung als Vorbedingung jedes
+  Commits.
+* *Kein automatischer Commit.* Weder ein Hook noch der Abschluss einer Aufgabe löst einen
+  Commit aus; es bleibt beim Befehl des Nutzers.
+* *Keine Änderung an der Rückfrage des PO-Skills* vor dem Ausführen eines Backlog-Eintrags. Sie
+  betrifft, *was gearbeitet wird* – das ist eine inhaltliche Entscheidung, keine Formsache.
+* *Keine Anpassung der ADRs 0030, 0032 und 0034*, die die alte Regel erwähnen.
+* *Kein `+--no-verify+`, kein Umgehen von Prüfungen* – die Entscheidung spart eine Rückfrage,
+  keine Kontrolle.
+
+== Prüfung
+
+* *Auszählung des Session-Protokolls* (`docs/log/claudeLog.adoc`, Stand Commit `+e46c5d7+`):
+  177 Prompts in den Überschriften, davon 25 reine „Ja"-Antworten und darunter mindestens 18
+  Bestätigungen einer vorgelegten Commit-Message. Kein Eintrag verzeichnet eine dabei
+  *geänderte* Message.
+* *Kennzahlen-Tabelle* (`docs/log/kennzahlen.adoc`): Der Bestätigungs-Turn zu Prompt 131 steht
+  mit 53:14 min, die drei „ja, commit"-Turns zusammen mit über einer Stunde.
+* *Dokumentation gebaut:* `+./gradlew asciidoctorAdr+`, `+asciidoctorPrompt+` und
+  `+asciidoctor+` übersetzen die geänderten Dateien fehlerfrei; der Index in
+  `docs/system/system.adoc` führt dieses ADR als erste Zeile.
+
+== Referenzen
+
+* `docs/prompt/develop.adoc` – Commit-Regeln; dort wirkt diese Entscheidung
+* `docs/prompt/butterfly.adoc` – Protokolleintrag vor dem Commit, `+_Commit:_+`-Zeile danach
+* `docs/retro/2026-08-16-zusammenarbeit.adoc` – Befund 2 und Vorschlag 3, der Anlass
+* link:0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038] – warum ein `+--amend+`
+  die Protokollzeile ungültig macht
+* link:0032-branches-nach-jedem-commit-mergen{adrext}[ADR 0032],
+  link:0034-arbeitsbranches-vor-dem-merge-holen{adrext}[ADR 0034],
+  link:0030-pull-vor-next{adrext}[ADR 0030] – nennen die abgelöste Regel

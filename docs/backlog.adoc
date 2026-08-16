@@ -88,13 +88,15 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 . pull mit next
 . Getrennte Teams
 . Parallel arbeitende Teams
+. Retro
 
 
 === Backlog
-Retro
 github integration
-Ein Promt ... CR
-Kommentare führen zu PRs
+  Arbeit im Branch, z. B. dev
+  Push mit MR
+  Kommentar in github
+  Kommentare führen zu MR auf MR
 
 == KI Ergänze eine CHECK-Bedingung auf der Spalte `difficulty`
 

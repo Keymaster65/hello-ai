@@ -19,6 +19,58 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| 140
+|„commit"
+| 25 s
+| 12:49:44 h
+| 3.552
+| 3.044.175
+| 2.398
+| 19.235.767
+| 276.160
+| 14:08 min
+| 114.286
+| 9.802.448
+
+| 139
+|„Realisiere Vorschlag 3"
+| 6:45 min
+| 12:49:19 h
+| 46.054
+| 3.040.623
+| 94.652
+| 19.233.369
+| 5.022.742
+| 13:03 min
+| 107.777
+| 9.120.721
+
+| 138
+|„Lege Dein Ergebnis unter docs/retro ab"
+| 2:15 min
+| 12:42:34 h
+| 18.799
+| 2.994.569
+| 204.305
+| 19.138.717
+| 1.641.426
+| 5:49 min
+| 59.793
+| 3.821.774
+
+| 137
+|„Wie können wir die Zusammenarbeit im Project verbessern?"
+| 2:36 min
+| 12:40:19 h
+| 33.061
+| 2.975.770
+| 173.522
+| 18.934.412
+| 1.644.977
+| 2:36 min
+| 33.061
+| 1.644.977
+
 | 136
 |„Bewege in kennzahlen die akkumulierten Summen jeweils hinter die Spalte die akkumuliert ist" (aus dem Backlog, `next`)
 | 4:45 min

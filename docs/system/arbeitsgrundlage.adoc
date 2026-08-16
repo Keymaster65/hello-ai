@@ -71,7 +71,8 @@ herein, also gibt es keine zweite Fassung, die veralten kann.
   ist der Anhang <<backlog>>.
 
 | `docs/prompt/develop.adoc`
-| Skill: Commit-Regeln – Definition of Done als Vorbedingung, Author, Message-Bestätigung,
+| Skill: Commit-Regeln – Definition of Done als Vorbedingung, Author, Freigabe im Befehl
+  `commit` (link:{adr}/0040-commit-freigabe-in-einem-schritt{adrext}[ADR 0040]),
   Zusammenführen der übrigen Branches und `/clear` danach.
 |===
 

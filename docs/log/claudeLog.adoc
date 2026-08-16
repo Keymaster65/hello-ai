@@ -9,6 +9,138 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-140]]
+== 140. Prompt: „commit"
+
+_Delta: 25 s · 3.552 Token out · 2.398 Token in (neu) · 276.160 Token gesamt_
+_Stand (Session, 4 Prompts): 14:08 min · 114.286 Token out · 9.802.448 Token gesamt_
+
+*Aktionen:*
+
+* *Erster Commit nach der neuen Regel* (link:{adr}/0040-commit-freigabe-in-einem-schritt{adrext}[ADR 0040]):
+  keine Rückfrage, Message im Ergebnis genannt.
+* *Umfang:* ADR 0040, die vier nachgezogenen Stellen (`+develop.adoc+`, `+po.adoc+`,
+  `+adr.adoc+`, `+arbeitsgrundlage.adoc+`, ADR-Index in `+system.adoc+`), die erste
+  Retrospektive unter `docs/retro/` und die Protokolleinträge 137–140 samt Kennzahlen-Tabelle.
+* *Definition of Done:* Dokumentation gebaut – `+asciidoctorAdr+`, `+asciidoctorPrompt+` und
+  `+asciidoctor+` grün. Keine Testläufe: Seit dem letzten grünen Lauf (Prompt 135) haben alle
+  Commits ausschließlich `docs/` berührt, diese Änderung ebenso.
+* *Trailer:* `+Co-Authored-By: Claude Opus 5 (1M context)+` – der Develop-Skill nennt wörtlich
+  „Opus 4.8". Der Trailer soll das *tatsächlich* arbeitende Modell benennen; genau dafür liegt
+  ein `+KI+`-Eintrag im Backlog („Halte den Co-Authored-By-Trailer im Develop-Skill
+  modellunabhängig").
+* *Nicht mitcommittet:* `docs/backlog.adoc` – die Datei trägt eine Änderung des Nutzers aus
+  diesem Turn (Retro nach „Historie" verschoben, MR-Zeilen ergänzt). Fremde Arbeit wandert nicht
+  ungefragt in einen Commit, der etwas anderes begründet.
+
+'''
+
+[[prompt-139]]
+== 139. Prompt: „Realisiere Vorschlag 3"
+
+_Delta: 6:45 min · 46.054 Token out · 94.652 Token in (neu) · 5.022.742 Token gesamt_
+_Stand (Session, 3 Prompts): 13:03 min · 107.777 Token out · 9.120.721 Token gesamt_
+
+*Aktionen:*
+
+* *Vorschlag 3 der Retrospektive umgesetzt:* Die Bestätigung der Commit-Message entfällt; der
+  Befehl `commit` *ist* die Freigabe.
+* *ADR 0040 geschrieben* („Commit-Freigabe in einem Schritt"): löst die Regel
+  „Message-Bestätigung (Pflicht)" aus `+develop.adoc+` ab – die Regel stand nur im Skill, nie
+  in einem eigenen ADR. Fünf Optionen, darunter die verworfene Schwelle „nur bei großen
+  Commits" und die Bestätigung im Editor (der Assistent kann keinen bedienen).
+* *Beleg statt Behauptung:* 177 Prompts in den Überschriften des Protokolls, davon 25 reine
+  „Ja"-Antworten und *mindestens 18* Bestätigungen einer vorgelegten Message (12× „Ja, so
+  committen", 3× „ja, commit", 3× ein zweites „commit"). Kein Eintrag verzeichnet eine dabei
+  *geänderte* Message – die Vorbedingung hat in 140 Einträgen nie gegriffen.
+* *Vier Stellen nachgezogen*, die die alte Regel trugen: `+develop.adoc+` (neue Regel samt
+  Korrekturweg über `+--amend+` und dem Nachziehen der `+_Commit:_+`-Zeile), `+po.adoc+` (die
+  Rückfrage vor einem Backlog-Eintrag bleibt – sie betrifft die *Aufgabe*, nicht die
+  Formulierung), `+arbeitsgrundlage.adoc+` (Ist-Zustand des Develop-Skills) und der ADR-Index in
+  `+system.adoc+` als erste Zeile. Dazu der Wegweiser in `+adr.adoc+` (Zeile „Commit,
+  Zusammenführen von Branches"; die Zahl „36" dort war veraltet, jetzt 40).
+* *Nicht angefasst:* ADR 0030, 0032 und 0034 nennen die alte Regel beiläufig. Sie bleiben
+  wortgleich (ADR-Skill: „ADRs werden nicht umgeschrieben"); ADR 0040 benennt sie ausdrücklich,
+  damit der Widerspruch nicht als Versehen gelesen wird.
+* *Retrospektive fortgeschrieben, nicht umgeschrieben:* eine Zeile „Stand 2026-08-16" unter der
+  Vorschlagstabelle – Vorschlag 3 umgesetzt, fünf offen.
+* *Dokumentation gebaut:* `+asciidoctorAdr+`, `+asciidoctorPrompt+` und `+asciidoctor+` grün
+  (1:56 min). Die zwei Meldungen des `+asciidoctor+`-Tasks bestehen weiter; gegengeprüft, dass
+  sie *nicht* von dieser Änderung stammen: Dieselbe Meldung („id assigned to section already in
+  use: prompt-minus2") entsteht auch mit der Fassung des Protokolls aus `+HEAD+`, nur in Zeile
+  3457 statt 3520. Der Backlog-Eintrag dazu beschreibt allerdings die *frühere* erste Meldung
+  („section title out of sequence"), die inzwischen verschwunden ist.
+* *Keine Testläufe:* Seit dem letzten grünen Lauf (Prompt 135) haben alle Commits – `+8bbdc6d+`,
+  `+e46c5d7+` – ausschließlich `docs/` berührt, ebenso diese Änderung. Der Lauf gilt weiter
+  (Butterfly-Skill).
+* *Kein Commit:* Der Nutzer hat ihn nicht verlangt – und nach der neuen Regel bleibt genau das
+  die Bedingung.
+
+'''
+
+[[prompt-138]]
+== 138. Prompt: „Lege Dein Ergebnis unter docs/retro ab"
+
+_Delta: 2:15 min · 18.799 Token out · 204.305 Token in (neu) · 1.641.426 Token gesamt_
+_Stand (Session, 2 Prompts): 5:49 min · 59.793 Token out · 3.821.774 Token gesamt_
+
+*Aktionen:*
+
+* *Angelegt:* `docs/retro/2026-08-16-zusammenarbeit.adoc` – die Einschätzung aus Prompt 137 als
+  AsciiDoc, mit Datenstand (Commit `+e46c5d7+`), Methode samt ihren zwei Einschränkungen, sechs
+  Befunden, sechs Vorschlägen in einer Tabelle und einem Abschnitt „Offene Punkte".
+* *Methode mitgeschrieben statt nur das Ergebnis:* Die Trennung „Produkt/Prozess" ist eine
+  Stichwort-Heuristik, und 64 der 142 Tabellenzeilen tragen keine Kennzahlen – beides steht in
+  der Datei, damit die Zahlen nicht fester wirken, als sie sind.
+* *Gerendert und geprüft:* `+asciidoctor+` (lokal per Gem installiert) übersetzt die Datei
+  meldungsfrei; drei Tabellen, alle sechs `+link:+`-Verweise auf vorhandene ADRs.
+* *Kein Build-Task erfasst `docs/retro`:* `+asciidoctor+` rendert `+system.adoc+`,
+  `+asciidoctorPrompt+` die Arbeitsgrundlage, `+asciidoctorAdr+` die ADRs – diese Datei hängt an
+  keinem davon. Ebenso fehlt der Ort in der Abgrenzungstabelle von `+prompt.adoc+`. Beides ist
+  in der Datei als offener Punkt vermerkt, nicht im Vorbeigehen entschieden.
+* *Nicht getan:* keine Regel geändert, kein ADR geschrieben, kein Backlog-Eintrag ergänzt – die
+  Vorschläge bleiben Vorschläge.
+
+'''
+
+[[prompt-137]]
+== 137. Prompt: „Wie können wir die Zusammenarbeit im Project verbessern?"
+
+_Delta: 2:36 min · 33.061 Token out · 173.522 Token in (neu) · 1.644.977 Token gesamt_
+_Stand (Session, 1 Prompts): 2:36 min · 33.061 Token out · 1.644.977 Token gesamt_
+
+*Antwort:* Reine Frage – keine Datei außer diesem Protokoll geändert, kein Commit. Die
+Einschätzung stützt sich auf Zahlen aus `+kennzahlen.adoc+`, `+git log+` und dem Backlog:
+
+* *Aufwandsverteilung:* 140 Zeilen der Kennzahlen-Tabelle, 12,63 h belegte Dauer. Nach
+  Stichwort getrennt entfallen rund 9,9 h (108 Prompts) auf Prozess und Dokumentation, rund
+  2,7 h (32 Prompts) auf das Produkt. Umfang: 3.528 Zeilen Java und 1.936 Zeilen TypeScript
+  gegen 15.252 Zeilen unter `+docs/+`.
+* *Steuerbefehle:* 60 der 140 Prompts sind `commit`, `ja, commit`, `next`, `start` oder
+  `/clear` – 43 % der Prompts, 15 % der Zeit. Ursache ist unter anderem die zweistufige
+  Bestätigung des Develop-Skills.
+* *Zwei Prozesse auf einer Historie:* 31 der 101 Commits stammen vom Nutzer, davon 10
+  „Refinement" und 7 „Manueller commit" – ohne Log-Eintrag und ohne Commit-Zeile. Nur 12 der
+  141 Log-Einträge tragen eine `+_Commit:_+`-Zeile; die Spalte „Prompt" der Git-Historie
+  bleibt damit für rund 88 % der Commits leer.
+* *Rebase als Bruchstelle:* Prompt 136 hat gezeigt, dass ein Rewrite aus der IDE den Build
+  rot macht, weil der eingetragene Kurz-Hash verschwindet (ADR 0038).
+* *Backlog steht still:* kein einziger Eintrag trägt `+:+` oder `+*+` – `next` findet aktuell
+  nichts Ziehbares. Die Präfixe `+dev+`, `+doc+`, `+sm+` sehen wie Branchbindungen aus, sind
+  nach ADR 0031 aber „nicht ready".
+* *Messlücke:* 82 von 141 Einträgen tragen Kennzahlen; `+turn-stats.py+` sieht nur die
+  laufende Session, und `+/clear+` nach jedem Commit setzt den Stand zurück.
+* *Werkzeugseite:* `+.claude/settings.json+` fehlt (keine Freigabeliste, keine Hooks),
+  `+.claude/skills/+` ist leer – der im Butterfly-Skill genannte `UserPromptSubmit`-Hook ist
+  nicht eingerichtet.
+
+Sechs Vorschläge vorgelegt (Rückfrage offen, ob sie als `+KI+`-Einträge ins Backlog wandern):
+Commit-Bestätigung in einem Schritt, Prompt-Nummer als Commit-Trailer statt Hash im Log,
+Backlog-Lint analog `+kennzahlen.py+`, `+settings.json+` mit Freigabeliste und Hook,
+Push/Rückmerge-Regel für die Arbeitsbranches, Prozessarbeit nur gegen belegte Reibung.
+
+'''
+
 [[prompt-136]]
 == 136. Prompt: „Bewege in kennzahlen die akkumulierten Summen jeweils hinter die Spalte die akkumuliert ist" (aus dem Backlog, `next`)
 
