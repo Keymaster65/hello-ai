@@ -94,7 +94,7 @@ include::adr.adoc[leveloffset=+1]
 
 include::tests.adoc[leveloffset=+1]
 
-include::security.adoc[leveloffset=+1]
+include::security-backend.adoc[leveloffset=+1]
 
 include::systemdokumentation.adoc[leveloffset=+1]
 
@@ -139,8 +139,10 @@ gepflegt, die sie betrifft.
 | `tests.adoc`; die Teststufen selbst stehen in `docs/system/qualitaetssicherung.adoc`
 
 | Neue Sicherheitsregel für das Backend, geänderte Anforderung an `security.txt`
-| `security.adoc`; der *Zustand* – welche Lücke offen ist – bleibt in
-  `docs/system/betrieb.adoc`, „Offene Punkte"
+| `security-backend.adoc`; der *Zustand* – welche Lücke offen ist – bleibt in
+  `docs/system/betrieb.adoc`, „Offene Punkte". Regeln für die SPA gehören *nicht* hierher,
+  sondern in den eigenen Frontend-Skill
+  (link:{adr}/0048-security-skill-je-seite{adrext}[ADR 0048])
 
 | Neue Regel zur Pflege der Systemdokumentation
 | `systemdokumentation.adoc`

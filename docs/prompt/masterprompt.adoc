@@ -71,11 +71,13 @@ gelesen – anders als dieser Master-Prompt, der in jeder Session gilt
 | `docs/prompt/tests.adoc`
 | Schreiben, Prüfen oder Refactoring von Tests
 
-| Security
-| `docs/prompt/security.adoc`
+| Security Backend
+| `docs/prompt/security-backend.adoc`
 | Änderungen, die die Angriffsfläche des Backends berühren: Endpunkt, Fehlerbild, Abfrage,
   Protokoll, Konfiguration, Abhängigkeit, offener Pfad; enthält die Bindung an RFC 9116
-  (link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035])
+  (link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035]). Je Seite ein eigener
+  Skill – der für das Frontend fehlt noch
+  (link:{adr}/0048-security-skill-je-seite{adrext}[ADR 0048])
 
 | Systemdokumentation
 | `docs/prompt/systemdokumentation.adoc`

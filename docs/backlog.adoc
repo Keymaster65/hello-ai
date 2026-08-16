@@ -42,8 +42,6 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 `git`.
 
 
-== : Bennene den Skill security um in security-backend
-
 == : Erstelle den security Skill für das frontend.
 
 == : Konsolidiere alle Skills und ADR so, dass keine ADR mehr notwendig sind, alle die Inhalte auf die Skills verteilt werden. Wenn sinnvoll erzeuge neue Skills.

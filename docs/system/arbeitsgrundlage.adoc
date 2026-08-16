@@ -47,11 +47,12 @@ herein, also gibt es keine zweite Fassung, die veralten kann.
 | Skill: Testpyramide, Prinzipien (AAA, F.I.R.S.T.), Beispiele für Unit-, Slice- und
   Integrationstests, Mocking-Regeln.
 
-| `docs/prompt/security.adoc`
+| `docs/prompt/security-backend.adoc`
 | Skill: Sicherheit im Backend – Grundsätze, Pflichten je Anlass (Endpunkt, Fehlerbild,
   Abfrage, Protokoll, Konfiguration, Abhängigkeit, offener Pfad) und die Bindung an RFC 9116
-  mit `security.txt` (link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035]). Der
-  Geltungsbereich ist zunächst das Backend; das Frontend kommt in dieselbe Datei
+  mit `security.txt` (link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035]). Je
+  Seite gibt es einen eigenen Skill; `security-frontend.adoc` fehlt noch und steht im Backlog
+  (link:{adr}/0048-security-skill-je-seite{adrext}[ADR 0048])
 
 | `docs/prompt/systemdokumentation.adoc`
 | Skill: Pflege *dieser* Systemdokumentation – welche Änderung welches Kapitel berührt, dazu
@@ -143,7 +144,7 @@ skinparam componentStyle rectangle
 
 file "CLAUDE.md" as claude
 file "docs/prompt/masterprompt.adoc" as master
-file "docs/prompt/*.adoc\n\narchitektur · adr · tests · security\nsystemdokumentation · butterfly\nmanager · po · develop" as skills
+file "docs/prompt/*.adoc\n\narchitektur · adr · tests · security-backend\nsystemdokumentation · butterfly\nmanager · po · develop" as skills
 
 claude --> master : @-Import\njede Session, vollständig
 claude --> skills : nennt Pfad und Anlass\nnur bei Anlass gelesen
@@ -222,7 +223,7 @@ include::../prompt/adr.adoc[leveloffset=+2]
 
 include::../prompt/tests.adoc[leveloffset=+2]
 
-include::../prompt/security.adoc[leveloffset=+2]
+include::../prompt/security-backend.adoc[leveloffset=+2]
 
 include::../prompt/systemdokumentation.adoc[leveloffset=+2]
 

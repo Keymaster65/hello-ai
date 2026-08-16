@@ -1,0 +1,143 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= ADR 0048: Ein Security-Skill je Seite – `security-backend.adoc`
+
+== Status
+
+Akzeptiert – 2026-08-16. Löst die Festlegung „Zuschnitt Backend / Frontend" aus
+link:0035-security-skill-und-security-txt{adrext}[ADR 0035] ab: Statt *einer* Datei
+`security.adoc` mit Abschnitten je Seite gibt es *je Seite eine* Datei. Alles Übrige aus
+ADR 0035 – der Skill selbst, seine Grundsätze und die Bindung an RFC 9116 – gilt unverändert.
+
+== Kontext
+
+link:0035-security-skill-und-security-txt{adrext}[ADR 0035] hat den Security-Skill angelegt und
+dabei zwei Wege erwogen: zwei Dateien `security-backend.adoc` und `security-frontend.adoc` oder
+eine Datei `security.adoc` mit einem Abschnitt je Seite. Gewählt wurde die eine Datei, mit dem
+Argument, die Hälfte der Regeln gelte für beide Seiten und stünde sonst zweimal da. Der
+Frontend-Teil fehlte damals; der Titel „Skill: Security – Backend" hielt die Lücke sichtbar.
+
+Seither ist die Lage anders:
+
+* *Der Frontend-Teil ist fällig geworden.* Er steht als eigener Backlog-Eintrag unmittelbar
+  hinter der Umbenennung – die zweite Seite ist damit keine Absichtserklärung mehr, sondern die
+  nächste Arbeitseinheit.
+* *Der Anlass ist ein anderer.* Der Backend-Skill wird gelesen, wenn ein Endpunkt, ein
+  Fehlerbild, eine Abfrage, ein Konfigurationswert oder eine Abhängigkeit die Angriffsfläche des
+  *Servers* berührt. Für das Frontend gelten andere Auslöser. Ein Skill wird bei Bedarf gelesen
+  (link:0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]) – eine Datei, die beide
+  Seiten trägt, zwingt zum Lesen beider.
+* *Die Rolle ist eine andere.* Der Master-Prompt unterscheidet Senior Java-Entwickler und Senior
+  TypeScript-Entwickler nach bearbeiteter Datei. Der Zuschnitt der Skills folgt dieser Trennung
+  bereits an anderer Stelle nicht – hier fiel sie zusammen.
+* *Der Name `security.adoc` sagte den Geltungsbereich nicht.* Er stand nur im Titel *innerhalb*
+  der Datei. Wer die Dateiliste liest, sah einen Skill, der für alles zu gelten schien.
+
+Das Argument von ADR 0035 – doppelte Regeln – ist damit nicht widerlegt, aber es wiegt weniger
+als der Kontextverbrauch und die Auffindbarkeit.
+
+== Optionen
+
+. *Alles lassen, den Frontend-Teil als Abschnitt ergänzen.* Verworfen: Wer eine React-Route
+  ändert, lädt dann die vollständigen Backend-Regeln zu jOOQ, Protokollausgabe und
+  `security.txt` mit. Genau das soll der Zuschnitt eines Skills verhindern.
+. *Eine Datei behalten und den Namen unverändert lassen, aber intern nach Seiten gliedern.*
+  Verworfen: dieselbe Wirkung wie oben; die Gliederung hilft dem Leser, nicht dem Ladeweg.
+. *Je Seite eine Datei, gemeinsame Regeln im Backend-Skill lassen* – verworfen: Der
+  Frontend-Skill hinge dann an der Datei der anderen Seite und wäre nicht für sich lesbar.
+. *Je Seite eine Datei, gemeinsame Regeln in beiden nennen* – verworfen: Das ist die Doppelung,
+  vor der ADR 0035 gewarnt hat, ohne Absicherung dagegen.
+. *Je Seite eine Datei; was für beide gilt, steht genau einmal und wird verlinkt* – gewählt. Der
+  Backend-Skill trägt die Regeln, die den Server betreffen, und die Bindung an RFC 9116; der
+  Frontend-Skill trägt die Regeln der SPA und verweist für Gemeinsames auf den Backend-Skill,
+  statt es abzuschreiben. Es bleibt bei der Projektregel „Eine Regel steht an genau einer
+  Stelle" (`docs/prompt/prompt.adoc`).
+
+== Entscheidung
+
+`docs/prompt/security.adoc` heißt ab sofort *`docs/prompt/security-backend.adoc`*; die
+Umbenennung läuft über `git mv`, damit die Historie an der Datei bleibt. Der Titel „Skill:
+Security – Backend" bleibt, der Inhalt ist unverändert – geändert ist nur der Absatz, der den
+Frontend-Teil bisher *in dieselbe Datei* versprochen hat.
+
+Der Frontend-Skill entsteht als eigene Datei `docs/prompt/security-frontend.adoc`, wenn sein
+Backlog-Eintrag gezogen wird. Er ist *nicht* Teil dieser Entscheidung; hier steht nur, dass er
+eine eigene Datei bekommt und nicht in die bestehende wandert.
+
+=== Was das Umbenennen berührt
+
+Nach `docs/prompt/prompt.adoc`, „Pflege dieser Arbeitsgrundlage", trägt der Dateiname an sechs
+Stellen:
+
+* `CLAUDE.md` – Skill-Liste
+* `docs/prompt/masterprompt.adoc` – Skill-Tabelle
+* `docs/prompt/prompt.adoc` – `include` und Pflege-Tabelle
+* `docs/system/arbeitsgrundlage.adoc` – Dateitabelle, Diagramm „Ladeweg" und `include` im
+  Kapitel „Wortlaut"
+
+Die ADRs 0035, 0037 und 0046 nennen den alten Pfad weiter. Sie werden *nicht* nachgezogen: ADRs
+sind historisch (Skill ADR, Grundsatz 3). Dieses ADR ist der Verweis, über den der alte Name
+auffindbar bleibt.
+
+== Konsequenzen
+
+=== Vorteile
+
+* *Der Ladeweg wird schmaler.* Wer im Frontend arbeitet, liest die Frontend-Regeln; wer im
+  Backend arbeitet, die des Backends. Ein Skill kostet Kontext erst, wenn sein Anlass eintritt
+  (ADR 0023) – das gilt jetzt auch innerhalb des Themas Sicherheit.
+* *Der Dateiname nennt den Geltungsbereich.* Die Lücke „kein Frontend-Teil" ist an der
+  Dateiliste ablesbar, nicht erst im Titel innerhalb der Datei.
+* *Die Zeile im Master-Prompt bleibt zuordenbar.* Zwei Zeilen für ein Thema hatte ADR 0035 als
+  Nachteil geführt; sie tragen jetzt zwei verschiedene Anlässe und sind damit gerade die
+  Unterscheidung, die der Leser braucht.
+
+=== Nachteile
+
+* *Die Arbeitsgrundlage wächst auf zehn Skills*, sobald der Frontend-Teil dazukommt. Jede Datei
+  mehr erhöht die Wahrscheinlichkeit, dass eine Regel an zwei Orten landet.
+* *Gemeinsame Regeln brauchen jetzt eine Entscheidung*: verlinken oder wiederholen. Der Build
+  prüft das nicht – die Abgrenzung hängt an der Sorgfalt beim Schreiben, wie schon die zwischen
+  `architektur.adoc` und `tests.adoc`.
+* *Der alte Dateiname steht weiter in drei ADRs und im Protokoll.* Wer dort liest, findet einen
+  Pfad, den es nicht mehr gibt; erst dieses ADR löst das auf.
+
+=== Bewusst nicht getan
+
+* *Kein Frontend-Skill geschrieben.* Er ist ein eigener Backlog-Eintrag mit eigener Definition
+  of Done; hier wäre er eine Nebenwirkung.
+* *Kein Inhalt des Backend-Skills verschoben oder gekürzt.* Was heute darin steht, gilt für den
+  Server und bleibt, wo es ist. Ob eine Regel für beide Seiten gilt, entscheidet sich beim
+  Schreiben des Frontend-Skills.
+* *ADR 0035 nicht umgeschrieben* – auch nicht der Satz, der den Frontend-Teil „in dieselbe
+  Datei" verspricht. Ein ADR hält den Stand seiner Entscheidung fest.
+* *Keine gemeinsame Datei für seitenübergreifende Regeln* (etwa `security-gemeinsam.adoc`). Sie
+  wäre ein dritter Ort, bevor feststeht, wie viel wirklich für beide Seiten gilt.
+
+== Prüfung
+
+* `+./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr+` läuft durch; ein `include` auf den
+  alten Namen wäre ein Build-Fehler
+  (link:0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022],
+  link:0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]) – beide `include` zeigen
+  auf `security-backend.adoc`.
+* `+git log --follow docs/prompt/security-backend.adoc+` zeigt die Historie vor der
+  Umbenennung; die Datei ist als `R` erfasst, nicht als Neuanlage.
+* Gegenprobe über `CLAUDE.md`, `docs/prompt` und `docs/system`: Der alte Pfad
+  `+docs/prompt/security.adoc+` und der alte `+include+` kommen dort nicht mehr vor. Die
+  verbleibenden Fundstellen liegen ausschließlich in `docs/adr` und `docs/log` – dort mit
+  Absicht.
+
+== Referenzen
+
+* link:0035-security-skill-und-security-txt{adrext}[ADR 0035] – der Security-Skill und die
+  abgelöste Festlegung „eine Datei mit Abschnitten je Seite"
+* link:0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023] – Master-Prompt und Skills
+  als AsciiDoc, Ladeweg und Form eines Skills
+* link:0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037] – die Umsetzung von
+  RFC 9116, die der Backend-Skill bindet
+* `docs/prompt/security-backend.adoc` – der Skill selbst
+* `docs/prompt/prompt.adoc`, „Pflege dieser Arbeitsgrundlage" – die Stellen, die ein Dateiname
+  berührt
+</content>
+</invoke>

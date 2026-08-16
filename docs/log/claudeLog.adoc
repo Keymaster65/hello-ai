@@ -9,6 +9,41 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-156]]
+== 156. Prompt: „Bennene den Skill security um in security-backend" (aus dem Backlog, `next`)
+
+_Delta: 5:41 min · 44.951 Token out · 226.937 Token in (neu) · 5.428.634 Token gesamt_
+_Stand (Session, 3 Prompts): 5:41 min · 44.951 Token out · 5.428.634 Token gesamt_
+
+*Aktionen:*
+
+* *`+next+` nach PO-Skill:* `+git pull --ff-only+` auf `main` meldete „Already up to date", kein
+  Eintrag war aktiv, keine branchgebundenen Einträge – gezogen wurde der oberste ready-Eintrag,
+  im Wortlaut vorgelegt und bestätigt; Marker `+*+` vor der Arbeit gesetzt, Eintrag danach
+  entfernt.
+* *Gerüst fehlte:* Der `+UserPromptSubmit+`-Hook hat für diesen Prompt keinen Eintrag angelegt –
+  dieser Abschnitt ist von Hand vorne eingefügt (Butterfly-Skill, „Der Hook legt das Gerüst an").
+* *Datei umbenannt* mit `+git mv docs/prompt/security.adoc docs/prompt/security-backend.adoc+`;
+  die Historie bleibt damit an der Datei. Inhalt unverändert bis auf den Absatz „Geltungsbereich".
+* *Neues ADR 0048* „Je Seite ein eigener Security-Skill": Anders als die Umbenennung in Prompt
+  155 berührt diese eine *Entscheidung* – ADR 0035 hatte „Zwei Dateien `+security-backend.adoc+`
+  und `+security-frontend.adoc+`" ausdrücklich verworfen und „eine Datei mit Abschnitten je
+  Seite" gewählt. Das neue ADR löst genau diese Festlegung ab, ADR 0035 bleibt wortgleich stehen
+  (ADR-Skill, Grundsatz 3).
+* *Verweise nachgezogen:* `+CLAUDE.md+` (Skill-Liste), `+masterprompt.adoc+` (Skill-Tabelle, jetzt
+  „Security Backend"), `+prompt.adoc+` (`+include+` und Pflege-Tabelle), `+adr.adoc+` (Wegweiser
+  „Sicherheit", Zahl der ADRs 46 → 48), `+docs/system/arbeitsgrundlage.adoc+` (Dateitabelle,
+  PlantUML-Diagramm „Ladeweg", `+include+` im Kapitel „Wortlaut") und
+  `+docs/system/system.adoc+` (ADR-Index, neue erste Zeile).
+* *Bewusst unverändert:* ADR 0035, 0037 und 0046 nennen den alten Pfad weiter, ebenso der
+  `+claudeLog+` – ADRs werden nicht umgeschrieben, das Protokoll zitiert die Vergangenheit.
+* *Prüfung:* `+./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr --no-daemon+` grün
+  (1:03 min). Meldungen wie zuvor (`+prompt-minus2+` doppelt, fehlendes Attribut `+id+`) – keine
+  neue. Reine Doku-Änderung, kein Code angefasst: Für `+test+`, `+systemtest+` und `+e2eTest+`
+  zählt der letzte grüne Lauf weiter (Butterfly-Skill, „Hinweise").
+
+'''
+
 [[prompt-155]]
 == 155. Prompt: „Benenne den Skill systemdoku um in systemdokumentation" (aus dem Backlog, `next`)
 

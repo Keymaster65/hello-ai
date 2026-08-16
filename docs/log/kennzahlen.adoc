@@ -20,6 +20,20 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-156,156>>
+|„Bennene den Skill security um in security-backend" (aus dem Backlog, `next`)
+| –
+| 5:41 min
+| 15:47:39 h
+| 44.951
+| 3.925.967
+| 226.937
+| 23.099.810
+| 5.428.634
+| 5:41 min
+| 44.951
+| 5.428.634
+
 | <<prompt-155,155>>
 |„Benenne den Skill systemdoku um in systemdokumentation" (aus dem Backlog, `next`)
 | <<commit-c9eb45b,c9eb45b>>

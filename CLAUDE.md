@@ -19,7 +19,7 @@ mit Pfad und Anlass:
 - `docs/prompt/architektur.adoc` – Architektur
 - `docs/prompt/adr.adoc` – ADR / Architekturentscheidungen (`docs/adr/*.adoc`)
 - `docs/prompt/tests.adoc` – Tests
-- `docs/prompt/security.adoc` – Security (Backend, inklusive RFC 9116 / `security.txt`)
+- `docs/prompt/security-backend.adoc` – Security Backend (inklusive RFC 9116 / `security.txt`)
 - `docs/prompt/systemdokumentation.adoc` – Systemdokumentation (`docs/system/*.adoc`)
 - `docs/prompt/butterfly.adoc` – Butterfly / Session-Protokoll (`docs/log/claudeLog.adoc`)
 - `docs/prompt/manager.adoc` – Manager / Kennzahlen-Tabelle (`docs/log/kennzahlen.adoc`)

@@ -11,9 +11,11 @@ Protokollausgabe, neuer Konfigurationsschlüssel, neue Abhängigkeit, neuer offe
 Pfad. Er sagt, was dabei einzuhalten ist – und er bindet die Anwendung an
 <<security-txt,RFC 9116>>.
 
-*Geltungsbereich ist das Backend.* Die Regeln für das Frontend kommen als eigener Abschnitt in
-diese Datei, sobald sie festgelegt sind; bis dahin steht hier nichts über die SPA
-(link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035]).
+*Geltungsbereich ist das Backend* – der Dateiname sagt es. Die Regeln für das Frontend bekommen
+einen *eigenen* Skill `docs/prompt/security-frontend.adoc`, sobald sie festgelegt sind; bis
+dahin steht nirgends etwas über die SPA, und hier soll auch nichts darüber stehen
+(link:{adr}/0048-security-skill-je-seite{adrext}[ADR 0048], der die eine gemeinsame Datei aus
+link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035] ablöst).
 
 Dieser Skill schreibt vor, er beschreibt nicht. *Welche* Lücken bewusst offen sind, steht in
 `docs/system/betrieb.adoc`, Abschnitt „Offene Punkte"; *warum* es diesen Skill gibt, in

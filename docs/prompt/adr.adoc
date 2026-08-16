@@ -27,7 +27,7 @@ wenn diese Bindung nicht mehr passt.
 
 == Vor der Arbeit: welche ADRs gelten
 
-Nicht alle 46 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
+Nicht alle 48 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
 Zusammenfassung: *Was* gilt, steht im ADR selbst.
 
 [cols="2,3", options="header"]
@@ -72,6 +72,7 @@ Zusammenfassung: *Was* gilt, steht im ADR selbst.
 
 | Sicherheit: offener Pfad, Fehlerbild, Meldeweg, `security.txt`
 | link:{adr}/0035-security-skill-und-security-txt{adrext}[0035],
+  link:{adr}/0048-security-skill-je-seite{adrext}[0048],
   link:{adr}/0046-rfc-9457-problem-details-als-fehlerformat{adrext}[0046],
   link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[0037],
   link:{adr}/0016-context-path-recipes{adrext}[0016],
