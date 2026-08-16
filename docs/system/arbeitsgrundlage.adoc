@@ -53,7 +53,7 @@ herein, also gibt es keine zweite Fassung, die veralten kann.
   mit `security.txt` (link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035]). Der
   Geltungsbereich ist zunächst das Backend; das Frontend kommt in dieselbe Datei
 
-| `docs/prompt/systemdoku.adoc`
+| `docs/prompt/systemdokumentation.adoc`
 | Skill: Pflege *dieser* Systemdokumentation – welche Änderung welches Kapitel berührt, dazu
   die AsciiDoc-Konventionen des Projekts.
 
@@ -143,7 +143,7 @@ skinparam componentStyle rectangle
 
 file "CLAUDE.md" as claude
 file "docs/prompt/masterprompt.adoc" as master
-file "docs/prompt/*.adoc\n\narchitektur · adr · tests · security\nsystemdoku · butterfly · manager\npo · develop" as skills
+file "docs/prompt/*.adoc\n\narchitektur · adr · tests · security\nsystemdokumentation · butterfly\nmanager · po · develop" as skills
 
 claude --> master : @-Import\njede Session, vollständig
 claude --> skills : nennt Pfad und Anlass\nnur bei Anlass gelesen
@@ -180,7 +180,7 @@ auch nicht folgenlos.
 
 | Pflege dieser Systemdokumentation
 | Die Zuordnung „welche Änderung berührt welches Kapitel" steht im Skill
-  `docs/prompt/systemdoku.adoc`, nicht hier – siehe <<pflege-dieser-dokumentation>>.
+  `docs/prompt/systemdokumentation.adoc`, nicht hier – siehe <<pflege-dieser-dokumentation>>.
 |===
 
 == Rendern und Prüfung
@@ -224,7 +224,7 @@ include::../prompt/tests.adoc[leveloffset=+2]
 
 include::../prompt/security.adoc[leveloffset=+2]
 
-include::../prompt/systemdoku.adoc[leveloffset=+2]
+include::../prompt/systemdokumentation.adoc[leveloffset=+2]
 
 include::../prompt/butterfly.adoc[leveloffset=+2]
 

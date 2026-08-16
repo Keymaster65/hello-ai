@@ -96,7 +96,7 @@ include::tests.adoc[leveloffset=+1]
 
 include::security.adoc[leveloffset=+1]
 
-include::systemdoku.adoc[leveloffset=+1]
+include::systemdokumentation.adoc[leveloffset=+1]
 
 include::butterfly.adoc[leveloffset=+1]
 
@@ -143,7 +143,7 @@ gepflegt, die sie betrifft.
   `docs/system/betrieb.adoc`, „Offene Punkte"
 
 | Neue Regel zur Pflege der Systemdokumentation
-| `systemdoku.adoc`
+| `systemdokumentation.adoc`
 
 | Geändertes Log-Format, andere Kennzahlen, geänderter Ablauf je Prompt
 | `butterfly.adoc` – *und* `manager.adoc`, wenn sich die Form der Kennzahlenzeilen ändert: Die

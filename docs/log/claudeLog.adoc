@@ -9,6 +9,41 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-155]]
+== 155. Prompt: „Benenne den Skill systemdoku um in systemdokumentation" (aus dem Backlog, `next`)
+
+_Delta: 4:42 min · 42.158 Token out · 236.545 Token in (neu) · 5.361.268 Token gesamt_
+_Stand (Session, 3 Prompts): 4:42 min · 42.158 Token out · 5.361.268 Token gesamt_
+
+*Aktionen:*
+
+* *`+next+` nach PO-Skill:* `+git pull --ff-only+` auf `main` meldete „Already up to date", kein
+  Eintrag war aktiv, keine branchgebundenen Einträge – gezogen wurde der oberste ready-Eintrag,
+  im Wortlaut vorgelegt und bestätigt; Marker `+*+` vor der Arbeit gesetzt, Eintrag danach
+  entfernt.
+* *Datei umbenannt* mit `+git mv docs/prompt/systemdoku.adoc docs/prompt/systemdokumentation.adoc+`
+  – die Historie bleibt damit an der Datei.
+* *Sieben Verweise nachgezogen:* `+CLAUDE.md+` (Skill-Liste), `+masterprompt.adoc+`
+  (Skill-Tabelle), `+prompt.adoc+` (`+include+` und Pflege-Tabelle),
+  `+docs/system/arbeitsgrundlage.adoc+` (Dateitabelle, PlantUML-Diagramm „Ladeweg",
+  Pflegehinweis, `+include+` im Kapitel „Wortlaut") und `+docs/system/system.adoc+`
+  (Pflegeverweis).
+* *ADRs und Protokoll bewusst unverändert:* ADR 0023, 0035, 0042 und 0044 nennen den alten
+  Pfad; ADRs werden nicht umgeschrieben (ADR-Skill, Grundsatz 3), der `+claudeLog+` zitiert die
+  Vergangenheit. Der Widerspruch ist damit benannt, nicht übergangen.
+* *Kein neues ADR:* Die Umbenennung ändert keine Entscheidung – ADR 0023 legt AsciiDoc für
+  Master-Prompt und Skills fest, nicht die Dateinamen.
+* *Prüfung:* `+./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr --no-daemon+` grün
+  (1:17 min) – fehlender `+include+` und Querverweis ins Leere wären Build-Fehler. Reine
+  Doku-Änderung, kein Code angefasst: Für `+test+`, `+systemtest+` und `+e2eTest+` zählt der
+  letzte grüne Lauf aus Prompt 154 weiter (Butterfly-Skill, „Hinweise").
+* *Nebenbefund:* `+asciidoctor+` meldet neben der bekannten „missing attribute: id" jetzt auch
+  „id assigned to section already in use: prompt-minus2" (`+claudeLog.adoc+` Zeile 4296) – zwei
+  Log-Einträge tragen denselben Anker. Bestand schon vorher, gehört zum `+KI+`-Eintrag
+  „Beseitige die zwei Asciidoctor-Meldungen des Tasks asciidoctor".
+
+'''
+
 [[prompt-154]]
 == 154. Prompt: „commit"
 

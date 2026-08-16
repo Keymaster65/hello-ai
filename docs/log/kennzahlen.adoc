@@ -20,6 +20,20 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-155,155>>
+|„Benenne den Skill systemdoku um in systemdokumentation" (aus dem Backlog, `next`)
+| –
+| 4:42 min
+| 15:41:58 h
+| 42.158
+| 3.881.016
+| 236.545
+| 22.872.873
+| 5.361.268
+| 4:42 min
+| 42.158
+| 5.361.268
+
 | <<prompt-154,154>>
 |„commit"
 | <<commit-71bf74d,71bf74d>>

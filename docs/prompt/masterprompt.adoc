@@ -78,7 +78,7 @@ gelesen – anders als dieser Master-Prompt, der in jeder Session gilt
   (link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035])
 
 | Systemdokumentation
-| `docs/prompt/systemdoku.adoc`
+| `docs/prompt/systemdokumentation.adoc`
 | Bei *jeder* Änderung am Ist-Zustand des Systems; pflegt `docs/system/*.adoc`
   (link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022])
 
