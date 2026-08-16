@@ -110,55 +110,90 @@ Frontend `id: number` statt `id?: number` steht und garantierte Felder ohne Prü
 
 === Fehler
 
-Jeder Fehler antwortet mit demselben <<src-error-response,`ErrorResponse`>> – zentral erzeugt
-im <<src-global-exception-handler,`GlobalExceptionHandler`>>:
+Jeder Fehler antwortet als *Problem Detail* nach
+https://www.rfc-editor.org/rfc/rfc9457.html[RFC 9457], im Medientyp
+`+application/problem+json+` (link:{adr}/0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR
+0046]). Der Rumpf ist <<src-problem-detail,`ProblemDetail`>>, zentral erzeugt im
+<<src-global-exception-handler,`GlobalExceptionHandler`>>:
 
 [source,json]
 ----
 {
+  "type": "/recipes/docs/#problem-validation-failed",
+  "title": "Request validation failed",
   "status": 400,
-  "error": "VALIDATION_FAILED",
-  "message": "Request validation failed",
+  "detail": "1 field(s) of the request body are invalid",
+  "instance": "/recipes/api/recipes",
   "fieldErrors": [
     { "field": "title", "message": "must not be blank" }
   ]
 }
 ----
 
-[cols="2,1,2,3", options="header"]
+[cols="1,3", options="header"]
 |===
-| Auslöser | Status | `error` | `fieldErrors`
+| Feld | Bedeutung
 
-| `RecipeNotFoundException`
-| `404`
-| `NOT_FOUND`
-| leer
+| `type`
+| Kennzeichnet die *Art* des Problems und zeigt zugleich auf den Abschnitt dieser
+  Dokumentation, der sie beschreibt – die Anker unten. Der Präfix ist der Context-Path der
+  Anfrage, nicht ein fest verdrahteter Wert.
 
-| Bean-Validation-Verstoß (`MethodArgumentNotValidException`)
-| `400`
-| `VALIDATION_FAILED`
-| ein Eintrag je verletztem Feld
+| `title`
+| Kurzfassung der Problemart, über alle Vorkommen gleich.
 
-| unlesbarer Body (`HttpMessageNotReadableException`)
-| `400`
-| `MALFORMED_REQUEST`
-| leer
+| `status`
+| Der HTTP-Statuscode, derselbe wie in der Statuszeile.
 
-| `IllegalArgumentException`
-| `400`
-| `INVALID_ARGUMENT`
-| leer
+| `detail`
+| Erklärung *dieses* Vorkommens. Nie `null`: Bringt eine Ausnahme keine Meldung mit, steht hier
+  der `title`.
+
+| `instance`
+| Die Anfrage, die das Problem ausgelöst hat, inklusive Context-Path.
+
+| `fieldErrors`
+| Erweiterung über RFC 9457 hinaus: ein Eintrag je verletztem Feld. Außerhalb der Validierung
+  eine *leere* Liste, nicht `null`. Das Frontend verlässt sich darauf
+  (`ApiError.fieldError(feld)`).
 |===
 
-`status`, `error`, `message` und `fieldErrors` sind immer vorhanden; `fieldErrors` ist außer
-bei `VALIDATION_FAILED` eine leere Liste – nicht `null`. Das Frontend verlässt sich darauf
-(`ApiError.fieldError(feld)`).
+==== Die Problemarten
+
+Die vier Arten stehen in <<src-problem-type,`ProblemType`>>; jede kennt ihren Titel und ihren
+Statuscode. Die Anker sind das Ziel der `type`-URI – wer sie im Browser öffnet, landet hier.
+
+[[problem-not-found]]
+`not-found` (`404`, „Recipe not found"):: Ausgelöst von `RecipeNotFoundException` – zu dem
+Bezeichner im Pfad gibt es kein Rezept. `detail` nennt den Bezeichner, `fieldErrors` ist leer.
+
+[[problem-validation-failed]]
+`validation-failed` (`400`, „Request validation failed"):: Ein Verstoß gegen die Bean
+Validation des Request-DTO (`MethodArgumentNotValidException`). Als einzige Art füllt sie
+`fieldErrors`, mit einem Eintrag je verletztem Feld; verschachtelte Felder stehen mit Index
+(`+ingredients[1].name+`).
+
+[[problem-malformed-request]]
+`malformed-request` (`400`, „Malformed request body"):: Der Rumpf ließ sich nicht als JSON
+lesen (`HttpMessageNotReadableException`). `detail` ist bewusst ein fester Satz und *nicht* die
+Meldung der Ausnahme: Die zitierte den fehlerhaften Rumpf und nannte Klassen von Jackson.
+
+[[problem-invalid-argument]]
+`invalid-argument` (`400`, „Invalid argument"):: Eine `IllegalArgumentException` – in aller
+Regel eine verletzte Invariante eines Domänen-Records. `detail` ist deren Meldung.
 
 Der letzte Fall verdient Aufmerksamkeit: Die Domänen-Records werfen
 `IllegalArgumentException`/`NullPointerException` bei verletzten Invarianten. Nur die
 `IllegalArgumentException` wird zu `400`; ein `NullPointerException` aus dem Konstruktor
 würde als `500` durchschlagen. In der Praxis fängt die Bean Validation diese Fälle vorher
 ab – die Reihenfolge ist also Absicherung, keine Redundanz ohne Zweck.
+
+==== Fehler des Frameworks
+
+`+spring.mvc.problemdetails.enabled+` steht auf `true`. Damit antworten auch die Fälle, für die
+es keinen eigenen Handler gibt – `405` bei falscher Methode, `415` bei falschem Medientyp –
+als `+application/problem+json+`, mit Springs eigenem Rumpf. Er trägt dieselben fünf Felder des
+RFC, aber *kein* `fieldErrors`; das Frontend behandelt es deshalb als optional.
 
 == OpenAPI-Contract
 

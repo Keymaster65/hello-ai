@@ -61,7 +61,7 @@ class SwaggerSystemTest {
 
         assertThat(schemas.propertyNames()).contains(
                 "RecipeRequest", "RecipeResponse", "Ingredient", "PreparationStep",
-                "PreparationStepResponse", "ErrorResponse", "FieldError");
+                "PreparationStepResponse", "ProblemDetail", "FieldError");
 
         // Derived from @NotBlank / @NotNull on RecipeRequest – proof that validation and contract agree.
         assertThat(schemas.path("RecipeRequest").path("required").valueStream()
@@ -81,8 +81,9 @@ class SwaggerSystemTest {
                 "id", "title", "difficulty", "ingredients", "steps");
         assertThat(requiredOf(schemas, "PreparationStepResponse"))
                 .containsExactlyInAnyOrder("position", "instruction");
-        assertThat(requiredOf(schemas, "ErrorResponse"))
-                .containsExactlyInAnyOrder("status", "error", "message", "fieldErrors");
+        // The five members of RFC 9457 plus the typed extension (ADR 0046).
+        assertThat(requiredOf(schemas, "ProblemDetail"))
+                .containsExactlyInAnyOrder("type", "title", "status", "detail", "instance", "fieldErrors");
         assertThat(requiredOf(schemas, "FieldError")).containsExactlyInAnyOrder("field", "message");
 
         // Nullable in the domain – must stay optional so the contract does not overpromise.
@@ -144,15 +145,24 @@ class SwaggerSystemTest {
         assertThat(responseCodes(paths, "/api/recipes", "get")).contains("200");
         assertThat(HttpProbe.get("/api/recipes").statusCode()).isEqualTo(200);
 
-        // Documented: GET /api/recipes/{id} -> 404 for an unknown id, shaped like ErrorResponse
+        // Documented: GET /api/recipes/{id} -> 404 for an unknown id, shaped like ProblemDetail
         assertThat(responseCodes(paths, "/api/recipes/{id}", "get")).contains("404");
         HttpResponse<String> notFound = HttpProbe.get("/api/recipes/999999");
         assertThat(notFound.statusCode()).isEqualTo(404);
+        // RFC 9457 asks for this media type; a client recognises the error without reading the body.
+        assertThat(notFound.headers().firstValue("Content-Type")).hasValueSatisfying(
+                contentType -> assertThat(contentType).startsWith("application/problem+json"));
 
-        JsonNode error = HttpProbe.getJson("/api/recipes/999999");
-        assertThat(error.propertyNames()).containsExactlyInAnyOrderElementsOf(
+        JsonNode problem = HttpProbe.getJson("/api/recipes/999999");
+        assertThat(problem.propertyNames()).containsExactlyInAnyOrderElementsOf(
                 HttpProbe.getJson(API_DOCS).path("components").path("schemas")
-                        .path("ErrorResponse").path("properties").propertyNames());
+                        .path("ProblemDetail").path("properties").propertyNames());
+
+        // The type URI resolves to the section of the delivered documentation describing the case.
+        assertThat(problem.path("type").asString())
+                .isEqualTo(RunningApplication.CONTEXT_PATH + "/docs/#problem-not-found");
+        assertThat(problem.path("instance").asString())
+                .isEqualTo(RunningApplication.CONTEXT_PATH + "/api/recipes/999999");
     }
 
     @Test

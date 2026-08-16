@@ -5,29 +5,34 @@ export type RecipeRequest = components['schemas']['RecipeRequest']
 export type Ingredient = components['schemas']['Ingredient']
 export type PreparationStep = components['schemas']['PreparationStep']
 export type PreparationStepResponse = components['schemas']['PreparationStepResponse']
-export type ErrorResponse = components['schemas']['ErrorResponse']
+export type ProblemDetail = components['schemas']['ProblemDetail']
 export type Difficulty = RecipeRequest['difficulty']
 
 export const DIFFICULTIES: readonly Difficulty[] = ['EASY', 'MEDIUM', 'HARD']
 
 /**
- * A non-2xx answer from the BFF. Carries the backend's `ErrorResponse` payload so that
- * validation messages can be shown on the field that caused them.
+ * A non-2xx answer from the BFF. Carries the backend's RFC 9457 problem detail so that
+ * validation messages can be shown on the field that caused them (ADR 0046).
  */
 export class ApiError extends Error {
   readonly status: number
-  readonly payload: ErrorResponse | undefined
+  readonly payload: ProblemDetail | undefined
 
-  constructor(status: number, payload?: ErrorResponse, message?: string) {
-    super(message ?? payload?.message ?? `Request failed with status ${status}`)
+  constructor(status: number, payload?: ProblemDetail, message?: string) {
+    super(message ?? payload?.detail ?? `Request failed with status ${status}`)
     this.name = 'ApiError'
     this.status = status
     this.payload = payload
   }
 
-  /** Validation message for a single field, if the backend reported one. */
+  /**
+   * Validation message for a single field, if the backend reported one.
+   *
+   * `fieldErrors` is our extension of the RFC; the problem details Spring itself produces for
+   * framework errors (405, 415, …) do not carry it, hence the optional access.
+   */
   fieldError(field: string): string | undefined {
-    return this.payload?.fieldErrors.find((error) => error.field === field)?.message
+    return this.payload?.fieldErrors?.find((error) => error.field === field)?.message
   }
 
   get isNotFound(): boolean {
@@ -53,11 +58,11 @@ async function send<T>(path: string, init?: RequestInit): Promise<T> {
   return response.status === 204 ? (undefined as T) : ((await response.json()) as T)
 }
 
-async function readErrorPayload(response: Response): Promise<ErrorResponse | undefined> {
+async function readErrorPayload(response: Response): Promise<ProblemDetail | undefined> {
   try {
-    return (await response.json()) as ErrorResponse
+    return (await response.json()) as ProblemDetail
   } catch {
-    // A proxy or gateway may answer with something other than our ErrorResponse.
+    // A proxy or gateway may answer with something other than a problem detail.
     return undefined
   }
 }

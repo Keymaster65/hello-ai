@@ -128,6 +128,7 @@ erste Zeile.
 |===
 | ADR | Thema
 
+| link:{adr}/0046-rfc-9457-problem-details-als-fehlerformat{adrext}[0046] | Fehlerantworten folgen RFC 9457 (`+application/problem+json+`) statt dem eigenen `ErrorResponse`; `fieldErrors` bleibt als typisierte Erweiterung im Contract (löst ein Format aus 0021 ab)
 | link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[0045] | Die Anwendungsschicht bleibt frei von Framework-Abhängigkeiten – Bean-Erzeugung und Transaktionsgrenze wandern in den Composition Root (führt 0012 fort)
 | link:{adr}/0044-anhaenge-nach-entstehung-geordnet{adrext}[0044] | Session-Protokoll und Git-Historie als eigene Anhänge, nach der Entstehung geordnet (löst eine Festlegung aus 0033 und eine aus 0036 ab)
 | link:{adr}/0043-inhaltsverzeichnis-klappbar-per-docinfo{adrext}[0043] | Klappbares Inhaltsverzeichnis per Docinfo-Fußzeile

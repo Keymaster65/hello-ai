@@ -42,8 +42,6 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 `git`.
 
 
-== : Realisiere "RFC 9457 Problem Details for HTTP API" für die Anwendung.
-
 == : Benenne den Skill systemdoku um in systemdokumentation
 
 == : Bennene den Skill security um in security-backend

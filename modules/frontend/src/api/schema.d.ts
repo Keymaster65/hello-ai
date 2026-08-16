@@ -112,27 +112,6 @@ export interface components {
             /** @description Preparation steps; their order in this list defines the position */
             steps?: components["schemas"]["PreparationStep"][];
         };
-        /** @description Uniform error payload */
-        ErrorResponse: {
-            /**
-             * Format: int32
-             * @description HTTP status code
-             * @example 404
-             */
-            status: number;
-            /**
-             * @description Short, machine-readable error label
-             * @example NOT_FOUND
-             */
-            error: string;
-            /**
-             * @description Human-readable description
-             * @example Recipe 42 not found
-             */
-            message: string;
-            /** @description Per-field validation errors; empty unless a validation failed */
-            fieldErrors: components["schemas"]["FieldError"][];
-        };
         /** @description A single field-level validation error */
         FieldError: {
             /**
@@ -145,6 +124,37 @@ export interface components {
              * @example must not be blank
              */
             message: string;
+        };
+        /** @description Error payload following RFC 9457 */
+        ProblemDetail: {
+            /**
+             * @description URI reference identifying the problem type
+             * @example /recipes/docs/#problem-not-found
+             */
+            type: string;
+            /**
+             * @description Human-readable summary of the problem type
+             * @example Recipe not found
+             */
+            title: string;
+            /**
+             * Format: int32
+             * @description HTTP status code
+             * @example 404
+             */
+            status: number;
+            /**
+             * @description Human-readable explanation of this occurrence
+             * @example Recipe 42 not found
+             */
+            detail: string;
+            /**
+             * @description URI reference of the request that produced the problem
+             * @example /recipes/api/recipes/42
+             */
+            instance: string;
+            /** @description Per-field validation errors; empty unless a validation failed */
+            fieldErrors: components["schemas"]["FieldError"][];
         };
         /** @description A preparation step including its resolved order */
         PreparationStepResponse: {
@@ -240,7 +250,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
         };
@@ -279,7 +289,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
             /** @description No recipe exists for the given identifier */
@@ -288,7 +298,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
         };
@@ -321,7 +331,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
         };
@@ -374,7 +384,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
+                    "application/problem+json": components["schemas"]["ProblemDetail"];
                 };
             };
         };

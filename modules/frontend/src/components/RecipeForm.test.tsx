@@ -79,9 +79,11 @@ describe('RecipeForm', () => {
 
   it('should render the backend validation message at the offending field', () => {
     const apiError = new ApiError(400, {
+      type: '/recipes/docs/#problem-validation-failed',
+      title: 'Request validation failed',
       status: 400,
-      error: 'VALIDATION_FAILED',
-      message: 'Request validation failed',
+      detail: '1 field(s) of the request body are invalid',
+      instance: '/recipes/api/recipes',
       fieldErrors: [{ field: 'title', message: 'must not be blank' }],
     })
 

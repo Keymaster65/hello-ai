@@ -83,7 +83,7 @@ export function RecipeForm({ initial, submitting, apiError, onSubmit, onCancel }
     <form onSubmit={handleSubmit} className="recipe-form" noValidate>
       <h2>{initial ? 'Rezept bearbeiten' : 'Neues Rezept'}</h2>
 
-      {apiError && !apiError.payload?.fieldErrors.length && (
+      {apiError && !apiError.payload?.fieldErrors?.length && (
         <p role="alert" className="error">
           {apiError.message}
         </p>

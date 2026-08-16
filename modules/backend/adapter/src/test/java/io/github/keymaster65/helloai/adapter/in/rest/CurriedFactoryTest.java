@@ -94,34 +94,32 @@ class CurriedFactoryTest {
     }
 
     @Property
-    void curriedErrorResponseEqualsCanonicalConstructor(
+    void curriedProblemDetailEqualsCanonicalConstructor(
+            @ForAll @AlphaChars @StringLength(min = 1, max = 30) String type,
+            @ForAll @AlphaChars @StringLength(min = 1, max = 30) String title,
             @ForAll int status,
-            @ForAll @AlphaChars @StringLength(min = 1, max = 30) String error,
-            @ForAll @AlphaChars @StringLength(min = 1, max = 30) String message) {
+            @ForAll @AlphaChars @StringLength(min = 1, max = 30) String detail,
+            @ForAll @AlphaChars @StringLength(min = 1, max = 30) String instance) {
 
-        List<ErrorResponse.FieldError> fieldErrors =
-                List.of(new ErrorResponse.FieldError("title", "must not be blank"));
+        List<ProblemDetail.FieldError> fieldErrors =
+                List.of(new ProblemDetail.FieldError("title", "must not be blank"));
 
-        ErrorResponse curried = ErrorResponse.curried()
+        ProblemDetail curried = ProblemDetail.curried()
+                .type(type)
+                .title(title)
                 .status(status)
-                .error(error)
-                .message(message)
+                .detail(detail)
+                .instance(instance)
                 .fieldErrors(fieldErrors);
 
-        assertThat(curried).isEqualTo(new ErrorResponse(status, error, message, fieldErrors));
+        assertThat(curried).isEqualTo(
+                new ProblemDetail(type, title, status, detail, instance, fieldErrors));
     }
 
-    /** The existing shortcut stays the short form of the full chain. */
+    /** The type URI is the documentation anchor of the problem type, below the context path. */
     @Example
-    void ofIsTheCurriedChainWithoutFieldErrors() {
-        ErrorResponse shortcut = ErrorResponse.of(404, "NOT_FOUND", "Recipe 42 not found");
-
-        ErrorResponse curried = ErrorResponse.curried()
-                .status(404)
-                .error("NOT_FOUND")
-                .message("Recipe 42 not found")
-                .fieldErrors(List.of());
-
-        assertThat(curried).isEqualTo(shortcut);
+    void problemTypeUriPointsAtTheDocumentationAnchor() {
+        assertThat(ProblemType.NOT_FOUND.uri("/recipes")).isEqualTo("/recipes/docs/#problem-not-found");
+        assertThat(ProblemType.VALIDATION_FAILED.uri("")).isEqualTo("/docs/#problem-validation-failed");
     }
 }

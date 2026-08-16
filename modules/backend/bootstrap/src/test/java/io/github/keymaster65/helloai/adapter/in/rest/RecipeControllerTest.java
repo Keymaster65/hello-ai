@@ -6,7 +6,9 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -63,7 +65,30 @@ class RecipeControllerTest {
 
         mockMvc.perform(post("/api/recipes").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("VALIDATION_FAILED"));
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.type").value("/docs/#problem-validation-failed"))
+                .andExpect(jsonPath("$.title").value("Request validation failed"))
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.instance").value("/api/recipes"));
+    }
+
+    @Test
+    void shouldReturn400WithProblemDetails_whenBodyIsNotReadable() throws Exception {
+        mockMvc.perform(post("/api/recipes").contentType(MediaType.APPLICATION_JSON).content("{"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.type").value("/docs/#problem-malformed-request"))
+                .andExpect(jsonPath("$.detail").value("The request body could not be read as JSON"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
+    }
+
+    /** The framework's own exceptions answer as problem details as well (see ADR 0046). */
+    @Test
+    void shouldReturn405AsProblemDetails_whenMethodIsNotAllowed() throws Exception {
+        mockMvc.perform(patch("/api/recipes/1"))
+                .andExpect(status().isMethodNotAllowed())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.status").value(405));
     }
 
     @Test
@@ -85,7 +110,8 @@ class RecipeControllerTest {
 
         mockMvc.perform(post("/api/recipes").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("VALIDATION_FAILED"))
+                .andExpect(jsonPath("$.type").value("/docs/#problem-validation-failed"))
+                .andExpect(jsonPath("$.detail").value("1 field(s) of the request body are invalid"))
                 .andExpect(jsonPath("$.fieldErrors[0].field").value("ingredients[1].name"));
     }
 
@@ -107,7 +133,13 @@ class RecipeControllerTest {
 
         mockMvc.perform(get("/api/recipes/99"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("NOT_FOUND"));
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                .andExpect(jsonPath("$.type").value("/docs/#problem-not-found"))
+                .andExpect(jsonPath("$.title").value("Recipe not found"))
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.detail").value("Recipe not found: 99"))
+                .andExpect(jsonPath("$.instance").value("/api/recipes/99"))
+                .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 
     @Test

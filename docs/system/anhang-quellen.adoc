@@ -235,13 +235,23 @@ include::../../modules/backend/adapter/src/main/java/io/github/keymaster65/hello
 ----
 ====
 
-[[src-error-response]]
+[[src-problem-detail]]
 [%collapsible]
-.`modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/in/rest/ErrorResponse.java`
+.`modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/in/rest/ProblemDetail.java`
 ====
 [source,java]
 ----
-include::../../modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/in/rest/ErrorResponse.java[]
+include::../../modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/in/rest/ProblemDetail.java[]
+----
+====
+
+[[src-problem-type]]
+[%collapsible]
+.`modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/in/rest/ProblemType.java`
+====
+[source,java]
+----
+include::../../modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/in/rest/ProblemType.java[]
 ----
 ====
 

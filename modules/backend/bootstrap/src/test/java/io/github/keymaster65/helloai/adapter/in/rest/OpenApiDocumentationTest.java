@@ -52,7 +52,7 @@ class OpenApiDocumentationTest {
                 .andExpect(jsonPath("$.components.schemas.RecipeRequest").exists())
                 .andExpect(jsonPath("$.components.schemas.RecipeResponse").exists())
                 .andExpect(jsonPath("$.components.schemas.Ingredient").exists())
-                .andExpect(jsonPath("$.components.schemas.ErrorResponse").exists())
+                .andExpect(jsonPath("$.components.schemas.ProblemDetail").exists())
                 .andExpect(jsonPath("$.components.schemas.RecipeRequest.required").value(
                         org.hamcrest.Matchers.hasItems("title", "difficulty")));
     }

@@ -35,7 +35,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Tag(name = "Recipes", description = "Create, read, update and delete recipes")
 public class RecipeController {
 
-    private static final String ERROR_MEDIA_TYPE = MediaType.APPLICATION_JSON_VALUE;
+    /** Errors answer as RFC 9457 problem details, not as plain JSON (see ADR 0046). */
+    private static final String ERROR_MEDIA_TYPE = MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 
     private final RecipeService recipeService;
     private final RecipeRestMapper mapper;
@@ -52,7 +53,7 @@ public class RecipeController {
             @ApiResponse(responseCode = "201", description = "Recipe created; Location header points to it"),
             @ApiResponse(responseCode = "400", description = "Request body invalid or malformed",
                     content = @Content(mediaType = ERROR_MEDIA_TYPE,
-                            schema = @Schema(implementation = ErrorResponse.class)))
+                            schema = @Schema(implementation = ProblemDetail.class)))
     })
     public ResponseEntity<RecipeResponse> create(
             @Valid @RequestBody RecipeRequest request, UriComponentsBuilder uriBuilder) {
@@ -74,7 +75,7 @@ public class RecipeController {
             @ApiResponse(responseCode = "200", description = "The requested recipe"),
             @ApiResponse(responseCode = "404", description = "No recipe exists for the given identifier",
                     content = @Content(mediaType = ERROR_MEDIA_TYPE,
-                            schema = @Schema(implementation = ErrorResponse.class)))
+                            schema = @Schema(implementation = ProblemDetail.class)))
     })
     public RecipeResponse getById(
             @Parameter(description = "Identifier of the recipe", example = "1") @PathVariable long id) {
@@ -88,10 +89,10 @@ public class RecipeController {
             @ApiResponse(responseCode = "200", description = "The updated recipe"),
             @ApiResponse(responseCode = "400", description = "Request body invalid or malformed",
                     content = @Content(mediaType = ERROR_MEDIA_TYPE,
-                            schema = @Schema(implementation = ErrorResponse.class))),
+                            schema = @Schema(implementation = ProblemDetail.class))),
             @ApiResponse(responseCode = "404", description = "No recipe exists for the given identifier",
                     content = @Content(mediaType = ERROR_MEDIA_TYPE,
-                            schema = @Schema(implementation = ErrorResponse.class)))
+                            schema = @Schema(implementation = ProblemDetail.class)))
     })
     public RecipeResponse update(
             @Parameter(description = "Identifier of the recipe", example = "1") @PathVariable long id,
@@ -105,7 +106,7 @@ public class RecipeController {
             @ApiResponse(responseCode = "204", description = "Recipe deleted", content = @Content),
             @ApiResponse(responseCode = "404", description = "No recipe exists for the given identifier",
                     content = @Content(mediaType = ERROR_MEDIA_TYPE,
-                            schema = @Schema(implementation = ErrorResponse.class)))
+                            schema = @Schema(implementation = ProblemDetail.class)))
     })
     public ResponseEntity<Void> delete(
             @Parameter(description = "Identifier of the recipe", example = "1") @PathVariable long id) {

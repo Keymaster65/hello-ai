@@ -20,6 +20,34 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-152,152>>
+|„Realisiere "RFC 9457 Problem Details for HTTP API" für die Anwendung." (aus dem Backlog, `next`)
+| –
+| 20:59 min
+| 15:09:59 h
+| 101.910
+| 3.753.198
+| 386.675
+| 22.320.663
+| 18.833.406
+| 21:18 min
+| 104.327
+| 19.117.325
+
+| <<prompt-151,151>>
+|„Führe die Tests aus"
+| –
+| 6:32 min
+| 14:49:00 h
+| 7.174
+| 3.651.288
+| 70.324
+| 21.933.988
+| 849.487
+| 6:32 min
+| 7.174
+| 849.487
+
 | <<prompt-150,150>>
 |„Ändere den architektur Skill so, dass die "application" frei noch Framework Abhängigkeiten ist. Ein entsprechender archunit Test soll das absichern." (aus dem Backlog, `next`)
 | <<commit-f36801d,f36801d>>

@@ -9,6 +9,80 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-152]]
+== 152. Prompt: „Realisiere "RFC 9457 Problem Details for HTTP API" für die Anwendung." (aus dem Backlog, `next`)
+
+_Delta: 20:59 min · 101.910 Token out · 386.675 Token in (neu) · 18.833.406 Token gesamt_
+_Stand (Session, 4 Prompts): 21:18 min · 104.327 Token out · 19.117.325 Token gesamt_
+
+*Aktionen:*
+
+* *Pull vor `next`* (ADR 0030): `+git pull --ff-only+` auf `main` meldete „Already up to date".
+  Kein Eintrag stand auf aktiv, keiner war an einen Branch gebunden – gezogen wurde der erste
+  ungebundene ready-Eintrag, nach Rückfrage im Wortlaut bestätigt, Marker *vor* der Arbeit auf
+  `+*+`, danach entfernt.
+* *Der Hook hat wieder kein Gerüst angelegt* – kein Abschnitt `+prompt-152+`; dieser Eintrag ist
+  von Hand geschrieben.
+* *ADR 0046 geschrieben* – „RFC 9457 Problem Details als Fehlerformat der API". Vier Optionen
+  abgewogen; entschieden wurde ein *eigener* Record in der Form des RFC statt Springs
+  `+org.springframework.http.ProblemDetail+`, weil dessen Extension Members nicht im
+  OpenAPI-Contract landen und das Frontend damit seine *generierten* Typen für `fieldErrors`
+  verlöre.
+* *Das Fehlerformat ist ersetzt.* `ErrorResponse` ist gelöscht; an seiner Stelle stehen
+  `ProblemDetail` (`type`, `title`, `status`, `detail`, `instance` + `fieldErrors`, curried nach
+  ADR 0021) und `ProblemType` (`not-found`, `validation-failed`, `malformed-request`,
+  `invalid-argument`, je mit Titel und Statuscode). Ausgeliefert wird `+application/problem+json+`.
+* *Die `type`-URI zeigt auf die ausgelieferte Dokumentation* – `+/recipes/docs/#problem-not-found+`
+  und Geschwister. Der Präfix kommt aus `+request.getContextPath()+`, nicht aus einer Konstanten;
+  der Context-Path aus ADR 0016 steht damit an keiner weiteren Stelle im Code. Die vier Anker
+  sind in `docs/system/api.adoc` angelegt und im gerenderten `system.html` nachgeprüft.
+* *`+spring.mvc.problemdetails.enabled: true+`* lässt auch `405`, `415` und ihresgleichen als
+  `+problem+json+` antworten. Damit die vier eigenen Fälle nicht an Springs Handler (`+@Order(0)+`)
+  fallen, trägt `GlobalExceptionHandler` jetzt `+@Order(HIGHEST_PRECEDENCE)+`.
+* *Security-Skill beachtet* (neues Fehlerbild): `detail` bei `malformed-request` ist ein fester
+  Satz statt der Ausnahmemeldung – die zitierte den fehlerhaften Rumpf und nannte Jackson-Klassen.
+  Ein eigener `500`-Handler ist bewusst unterblieben und im ADR unter „Bewusst nicht getan"
+  benannt.
+* *Frontend nachgezogen:* `schema.d.ts` aus dem laufenden Contract neu erzeugt (`+openapi-typescript+`);
+  `ApiError` trägt jetzt ein `ProblemDetail` und liest `detail` statt `message`. `fieldErrors`
+  wird optional zugegriffen, weil Springs eigene Problem Details es nicht mitbringen.
+* *Dokumentation:* `docs/system/api.adoc` (Abschnitt Fehler vollständig neu, samt Problemarten
+  und den Fehlern des Frameworks), `schichten.adoc` (Text und beide PlantUML-Abläufe),
+  `anhang-quellen.adoc` (zwei neue `include`, einer entfernt), `betrieb.adoc` (Schalter in den
+  festen Festlegungen), ADR-Index in `system.adoc`, Wegweiser in `docs/prompt/adr.adoc` und das
+  Beispiel im Architektur-Skill.
+* *Definition of Done erfüllt:* `+./gradlew clean build+` grün (3:05 min), `+./gradlew test+`
+  grün, `+./gradlew systemtest+` 23 Tests grün, `+./gradlew e2eTest+` 9 Playwright-Tests grün.
+  Die drei Asciidoctor-Tasks laufen mit; `asciidoctorAdr` schlug zunächst fehl, weil das ADR
+  `+<<src-…>>+`-Verweise trug, die es nur in der Systemdokumentation gibt – im ADR stehen jetzt
+  einfache Code-Spans.
+
+'''
+
+[[prompt-151]]
+== 151. Prompt: „Führe die Tests aus"
+
+_Delta: 6:32 min · 7.174 Token out · 70.324 Token in (neu) · 849.487 Token gesamt_
+_Stand (Session, 3 Prompts): 6:32 min · 7.174 Token out · 849.487 Token gesamt_
+
+*Aktionen:*
+
+* *Der Hook hat wieder kein Gerüst angelegt* – kein Abschnitt `+prompt-151+`; dieser Eintrag
+  ist von Hand geschrieben.
+* *Erster `+./gradlew test+`-Lauf brach ab, bevor ein Test lief*: `+:asciidoctor+` scheiterte an
+  „Could not set file mode 755 on `+build/docs/asciidoc/adr+`". Ursache war die
+  *Arbeitsumgebung*, nicht der Code – Teile von `+build/+` (`+docs/+`, `+tmp/+`) gehörten
+  `+root+`, sodass der Benutzer `+agent+` die Dateirechte nicht setzen konnte. Behoben durch
+  Löschen dieser Build-Ausgaben; Quellen wurden nicht angefasst.
+* *Alle drei Testläufe grün* (Definition of Done, Punkte 2–4):
+** `+./gradlew test+` – 60 Tests, 0 Fehler; JaCoCo-Report erzeugt.
+** `+./gradlew systemtest+` – 23 Tests, 0 Fehler.
+** `+./gradlew e2eTest+` – 9 Playwright-Tests (chromium), 0 Fehler, 15,8 s.
+* *Keine Code- oder Dokumentationsänderung* außer diesem Log-Eintrag und der daraus erzeugten
+  Kennzahlen-Tabelle.
+
+'''
+
 [[prompt-150]]
 == 150. Prompt: „Ändere den architektur Skill so, dass die "application" frei noch Framework Abhängigkeiten ist. Ein entsprechender archunit Test soll das absichern." (aus dem Backlog, `next`)
 

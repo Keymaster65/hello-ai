@@ -10,6 +10,12 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.xml
   jooq:
     sql-dialect: POSTGRES
+  mvc:
+    # Auch die Ausnahmen des Frameworks (405, 415, 406 …) antworten als RFC 9457 problem+json,
+    # nicht mehr als Standardseite (ADR 0046). Die vier eigenen Fälle behält der
+    # GlobalExceptionHandler – er ist höher priorisiert als Springs Handler.
+    problemdetails:
+      enabled: true
 
 springdoc:
   api-docs:

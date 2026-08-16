@@ -171,6 +171,12 @@ anzupassen:
 
 | SQL-Dialekt `POSTGRES`
 | Die generierten jOOQ-Klassen. Ein anderer Dialekt bedeutet Neugenerierung.
+
+| `+spring.mvc.problemdetails.enabled: true+`
+| Ohne den Schalter fallen `405`, `415` und ihresgleichen wieder auf die Standardseite zurück,
+  während die vier eigenen Fälle weiter `+application/problem+json+` liefern – zwei
+  Fehlerbilder statt einem
+  (link:{adr}/0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR 0046]).
 |===
 
 == Laufzeitumgebung

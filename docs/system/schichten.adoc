@@ -100,7 +100,8 @@ Basispaket ist `io.github.keymaster65.helloai`.
 | <<src-recipe-controller,`RecipeController`>>,
   <<src-spa-forwarding-controller,`SpaForwardingController`>>,
   <<src-global-exception-handler,`GlobalExceptionHandler`>>,
-  <<src-recipe-rest-mapper,`RecipeRestMapper`>>, <<src-error-response,`ErrorResponse`>> und die
+  <<src-recipe-rest-mapper,`RecipeRestMapper`>>, <<src-problem-detail,`ProblemDetail`>> samt
+  <<src-problem-type,`ProblemType`>> und die
   DTOs unter `adapter.in.rest.dto` (<<src-gruppe-rest,alle Quellen im Anhang>>).
 
 | `:modules:backend:adapter`
@@ -198,7 +199,9 @@ damit der Contract neben dem Code steht, den er beschreibt
 * `null`-Listen im Request werden zu leeren Listen, bevor die Domäne sie sieht.
 
 `GlobalExceptionHandler` (`@RestControllerAdvice`) übersetzt Exceptions zentral in ein
-einheitliches `ErrorResponse`; die Zuordnung steht im Kapitel API.
+Problem Detail nach RFC 9457
+(link:{adr}/0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR 0046]); die Zuordnung
+steht im Kapitel API.
 
 `SpaForwardingController` leitet die Routen der Oberfläche serverseitig auf die
 `index.html` weiter, damit ein geteilter Link wie `/recipes/3` nicht im 404 endet. Die
@@ -280,7 +283,7 @@ alt Optional ist leer
   service --> tx : RecipeNotFoundException
   tx --> controller : RecipeNotFoundException
   controller -> handler : Exception
-  handler --> Browser : 404 + ErrorResponse
+  handler --> Browser : 404 + ProblemDetail
 else Rezept vorhanden
   service --> tx : Recipe
   tx --> controller : Recipe
@@ -309,7 +312,7 @@ participant "GlobalExceptionHandler" as handler
 Browser -> validation : POST /recipes/api/recipes\n(RecipeRequest)
 alt Request ungültig
   validation -> handler : MethodArgumentNotValidException
-  handler --> Browser : 400 + ErrorResponse\n(fieldErrors je Feld)
+  handler --> Browser : 400 + ProblemDetail\n(fieldErrors je Feld)
 else Request gültig
   validation -> controller : create(request)
   controller -> mapper : toDomain(request)
@@ -365,7 +368,7 @@ in Entwicklung und Produktion gültig.
 
 | <<src-api-recipes,`src/api/recipes.ts`>>
 | Der einzige Ort, an dem `fetch` aufgerufen wird. Wirft bei Nicht-2xx einen `ApiError`,
-  der das `ErrorResponse` des Backends trägt – `fieldError(name)` liefert damit die
+  der das Problem Detail des Backends trägt – `fieldError(name)` liefert damit die
   Validierungsmeldung an das verursachende Feld.
 
 | `src/api/schema.d.ts`

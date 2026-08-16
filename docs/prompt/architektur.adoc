@@ -225,17 +225,29 @@ public class UserController {
 
 == Beispiel: zentrales Exception-Handling
 
+Fehlerantworten folgen RFC 9457 und tragen `+application/problem+json+`
+(link:{adr}/0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR 0046]) – nicht ein
+selbst erfundenes Fehlerformat:
+
 [source,java]
 ----
 @RestControllerAdvice
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleNotFound(
-            UserNotFoundException ex) {
-        var error = new ErrorResponse(HttpStatus.NOT_FOUND.value(),
-                                      ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    public ResponseEntity<ProblemDetail> handleNotFound(
+            UserNotFoundException ex, HttpServletRequest request) {
+        ProblemDetail problem = ProblemDetail.curried()
+                .type(ProblemType.NOT_FOUND.uri(request.getContextPath()))
+                .title(ProblemType.NOT_FOUND.title())
+                .status(HttpStatus.NOT_FOUND.value())
+                .detail(ex.getMessage())
+                .instance(request.getRequestURI())
+                .fieldErrors(List.of());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                .body(problem);
     }
 }
 ----

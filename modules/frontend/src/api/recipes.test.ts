@@ -69,7 +69,17 @@ describe('recipeApi', () => {
 
   it('should raise an ApiError carrying the backend payload on 404', async () => {
     fetchMock.mockResolvedValue(
-      jsonResponse({ status: 404, error: 'NOT_FOUND', message: 'Recipe not found: 9' }, 404),
+      jsonResponse(
+        {
+          type: '/recipes/docs/#problem-not-found',
+          title: 'Recipe not found',
+          status: 404,
+          detail: 'Recipe not found: 9',
+          instance: '/recipes/api/recipes/9',
+          fieldErrors: [],
+        },
+        404,
+      ),
     )
 
     const error = await recipeApi.get(9).catch((cause: unknown) => cause)
@@ -83,9 +93,11 @@ describe('recipeApi', () => {
     fetchMock.mockResolvedValue(
       jsonResponse(
         {
+          type: '/recipes/docs/#problem-validation-failed',
+          title: 'Request validation failed',
           status: 400,
-          error: 'VALIDATION_FAILED',
-          message: 'Request validation failed',
+          detail: '1 field(s) of the request body are invalid',
+          instance: '/recipes/api/recipes',
           fieldErrors: [{ field: 'title', message: 'must not be blank' }],
         },
         400,
@@ -100,7 +112,22 @@ describe('recipeApi', () => {
     expect(error.fieldError('difficulty')).toBeUndefined()
   })
 
-  it('should still fail cleanly when the error body is not our ErrorResponse', async () => {
+  it('should tolerate a problem detail without our fieldErrors extension', async () => {
+    // Spring produces this shape for the errors of the framework itself (ADR 0046).
+    fetchMock.mockResolvedValue(
+      jsonResponse(
+        { type: 'about:blank', title: 'Method Not Allowed', status: 405, detail: 'Method PATCH is not supported.' },
+        405,
+      ),
+    )
+
+    const error = (await recipeApi.list().catch((cause: unknown) => cause)) as ApiError
+
+    expect(error.message).toBe('Method PATCH is not supported.')
+    expect(error.fieldError('title')).toBeUndefined()
+  })
+
+  it('should still fail cleanly when the error body is not a problem detail', async () => {
     fetchMock.mockResolvedValue(new Response('<html>gateway timeout</html>', { status: 504 }))
 
     const error = (await recipeApi.list().catch((cause: unknown) => cause)) as ApiError
