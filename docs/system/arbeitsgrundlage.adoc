@@ -79,7 +79,54 @@ herein, also gibt es keine zweite Fassung, die veralten kann.
 Die Skills sind *keine* Claude-Code-Skills im technischen Sinn – solche verlangen
 `.claude/skills/<name>/SKILL.md` mit YAML-Frontmatter und werden vom Werkzeug selbst
 angeboten. Hier sind es gewöhnliche Dokumente, die der Master-Prompt mit Pfad und Anlass
-nennt.
+nennt. Ein `.claude/skills/` gibt es deshalb nicht; das leere Verzeichnis, das eine Zeit lang
+dort stand, ist entfernt.
+
+== Die Werkzeugseite: `.claude/settings.json`
+
+Neben den Dokumenten steht eine Konfigurationsdatei, die Claude Code selbst liest. Sie ist
+versioniert, gilt also für jeden, der im Repository arbeitet.
+
+[cols="2,3", options="header"]
+|===
+| Schlüssel | Inhalt
+
+| `permissions.allow`
+| Freigabeliste: `+./gradlew+`, die drei Log-Skripte unter `docs/log` und die *lesenden und
+  lokal schreibenden* `+git+`-Befehle, die Develop- und PO-Skill verlangen – bis
+  `+git merge+`. Was die Historie umschreibt oder nach außen wirkt (`+push+`, `+reset+`,
+  `+rebase+`, `+clean+`), steht bewusst *nicht* darin und fragt weiterhin nach: `+push+` ist
+  nach link:{adr}/0034-arbeitsbranches-vor-dem-merge-holen{adrext}[ADR 0034] ohnehin nicht
+  Teil des Ablaufs, und ein umgeschriebener Commit macht die Verweise des Protokolls ungültig
+  (link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038]).
+
+| `hooks.UserPromptSubmit`
+| Ruft `+python3 docs/log/prompt-eingang.py+` bei jedem Prompt auf. Das Skript legt in
+  `docs/log/claudeLog.adoc` Anker, Überschrift und Platzhalter des Eintrags an, *bevor* die
+  erste Antwort entsteht; Kennzahlen und Aktionen ergänzt der Assistent. Das Format regelt der
+  Butterfly-Skill, Abschnitt „Der Hook legt das Gerüst an".
+|===
+
+Damit hängen drei Skripte unter `docs/log` am Protokoll, jedes mit einer eigenen Richtung:
+
+[cols="2,3", options="header"]
+|===
+| Skript | Richtung
+
+| `docs/log/prompt-eingang.py`
+| *In* das Protokoll – als Hook, vor der Antwort. Legt den Eintrag an.
+
+| `docs/log/turn-stats.py`
+| *Aus* dem Transkript in das Protokoll. Liefert die fertige Kennzahlenzeile.
+
+| `docs/log/kennzahlen.py`
+| *Aus* dem Protokoll in die Tabelle `docs/log/kennzahlen.adoc`
+  (link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]).
+|===
+
+NOTE: Keines der drei hängt am Gradle-Build. Ein Fehler darin fällt nicht als roter Build auf,
+sondern daran, dass Protokoll oder Tabelle nicht mehr zusammenpassen –
+`+python3 docs/log/kennzahlen.py --check+` ist die Probe.
 
 == Ladeweg
 

@@ -186,11 +186,24 @@ braucht nach dem ADR-Skill zuerst eine Entscheidung.
 | Eine Grundregel im Master-Prompt
 |===
 
-*Stand 2026-08-16:* Vorschlag 3 ist umgesetzt –
-link:{adr}/0040-commit-freigabe-in-einem-schritt{adrext}[ADR 0040] löst die Regel
-„Message-Bestätigung (Pflicht)" des Develop-Skills ab. Die übrigen fünf stehen offen. Diese
-Retrospektive wird dabei *nicht* umgeschrieben: Sie hält den Stand vom 2026-08-16 fest, so wie
-ein ADR den Stand seiner Entscheidung hält.
+*Stand 2026-08-16:* Umgesetzt sind
+
+* *Vorschlag 3* – link:{adr}/0040-commit-freigabe-in-einem-schritt{adrext}[ADR 0040] löst die
+  Regel „Message-Bestätigung (Pflicht)" des Develop-Skills ab.
+* *Vorschlag 4* – `+.claude/settings.json+` existiert: Freigabeliste für `+./gradlew+`, die
+  Log-Skripte und die lokal wirkenden `+git+`-Befehle, dazu der `UserPromptSubmit`-Hook auf
+  `+docs/log/prompt-eingang.py+`, der das Gerüst des Log-Eintrags anlegt, bevor die erste
+  Antwort entsteht. Das leere `+.claude/skills/+` ist entfernt. Kein ADR – die Entscheidung
+  ändert keine Regel, sie führt die vorhandene aus; beschrieben ist sie in
+  `docs/system/arbeitsgrundlage.adoc` und im Butterfly-Skill.
+
+Die übrigen vier stehen offen. Diese Retrospektive wird dabei *nicht* umgeschrieben: Sie hält
+den Stand vom 2026-08-16 fest, so wie ein ADR den Stand seiner Entscheidung hält.
+
+NOTE: Vorschlag 4 beseitigt Befund 6, aber nur die *Hälfte* von Befund 5. Der Hook sichert,
+dass jeder Prompt eine Zeile bekommt; dass die *Zahlen* darin stehen, hängt weiter am
+Transkript der laufenden Session – nach `/clear` beginnt der Stand wieder bei null. Die
+Untererfassung schrumpft also, sie verschwindet nicht.
 
 Der wirksamste Hebel sind *1 und 2 zusammen*: Sie machen aus zwei parallelen Arbeitsweisen –
 Nutzer in der IDE, Assistent auf der Kommandozeile – eine gemeinsame, ohne dass eine Seite ihre

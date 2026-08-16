@@ -21,8 +21,9 @@ mit.
 
 * Zu *Beginn* einer Session: Existenz von `docs/log/claudeLog.adoc` prüfen, bei Bedarf mit
   Header anlegen.
-* Nach *jedem* beantworteten Nutzer-Prompt: einen neuen Eintrag ergänzen, bevor der Turn
-  endet.
+* Nach *jedem* beantworteten Nutzer-Prompt: den Eintrag *füllen*, bevor der Turn endet.
+  Angelegt hat ihn der Hook (siehe <<hook>>) schon vor der ersten Antwort – leer bleibt er
+  trotzdem, wenn niemand ihn füllt.
 
 == Format
 
@@ -151,16 +152,69 @@ _Stand (Session, 68 Prompts): 4:04:54 h · 764.504 Token out · 289.620.079 Toke
   `/clear` läuft (siehe <<commits>> im Develop-Skill), umfasst eine Session in der Regel genau
   die Arbeit *seit dem letzten Commit*; der Stand springt dort auf null zurück.
 
+[[hook]]
+== Der Hook legt das Gerüst an
+
+Anker, Überschrift und Nummer schreibt nicht mehr der Assistent, sondern ein
+`UserPromptSubmit`-Hook: `+.claude/settings.json+` ruft dazu
+`+python3 docs/log/prompt-eingang.py+` auf, *bevor* die erste Antwort entsteht. Die Zuordnung
+Prompt → Eintrag hängt damit nicht mehr daran, dass der Assistent daran denkt.
+
+Was der Hook schreibt – vorne, weil die Sortierung absteigend ist:
+
+[source,asciidoc]
+----
+[[prompt-142]]
+== 142. Prompt: „<wörtlicher Prompt>"
+
+_Delta: (offen)_
+_Stand: (offen)_
+
+*Aktionen:*
+
+* (offen)
+
+'''
+----
+
+Was er *nicht* schreibt: Kennzahlen, Aktionen und die Zeile `+_Commit:_+`. Sie bleiben Sache
+des Assistenten – `+(offen)+` ist die Marke dafür, dass der Eintrag noch unfertig ist. Ein
+Eintrag, der so stehen bleibt, taucht in der Kennzahlen-Tabelle mit `–` auf: dieselbe Anzeige
+wie bei nicht ermittelbaren Zahlen, kein stiller Verlust.
+
+Drei Eigenheiten, die beim Füllen auffallen können:
+
+* *Die Überschrift ist eine Zeile.* Zeilenumbrüche werden zu Leerzeichen, ab 300 Zeichen wird
+  mit `…` gekürzt. Ein langer Prompt steht damit nicht vollständig in der Überschrift; wo das
+  stört, gehört der Rest in den `*Aktionen:*`-Block.
+* *`+{+` und `+<<+` sind escaped.* Der Hook schreibt `+\{+` und `+\<<+`, weil beides in einer
+  Überschrift sonst wirksam wäre – eine Attribut-Referenz verschwindet, ein Querverweis ins
+  Leere bricht den Build. Asciidoctor rendert den Backslash nicht mit; in der literalen
+  Prompt-Spalte der Kennzahlen-Tabelle bleibt er sichtbar. Wen das stört, der schreibt die
+  Überschrift von Hand um.
+* *Ein abgebrochener Turn lässt das Gerüst stehen.* Steht beim nächsten Prompt oben ein
+  Eintrag, der noch `+(offen)+` trägt und *nicht* zum aktuellen Prompt gehört, ist er
+  nachzutragen oder zu entfernen – nicht zu übersehen.
+
+NOTE: Der Hook greift erst, wenn Claude Code die Datei geladen hat. Wurde
+`+.claude/settings.json+` in der laufenden Session erst angelegt oder geändert, fehlt das
+Gerüst noch; dann gilt der Ablauf unten von Hand.
+
 == Ablauf pro Prompt
 
 . Nutzer-Prompt beantworten / Aufgabe umsetzen.
 . `python3 docs/log/turn-stats.py --log-line` ausführen.
-. Neuen Abschnitt oben in `docs/log/claudeLog.adoc` einfügen:
-.. Überschrift mit fortlaufender Nummer und Original-Prompt.
-.. Kennzahlenzeile aus Schritt 2.
-.. Stichpunkte zu Aktionen/Ergebnissen (Commits, Tests, Dateien, Entscheidungen).
+. Den obersten Abschnitt in `docs/log/claudeLog.adoc` füllen – den, den der Hook angelegt hat:
+.. Überschrift prüfen (Nummer, Kürzung, Escapes) und bei Bedarf richtigstellen.
+.. Beide `+(offen)+`-Kennzahlenzeilen durch die Ausgabe aus Schritt 2 ersetzen.
+.. `+* (offen)+` durch Stichpunkte zu Aktionen/Ergebnissen ersetzen (Commits, Tests, Dateien,
+   Entscheidungen).
 . `python3 docs/log/kennzahlen.py` ausführen (Manager-Skill) – die Tabelle folgt dem Log.
 . Log-Aktualisierung vor Turn-Ende sicherstellen.
+
+IMPORTANT: Fehlt das Gerüst – Hook nicht geladen, Skript nicht gelaufen –, wird der Abschnitt
+wie früher *von Hand* oben eingefügt, mit fortlaufender Nummer. Der Hook ist die Absicherung,
+nicht die Bedingung: Ohne Eintrag endet der Turn nicht.
 
 == Vorlage
 
@@ -189,6 +243,6 @@ _Stand (Session, <k> Prompts): <h:mm:ss> h · <out> Token out · <gesamt> Token 
   *zuerst* das Log ergänzen, *dann* committen.
 * Bei reinen Doku-Änderungen zählt der letzte grüne Lauf weiter, solange seither *kein Code*
   angefasst wurde. Das ist im Log-Eintrag ausdrücklich zu vermerken.
-* Für eine deterministische Garantie (statt „Best Effort") kann zusätzlich ein
-  `UserPromptSubmit`-Hook in `.claude/settings.json` den Roh-Prompt automatisch anhängen; die
-  inhaltliche Zusammenfassung ergänzt weiterhin der Assistent.
+* Der `UserPromptSubmit`-Hook aus <<hook>> ist die deterministische Absicherung, die hier
+  früher nur als Möglichkeit stand. Er trägt den Roh-Prompt ein; die inhaltliche
+  Zusammenfassung ergänzt weiterhin der Assistent.

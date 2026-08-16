@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew:*)",
+      "Bash(python3 docs/log/kennzahlen.py:*)",
+      "Bash(python3 docs/log/turn-stats.py:*)",
+      "Bash(python3 docs/log/prompt-eingang.py:*)",
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git diff:*)",
+      "Bash(git branch:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git ls-files:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git fetch:*)",
+      "Bash(git pull --ff-only:*)",
+      "Bash(git merge:*)",
+      "Bash(git merge --abort)"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/docs/log/prompt-eingang.py\"",
+            "timeout": 10,
+            "statusMessage": "Butterfly: Log-Eintrag anlegen"
+          }
+        ]
+      }
+    ]
+  }
+}

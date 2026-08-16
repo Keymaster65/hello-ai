@@ -9,6 +9,96 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-143]]
+== 143. Prompt: „commit"
+
+_Delta: 6 s · 902 Token out · 2.572 Token in (neu) · 332.864 Token gesamt_
+_Stand (Session, 4 Prompts): 15:53 min · 77.053 Token out · 8.451.118 Token gesamt_
+
+*Aktionen:*
+
+* *Freigabe im Befehl* (ADR 0040): Message formuliert und ohne Zwischenfrage committet.
+* *Definition of Done geprüft:* Berührt sind nur `docs/` und `+.claude/+`; kein Java, kein
+  TypeScript. Die drei Doku-Tasks liefen in Prompt 142 grün, der letzte grüne Test-, System-
+  und E2E-Lauf (Prompt 135) gilt damit weiter.
+* *Der Hook hat für diesen Prompt nicht gefeuert* – kein Gerüst `+prompt-143+` im Protokoll.
+  Erwartet: Claude Code beobachtet `+.claude/+` nur, wenn dort beim Sessionstart schon eine
+  Settings-Datei lag. Dieser Eintrag ist wieder von Hand geschrieben; die Probe steht nach dem
+  nächsten Start aus.
+* *`docs/backlog.adoc` bewusst nicht mitcommittet.* Die Datei hat parallel im Editor drei
+  PlantUML-Einträge verloren – fremde Arbeit, die nicht in einen Commit über
+  `+.claude/settings.json+` gehört. Sie bleibt im Arbeitsverzeichnis stehen.
+* *Abweichung vom Develop-Skill benannt, nicht stillschweigend begangen:* Der Skill gibt als
+  Trailer `+Co-Authored-By: Claude Opus 4.8 (1M context)+` vor. Der Commit trägt *Opus 5* –
+  eine Tatsachenangabe, die stimmen muss. Der Skill nennt noch das Modell seiner
+  Entstehungszeit; das nachzuziehen ist eine eigene Änderung und steht aus.
+* *Branches zusammengeführt* nach ADR 0032/0034 – Ablauf und Ergebnis siehe unten.
+
+'''
+
+[[prompt-142]]
+== 142. Prompt: „Realisiere Vorschlag 4 aus der heutigen Retro"
+
+_Delta: 13:17 min · 63.752 Token out · 444.131 Token in (neu) · 5.859.012 Token gesamt_
+_Stand (Session, 3 Prompts): 13:17 min · 63.752 Token out · 5.859.012 Token gesamt_
+
+*Aktionen:*
+
+* *Vorschlag 4 aus `docs/retro/2026-08-16-zusammenarbeit.adoc`* gelesen und die berührten
+  Skills dazu (Butterfly, Develop, ADR) – „`+.claude/settings.json+` anlegen: Freigabeliste
+  …, dazu der `UserPromptSubmit`-Hook aus dem Butterfly-Skill. Leeres `+.claude/skills/+`
+  entfernen oder erklären."
+* *Drei Rückfragen vor der Umsetzung* (Grundregel 5), weil der Hook eine echte Gabelung hat.
+  Entschieden: Der Hook schreibt das *Eintrag-Gerüst in den Log* (nicht in eine Seitendatei),
+  es entsteht *kein ADR* – die Retro führt Vorschlag 4 als „Eine Datei, keine Regeländerung" –,
+  und das leere `+.claude/skills/+` wird *gelöscht*.
+* *`+docs/log/prompt-eingang.py+` geschrieben:* liest das Hook-JSON von stdin, ermittelt die
+  nächste Nummer aus der höchsten vorhandenen und fügt Anker, Überschrift und die Platzhalter
+  `+(offen)+` *vorne* ein – hinter dem ersten `+'''+`, wie die absteigende Sortierung es
+  verlangt. Der Prompt wird auf eine Zeile gefaltet, ab 300 Zeichen mit `…` gekürzt und `+{+`
+  wie `+<<+` escaped: Ersteres verschwände als Attribut-Referenz, Letzteres bräche als
+  Querverweis ins Leere den Build. Ein zweiter Aufruf mit demselben Prompt tut nichts.
+* *Gegen eine Kopie des echten Protokolls getestet*, nicht gegen ein Beispiel: `+--dry-run+`
+  mit einem Prompt aus `+{attr}+`, `+<<commit-abc1234>>+` und Zeilenumbruch, dann echtes
+  Einfügen, dann Wiederholung (still). `+kennzahlen.py+` liest den Platzhalter-Eintrag
+  erwartungsgemäß als `–` in allen Kennzahlenspalten, die Summen laufen weiter.
+* *`+.claude/settings.json+` angelegt:* 17 Freigaben – `+./gradlew+`, die drei Log-Skripte und
+  die `+git+`-Befehle bis `+git merge+`. `+push+`, `+reset+`, `+rebase+` und `+clean+` stehen
+  *bewusst nicht* darin: Push ist nach ADR 0034 nicht Teil des Ablaufs, und ein
+  umgeschriebener Commit macht die Verweise des Protokolls ungültig (ADR 0038) – genau die
+  Bruchstelle aus Befund 3 der Retro. Dazu der `UserPromptSubmit`-Hook auf das neue Skript.
+  Mit `+jq -e+` gegen Syntax und Verschachtelung geprüft.
+* *`+.claude/skills/run-recipes/+` entfernt* – leer und ungetrackt; `+rmdir+` hätte bei Inhalt
+  verweigert. Damit ist auch der Widerspruch weg, den Befund 6 benennt.
+* *Arbeitsgrundlage nachgezogen:* `+butterfly.adoc+` bekommt den Abschnitt „Der Hook legt das
+  Gerüst an" (Anker `+hook+`), ein umgeschriebenes „Wann anwenden" und einen neuen „Ablauf pro
+  Prompt" – *füllen* statt *anlegen*, mit dem ausdrücklichen Rückfallweg von Hand. Der alte
+  Schlusshinweis, der den Hook noch als Möglichkeit führte, verweist jetzt auf den Abschnitt.
+* *Systemdokumentation nachgezogen:* `+docs/system/arbeitsgrundlage.adoc+` erhält den
+  Abschnitt „Die Werkzeugseite" mit beiden Schlüsseln der `+settings.json+` und einer Tabelle
+  der drei Log-Skripte nach ihrer Richtung (in das Protokoll, aus dem Transkript, aus dem
+  Protokoll). Der Satz über `+.claude/skills/+` sagt jetzt, dass es das Verzeichnis nicht
+  gibt.
+* *Retro fortgeschrieben, nicht umgeschrieben:* nur der Absatz „Stand 2026-08-16" nennt
+  Vorschlag 4 jetzt als umgesetzt – samt der Einschränkung, dass er Befund 6 beseitigt, von
+  Befund 5 aber nur die Hälfte: Der Hook sichert die *Zeile*, nicht die *Zahlen*; die hängen
+  weiter am Transkript der Session.
+* *Dokumentation gebaut:* `+asciidoctorPrompt+`, `+asciidoctor+` und `+asciidoctorAdr+` grün
+  (19 s), *ohne* „possible invalid reference". Die zwei bekannten Meldungen zu
+  `+claudeLog.adoc+` bestehen unverändert weiter („id assigned to section already in use:
+  prompt-minus2", „skipping reference to missing attribute: id"); sie haben einen eigenen
+  `+KI+`-Eintrag im Backlog.
+* *Keine Testläufe:* Berührt wurden `docs/` und `+.claude/+`. `+prompt-eingang.py+` ist wie
+  `+kennzahlen.py+` ein Doku-Werkzeug und kommt im Gradle-Build nicht vor; der letzte grüne
+  Lauf (Prompt 135) gilt weiter.
+* *Fremde Änderung im Arbeitsverzeichnis, unangetastet gelassen:* `docs/backlog.adoc` hat
+  parallel drei PlantUML-Einträge verloren – dieselbe Reibung, die Befund 3 beschreibt und die
+  schon während der Retro einmal auftrat.
+* *Dieser Eintrag ist von Hand geschrieben.* Der Hook greift erst, wenn Claude Code die eben
+  angelegte `+settings.json+` geladen hat – der nächste Prompt ist die Probe.
+
+'''
+
 [[prompt-141]]
 == 141. Prompt: „Ergänze in „kennzahlen" in den Zeilen die Links auch claudeLog und gitChangeLog." (aus dem Backlog, `next`)
 
