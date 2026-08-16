@@ -50,15 +50,15 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 
 == : Erstelle den security Skill für das frontend.
 
+== : Ergänze die Ergebnisse der Testabdeckung in der Systemdokumentation im Kapitel "Abdeckung"
+
+== : Ergänze die Ergebnisse der Tests incl. Videos in den entsprechenden Kapiteln der Systemdokumentation
+
 == : Konsolidiere alle Skills und ADR so, dass keine ADR mehr notwendig sind, alle die Inhalte auf die Skills verteilt werden. Wenn sinnvoll erzeuge neue Skills.
 
 == : Ergänze einen MCP Service für den Zugriff auf Rezepte und die Systemdokumentation.
 
 == : Ergänze out-port Adapter, die die Daten in einem neuen leeren Branch data sichern. Der Aufbau dort soll sein /database/entities/recipes, /database/entities/ingredients usw. Gespeichert und gelesen werden jeweils Json-Dateien, die einen Datensatz enthalten.
-
-== Ergänze die Ergebnisse der Testabdeckung in der Systemdokumentation im Kapitel "Abdeckung"
-
-== Ergänze die Ergebnisse der Tests incl. Video
 
 == architecture
     Multi Brower Support
