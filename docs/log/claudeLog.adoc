@@ -14,6 +14,7 @@ Datum: 2026-07-19
 
 _Delta: 9:10 min · 30.943 Token out · 179.445 Token in (neu) · 4.487.886 Token gesamt_
 _Stand (Session, 3 Prompts): 9:10 min · 30.943 Token out · 4.487.886 Token gesamt_
+_Commit: <<commit-e001391,e001391>>_
 
 *Aktionen:*
 
@@ -44,6 +45,17 @@ _Stand (Session, 3 Prompts): 9:10 min · 30.943 Token out · 4.487.886 Token ges
   (1:15 min), `+./gradlew e2eTest+` (9 Tests, 16,4 s). `+build/docs/asciidoc/systemkontext.svg+`
   (4.682 Byte) liegt neben `+system.html+` und im Boot-Jar unter
   `+BOOT-INF/classes/static/docs/+`; der Diagramm-Cache `+.asciidoctor/+` ist nicht darin.
+* *Commit und Merge:* Commit `+e001391+` als Author Claude; danach `+git fetch origin+` und die
+  Arbeitsbranches gemergt (ADR 0032/0034). `+main+`, `+sm+`, `+doc+` waren „Already up to date",
+  `+dev+` existiert nicht und wurde übergangen, `+origin/po+` ist neu und brachte einen
+  *Konflikt* in `docs/backlog.adoc`.
+* *Konflikt aufgelöst, weil beide Absichten erkennbar waren:* `+po+` hatte „Benenne den Skill
+  systemdoku um" nach unten sortiert und den Eintrag „Ergänze out-port Adapter …" ergänzt, mein
+  Commit hatte den erledigten Eintrag entfernt. Übernommen wurde die Sortierung von `+po+`
+  *ohne* den erledigten Eintrag. Merge-Commit `+7c70370+`; `+./gradlew asciidoctor+` danach
+  grün. Nebenbei sichtbar: In der Sortierung von `+po+` hätte `+next+1+` einen *anderen* Eintrag
+  gezogen – gezogen wurde nach dem Stand, der beim Pull auf `+main+` vorlag, und im Wortlaut
+  bestätigt.
 * *Nebenbefund, nicht angefasst:* `+asciidoctor+` meldet neben der bekannten Zeile „skipping
   reference to missing attribute: id" jetzt auch „id assigned to section already in use:
   prompt-minus2" (`+claudeLog.adoc+` Zeile 3845) – ein doppelter Anker aus einem früheren
