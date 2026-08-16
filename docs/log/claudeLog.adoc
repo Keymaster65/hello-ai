@@ -9,6 +9,46 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-144]]
+== 144. Prompt: „Ergänze die Behandlung des Branch `po` wie die Branche `main`, `sm`, `doc`, `dev`." (aus dem Backlog, `next`)
+
+_Delta: 2:28 min · 18.895 Token out · 111.311 Token in (neu) · 2.231.478 Token gesamt_
+_Stand (Session, 3 Prompts): 2:28 min · 18.895 Token out · 2.231.478 Token gesamt_
+
+*Aktionen:*
+
+* *Pull vor `next`* (ADR 0030): `+git pull --ff-only+` auf `main` meldete „Already up to date",
+  nichts geholt. Kein Eintrag stand auf aktiv.
+* *Ziehreihenfolge auf `main`:* keine an `main` gebundenen Einträge; von den zwei ungebundenen
+  ready-Einträgen wurde der erste gezogen, nach Rückfrage im Wortlaut bestätigt und der Marker
+  vor der Arbeit auf `+*+` gesetzt.
+* *Der Hook hat erneut nicht gefeuert* – kein Gerüst `+prompt-144+` im Protokoll; dieser Eintrag
+  ist von Hand geschrieben. Die Session begann mit `/clear`, nicht mit einem Neustart von Claude
+  Code; die Probe aus Prompt 143 steht damit weiter aus.
+* *Gesucht, wo Branches überhaupt behandelt werden:* `docs/prompt/develop.adoc` (Liste der
+  Arbeitsbranches), ADR 0032 und ADR 0034 (Entscheidung dahinter) sowie Erwähnungen im Protokoll
+  und in der Retro. Die Systemdokumentation führt *keine* Branchliste, `+.claude/settings.json+`
+  auch nicht – zu ändern war deshalb genau eine Stelle.
+* *`docs/prompt/develop.adoc`, Abschnitt „Branches nach dem Commit zusammenführen":* `po` in die
+  Liste der Arbeitsbranches aufgenommen (`main`, `sm`, `doc`, `dev`, `po`). Der `IMPORTANT`-Block
+  darunter sagt jetzt zusätzlich, dass diese Liste die einzige geltende Fassung ist, dass ADR 0032
+  und 0034 den Stand ihres Entscheidungszeitpunkts nennen und unverändert bleiben, und dass ein
+  Name auf einen noch nicht existierenden Branch warten darf.
+* *Kein neues ADR:* ADR 0032 hat die Pflege von Hand ausdrücklich vorgesehen („kommt ein
+  Arbeitsbranch dazu, gehört er dort ergänzt"). Ergänzt wird damit die Liste, nicht die
+  Entscheidung – eine Ablösung wäre ohne Gegenstand. Die beiden ADRs bleiben wortgleich
+  (ADR-Skill, „ADRs werden nicht umgeschrieben").
+* *Keine Systemdoku-Änderung:* Der Systemdoku-Skill nimmt eine geänderte *Regel* ausdrücklich
+  aus – sie kommt über den `include` des Wortlauts von selbst mit.
+* *Nachweis:* `+./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr --no-daemon
+  -g /tmp/gradle-home+` → `BUILD SUCCESSFUL`. Nur `docs/` berührt, kein Java und kein
+  TypeScript; der letzte grüne Test-, System- und E2E-Lauf (Prompt 135) gilt weiter.
+* *Backlog:* Der erledigte Eintrag ist entfernt.
+* *Der Branch `po` existiert noch nicht* – weder lokal noch als `+origin/po+`. Beim nächsten
+  Merge wird er deshalb übergangen, bis ihn jemand anlegt.
+
+'''
+
 [[prompt-143]]
 == 143. Prompt: „commit"
 

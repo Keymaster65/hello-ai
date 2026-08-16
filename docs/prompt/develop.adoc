@@ -90,11 +90,17 @@ anzusammeln, bis ihn niemand mehr auflösen kann. Gemergt wird dabei der *zuletz
 Stand: Vorher wird einmal geholt
 (link:{adr}/0034-arbeitsbranches-vor-dem-merge-holen{adrext}[ADR 0034]).
 
-*Welche Branches:* die *Arbeitsbranches* `main`, `sm`, `doc`, `dev` – auch den aktuellen. Kein
-anderer: ein Experiment oder ein nur zum Nachsehen geholter Zweig gehört nicht dazu.
+*Welche Branches:* die *Arbeitsbranches* `main`, `sm`, `doc`, `dev`, `po` – auch den aktuellen.
+Kein anderer: ein Experiment oder ein nur zum Nachsehen geholter Zweig gehört nicht dazu.
 
 IMPORTANT: Diese Liste wird *von Hand* gepflegt. Kommt ein Arbeitsbranch dazu, gehört er hier
 ergänzt – sonst fällt er still heraus und wird nie zusammengeführt (ADR 0032, „Nachteile").
+Sie ist die *einzige* geltende Fassung: ADR 0032 und
+link:{adr}/0034-arbeitsbranches-vor-dem-merge-holen{adrext}[ADR 0034] nennen die vier Branches
+des Entscheidungszeitpunkts und bleiben als historischer Stand unverändert (ADR-Skill,
+„ADRs werden nicht umgeschrieben"). `po` ist danach hinzugekommen und wird behandelt wie die
+übrigen – auch dann, wenn es den Branch noch gar nicht gibt: Ein Name darf auf einen Branch
+warten (ADR 0032, „Welche Branches").
 
 *Der Ablauf:*
 
