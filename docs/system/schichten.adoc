@@ -241,29 +241,73 @@ Bemerkenswerte Eigenschaften der Implementierung:
 Zwei Abläufe genügen, um das Zusammenspiel zu zeigen; die übrigen Use Cases folgen
 demselben Muster.
 
-.GET /recipes/api/recipes/\{id}
-----
-Browser → RecipeController.getById(id)
-        → RecipeService.getById(id)                     [readOnly-Transaktion]
-        → RecipeRepository.findById(id)
-        → RecipeJooqRepository: SELECT recipe / ingredient / preparation_step
-        ← Optional<Recipe>
-   leer  → RecipeNotFoundException → GlobalExceptionHandler → 404 + ErrorResponse
-   sonst ← RecipeRestMapper.toResponse(...) → 200 + RecipeResponse
-----
+.Lesen: GET /recipes/api/recipes/\{id}
+[plantuml,ablauf-lesen,svg]
+....
+@startuml
+!pragma layout smetana
+skinparam shadowing false
 
-.POST /recipes/api/recipes
-----
-Browser → Bean Validation auf RecipeRequest
-   ungültig → MethodArgumentNotValidException → GlobalExceptionHandler
-              → 400 + ErrorResponse (fieldErrors je Feld)
-   gültig   → RecipeRestMapper.toDomain(request)     [Positionen aus der Listenordnung]
-            → Recipe-Konstruktor validiert die Domäneninvarianten
-            → RecipeService.create(recipe)           [schreibende Transaktion]
-            → INSERT recipe, dann INSERT je Zutat und Schritt
-            ← gespeichertes Rezept inkl. id
-            → 201 + Location: /recipes/api/recipes/{id} + RecipeResponse
-----
+actor Browser
+participant "RecipeController" as controller
+participant "RecipeServiceImpl" as service
+participant "RecipeJooqRepository" as repository
+database "PostgreSQL" as db
+participant "GlobalExceptionHandler" as handler
+
+Browser -> controller : GET /recipes/api/recipes/1
+controller -> service : getById(id)
+note right of service : readOnly-Transaktion
+service -> repository : findById(id)
+repository -> db : SELECT recipe, ingredient, preparation_step
+db --> repository
+repository --> service : Optional
+alt Optional ist leer
+  service --> controller : RecipeNotFoundException
+  controller -> handler : Exception
+  handler --> Browser : 404 + ErrorResponse
+else Rezept vorhanden
+  service --> controller : Recipe
+  note left of controller : RecipeRestMapper.toResponse(...)
+  controller --> Browser : 200 + RecipeResponse
+end
+@enduml
+....
+
+.Anlegen: POST /recipes/api/recipes
+[plantuml,ablauf-anlegen,svg]
+....
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+
+actor Browser
+participant "Bean Validation" as validation
+participant "RecipeController" as controller
+participant "RecipeRestMapper" as mapper
+participant "RecipeServiceImpl" as service
+participant "RecipeJooqRepository" as repository
+participant "GlobalExceptionHandler" as handler
+
+Browser -> validation : POST /recipes/api/recipes\n(RecipeRequest)
+alt Request ungültig
+  validation -> handler : MethodArgumentNotValidException
+  handler --> Browser : 400 + ErrorResponse\n(fieldErrors je Feld)
+else Request gültig
+  validation -> controller : create(request)
+  controller -> mapper : toDomain(request)
+  note right of mapper : Positionen aus der Listenordnung;\nder Recipe-Konstruktor prüft\ndie Domäneninvarianten
+  mapper --> controller : Recipe
+  controller -> service : create(recipe)
+  note right of service : schreibende Transaktion
+  service -> repository : save(recipe)
+  repository -> repository : INSERT recipe,\ndann INSERT je Zutat und Schritt
+  repository --> service : Recipe mit id
+  service --> controller : Recipe mit id
+  controller --> Browser : 201 + Location + RecipeResponse
+end
+@enduml
+....
 
 Die Quellen der beteiligten Klassen stehen in <<src-gruppe-rest>>, <<src-gruppe-application>>
 und <<src-gruppe-persistence>>.

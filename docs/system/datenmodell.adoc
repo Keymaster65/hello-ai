@@ -7,10 +7,23 @@ ifndef::adrext[:adrext: .adoc]
 
 Drei Tabellen, ein Aggregat: `recipe` mit zwei abhängigen Kindtabellen.
 
-----
-recipe (1) ──< ingredient          ON DELETE CASCADE, Reihenfolge über position
-       (1) ──< preparation_step    ON DELETE CASCADE, Reihenfolge über position
-----
+.Das Aggregat in der Datenbank
+[plantuml,datenmodell,svg]
+....
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+hide circle
+hide empty members
+
+entity "recipe" as recipe
+entity "ingredient" as ingredient
+entity "preparation_step" as step
+
+recipe ||--o{ ingredient : fk_ingredient_recipe\nON DELETE CASCADE\nReihenfolge über position
+recipe ||--o{ step : fk_preparation_step_recipe\nON DELETE CASCADE\nReihenfolge über position
+@enduml
+....
 
 .Tabelle `recipe`
 [cols="2,2,1,3", options="header"]

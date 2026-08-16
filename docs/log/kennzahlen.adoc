@@ -20,6 +20,20 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-147,147>>
+|„Verwende plantuml in der Asciidoc Systemdocumentation wo es sinnvoll ist. Ergänze das im systemdokumentation Skill." (aus dem Backlog, `next`)
+| –
+| 12:05 min
+| 13:55:37 h
+| 63.084
+| 3.374.725
+| 362.480
+| 20.874.581
+| 9.080.508
+| 12:05 min
+| 63.084
+| 9.080.508
+
 | <<prompt-146,146>>
 |„Verwende im "Systemkontext" plantuml diagram." (aus dem Backlog, `+next+1+`)
 | <<commit-e001391,e001391>>

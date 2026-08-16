@@ -90,13 +90,21 @@ Schritt* geändert, nicht später.
 | `api.adoc`, Tabelle der Fehlerbilder
 
 | Neues Liquibase-Changeset (Tabelle, Spalte, Constraint, Index)
-| `datenmodell.adoc` (Spaltentabelle *und* Abbildung auf die Domäne)
+| `datenmodell.adoc` (Spaltentabelle *und* Abbildung auf die Domäne); kommt eine *Tabelle*
+  oder eine *Beziehung* dazu, auch das Diagramm `datenmodell` – die Spalten selbst zeigt es
+  nicht, die stehen in den Tabellen darunter
 
 | Neue Komponente im Domänenmodell, neue Invariante
 | `schichten.adoc`, Abschnitt „Domäne"
 
 | Neue Methode an einem Port
 | `schichten.adoc` (Use-Case- bzw. Port-Tabelle)
+
+| Geänderter Weg einer Anfrage durch die Schichten – andere Transaktionsgrenze, anderer
+  Fehlerweg, ein Mapper mehr
+| `schichten.adoc`, Abschnitt „Laufzeitsicht": die Sequenzdiagramme `ablauf-lesen` und
+  `ablauf-anlegen`. Sie zeigen *zwei* Abläufe stellvertretend; die übrigen Use Cases folgen
+  demselben Muster und bekommen kein eigenes Bild
 
 | Neuer Adapter (Messaging, weiterer Client)
 | `schichten.adoc` *und* `ueberblick.adoc`: im Systemkontext das Diagramm „Das System und
@@ -113,7 +121,8 @@ Schritt* geändert, nicht später.
   gepflegt, widersprechen sie sich. Der Build merkt davon nichts – siehe <<diagramme>>
 
 | Neuer Gradle-Task, geänderter Buildablauf
-| `betrieb.adoc`, Befehlstabelle
+| `betrieb.adoc`, Befehlstabelle; ändert sich, *was* in das Boot-Jar fließt oder *wer* es
+  zusammensetzt, auch das Diagramm `deployable`
 
 | Neue Umgebungsvariable oder Konfigurationsschlüssel
 | `betrieb.adoc`, Konfigurationstabelle
@@ -131,10 +140,10 @@ Schritt* geändert, nicht später.
 
 | Neue Datei in `docs/prompt`, geänderter Ladeweg oder geänderte Aufteilung zwischen
   Master-Prompt und Skills
-| `arbeitsgrundlage.adoc`: Dateitabelle bzw. Abschnitt „Ladeweg" – *und* bei einer neuen Datei
-  ein `include` im Abschnitt „Wortlaut". Ohne den `include` fehlt sie dort still. Eine
-  geänderte *Regel* dagegen berührt das Kapitel nicht: Sie kommt über den `include` von selbst
-  mit.
+| `arbeitsgrundlage.adoc`: Dateitabelle bzw. Abschnitt „Ladeweg" – dort auch das Diagramm
+  `ladeweg`, das die Skills namentlich nennt – *und* bei einer neuen Datei ein `include` im
+  Abschnitt „Wortlaut". Ohne den `include` fehlt sie dort still. Eine geänderte *Regel* dagegen
+  berührt das Kapitel nicht: Sie kommt über den `include` von selbst mit.
 
 | Neue handgeschriebene Quelldatei
 | `anhang-quellen.adoc`: Eintrag in der passenden Gruppe ergänzen und aus dem Kapitel
@@ -241,6 +250,32 @@ an der Stelle, die sie zeigt:
   eigener Pflege und einen Eintrag mehr in `anhang-quellen.adoc`.
 * *Titelzeile davor* (`+.Titel+`), wie bei Tabellen. Ein Bild ohne Bildunterschrift ist im
   Inhaltsverzeichnis nicht auffindbar.
+
+=== Wo ein Diagramm hingehört – und wo nicht
+
+Ein Diagramm ist die Ausnahme, nicht die Regel; die Frage ist nicht „geht das als Bild?",
+sondern „trägt das Bild die Aussage besser als der Satz?".
+
+* *Ein Bild aus Zeichen ist keines.* Wo eine Pfeilkette, ein Kasten oder ein Baum in einem
+  Literalblock steht, gehört PlantUML hin. ASCII-Kunst ist im Projekt keine Darstellungsform
+  mehr: Jede Änderung daran ist Layout-Arbeit von Hand, und genau die unterbleibt
+  (link:{adr}/0042-plantuml-fuer-diagramme{adrext}[ADR 0042], „Optionen").
+* *Sinnvoll ist ein Diagramm, wo eine Richtung, eine Schachtelung oder eine zeitliche Folge
+  die Aussage trägt* – Abhängigkeiten, Nachbarn, Beziehungen zwischen Tabellen, der Weg einer
+  Anfrage durch die Schichten, der Weg der Artefakte in das Deployable.
+* *Kein Diagramm, wo eine Tabelle die Aussage trägt.* Was Merkmale je Zeile aufzählt – Spalten
+  und Typen, Endpunkte und Statuscodes, Konfigurationsschlüssel, Teststufen, Routen –, bleibt
+  Tabelle. Ein Bild daneben wäre die zweite Fassung, die veraltet; das ist dieselbe Regel wie
+  „Ein Diagramm ersetzt Text" oben, von der anderen Seite gelesen.
+* *Kein Diagramm für eine Aufzählung von vier Schritten.* Eine nummerierte Liste, die
+  geradeaus läuft (etwa der Startablauf in `betrieb.adoc`), wird als Bild nicht klarer.
+  Verzweigt der Ablauf oder hat er mehrere Beteiligte, kippt die Antwort.
+* *Die Diagrammart folgt dem Gegenstand*, nicht der Gewohnheit: Komponenten für Struktur,
+  Sequenz für Abläufe, `entity` mit `+||--o{+` für Tabellenbeziehungen. ADR 0042 legt das
+  Werkzeug fest, ausdrücklich nicht die Zeichnung.
+* *Welches Diagramm eine Änderung berührt, steht in der Zuordnungstabelle oben*, bei der Zeile
+  der Änderung – nicht in einer eigenen Liste der Diagramme. Eine solche Liste wäre der zweite
+  Ort, an dem ein Diagramm gepflegt werden müsste.
 
 IMPORTANT: Ein Diagramm ist die *ungeprüfteste* Stelle der Dokumentation. Fehlender `include`
 und toter Querverweis brechen den Build; ein Pfeil in die falsche Richtung bricht ihn nicht.

@@ -133,12 +133,22 @@ sondern daran, dass Protokoll oder Tabelle nicht mehr zusammenpassen –
 `CLAUDE.md` ist der einzige Dateiname, den Claude Code automatisch liest; er ist vom Werkzeug
 vorgegeben und deshalb Markdown. Von dort führt ein `@`-Import zum Master-Prompt:
 
-----
-CLAUDE.md ──@-Import──> docs/prompt/masterprompt.adoc      (jede Session, vollständig)
-    │
-    └── nennt mit Pfad ─> architektur | adr | tests | security | systemdoku | butterfly |
-                          manager | po | develop (nur bei Anlass, vom Assistenten gelesen)
-----
+.Ladeweg: was in jeder Session gilt und was bei Anlass hinzukommt
+[plantuml,ladeweg,svg]
+....
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam componentStyle rectangle
+
+file "CLAUDE.md" as claude
+file "docs/prompt/masterprompt.adoc" as master
+file "docs/prompt/*.adoc\n\narchitektur · adr · tests · security\nsystemdoku · butterfly · manager\npo · develop" as skills
+
+claude --> master : @-Import\njede Session, vollständig
+claude --> skills : nennt Pfad und Anlass\nnur bei Anlass gelesen
+@enduml
+....
 
 Zwei Eigenschaften dieses Wegs bestimmen, wie die Dateien geschrieben sind:
 

@@ -9,6 +9,66 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-147]]
+== 147. Prompt: „Verwende plantuml in der Asciidoc Systemdocumentation wo es sinnvoll ist. Ergänze das im systemdokumentation Skill." (aus dem Backlog, `next`)
+
+_Delta: 12:05 min · 63.084 Token out · 362.480 Token in (neu) · 9.080.508 Token gesamt_
+_Stand (Session, 3 Prompts): 12:05 min · 63.084 Token out · 9.080.508 Token gesamt_
+
+*Aktionen:*
+
+* *Pull vor `next`* (ADR 0030): `+git pull --ff-only+` auf `main` meldete „Already up to date",
+  nichts geholt. Kein Eintrag stand auf aktiv.
+* *Ziehreihenfolge auf `main`:* keine gebundenen Einträge; gezogen wurde der *erste* der drei
+  ungebundenen ready-Einträge, nach Rückfrage im Wortlaut bestätigt und der Marker vor der
+  Arbeit auf `+*+` gesetzt.
+* *Der Hook hat wieder nicht gefeuert* – kein Gerüst `+prompt-147+`; dieser Eintrag ist von
+  Hand geschrieben.
+* *Kriterium für „wo es sinnvoll ist":* die vier verbliebenen ASCII-Bilder in `docs/system`.
+  Sie sind ersetzt, nicht ergänzt – ADR 0022 hatte sie als „Systemkontext, Modulgraph und
+  Ablaufskizzen als ASCII in Literal-Blöcken" ausdrücklich geführt, die ersten beiden waren
+  schon umgestellt.
+* *`datenmodell.adoc`, „Schema":* die Pfeilzeile `+recipe (1) ──< ingredient+` ersetzt durch
+  `+[plantuml,datenmodell,svg]+` – drei `entity` mit `+||--o{+`, die Kanten tragen
+  Fremdschlüsselname, `+ON DELETE CASCADE+` und „Reihenfolge über position". Spalten zeigt das
+  Bild bewusst nicht; die stehen in den Tabellen darunter.
+* *`schichten.adoc`, „Laufzeitsicht":* die zwei Ablaufskizzen ersetzt durch die
+  Sequenzdiagramme `+ablauf-lesen+` (GET, mit `+alt+`-Zweig 404/200) und `+ablauf-anlegen+`
+  (POST, mit `+alt+`-Zweig 400/201). Transaktionsgrenzen und die Herkunft der Positionen stehen
+  als Notiz im Bild.
+* *`betrieb.adoc`, „Wie das Deployable entsteht":* der ASCII-Baum ersetzt durch `+deployable+`
+  – Changelog, `modules/frontend` und `docs/system` als Eingänge, `:bootstrap` als Ort des
+  Zusammensetzens, das Boot-Jar als Ergebnis. Die Prosa darunter ist um die Schrittkette
+  gekürzt, die jetzt im Bild steht; der *Grund* („weil dort das Deployable zusammengesetzt
+  wird") bleibt.
+* *`arbeitsgrundlage.adoc`, „Ladeweg":* der ASCII-Kasten ersetzt durch `+ladeweg+` – `CLAUDE.md`
+  mit `@`-Import auf den Master-Prompt und dem zweiten Weg zu den neun Skills.
+* *Bewusst kein Diagramm* dort, wo eine Tabelle die Aussage trägt: Endpunkte, Fehlerbilder,
+  Konfigurationsschlüssel, Teststufen, SPA-Routen. Auch der vierschrittige Startablauf in
+  `betrieb.adoc` bleibt eine Liste – als Bild wird er nicht klarer.
+* *`docs/prompt/systemdoku.adoc` ergänzt* (der eigentliche Auftrag): neuer Abschnitt „Wo ein
+  Diagramm hingehört – und wo nicht" im Kapitel „Diagramme" mit sechs Regeln – ASCII-Kunst ist
+  keine Darstellungsform mehr, Richtung/Schachtelung/zeitliche Folge sprechen für ein Bild,
+  Merkmalstabellen dagegen, Diagrammart nach Gegenstand, keine eigene Liste der Diagramme.
+  Dazu vier Zeilen der Zuordnungstabelle, die jetzt das betroffene Diagramm namentlich nennen
+  (`+datenmodell+`, `+ablauf-lesen+`/`+ablauf-anlegen+`, `+deployable+`, `+ladeweg+`).
+* *Kein neues ADR:* ADR 0042 legt Werkzeug, Blockform, `+!pragma layout smetana+` und den
+  gewählten Dateinamen bereits fest und nennt Laufzeitsicht und weitere Stellen ausdrücklich
+  als offene Kandidaten; die Pflegeregel gehört laut ADR 0042 in genau diesen Skill. Das ADR
+  bleibt wortgleich, auch der Satz unter „Bewusst nicht getan" (ADR-Skill, Grundsatz 3).
+* *Alle fünf Diagramme angesehen*, nicht nur den grünen Build abgelesen (Pflicht aus dem
+  Skill): SVG nach PNG gewandelt und geprüft – Kardinalitäten, Pfeilrichtungen, `+alt+`-Zweige
+  und alle Beschriftungen sind vollständig und lesbar; `+recipes-<version>.jar+` überlebt die
+  PlantUML-Auszeichnung unverändert.
+* *Prüfläufe, alle grün:* `+./gradlew clean build+` (3:11 min), `+./gradlew systemtest+`
+  (1:09 min), `+./gradlew e2eTest+` (39 s). Die fünf neuen SVG liegen neben `+system.html+` und
+  im Boot-Jar unter `+BOOT-INF/classes/static/docs/+`; der Diagramm-Cache `+.asciidoctor/+` ist
+  nicht darin. Die zwei bekannten Asciidoctor-Meldungen sind unverändert, neue kommen nicht
+  dazu.
+* *Backlog:* Eintrag nach Erledigung entfernt.
+
+'''
+
 [[prompt-146]]
 == 146. Prompt: „Verwende im "Systemkontext" plantuml diagram." (aus dem Backlog, `+next+1+`)
 

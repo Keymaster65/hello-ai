@@ -59,25 +59,39 @@ Projekt weiterleitet, das ihn kennt. Die Buildskripte selbst stehen in <<src-gru
 
 === Wie das Deployable entsteht
 
-----
-:domain → :application → :adapter → :bootstrap
-                            │            │
-                 jOOQ-Codegen aus        ├── processResources ← modules/frontend/dist  → static/
-                 dem Changelog           │                    ← build/docs/asciidoc    → static/docs/
-                                         └── bootJar
-                                              → modules/backend/bootstrap/build/libs/recipes-<version>.jar
-----
+.Was in das Boot-Jar fließt und wer es zusammensetzt
+[plantuml,deployable,svg]
+....
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam componentStyle rectangle
+
+file "db/changelog/\ndb.changelog-master.xml" as changelog
+folder "modules/frontend" as frontend
+folder "docs/system" as docsrc
+
+component ":adapter" as adapter
+component ":bootstrap" as bootstrap
+artifact "recipes-<version>.jar" as jar
+
+changelog --> adapter : jOOQ-Codegen,\nohne laufende Datenbank
+adapter --> bootstrap : Klassen der Schichtmodule
+frontend --> bootstrap : npmInstall, frontendBuild\n(tsc --noEmit && vite build) → dist/
+docsrc --> bootstrap : asciidoctor → build/docs/asciidoc
+bootstrap --> jar : processResources: dist/ → static/,\nDoku → static/docs/; dann bootJar
+@enduml
+....
 
 Der Frontend-Build hängt am Modul `:bootstrap`, weil dort das Deployable zusammengesetzt
-wird: `npmInstall` → `frontendBuild` (`tsc --noEmit && vite build`) →
-`processResources` legt `dist/` nach `static/` in das Jar. Spring Boot liefert das Bundle
-anschließend aus dem Klassenpfad aus – SPA und API kommen aus derselben Origin
+wird. Spring Boot liefert das Bundle anschließend aus dem Klassenpfad aus – SPA und API
+kommen aus derselben Origin
 (link:{adr}/0007-react-frontend-mit-backend-als-bff{adrext}[ADR 0007]).
 
 Dieselbe Rollenteilung gilt für die Systemdokumentation: Gerendert wird sie im
-Wurzelprojekt (`asciidoctor`), eingepackt in `:bootstrap`. `processResources` kopiert
-`build/docs/asciidoc/` nach `static/docs/`; dabei wird `system.html` zu `index.html`, die
-mitkopierten ADRs behalten ihren Ordner. Ausgeliefert wird das unter `/recipes/docs/`
+Wurzelprojekt (`asciidoctor`), eingepackt in `:bootstrap`. Beim Kopieren wird `system.html`
+zu `index.html`, die mitkopierten ADRs behalten ihren Ordner. Ausgeliefert wird das unter
+`/recipes/docs/`
 (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]) – die Anwendung trägt ihre
 Beschreibung damit bei sich.
 
