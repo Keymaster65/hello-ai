@@ -42,17 +42,18 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 `git`.
 
 
-== Ergänze
 
-== : Ändere den architektur Skill so, dass die "application" frei noch Framework Abhägigkeiten ist. Ein entsprechender archunit Test soll das absichern.
+== : Ergänze ein Plant UML Diagram für die Abhängigkeiten der gradle Module in der Asciidoc Systemdokumentation unter "Bausteine und Schichten". Ergänze die Pflege der Abhängigkeiten in dem Skill systemdoku. Ergänze ein ADR zur Verwendung von Plant UML als Tool zur Diagramerstellung.
 
-== doc Ergänze ein Plant UML Diagram für die Abhängigkeiten der gradle Module in der Asciidoc Systemdocumentation. Ergänze die Pflege der Abhängigkeiten in den Skills. Ergänze ein ADR für Plant UML.
+== : Benenne den Skill systemdoku um in systemdokumentation
+
+== : Verwende im "Systemkontext" plantuml diagram.
+
+== : Verwende plantuml in der Asciidoc Systemdocumentation wo es sinnvoll ist. Ergänze das im systemdokumentation Skill.
+
+== : Ändere den architektur Skill so, dass die "application" frei noch Framework Abhängigkeiten ist. Ein entsprechender archunit Test soll das absichern.
 
 == Konsolidiere alle Skills und ADR so, dass keine ADR mehr notwendig sind, alle die Inhalte auf die Skills verteilt werden. Wenn sinnvoll erzeuge neue Skills.
-
-== doc Verwende im "Systemkontext" plantuml diagram.
-
-== doc Verwende plantuml in der Asciidoc Systemdocumentation wo es sinnvoll ist. Ergänze das im ADR
 
 == ?dev Ergänze einen MCP Service für den Zugriff auf Rezepte.
 
