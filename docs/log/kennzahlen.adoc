@@ -22,7 +22,7 @@
 
 | <<prompt-145,145>>
 |„Ergänze ein Plant UML Diagram für die Abhängigkeiten der gradle Module in der Asciidoc Systemdokumentation unter „Bausteine und Schichten". Ergänze die Pflege der Abhängigkeiten in dem Skill systemdoku. Ergänze ein ADR zur Verwendung von Plant UML als Tool zur Diagramerstellung." (aus dem Backlog, `next`)
-| –
+| <<commit-bad5bae,bad5bae>>
 | 14:49 min
 | 13:34:22 h
 | 73.245
