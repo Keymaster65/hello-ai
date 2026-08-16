@@ -22,7 +22,7 @@
 
 | <<prompt-154,154>>
 |„commit"
-| –
+| <<commit-71bf74d,71bf74d>>
 | 8:37 min
 | 15:37:16 h
 | 6.011
@@ -36,7 +36,7 @@
 
 | <<prompt-153,153>>
 |„Ergänze die Ergebnisse der Testabdeckung in der Systemdokumentation im Kapitel "Abdeckung"" (aus dem Backlog, `next+3`)
-| –
+| <<commit-71bf74d,71bf74d>>
 | 18:40 min
 | 15:28:39 h
 | 79.649
