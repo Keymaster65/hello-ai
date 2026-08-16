@@ -51,6 +51,8 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 
 == : Ändere den architektur Skill so, dass die "application" frei noch Framework Abhängigkeiten ist. Ein entsprechender archunit Test soll das absichern.
 
+== Ergänze out-port Adapter, die die Daten in einem neuen leeren Branch data sichern. der Aufbau dort soll sein /data/
+
 == Konsolidiere alle Skills und ADR so, dass keine ADR mehr notwendig sind, alle die Inhalte auf die Skills verteilt werden. Wenn sinnvoll erzeuge neue Skills.
 
 == ?dev Ergänze einen MCP Service für den Zugriff auf Rezepte.
