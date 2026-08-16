@@ -22,7 +22,7 @@
 
 | <<prompt-152,152>>
 |„Realisiere "RFC 9457 Problem Details for HTTP API" für die Anwendung." (aus dem Backlog, `next`)
-| –
+| <<commit-841657c,841657c>>
 | 20:59 min
 | 15:09:59 h
 | 101.910
