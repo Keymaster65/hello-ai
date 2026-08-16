@@ -247,6 +247,14 @@ tasks.named<AsciidoctorTask>("asciidoctor") {
         .withPropertyName("eingebundeneDateienAusserhalb")
         .withPathSensitivity(PathSensitivity.RELATIVE)
 
+    // Die Docinfo-Fußzeile macht das Inhaltsverzeichnis klappbar (ADR 0043). Sie fällt durch
+    // beide Netze: Der Task durchsucht `docs/system` nur nach AsciiDoc, und `includesAusserhalb`
+    // sammelt ausdrücklich nur, was *außerhalb* liegt. Ohne diese Zeile bliebe er nach einer
+    // Änderung an der Datei UP-TO-DATE und lieferte das alte Verzeichnis aus – nachgemessen.
+    inputs.file(file("docs/system/docinfo-footer.html"))
+        .withPropertyName("docinfoFusszeile")
+        .withPathSensitivity(PathSensitivity.RELATIVE)
+
     // Der Anhang „Änderungen" bindet die erzeugte Tabelle ein; ohne diese Kante stünde
     // Asciidoctor vor einem fehlenden `include` – und der ist als Build-Fehler konfiguriert.
     dependsOn(tasks.named("gitChangelog"))

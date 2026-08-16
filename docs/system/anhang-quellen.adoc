@@ -52,7 +52,8 @@ sind damit maschinell geprüft, nicht nur gut gemeint.
 
 | `docs/**`
 | Die Dokumentation selbst. Master-Prompt und Skills stehen im Wortlaut in <<wortlaut>>, die
-  ADRs sind im Abschnitt Architekturentscheidungen (ADR) verlinkt.
+  ADRs sind im Abschnitt Architekturentscheidungen (ADR) verlinkt. Ausgenommen ist
+  <<src-docinfo-footer>>: CSS und JavaScript sind Quelltext, kein Text zum Lesen.
 |===
 
 [[src-gruppe-domaene]]
@@ -905,5 +906,15 @@ include::../../modules/frontend/vite.config.ts[]
 [source,typescript]
 ----
 include::../../modules/frontend/playwright.config.ts[]
+----
+====
+
+[[src-docinfo-footer]]
+[%collapsible]
+.`docs/system/docinfo-footer.html`
+====
+[source,html]
+----
+include::docinfo-footer.html[]
 ----
 ====

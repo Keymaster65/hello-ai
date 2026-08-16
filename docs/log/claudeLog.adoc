@@ -9,6 +9,50 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-148]]
+== 148. Prompt: „Erzeuge in der Systemdokumentation einen "Table of Contents", der zu und aufgeklappt werden kann." (aus dem Backlog, `next`)
+
+_Delta: 18:47 min · 120.816 Token out · 385.099 Token in (neu) · 20.640.875 Token gesamt_
+_Stand (Session, 3 Prompts): 18:47 min · 120.816 Token out · 20.640.875 Token gesamt_
+
+*Aktionen:*
+
+* *Pull vor `next`* (ADR 0030): `+git pull --ff-only+` auf `main` meldete „Already up to date",
+  nichts geholt. Kein Eintrag stand auf aktiv.
+* *Ziehreihenfolge auf `main`:* keine gebundenen Einträge; gezogen wurde der *erste* der
+  ungebundenen ready-Einträge, nach Rückfrage im Wortlaut bestätigt und der Marker vor der
+  Arbeit auf `+*+` gesetzt.
+* *Der Hook hat wieder nicht gefeuert* – kein Gerüst `+prompt-148+`; dieser Eintrag ist von
+  Hand geschrieben.
+* *Ausgangslage gemessen, nicht geschätzt:* Das Verzeichnis hatte 110 Einträge, davon 15 auf
+  der obersten Ebene. Die längsten Äste sind der Anhang „Backlog" (25) und das Kapitel
+  „Arbeitsgrundlage" (16) – beide wachsen mit der Arbeit, nicht mit dem System.
+* *`docs/system/docinfo-footer.html` angelegt* – CSS und JavaScript, die jedem Eintrag mit
+  Unterpunkten einen `+<button>+` mit `+aria-expanded+` voranstellen, jedem Blatt eine Lücke
+  gleicher Breite. Dazu ein Schalter „alle aufklappen" neben der Überschrift.
+* *`system.adoc`* setzt `+:docinfo: shared-footer+` und erklärt die Bedienung in vier Punkten;
+  neues *ADR 0043* mit den verworfenen Optionen (`+:toclevels: 1+`, `+:toc: macro+` in einem
+  `+[%collapsible]+`-Block, Fremd-Theme), Zeile im ADR-Index.
+* *Zwei Funde beim Messen mit Playwright*, beide behoben:
+** Ein Sprungziel *ohne* eigenen Verzeichniseintrag – etwa ein Klapp-Block des Anhangs
+   „Quelldateien" – blieb verborgen. Das Skript sucht jetzt vom Ziel aus aufwärts den
+   Abschnitt, den das Verzeichnis kennt.
+** `+asciidoctor+` blieb nach einer Änderung an der Docinfo-Datei „up-to-date" und lieferte das
+   alte HTML: Der Task sieht `docs/system` nur nach AsciiDoc durch, und `+includesAusserhalb+`
+   sammelt nur, was *außerhalb* liegt. Die Datei ist jetzt einzeln als Eingabe angemeldet.
+* *Nachgezogen:* `anhang-quellen.adoc` (Eintrag `+src-docinfo-footer+`, dazu die Ausnahme in
+  „Nicht enthalten"), `betrieb.adoc` (Zeile des `+asciidoctor+`-Tasks) und der Skill
+  `docs/prompt/systemdoku.adoc` (Zeile in „Wo was steht").
+* *Ergebnis im Browser:* 15 sichtbare Einträge statt 110; Dreieck und Sammelschalter klappen
+  wie erwartet; mit Fragment `+#src-docinfo-footer+` steht der Ast offen; ohne JavaScript
+  bleiben es 110 – das Verzeichnis von vorher.
+* *Definition of Done, alles grün:* `+./gradlew clean build+` (3:02 min), `+systemtest+`
+  (1:24 min), `+e2eTest+` (9 Tests, 18,4 s). Die drei Doku-Tasks laufen ohne *neue* Meldung;
+  die zwei bekannten des `+asciidoctor+`-Tasks stehen unverändert als `+KI+`-Einträge im
+  Backlog.
+
+'''
+
 [[prompt-147]]
 == 147. Prompt: „Verwende plantuml in der Asciidoc Systemdocumentation wo es sinnvoll ist. Ergänze das im systemdokumentation Skill." (aus dem Backlog, `next`)
 

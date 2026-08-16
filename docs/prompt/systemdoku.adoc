@@ -24,6 +24,14 @@ zuständig ist – und nur das.
 | `system.adoc`
 | Master: Attribute, Abgrenzung zu README/ADR/Arbeitsgrundlage, `include`-Liste, ADR-Index
 
+| `docinfo-footer.html`
+| Kein Kapitel, sondern Beiwerk des gerenderten HTML: CSS und JavaScript, die das
+  Inhaltsverzeichnis klappbar machen
+  (link:{adr}/0043-inhaltsverzeichnis-klappbar-per-docinfo{adrext}[ADR 0043]). Asciidoctor
+  kopiert die Datei wegen `+:docinfo: shared-footer+` in `system.adoc` unverändert vor
+  `+</body>+`. Sie hängt an der HTML-Struktur, die Asciidoctor für das Verzeichnis erzeugt –
+  wie ein Diagramm ist sie ungeprüft, siehe <<diagramme>>
+
 | `ueberblick.adoc`
 | Aufgabe des Systems, Qualitätsziele, Systemkontext (Nachbarn), Randbedingungen
 

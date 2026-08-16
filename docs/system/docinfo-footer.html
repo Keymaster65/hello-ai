@@ -1,0 +1,236 @@
+<!--
+  Docinfo-Fußzeile der Systemdokumentation; Asciidoctor kopiert diese Datei unverändert vor
+  </body>, weil `system.adoc` das Attribut `docinfo: shared-footer` setzt (ADR 0043).
+
+  Aufgabe: das Inhaltsverzeichnis auf- und zuklappbar machen. Ohne JavaScript bleibt es das
+  vollständig ausgeklappte Verzeichnis, das Asciidoctor erzeugt – die Klasse, die einen Ast
+  verbirgt, vergibt erst das Skript unten.
+-->
+<style>
+/* Ein Ast ist ein Verzeichniseintrag mit Unterpunkten. Zugeklappt heißt: Unterliste weg. */
+#toc li.toc-zu > ul {
+  display: none;
+}
+
+/* Schalter und Lücke sind gleich breit, damit Blätter und Äste dieselbe Textkante haben. */
+#toc .toc-schalter,
+#toc .toc-luecke {
+  display: inline-block;
+  width: 1.1em;
+  text-align: center;
+}
+
+/* Hängender Einzug: Die erste Zeile beginnt beim Dreieck, jede Folgezeile eines langen
+   Eintrags beim Text – sonst liefe sie unter das Dreieck zurück. */
+#toc li {
+  padding-left: 1.1em;
+  text-indent: -1.1em;
+}
+
+#toc .toc-schalter {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  line-height: inherit;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+#toc .toc-schalter:hover,
+#toc .toc-schalter:focus-visible {
+  opacity: 1;
+}
+
+/* Das Dreieck steht rechts, solange zu ist, und kippt beim Aufklappen nach unten. */
+#toc .toc-schalter::before {
+  content: "\25B8";
+  display: inline-block;
+  transition: transform 0.15s ease-in-out;
+}
+
+#toc li:not(.toc-zu) > .toc-schalter::before {
+  transform: rotate(90deg);
+}
+
+/* Die Überschrift trägt den Schalter für alle Äste – rechts, in kleinerer Schrift. */
+/* Der Schalter rückt neben die Überschrift, wenn er dort Platz hat, und sonst darunter –
+   „Table of Contents" soll nicht umbrechen, nur weil ein Knopf danebensteht. */
+#toctitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.5em;
+}
+
+#toctitle .toc-alle {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font-family: inherit;
+  font-size: 0.68em;
+  font-weight: normal;
+  white-space: nowrap;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+#toctitle .toc-alle:hover,
+#toctitle .toc-alle:focus-visible {
+  opacity: 1;
+  text-decoration: underline;
+}
+
+/* Auf Papier gibt es nichts zu klicken: alles auf, Schalter weg. */
+@media print {
+  #toc li.toc-zu > ul {
+    display: block;
+  }
+
+  #toc .toc-schalter,
+  #toctitle .toc-alle {
+    display: none;
+  }
+}
+</style>
+<script>
+(function () {
+  'use strict';
+
+  var verzeichnis = document.getElementById('toc');
+  var ueberschrift = document.getElementById('toctitle');
+  if (!verzeichnis || !ueberschrift) {
+    return;
+  }
+
+  var AUF = 'alle aufklappen';
+  var ZU = 'alle zuklappen';
+  var aeste = [];
+
+  function klappen(ast, offen) {
+    var schalter = ast.querySelector(':scope > .toc-schalter');
+    ast.classList.toggle('toc-zu', !offen);
+    schalter.setAttribute('aria-expanded', offen ? 'true' : 'false');
+    schalter.title = offen ? 'Zuklappen' : 'Aufklappen';
+  }
+
+  /* Jeder Eintrag mit Unterliste bekommt einen Schalter, jeder ohne eine Lücke gleicher
+     Breite. Beides steht vor dem Link, damit der Tastaturweg der Lesereihenfolge folgt. */
+  Array.prototype.forEach.call(verzeichnis.getElementsByTagName('li'), function (eintrag) {
+    var unterliste = eintrag.querySelector(':scope > ul');
+    if (!unterliste) {
+      var luecke = document.createElement('span');
+      luecke.className = 'toc-luecke';
+      luecke.setAttribute('aria-hidden', 'true');
+      eintrag.insertBefore(luecke, eintrag.firstChild);
+      return;
+    }
+
+    var schalter = document.createElement('button');
+    schalter.type = 'button';
+    schalter.className = 'toc-schalter';
+    /* Der Titel des Abschnitts steht im Link daneben; er wird nicht wiederholt, sonst liest
+       ein Screenreader ihn zweimal. */
+    schalter.setAttribute('aria-label', 'Unterpunkte');
+    schalter.addEventListener('click', function () {
+      klappen(eintrag, eintrag.classList.contains('toc-zu'));
+    });
+    eintrag.insertBefore(schalter, eintrag.firstChild);
+    aeste.push(eintrag);
+  });
+
+  if (aeste.length === 0) {
+    return;
+  }
+
+  var alle = document.createElement('button');
+  alle.type = 'button';
+  alle.className = 'toc-alle';
+  alle.textContent = AUF;
+  alle.addEventListener('click', function () {
+    var oeffnen = alle.textContent === AUF;
+    aeste.forEach(function (ast) {
+      klappen(ast, oeffnen);
+    });
+    alle.textContent = oeffnen ? ZU : AUF;
+  });
+  ueberschrift.appendChild(alle);
+
+  /* Zugeklappt ist der Anfangszustand: Ausgeklappt reicht das Verzeichnis über mehrere
+     Bildschirmhöhen, und die Gliederung geht zwischen den Unterpunkten unter. */
+  aeste.forEach(function (ast) {
+    klappen(ast, false);
+  });
+
+  function entschluesseln(wert) {
+    try {
+      return decodeURIComponent(wert);
+    } catch (fehler) {
+      /* Ein Fragment, das keine gültige Prozentkodierung ist, wird verglichen wie es steht. */
+      return wert;
+    }
+  }
+
+  /* Ohne Prototyp: Eine Kennung wie "constructor" träfe sonst ein geerbtes Feld und gälte
+     als gefunden. */
+  var linkNachZiel = Object.create(null);
+  Array.prototype.forEach.call(verzeichnis.getElementsByTagName('a'), function (link) {
+    var ziel = entschluesseln(link.getAttribute('href') || '');
+    if (ziel.charAt(0) === '#') {
+      linkNachZiel[ziel.slice(1)] = link;
+    }
+  });
+
+  /* Die Kennung eines Abschnitts steht an seiner Überschrift, nicht an seinem Rahmen. */
+  function abschnittsKennung(element) {
+    if (element.id) {
+      return element.id;
+    }
+    var titel = element.querySelector(':scope > h1, :scope > h2, :scope > h3, :scope > h4');
+    return titel ? titel.id : '';
+  }
+
+  /* Ein Sprungziel nützt nichts in einem zugeklappten Ast: Der Weg dorthin wird geöffnet –
+     samt dem Ziel selbst, damit seine Unterpunkte sichtbar sind. Steht das Ziel gar nicht im
+     Verzeichnis – ein Klapp-Block des Anhangs „Quelldateien" etwa –, gilt der Abschnitt, in
+     dem es liegt. */
+  function aufdecken(fragment) {
+    if (!fragment) {
+      return;
+    }
+    var kennung = entschluesseln(fragment).replace(/^#/, '');
+    var link = linkNachZiel[kennung];
+    var element = document.getElementById(kennung);
+    while (!link && element) {
+      element = element.parentElement;
+      if (element) {
+        link = linkNachZiel[abschnittsKennung(element)];
+      }
+    }
+    if (!link) {
+      return;
+    }
+    for (var knoten = link.parentNode; knoten && knoten !== verzeichnis; knoten = knoten.parentNode) {
+      if (knoten.tagName === 'LI' && knoten.classList.contains('toc-zu')) {
+        klappen(knoten, true);
+      }
+    }
+  }
+
+  /* `hashchange` fällt aus, wenn das Ziel schon in der Adresse steht – deshalb zusätzlich der
+     Klick auf den Link selbst. */
+  verzeichnis.addEventListener('click', function (ereignis) {
+    var link = ereignis.target.closest('a[href^="#"]');
+    if (link) {
+      aufdecken(link.getAttribute('href'));
+    }
+  });
+  window.addEventListener('hashchange', function () {
+    aufdecken(window.location.hash);
+  });
+  aufdecken(window.location.hash);
+})();
+</script>

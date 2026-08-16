@@ -20,6 +20,20 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-148,148>>
+|„Erzeuge in der Systemdokumentation einen "Table of Contents", der zu und aufgeklappt werden kann." (aus dem Backlog, `next`)
+| –
+| 18:47 min
+| 14:14:24 h
+| 120.816
+| 3.495.541
+| 385.099
+| 21.259.680
+| 20.640.875
+| 18:47 min
+| 120.816
+| 20.640.875
+
 | <<prompt-147,147>>
 |„Verwende plantuml in der Asciidoc Systemdocumentation wo es sinnvoll ist. Ergänze das im systemdokumentation Skill." (aus dem Backlog, `next`)
 | <<commit-a0c250f,a0c250f>>

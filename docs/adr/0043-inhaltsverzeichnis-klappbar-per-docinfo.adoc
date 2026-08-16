@@ -1,0 +1,183 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= ADR 0043: Klappbares Inhaltsverzeichnis per Docinfo-Fußzeile
+
+== Status
+
+Akzeptiert – 2026-08-16
+
+Ergänzt link:0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022] um eine
+Bedienung des gerenderten Ergebnisses. Abgelöst wird nichts: Quelle bleibt AsciiDoc, das
+Inhaltsverzeichnis erzeugt weiterhin Asciidoctor.
+
+== Kontext
+
+Die Systemdokumentation ist ein einziges HTML-Dokument mit `+:toc: left+` und
+`+:toclevels: 3+`. Das Verzeichnis in der linken Spalte ist damit vollständig ausgeklappt: 110
+Einträge, von denen 15 die oberste Ebene bilden – elf Kapitel und vier Anhänge. Die übrigen 95
+sind Unterpunkte, und sie sind ungleich verteilt. Der Anhang „Backlog" bringt allein 25 mit,
+weil dort jeder geplante Prompt eine Überschrift ist
+(link:0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028]); das Kapitel
+„Arbeitsgrundlage" 16, weil es Master-Prompt und Skills im Wortlaut einbindet
+(link:0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]).
+
+Beide wachsen mit der Arbeit, nicht mit dem System: ein Backlog-Eintrag mehr, ein Skill mehr –
+und die Gliederung, um die es beim Einstieg geht, rutscht weiter aus dem Blick. Wer sie sucht,
+scrollt und liest dabei, was er gerade nicht sucht.
+
+Der Anhang „Quelldateien" ist der Vergleichsfall, und er trägt nur seine zehn Gruppen bei,
+obwohl er 83 Dateien führt: Jede Datei ist dort ein `+[%collapsible]+`-Block statt eines
+Abschnitts – zugeklappt, weil ein Anhang aus 83 offenen Quelltexten niemandem nützt. Was für
+den Inhalt längst gilt, fehlt bisher für seine Übersicht.
+
+Drei Eigenschaften des Bestands schränken die Wahl ein:
+
+*Die Doku wird ausgeliefert.* Das gerenderte Verzeichnis wandert ins Boot-Jar und wird unter
+`/recipes/docs/` bedient (link:0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]). Was
+die Bedienung mitbringt, muss deshalb *im* Dokument stehen und darf zur Laufzeit nichts
+nachladen – so wie die Diagramme neben dem HTML liegen
+(link:0042-plantuml-fuer-diagramme{adrext}[ADR 0042]).
+
+*Das Ergebnis ist eine Seite.* `+system.html+` trägt sein Stylesheet eingebettet; daneben
+liegen nur die erzeugten SVGs und der Ordner `adr/`. Einen Ort für Beiwerk – ein eigenes
+Skript, ein eigenes Stylesheet – gibt es bisher nicht, und ein solcher Ort müsste beim
+Einpacken ins Boot-Jar mitgedacht werden.
+
+*Die Doku hängt am Build.* Sie entsteht bei jedem `+./gradlew build+`; ein fehlender `include`
+und ein toter Querverweis brechen ihn
+(link:0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022]). Eine Lösung, die
+nach dem Rendern noch von Hand angefasst werden müsste, fiele aus diesem Rahmen.
+
+== Optionen
+
+. *`+:toclevels: 1+` setzen.* Verworfen: Das ist keine Bedienung, sondern eine Kürzung. Die
+  Unterpunkte wären nicht zugeklappt, sondern *weg* – auch für den, der gerade in einem
+  Kapitel arbeitet und dessen Abschnitte sucht.
+. *Das Verzeichnis als `+[%collapsible]+`-Block.* Mit `+:toc: macro+` ließe sich `+toc::[]+`
+  in einen Klapp-Block setzen – dieselbe Auszeichnung, die der Anhang „Quelldateien" schon
+  verwendet, ganz ohne JavaScript. Verworfen aus zwei Gründen: Es klappt *alles oder nichts*,
+  denn `+[%collapsible]+` kennt nur den einen Block; und `+:toc: macro+` gibt die linke Spalte
+  auf, weil das Verzeichnis dann dort steht, wo das Makro steht. Der Gewinn wäre ein
+  zugeklapptes Verzeichnis, der Verlust ein dauerhaft sichtbares.
+. *Ein fertiges Theme* – eines der frei verfügbaren Asciidoctor-Stylesheets, die ein
+  klappbares Verzeichnis mitbringen. Verworfen: Es brächte eine Abhängigkeit mit eigener
+  Version in den Doku-Build und änderte das Aussehen des *ganzen* Dokuments, um eine Spalte zu
+  bedienen. Die Diagramme, die Tabellen und die Klapp-Blöcke des Anhangs sind auf das
+  vorhandene Stylesheet abgestimmt.
+. *Eine Docinfo-Fußzeile mit CSS und JavaScript* – gewählt.
+
+== Entscheidung
+
+`+docs/system/docinfo-footer.html+` bringt das Nötige mit: ein `+<style>+` für den zugeklappten
+Zustand und ein `+<script>+`, das die Schalter einhängt. `+system.adoc+` setzt dazu
+`+:docinfo: shared-footer+`; Asciidoctor kopiert die Datei beim Rendern unverändert vor
+`+</body>+`.
+
+Das Ergebnis bleibt damit *eine* Datei, ohne Nachladen und ohne neue Abhängigkeit im Build –
+dieselbe Zusicherung, unter der die Doku ausgeliefert wird.
+
+Im Buildskript ist die Datei *einzeln* als Eingabe des `+asciidoctor+`-Tasks angemeldet. Das
+ist kein Beiwerk, sondern nötig: Der Task durchsucht `docs/system` nur nach AsciiDoc, und die
+vorhandene Sammelfunktion für eingebundene Dateien nimmt ausdrücklich nur, was *außerhalb* des
+Quellverzeichnisses liegt. Ohne die Anmeldung bleibt der Task nach einer Änderung an der
+Docinfo-Datei „up-to-date" und liefert das alte Verzeichnis aus – so beim ersten Lauf
+geschehen, siehe „Prüfung".
+
+=== Wie es sich verhält
+
+* *Zugeklappt ist der Anfangszustand.* Sichtbar sind die 15 Kapitel und Anhänge; alles
+  darunter auf Wunsch.
+* *Jeder Eintrag mit Unterpunkten trägt ein Dreieck*, ein `+<button>+` mit `+aria-expanded+`.
+  Blätter bekommen eine Lücke derselben Breite, damit die Textkante gerade bleibt.
+* *Ein Schalter neben der Überschrift* klappt alle Äste zugleich auf und wieder zu.
+* *Ein Sprungziel deckt seinen Weg auf.* Wer einen Abschnitt über die Adresszeile oder einen
+  Querverweis anspringt, findet den Ast dorthin geöffnet – ein Verzeichnis, das das Ziel
+  verbirgt, wäre schlechter als das offene von vorher.
+* *Ohne JavaScript ändert sich nichts.* Die Klasse, die einen Ast verbirgt, vergibt erst das
+  Skript. Fällt es aus, steht das vollständige Verzeichnis da wie bisher.
+* *Auf Papier steht alles offen*, und die Schalter fehlen: Gedruckt ist nichts zu klicken.
+
+== Konsequenzen
+
+*Vorteile*
+
+* Die Gliederung ist wieder auf einen Blick lesbar – und bleibt es, gleich wie lang Backlog
+  und Arbeitsgrundlage werden.
+* Die Bedienung ist im Dokument selbst enthalten; das ausgelieferte HTML bleibt in sich
+  geschlossen.
+* Kein neues Werkzeug, keine neue Version im Versionskatalog
+  (link:0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018]).
+
+*Nachteile*
+
+* Das Projekt hat damit eine handgeschriebene Datei mit CSS und JavaScript, die niemand testet.
+  Sie hängt an der HTML-Struktur, die Asciidoctor für `+:toc: left+` erzeugt: Ändert sich diese
+  Struktur mit einer neuen Asciidoctor-Version, bleibt das Verzeichnis stumm ausgeklappt – der
+  Build merkt davon nichts.
+* Der Zustand überlebt kein Neuladen der Seite. Wer die Doku als Nachschlagewerk offen hält,
+  klappt nach jedem `+F5+` erneut auf.
+
+*Bewusst nicht getan*
+
+* *Keine Übertragung auf die anderen beiden Dokumente.* Arbeitsgrundlage
+  (`+asciidoctorPrompt+`) und ADRs (`+asciidoctorAdr+`) behalten ihr offenes Verzeichnis: Sie
+  sind kurz genug, und die ADRs sind dreiundvierzig einzelne Dokumente ohne gemeinsames
+  Verzeichnis. Wird eines davon so lang wie die Systemdoku, ist das hier der Weg.
+* *Kein Merken des Zustands* in `+localStorage+`. Das wäre Zustand über die Seite hinaus,
+  gespeichert von einem Dokument, das aus einem Boot-Jar kommt – ein größerer Schritt als die
+  Bequemlichkeit, die er bringt.
+* *Kein Mitwandern beim Scrollen* („scroll spy"). Es würde den aktuellen Abschnitt hervorheben
+  und dafür fortlaufend rechnen; das Verzeichnis soll bedienbar sein, nicht klug.
+* *Keine Prüfung im Build.* Ein Test, der die erzeugten Schalter zählt, prüfte die Ausgabe von
+  Asciidoctor, nicht das System – und wäre bei jeder Umbenennung eines Abschnitts fällig.
+  Nachgesehen wird von Hand, wie bei den Diagrammen
+  (link:0042-plantuml-fuer-diagramme{adrext}[ADR 0042]).
+
+== Prüfung
+
+`+./gradlew asciidoctor+` läuft ohne neue Meldung durch – die zwei bekannten Meldungen des
+Tasks bleiben, was sie waren. Das erzeugte `+system.html+` trägt das `+<script>+` vor
+`+</body>+`.
+
+Gemessen wurde im Browser, mit Playwright gegen `+build/docs/asciidoc/system.html+` – von Hand
+angesehen wird eine Darstellung, gezählt wird sie besser. Die 109 sind die 110 aus dem Kontext
+abzüglich des Backlog-Eintrags, aus dem diese Arbeit hervorging:
+
+[cols="3,2", options="header"]
+|===
+| Geprüft | Ergebnis
+
+| Sichtbare Verzeichniseinträge nach dem Laden
+| 15 von 109
+
+| Klick auf ein Dreieck
+| Der Ast öffnet sich (hier: 20 sichtbar), `+aria-expanded+` steht auf `+true+`
+
+| Schalter „alle aufklappen" und zurück
+| 109 sichtbar, dann wieder 15; die Beschriftung wechselt mit
+
+| Aufruf mit Fragment `+#src-docinfo-footer+` – ein Ziel, das *selbst* nicht im Verzeichnis
+  steht
+| Der Ast des Anhangs „Quelldateien" ist offen, 26 sichtbar
+
+| Mit abgeschaltetem JavaScript
+| 109 sichtbar – das Verzeichnis von vorher
+|===
+
+Der Lauf davor hatte den vierten Punkt *nicht* erfüllt: Ein Sprungziel ohne eigenen
+Verzeichniseintrag blieb verborgen. Das Skript sucht seither vom Ziel aus aufwärts den
+Abschnitt, der im Verzeichnis steht.
+
+Ebenfalls beim Messen aufgefallen: Nach einer Änderung an der Docinfo-Datei blieb `+asciidoctor+`
+„up-to-date" und lieferte das alte HTML – behoben durch die Eingabe-Anmeldung im Buildskript
+(siehe „Entscheidung").
+
+== Referenzen
+
+* link:0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022] – AsciiDoc-Systemdokumentation in `docs/system`
+* link:0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024] – Systemdokumentation im Boot-Jar
+* link:0042-plantuml-fuer-diagramme{adrext}[ADR 0042] – PlantUML für Diagramme, gerendert beim Bauen
+* `docs/system/docinfo-footer.html` – die Datei selbst
+* `docs/system/system.adoc` – setzt `+:docinfo: shared-footer+`
+* `build.gradle.kts` – meldet die Datei als Eingabe des `+asciidoctor+`-Tasks an
+* https://docs.asciidoctor.org/asciidoc/latest/docinfo/[Asciidoctor: Docinfo files]

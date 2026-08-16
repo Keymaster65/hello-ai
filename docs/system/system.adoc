@@ -7,6 +7,10 @@
 :icons: font
 :source-highlighter: highlight.js
 :experimental:
+// Bindet `docinfo-footer.html` vor `</body>` ein – die Datei macht das Inhaltsverzeichnis
+// auf- und zuklappbar (ADR 0043). `shared-footer` meint genau diese eine Datei; eine
+// `docinfo.html` für den Kopf gibt es nicht.
+:docinfo: shared-footer
 // Ohne das steht in der Überschrift des Anhangs „Appendix" – der Rest ist deutsch.
 :appendix-caption: Anhang
 // Pfad zu den ADRs, relativ zu docs/system. Alle Kapiteldateien liegen im selben
@@ -19,6 +23,15 @@
 Diese Dokumentation beschreibt das System *recipes* im Zusammenhang: welche Bausteine es
 gibt, wie sie ineinandergreifen, welche Daten sie halten und wie das Ganze gebaut,
 betrieben und geprüft wird.
+
+.Bedienung des Inhaltsverzeichnisses
+* Jeder Eintrag mit Unterpunkten ist *zugeklappt*; das Dreieck davor öffnet ihn einzeln.
+* Der Schalter neben der Überschrift öffnet und schließt *alle* Einträge auf einmal.
+* Ein Sprung auf einen Abschnitt – aus dem Verzeichnis, aus dem Text oder über die
+  Adresszeile – klappt den Weg dorthin von selbst auf.
+* Ohne JavaScript steht das Verzeichnis vollständig offen; die Bedienung ist eine Zutat, keine
+  Bedingung (link:{adr}/0043-inhaltsverzeichnis-klappbar-per-docinfo{adrext}[ADR 0043]). Sie
+  steckt in <<src-docinfo-footer>>, das Asciidoctor beim Rendern in diese Seite kopiert.
 
 == Zweck und Abgrenzung
 
@@ -114,6 +127,7 @@ erste Zeile.
 |===
 | ADR | Thema
 
+| link:{adr}/0043-inhaltsverzeichnis-klappbar-per-docinfo{adrext}[0043] | Klappbares Inhaltsverzeichnis per Docinfo-Fußzeile
 | link:{adr}/0042-plantuml-fuer-diagramme{adrext}[0042] | PlantUML als Werkzeug für Diagramme, gerendert beim Bauen
 | link:{adr}/0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[0041] | Die Kennzahlen-Tabelle verweist auf Protokoll und Git-Historie (löst eine Festlegung aus 0038 ab)
 | link:{adr}/0040-commit-freigabe-in-einem-schritt{adrext}[0040] | `commit` ist die Freigabe – die Bestätigung der Message entfällt (löst eine Regel des Develop-Skills ab)

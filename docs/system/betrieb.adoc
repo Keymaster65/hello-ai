@@ -31,7 +31,10 @@ Gebaut wird ausschließlich über den Gradle-Wrapper
   zu SVG-Dateien neben dem HTML (link:{adr}/0042-plantuml-fuer-diagramme{adrext}[ADR 0042]).
   Das Ergebnis wandert von dort ins Boot-Jar
   (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]); ausgenommen ist der
-  Diagramm-Cache `.asciidoctor/`, der zum Bauen gehört.
+  Diagramm-Cache `.asciidoctor/`, der zum Bauen gehört. In das HTML kopiert wird außerdem
+  `docs/system/docinfo-footer.html`, das Beiwerk des klappbaren Inhaltsverzeichnisses
+  (link:{adr}/0043-inhaltsverzeichnis-klappbar-per-docinfo{adrext}[ADR 0043]) – als
+  Nicht-AsciiDoc-Datei ist sie im Buildskript *einzeln* als Eingabe angemeldet.
 | `./gradlew asciidoctorAdr`
 | Rendert `docs/adr/*.adoc` nach `build/docs/adr/`. Hängt am Task darüber, der das Ergebnis
   neben die Systemdokumentation kopiert
