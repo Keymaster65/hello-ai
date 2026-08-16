@@ -44,7 +44,10 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 
 == Ergänze
 
-== dev service ohne Spring
+
+== : Ergänze in "kennzahlen" in den Zeilen die Links auch claudeLog und gitChangeLog.
+
+== : Ändere den aritektur Skill so, dass die "application" frei noch Framework Abhägigkeiten ist. Ein entsprechender archunit Test soll das absichern.
 
 == doc Ergänze ein Plant UML Diagram für die Abhängigkeiten der gradle Module in der Asciidoc Systemdocumentation. Ergänze die Pflege der Abhängigkeiten in den Skills. Ergänze ein ADR für Plant UML.
 
