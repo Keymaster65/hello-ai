@@ -56,27 +56,29 @@ Die Reihenfolge ist bewusst: Bei einem Konflikt gewinnt das weiter oben stehende
 
 == Systemkontext
 
-Das System hat genau zwei Nachbarn: den Browser des Nutzers und eine PostgreSQL-Datenbank.
-Es ruft von sich aus kein Fremdsystem auf.
+.Das System und seine Nachbarn
+[plantuml,systemkontext,svg]
+....
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
 
-----
-        ┌────────────────┐
-        │    Browser     │   Nutzer: Rezepte pflegen
-        └───────┬────────┘
-                │ HTTPS/HTTP  (SPA-Auslieferung + JSON über /recipes/api)
-                ▼
-        ┌────────────────────────────────────────────┐
-        │  recipes  (ein Boot-Jar)                   │
-        │  · SPA-Bundle aus dem Klassenpfad          │
-        │  · REST-API                                │
-        │  · OpenAPI-Dokument + Swagger UI           │
-        └───────┬────────────────────────────────────┘
-                │ JDBC (jOOQ), Schema-Migration (Liquibase)
-                ▼
-        ┌────────────────┐
-        │   PostgreSQL   │
-        └────────────────┘
-----
+actor "Nutzer" as nutzer
+[Browser] as browser
+component "recipes (ein Boot-Jar)\n· SPA-Bundle aus dem Klassenpfad\n· REST-API\n· OpenAPI-Dokument + Swagger UI" as recipes
+database "PostgreSQL" as db
+
+nutzer --> browser : Rezepte pflegen
+browser --> recipes : HTTPS/HTTP\nSPA-Auslieferung + JSON über /recipes/api
+recipes --> db : JDBC (jOOQ)\nSchema-Migration (Liquibase)
+@enduml
+....
+
+Weitere Nachbarn gibt es nicht: Das System ruft von sich aus kein Fremdsystem auf. Das
+Diagramm entsteht beim Rendern aus seiner Quelle in dieser Datei
+(link:{adr}/0042-plantuml-fuer-diagramme{adrext}[ADR 0042]).
 
 [cols="1,1,3", options="header"]
 |===

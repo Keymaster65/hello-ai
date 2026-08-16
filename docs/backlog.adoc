@@ -45,8 +45,6 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 
 == : Benenne den Skill systemdoku um in systemdokumentation
 
-== : Verwende im "Systemkontext" plantuml diagram.
-
 == : Verwende plantuml in der Asciidoc Systemdocumentation wo es sinnvoll ist. Ergänze das im systemdokumentation Skill.
 
 == : Ändere den architektur Skill so, dass die "application" frei noch Framework Abhängigkeiten ist. Ein entsprechender archunit Test soll das absichern.

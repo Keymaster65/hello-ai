@@ -9,6 +9,49 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-146]]
+== 146. Prompt: „Verwende im "Systemkontext" plantuml diagram." (aus dem Backlog, `+next+1+`)
+
+_Delta: 9:10 min · 30.943 Token out · 179.445 Token in (neu) · 4.487.886 Token gesamt_
+_Stand (Session, 3 Prompts): 9:10 min · 30.943 Token out · 4.487.886 Token gesamt_
+
+*Aktionen:*
+
+* *Pull vor `next`* (ADR 0030): `+git pull --ff-only+` auf `main` meldete „Already up to date",
+  nichts geholt. Kein Eintrag stand auf aktiv.
+* *Ziehreihenfolge auf `main`:* keine gebundenen Einträge; von den vier ungebundenen
+  ready-Einträgen wurde mit dem Versatz `+1` der *zweite* gezogen (ADR 0029), nach Rückfrage im
+  Wortlaut bestätigt und der Marker vor der Arbeit auf `+*+` gesetzt.
+* *Der Hook hat wieder nicht gefeuert* – kein Gerüst `+prompt-146+`; dieser Eintrag ist von Hand
+  geschrieben.
+* *`docs/system/ueberblick.adoc`, Abschnitt „Systemkontext":* die ASCII-Kunst *ersetzt* (nicht
+  ergänzt) durch ein PlantUML-Diagramm `+[plantuml,systemkontext,svg]+` mit `Nutzer`, `Browser`,
+  dem Boot-Jar samt seinen drei Bestandteilen und der PostgreSQL als `database`; die
+  Kantenbeschriftungen tragen Protokoll und Zweck. Darunter steht als Satz, was das Bild nicht
+  zeigen kann: dass es *keine* weiteren Nachbarn gibt.
+* *Kein neues ADR:* ADR 0042 hat Werkzeug,
+  Blockform, `+!pragma layout smetana+` und den gewählten Dateinamen bereits festgelegt und
+  nennt den Systemkontext ausdrücklich als nächsten Kandidaten. Das ADR bleibt wortgleich –
+  auch der Satz unter „Bewusst nicht getan", der ihn noch als offen führt (ADR-Skill,
+  Grundsatz 3).
+* *`docs/prompt/systemdoku.adoc`:* die Auslöser-Zeile „Neuer Adapter" nennt jetzt Diagramm
+  *und* Nachbartabelle – wie beim Modul-Diagramm prüft der Build keines von beiden.
+* *Backlog:* Eintrag nach Erledigung entfernt.
+* *Diagramm angesehen*, nicht nur den grünen Build abgelesen (Pflicht aus dem Skill): SVG nach
+  PNG gewandelt und geprüft – vier Knoten, drei Kanten, alle Beschriftungen vollständig, die
+  Pfeilrichtung stimmt (Nutzer → Browser → recipes → PostgreSQL).
+* *Prüfläufe, alle grün:* `+./gradlew clean build+` (4:02 min), `+./gradlew systemtest+`
+  (1:15 min), `+./gradlew e2eTest+` (9 Tests, 16,4 s). `+build/docs/asciidoc/systemkontext.svg+`
+  (4.682 Byte) liegt neben `+system.html+` und im Boot-Jar unter
+  `+BOOT-INF/classes/static/docs/+`; der Diagramm-Cache `+.asciidoctor/+` ist nicht darin.
+* *Nebenbefund, nicht angefasst:* `+asciidoctor+` meldet neben der bekannten Zeile „skipping
+  reference to missing attribute: id" jetzt auch „id assigned to section already in use:
+  prompt-minus2" (`+claudeLog.adoc+` Zeile 3845) – ein doppelter Anker aus einem früheren
+  Eintrag. Der Build bleibt grün; gehört zum offenen Backlog-Eintrag über die
+  Asciidoctor-Meldungen.
+
+'''
+
 [[prompt-145]]
 == 145. Prompt: „Ergänze ein Plant UML Diagram für die Abhängigkeiten der gradle Module in der Asciidoc Systemdokumentation unter „Bausteine und Schichten". Ergänze die Pflege der Abhängigkeiten in dem Skill systemdoku. Ergänze ein ADR zur Verwendung von Plant UML als Tool zur Diagramerstellung." (aus dem Backlog, `next`)
 

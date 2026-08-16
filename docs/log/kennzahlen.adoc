@@ -20,6 +20,20 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-146,146>>
+|„Verwende im "Systemkontext" plantuml diagram." (aus dem Backlog, `+next+1+`)
+| –
+| 9:10 min
+| 13:43:32 h
+| 30.943
+| 3.311.641
+| 179.445
+| 20.512.101
+| 4.487.886
+| 9:10 min
+| 30.943
+| 4.487.886
+
 | <<prompt-145,145>>
 |„Ergänze ein Plant UML Diagram für die Abhängigkeiten der gradle Module in der Asciidoc Systemdokumentation unter „Bausteine und Schichten". Ergänze die Pflege der Abhängigkeiten in dem Skill systemdoku. Ergänze ein ADR zur Verwendung von Plant UML als Tool zur Diagramerstellung." (aus dem Backlog, `next`)
 | <<commit-bad5bae,bad5bae>>

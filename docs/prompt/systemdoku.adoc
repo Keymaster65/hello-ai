@@ -99,7 +99,9 @@ Schritt* geändert, nicht später.
 | `schichten.adoc` (Use-Case- bzw. Port-Tabelle)
 
 | Neuer Adapter (Messaging, weiterer Client)
-| `schichten.adoc` *und* `ueberblick.adoc` (Systemkontext: ein neuer Nachbar)
+| `schichten.adoc` *und* `ueberblick.adoc`: im Systemkontext das Diagramm „Das System und
+  seine Nachbarn" *und* die Nachbartabelle darunter – wie beim Modul-Diagramm zeigen beide
+  denselben Sachverhalt, und der Build prüft keines von beiden (siehe <<diagramme>>)
 
 | Neue SPA-Route
 | `api.adoc` (Oberfläche) – und daran denken: `SpaForwardingController` braucht eine Zeile
