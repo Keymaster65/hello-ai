@@ -56,6 +56,10 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 
 == : Ergänze out-port Adapter, die die Daten in einem neuen leeren Branch data sichern. Der Aufbau dort soll sein /database/entities/recipes, /database/entities/ingredients usw. Gespeichert und gelesen werden jeweils Json-Dateien, die einen Datensatz enthalten.
 
+== Ergänze die Ergebnisse der Testabdeckung in der Systemdokumentation im Kapitel "Abdeckung"
+
+== Ergänze die Ergebnisse der Tests incl. Video
+
 == architecture
     Multi Brower Support
 
