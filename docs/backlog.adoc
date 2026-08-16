@@ -42,6 +42,7 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 `git`.
 
 
+== : Erzeuge in der Systemdokumentation einen "Table of Contents", der zu und aufgeklappt werden kann.
 
 == : Benenne den Skill systemdoku um in systemdokumentation
 
