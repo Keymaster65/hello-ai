@@ -20,9 +20,23 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-158,158>>
+|„commit"
+| <<commit-60cfb74,60cfb74>>
+| 1:09 min
+| 15:55:18 h
+| 7.430
+| 4.000.758
+| 17.663
+| 23.408.098
+| 2.546.622
+| 9:30 min
+| 84.080
+| 11.255.184
+
 | <<prompt-157,157>>
 |„Erstelle den security Skill für das frontend." (aus dem Backlog, `next`)
-| –
+| <<commit-60cfb74,60cfb74>>
 | 6:30 min
 | 15:54:09 h
 | 67.361

@@ -9,11 +9,38 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-158]]
+== 158. Prompt: „commit"
+
+_Delta: 1:09 min · 7.430 Token out · 17.663 Token in (neu) · 2.546.622 Token gesamt_
+_Stand (Session, 4 Prompts): 9:30 min · 84.080 Token out · 11.255.184 Token gesamt_
+_Commit: <<commit-60cfb74,60cfb74>>_
+
+*Aktionen:*
+
+* *Definition of Done:* reine Doku-Änderung – kein Code angefasst, deshalb zählt für `+test+`,
+  `+systemtest+` und `+e2eTest+` der letzte grüne Lauf weiter (Butterfly-Skill, „Hinweise").
+  Belegt ist die Änderung durch `+./gradlew asciidoctorPrompt asciidoctor asciidoctorAdr+`
+  (BUILD SUCCESSFUL) aus Prompt 157.
+* *Commit `+60cfb74+`* mit Author „Claude", zehn Dateien, 291 Zeilen mehr; Betreff „Ergänze den
+  Security-Skill für das Frontend". Hash danach in Prompt 157 und hier nachgetragen,
+  `+python3 docs/log/kennzahlen.py+` gelaufen (162 Einträge, `+--check+` sagt „aktuell").
+* *Trailer auf das arbeitende Modell gesetzt* – Opus 5 statt des im Develop-Skill wörtlich
+  vorgeschriebenen Opus 4.8, wie schon in Prompt 154. Der `+KI+`-Eintrag „Halte den
+  Co-Authored-By-Trailer im Develop-Skill modellunabhängig" steht dafür weiter im Backlog.
+* *Branches zusammengeführt* (ADR 0032/0034): `+git fetch origin+` einmal, danach
+  `+git merge origin/<branch>+` für `main`, `sm`, `doc` und `po` – jedes Mal „Already up to
+  date", kein Konflikt, keine zweite Runde nötig. `dev` gibt es weder lokal noch als
+  Remote-Ref und wird übergangen.
+
+'''
+
 [[prompt-157]]
 == 157. Prompt: „Erstelle den security Skill für das frontend." (aus dem Backlog, `next`)
 
 _Delta: 6:30 min · 67.361 Token out · 290.625 Token in (neu) · 7.381.172 Token gesamt_
 _Stand (Session, 3 Prompts): 6:30 min · 67.361 Token out · 7.381.172 Token gesamt_
+_Commit: <<commit-60cfb74,60cfb74>>_
 
 *Aktionen:*
 
