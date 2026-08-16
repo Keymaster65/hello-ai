@@ -43,6 +43,11 @@ Gebaut wird ausschließlich über den Gradle-Wrapper
 | Schreibt die git-Historie als Tabelle nach `build/docs/changelog/gitchangelog.adoc`, die der
   Anhang <<git-historie>> einbindet. Hängt am `asciidoctor`-Task darüber und läuft *immer*, nie
   „up-to-date" (link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036]).
+| `./gradlew coverageTable`
+| Misst die Abdeckung – er stößt den `test`-Lauf jedes Backend-Moduls an – und schreibt sie als
+  Tabelle nach `docs/system/abdeckung-tabelle.adoc`, die das Kapitel <<abdeckung-tabelle>>
+  einbindet (link:{adr}/0047-testabdeckung-als-eingecheckte-tabelle{adrext}[ADR 0047]). Hängt an
+  keinem anderen Task: Das Ergebnis ist eingecheckt und wird ausdrücklich nachgezogen.
 | `./gradlew asciidoctorPrompt`
 | Rendert `docs/prompt/prompt.adoc` – Master-Prompt und Skills – nach
   `build/docs/prompt/prompt.html`

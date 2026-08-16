@@ -1,0 +1,143 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= ADR 0047: Testabdeckung als eingecheckte Tabelle im Kapitel „Abdeckung"
+
+== Status
+
+Akzeptiert – 2026-08-16
+
+Führt link:0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027] fort: eine erzeugte, aber
+eingecheckte Tabelle. Zu link:0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036], das die
+Gegenentscheidung trifft, steht sie nicht im Widerspruch – der Unterschied liegt in der Quelle
+und ist unten begründet.
+
+== Kontext
+
+Das Kapitel „Abdeckung" (`docs/system/qualitaetssicherung.adoc`) beschrieb bisher nur den
+*Aufbau* der Messung: dass JaCoCo in jedem Backend-Modul aktiv ist und dass es bewusst keine
+Mindestquote als Build-Bedingung gibt. Wie hoch die Abdeckung *ist*, stand nirgends – wer die
+Zahl wollte, musste den Build laufen lassen und den HTML-Report suchen. Für die ausgelieferte
+Fassung der Dokumentation unter `/recipes/docs/`
+(link:0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]) war sie gar nicht erreichbar.
+
+Ein Kapitel, das die Messung erklärt, aber ihr Ergebnis verschweigt, beantwortet die einzige
+Frage nicht, die ein Leser an ein Kapitel „Abdeckung" hat.
+
+== Optionen
+
+. *Die Zahlen von Hand in das Kapitel schreiben.* Verworfen aus demselben Grund wie in ADR 0027
+  und ADR 0036: Eine abgeschriebene Zahl veraltet beim ersten vergessenen Handgriff, und ihr
+  sieht man das Veralten nicht an.
+. *Die Tabelle beim Rendern erzeugen, wie die git-Historie (ADR 0036).* Verworfen, weil der
+  Task-Graph dadurch zyklisch würde: `:bootstrap` packt die gerenderte Dokumentation in sein Jar
+  (ADR 0024), sein `processResources` hängt also am `asciidoctor`-Task des Wurzelprojekts. Hinge
+  dieser umgekehrt an den Tests, die die Messung erzeugen, liefe der Build im Kreis. Die
+  Aussage dahinter ist keine Eigenart von Gradle: *Ein Build kann die Messung seines eigenen
+  Laufs nicht mehr ausliefern* – dieselbe Grenze, an der in ADR 0036 die eingecheckte
+  git-Historie scheiterte, nur von der anderen Seite.
+. *Die Tabelle aus dem Kapitel heraushalten und stattdessen auf den JaCoCo-Report verlinken.*
+  Verworfen: Der Report liegt unter `build/` und wird nicht ausgeliefert; der Link zeigte in der
+  ausgelieferten Dokumentation ins Leere.
+. *Ein eigener Gradle-Task, der misst und das Ergebnis als AsciiDoc in das Repository schreibt*
+  – gewählt. Die Tabelle ist damit erzeugt (niemand tippt eine Zahl ab), eingecheckt (sie steht
+  auch ohne Build im Repository und im Jar) und ihr Stand ist ein bewusster Schritt.
+. *Zusätzlich eine Mindestquote als Build-Bedingung* (`jacocoTestCoverageVerification`).
+  Verworfen – das Kapitel begründet seit jeher, warum es sie nicht gibt; diese Entscheidung
+  ändert daran nichts, sie macht die Zahl nur sichtbar.
+
+== Entscheidung
+
+Der Gradle-Task `coverageTable` im Wurzelprojekt misst und schreibt
+`docs/system/abdeckung-tabelle.adoc`; das Kapitel „Abdeckung" bindet die Datei per `include`
+ein. Vier Festlegungen tragen die Entscheidung:
+
+*Der Task misst selbst.* Er hängt am `jacocoTestReport` jedes Schichtmoduls und dieses am
+`test`-Task seines Moduls. Ein Aufruf liefert damit einen in sich stimmigen Stand statt einer
+Mischung aus vier verschieden alten Messungen.
+
+*JaCoCo schreibt in jedem Modul auch XML.* Voreingestellt ist nur HTML, das kein Werkzeug liest.
+Ebenso erzeugt jedes Modul seinen Report jetzt beim Testen (`finalizedBy`), nicht mehr allein
+`:bootstrap`.
+
+*Gemessen wird geschriebener Code.* Die vom jOOQ-Codegen erzeugten Klassen unter
+`…/adapter/out/persistence/jooq` sind aus dem Report des Moduls `:adapter` ausgenommen. Sie sind
+mit über tausend Instruktionen die Mehrheit dieses Moduls und sollen von keinem Test aufgerufen
+werden; ungefiltert bestimmte der Generator die Kennzahl der Schicht.
+
+*Die erzeugte Datei ist keine Ausgabe im Sinne von Gradle.* Sie liegt im Quellverzeichnis des
+`asciidoctor`-Tasks. Als deklarierte Task-Ausgabe bräche Gradle jeden Lauf ab, in dem beide
+Tasks vorkommen, solange keine Kante zwischen ihnen deklariert ist – und genau die darf es wegen
+des Kreises aus Option 2 nicht geben. Der Task läuft dafür immer, nie „up-to-date".
+
+== Konsequenzen
+
+=== Vorteile
+
+* Das Kapitel „Abdeckung" beantwortet die Frage, für die es da ist – auch in der ausgelieferten
+  Dokumentation, ohne Build und ohne `build/`-Verzeichnis.
+* Keine Zahl wird abgeschrieben. Die Tabelle entsteht aus den JaCoCo-Berichten, ihr Format steht
+  an einer Stelle im Buildskript.
+* Der Stand ist im Repository sichtbar: Ein `git diff` auf `abdeckung-tabelle.adoc` zeigt, was
+  eine Änderung mit der Abdeckung gemacht hat – vorher war das nur im Ermessen des Lesers.
+* Der schnelle Weg bleibt schnell: `./gradlew build` misst und rendert wie bisher, der neue Task
+  hängt an keinem anderen.
+
+=== Nachteile
+
+* *Die Tabelle kann veralten.* Ihr Lauf steht im Ermessen – dieselbe Schwäche, die ADR 0027 für
+  die Kennzahlen-Tabelle in Kauf nimmt und die ADR 0036 für die git-Historie vermeiden konnte.
+  Der Titel der Tabelle nennt deshalb den Task, der sie erzeugt hat.
+* *Sie ist Teil des Diffs.* Jeder Lauf ändert Zahlen; ein Commit, der nur den Stand nachzieht,
+  ist ab jetzt möglich und lesbar zu halten.
+* *Die Quoten sind je Modul gemessen und dadurch niedriger als die Prüfung tatsächlich reicht.*
+  Was die Tests eines Moduls in einem *anderen* Modul ausführen, zählt nirgends: Der
+  Integrationstest in `:bootstrap` fährt den ganzen Stapel durch, in der Zeile `:adapter` sieht
+  man davon nichts.
+* *Ein Modul mehr heißt eine Zeile mehr im Buildskript.* Die Liste der Schichtmodule steht dort
+  ausdrücklich, damit die Tabelle der Schichtreihenfolge folgt statt der alphabetischen.
+
+=== Bewusst nicht getan
+
+* *Keine modulübergreifende Gesamtmessung.* Das Gradle-Plugin `jacoco-report-aggregation` könnte
+  die Ausführungsdaten aller Module gegen alle Klassen auswerten und damit den Nachteil oben
+  beheben. Das ist ein eigener Schritt mit eigener Entscheidung – die Zeile `*Summe*` addiert
+  heute die Zähler der vier Module, mehr nicht.
+* *Keine Mindestquote und kein Schwellwert*, aus dem Grund, den das Kapitel seit jeher nennt.
+* *Die Systemtests und die E2E-Tests bleiben ungemessen.* Ihre Ausführungsdaten entstehen
+  (`build/jacoco/systemtest.exec`), gehen aber in keinen Report ein; für E2E gibt es gar keine.
+  Eine Abdeckung über alle fünf Stufen wäre eine andere Kennzahl als „was prüfen die Unit- und
+  Slice-Tests".
+* *Kein Verlauf.* Die Tabelle zeigt einen Stand, keine Entwicklung; die Historie liefert `git
+  log` auf die Datei.
+* *Kein Eintrag in der Definition of Done.* Wann die Tabelle nachgezogen wird, regelt der
+  Tests-Skill – die Liste im Master-Prompt bleibt die Liste der Prüfschritte.
+
+== Prüfung
+
+* `./gradlew coverageTable` schreibt `docs/system/abdeckung-tabelle.adoc` mit vier Modulzeilen
+  und einer Summenzeile; die Meldung `coverageTable: 4 Module nach … geschrieben` bestätigt den
+  Lauf.
+* Ohne den jOOQ-Filter meldete `:adapter` 14,9 % Instruktionen (391/2.624), mit ihm 36,8 %
+  (391/1.063) – die 1.561 herausgefallenen Instruktionen sind erzeugter Code.
+* `./gradlew asciidoctor` rendert die Tabelle im Kapitel „Abdeckung"; der Anker
+  `+abdeckung-tabelle+` ist aus dem Kapiteltext heraus verlinkt.
+* `./gradlew clean build`, `./gradlew systemtest` und `./gradlew e2eTest` sind grün – die
+  Definition of Done ist vollständig durchlaufen.
+
+== Referenzen
+
+* link:0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027] – erzeugte, eingecheckte
+  Tabelle: das Muster, dem diese Entscheidung folgt
+* link:0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036] – erzeugte Tabelle in `build/`:
+  die Gegenentscheidung und ihre Grenze
+* link:0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024] – Auslieferung der Dokumentation,
+  Ursprung des Kreises
+* link:0013-ein-gradle-modul-je-schicht{adrext}[ADR 0013],
+  link:0014-schichtmodule-unter-backend{adrext}[ADR 0014] – die Schichtmodule, deren Reihenfolge
+  die Tabelle übernimmt
+* link:0001-jooq-codegen-aus-flyway-skripten{adrext}[ADR 0001] – der Codegen, dessen Ergebnis aus
+  der Messung fällt
+* link:0006-testsets-plugin-und-systemtests{adrext}[ADR 0006] – das zweite Test-Source-Set, das
+  ein `./gradlew test` nicht anstoßen soll
+* `build.gradle.kts`, `modules/backend/build.gradle.kts`,
+  `modules/backend/adapter/build.gradle.kts`, `docs/system/qualitaetssicherung.adoc`

@@ -185,5 +185,19 @@ Immer über den Wrapper (siehe link:{adr}/0009-gradle-wrapper-verbindlich{adrext
 * Alle Tests: `./gradlew test`
 * Einzelne Klasse: `./gradlew test --tests "*.UserServiceTest"`
 * Einzelne Methode: `./gradlew test --tests "*.UserServiceTest.shouldReturnUser_whenUserExists"`
-* Coverage (JaCoCo): läuft automatisch mit – `test` ist per `finalizedBy` an
-  `jacocoTestReport` gekoppelt; Report unter `build/reports/jacoco/test/html/index.html`
+* Coverage (JaCoCo): läuft automatisch mit – `test` ist in *jedem* Backend-Modul per
+  `finalizedBy` an `jacocoTestReport` gekoppelt; Report unter
+  `build/reports/jacoco/test/html/index.html`
+* Abdeckung in der Systemdokumentation nachziehen: `./gradlew coverageTable`
+
+== Die Tabelle der Abdeckung
+
+Die Ergebnisse der Messung stehen als Tabelle im Kapitel „Abdeckung" der Systemdokumentation
+(`docs/system/qualitaetssicherung.adoc`). Sie ist *erzeugt, aber eingecheckt*
+(link:{adr}/0047-testabdeckung-als-eingecheckte-tabelle{adrext}[ADR 0047]) – kein Build zieht sie
+nach, weil kein Build die Messung seines eigenen Laufs ausliefern kann.
+
+*Wer Tests oder getesteten Code ändert, ruft vor dem Commit `./gradlew coverageTable` auf.* Der
+Task misst selbst und schreibt `docs/system/abdeckung-tabelle.adoc`; die Datei wird *nie* von
+Hand angefasst. Bleibt der Aufruf aus, zeigt die Dokumentation den Stand von vorher – und das
+sieht ihr niemand an.

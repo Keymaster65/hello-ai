@@ -159,10 +159,6 @@ tasks.named("check") {
     dependsOn(frontendTest)
 }
 
-tasks.named<Test>("test") {
-    finalizedBy(tasks.named("jacocoTestReport"))
-}
-
 tasks.named<Test>("systemtest") {
     // Run against an already deployed instance with -Psystemtest.baseUrl=http://host:port;
     // without it the task boots the application itself on a free port.
@@ -179,12 +175,4 @@ tasks.named<Jar>("jar") {
 
 tasks.named<org.springframework.boot.gradle.tasks.bundling.BootJar>("bootJar") {
     archiveBaseName = artifactName
-}
-
-tasks.named<JacocoReport>("jacocoTestReport") {
-    dependsOn(tasks.named("test"))
-    reports {
-        xml.required = true
-        html.required = true
-    }
 }

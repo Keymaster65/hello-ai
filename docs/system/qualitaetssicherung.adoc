@@ -220,14 +220,36 @@ taugen nicht als Baseline.
 
 == Abdeckung
 
-Das JaCoCo-Plugin ist in jedem Backend-Modul aktiv. Automatisch erzeugt wird der Report
-allerdings nur im Modul `:bootstrap` – dort ist `test` mit `finalizedBy(jacocoTestReport)`
-verbunden und der Report als XML *und* HTML konfiguriert. In den übrigen Modulen ist
-`jacocoTestReport` ein Task, den man ausdrücklich aufruft.
+Das JaCoCo-Plugin ist in jedem Backend-Modul aktiv; jedes erzeugt seinen Report beim eigenen
+`test`-Lauf, als XML *und* HTML (`build/reports/jacoco/test/`). Aus der XML-Fassung schreibt der
+Task `./gradlew coverageTable` die Tabelle unten
+(link:{adr}/0047-testabdeckung-als-eingecheckte-tabelle{adrext}[ADR 0047]). Er misst dabei
+selbst – er hängt am `jacocoTestReport` jedes Moduls und dieses am `test`-Task.
+
+Die Tabelle ist *erzeugt, aber eingecheckt*: Sie steht als `docs/system/abdeckung-tabelle.adoc`
+im Repository, wie die Kennzahlen-Tabelle in <<kennzahlen>>
+(link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]) und anders als die
+erzeugte Historie in <<git-historie>>. Der Grund ist ein Kreis: `:bootstrap` packt die
+gerenderte Dokumentation in sein Jar, also kann kein Build die Messung seines eigenen Laufs
+ausliefern. Ihr Stand ist damit der des letzten Aufrufs – kein Build zieht sie nach.
+
+include::abdeckung-tabelle.adoc[]
+
+Drei Dinge sind beim Lesen der <<abdeckung-tabelle,Tabelle>> wichtig:
+
+* *Gemessen wird je Modul.* Was die Tests eines Moduls in einem *anderen* ausführen, zählt
+  nirgends – der Integrationstest in `:bootstrap` fährt den ganzen Stapel durch, in der Zeile
+  `:adapter` sieht man davon nichts. Die Quoten sind deshalb niedriger, als die Prüfung reicht.
+* *Erzeugter Code ist ausgenommen.* Die jOOQ-Klassen unter `…/adapter/out/persistence/jooq`
+  fallen aus dem Report des Moduls `:adapter`; sie sind dessen Mehrheit und sollen von keinem
+  Test aufgerufen werden.
+* *Nur `test` fließt ein.* Systemtests und E2E-Tests sind nicht enthalten – die Zahl sagt, was
+  Unit-, Property- und Slice-Tests abdecken.
 
 Es gibt bewusst *keine* Mindestquote als Build-Bedingung: Die Architektur- und
 Property-Tests prüfen Eigenschaften, die eine Zeilenquote nicht abbildet. Eine Quote als
-einzige Bedingung würde zu Tests einladen, die Zeilen berühren, ohne etwas zuzusichern.
+einzige Bedingung würde zu Tests einladen, die Zeilen berühren, ohne etwas zuzusichern. Die
+Tabelle ist aus demselben Grund eine *Beobachtung*, kein Ziel.
 
 [[definition-of-done]]
 == Definition of Done

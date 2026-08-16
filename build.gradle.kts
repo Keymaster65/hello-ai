@@ -240,6 +240,128 @@ tasks.named<GitChangelogTask>("gitChangelog") {
     }
 }
 
+// Die Ergebnisse der Testabdeckung als Tabelle für das Kapitel „Abdeckung" (ADR 0047). Anders
+// als die git-Historie oben entsteht die Tabelle *nicht* beim Rendern, sondern in einem eigenen,
+// ausdrücklich aufgerufenen Schritt – und ihr Ergebnis wird eingecheckt, wie die
+// Kennzahlen-Tabelle (ADR 0027). Der Grund ist ein Kreis: `:bootstrap` packt die gerenderte
+// Dokumentation in sein Jar (ADR 0024), sein `processResources` hängt also am `asciidoctor`-Task
+// des Wurzelprojekts. Hinge dieser umgekehrt an den Tests, die die Messung erzeugen, wäre der
+// Task-Graph zyklisch. Eine Messung des laufenden Builds kann deshalb nicht im selben Build
+// ausgeliefert werden.
+val abdeckungTabelle = file("docs/system/abdeckung-tabelle.adoc")
+
+// Von innen nach außen, in der Reihenfolge der Schichten (ADR 0013, ADR 0014) – nicht
+// alphabetisch, wie `subprojects` sie lieferte. Die Tabelle liest sich damit wie das Kapitel
+// „Bausteinsicht".
+val schichtmodule = listOf("domain", "application", "adapter", "bootstrap")
+
+/** Die JaCoCo-Zähler eines Moduls: Typ → (verfehlt, abgedeckt). */
+fun jacocoZaehler(bericht: File): Map<String, Pair<Int, Int>> {
+    val fabrik = javax.xml.parsers.DocumentBuilderFactory.newInstance()
+    // Der Bericht verweist im DOCTYPE auf `report.dtd`. Ohne diese Zeile lädt der Parser sie
+    // über das Netz nach – der Build hinge an der Erreichbarkeit von jacoco.org.
+    fabrik.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+    fabrik.isValidating = false
+    val wurzel = fabrik.newDocumentBuilder().parse(bericht).documentElement
+    // Nur die *direkten* Kinder des Wurzelelements zählen: Dieselben `counter`-Elemente stehen
+    // auch in jedem Paket und jeder Klasse, und die summierten sich sonst mehrfach auf.
+    return (0 until wurzel.childNodes.length)
+        .map { wurzel.childNodes.item(it) }
+        .filterIsInstance<org.w3c.dom.Element>()
+        .filter { it.tagName == "counter" }
+        .associate {
+            it.getAttribute("type") to
+                (it.getAttribute("missed").toInt() to it.getAttribute("covered").toInt())
+        }
+}
+
+/** `98,7 % (1.234/1.250)` – Anteil und absolute Zahlen, weil eine Quote allein die Größe verschweigt. */
+fun zelle(zaehler: Pair<Int, Int>?): String {
+    val (verfehlt, abgedeckt) = zaehler ?: return "–"
+    val gesamt = verfehlt + abgedeckt
+    if (gesamt == 0) return "–"
+    return String.format(
+        java.util.Locale.GERMANY,
+        "%.1f %% (%,d/%,d)",
+        100.0 * abgedeckt / gesamt,
+        abgedeckt,
+        gesamt,
+    )
+}
+
+tasks.register("coverageTable") {
+    group = "documentation"
+    description = "Schreibt die JaCoCo-Ergebnisse als Tabelle nach docs/system/abdeckung-tabelle.adoc."
+
+    // Misst selbst, statt eine vorhandene Messung vorauszusetzen: Ein Aufruf, ein Stand. Die
+    // Reports hängen ihrerseits am `test`-Task ihres Moduls (`modules/backend/build.gradle.kts`).
+    dependsOn(schichtmodule.map { ":modules:backend:$it:jacocoTestReport" })
+
+    // Die geschriebene Datei wird *nicht* als Ausgabe angemeldet, obwohl sie eine ist: Sie liegt
+    // im Quellverzeichnis des `asciidoctor`-Tasks, und Gradle bräche jeden Lauf ab, in dem beide
+    // Tasks vorkommen, ohne dass eine Kante zwischen ihnen deklariert ist. Genau die darf es
+    // wegen des Kreises oben aber nicht geben. Der Task läuft dafür immer.
+    outputs.upToDateWhen { false }
+
+    val berichte = schichtmodule.associateWith { modul ->
+        project(":modules:backend:$modul").layout.buildDirectory
+            .file("reports/jacoco/test/jacocoTestReport.xml").get().asFile
+    }
+    val ziel = abdeckungTabelle
+
+    doLast {
+        // Vier Zähler von sechs: `COMPLEXITY` und `CLASS` sagen über die Prüfung wenig, was
+        // Instruktionen und Zweige nicht schon sagen.
+        val spalten = listOf(
+            "INSTRUCTION" to "Instruktionen",
+            "BRANCH" to "Zweige",
+            "LINE" to "Zeilen",
+            "METHOD" to "Methoden",
+        )
+
+        val gemessen = berichte.mapValues { (modul, bericht) ->
+            if (!bericht.exists()) {
+                throw GradleException(
+                    "Kein JaCoCo-Bericht für :$modul unter ${bericht.path} – " +
+                        "erst `./gradlew test` laufen lassen.",
+                )
+            }
+            jacocoZaehler(bericht)
+        }
+
+        val summe = spalten.associate { (typ, _) ->
+            typ to gemessen.values.fold(0 to 0) { stand, zaehler ->
+                val (verfehlt, abgedeckt) = zaehler[typ] ?: (0 to 0)
+                (stand.first + verfehlt) to (stand.second + abgedeckt)
+            }
+        }
+
+        val zeilen = gemessen.map { (modul, zaehler) ->
+            "| `:$modul` " + spalten.joinToString(" ") { (typ, _) -> "| ${zelle(zaehler[typ])}" }
+        } + ("| *Summe* " + spalten.joinToString(" ") { (typ, _) -> "| ${zelle(summe[typ])}" })
+
+        // Zeilenweise zusammengesetzt, nicht als `trimIndent()`-Block: Eine mehrzeilige
+        // Einsetzung wird *vor* dem Trimmen aufgelöst, und ihre unbündigen Zeilen setzen die
+        // gemeinsame Einrückung auf null – der Rahmen der Tabelle behielte seine Leerzeichen.
+        val ausgabe = listOf(
+            "// Erzeugt vom Gradle-Task `coverageTable` aus den JaCoCo-Berichten der",
+            "// Backend-Module – nicht von Hand ändern (ADR 0047). Eingebunden in",
+            "// docs/system/qualitaetssicherung.adoc.",
+            "",
+            "[[abdeckung-tabelle]]",
+            ".Abdeckung je Modul, gemessen beim letzten Lauf von `./gradlew coverageTable`",
+            """[cols="1,>1,>1,>1,>1", options="header"]""",
+            "|===",
+            "| Modul | " + spalten.joinToString(" | ") { it.second },
+            "",
+        ) + zeilen + "|==="
+
+        ziel.writeText(ausgabe.joinToString("\n", postfix = "\n"))
+
+        logger.lifecycle("coverageTable: ${gemessen.size} Module nach ${ziel.path} geschrieben.")
+    }
+}
+
 tasks.named<AsciidoctorTask>("asciidoctor") {
     group = "documentation"
     description = "Rendert die Systemdokumentation aus docs/system nach HTML."

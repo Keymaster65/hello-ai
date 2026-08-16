@@ -9,6 +9,80 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-154]]
+== 154. Prompt: „commit"
+
+_Delta: 8:37 min · 6.011 Token out · 26.596 Token in (neu) · 3.527.147 Token gesamt_
+_Stand (Session, 4 Prompts): 27:17 min · 85.660 Token out · 14.326.475 Token gesamt_
+
+*Aktionen:*
+
+* *Definition of Done vollständig durchlaufen*, bevor committet wurde: `+./gradlew clean build+`
+  grün (8:23 min, 25 Vitest-Tests), `+./gradlew systemtest+` grün (2:47 min),
+  `+./gradlew e2eTest+` grün (9 Tests, 31,9 s). Die drei Asciidoctor-Tasks laufen mit dem Build.
+* *Tabelle nach dem grünen Lauf neu erzeugt* – `+./gradlew coverageTable+` gegen die Messung
+  desselben Builds: identische Zahlen, die eingecheckte Fassung passt damit zum Stand des Codes.
+* *Backlog-Eintrag entfernt* (PO-Skill) und ein `+KI+`-Eintrag ergänzt: die modulübergreifende
+  Gesamtmessung per `+jacoco-report-aggregation+`, die ADR 0047 unter „Bewusst nicht getan"
+  benennt.
+* *Trailer der Commit-Message auf das arbeitende Modell gesetzt* – Opus 5 statt des im
+  Develop-Skill wörtlich vorgeschriebenen Opus 4.8; genau dafür steht der `+KI+`-Eintrag
+  „Halte den Co-Authored-By-Trailer im Develop-Skill modellunabhängig" im Backlog.
+
+'''
+
+[[prompt-153]]
+== 153. Prompt: „Ergänze die Ergebnisse der Testabdeckung in der Systemdokumentation im Kapitel "Abdeckung"" (aus dem Backlog, `next+3`)
+
+_Delta: 18:40 min · 79.649 Token out · 289.069 Token in (neu) · 10.799.328 Token gesamt_
+_Stand (Session, 3 Prompts): 18:40 min · 79.649 Token out · 10.799.328 Token gesamt_
+
+*Aktionen:*
+
+* *Pull vor `next`* (ADR 0030): `+git pull --ff-only+` auf `main` meldete „Already up to date".
+  Kein Eintrag stand auf aktiv, keiner war an einen Branch gebunden; `+next+3+` zog den vierten
+  ungebundenen ready-Eintrag, nach Rückfrage im Wortlaut bestätigt, Marker *vor* der Arbeit auf
+  `+*+`, danach entfernt.
+* *Der Hook hat wieder kein Gerüst angelegt* – kein Abschnitt `+prompt-153+`; dieser Eintrag ist
+  von Hand geschrieben.
+* *ADR 0047 geschrieben* – „Testabdeckung als eingecheckte Tabelle im Kapitel „Abdeckung"". Fünf
+  Optionen abgewogen. Die naheliegende – die Tabelle beim Rendern erzeugen wie die git-Historie
+  (ADR 0036) – scheitert an einem *Kreis*: `:bootstrap` packt die gerenderte Dokumentation in
+  sein Jar (ADR 0024), sein `+processResources+` hängt also am `+asciidoctor+`-Task; hinge
+  dieser an den Tests, liefe der Build im Kreis. Ein Build kann die Messung seines eigenen Laufs
+  nicht ausliefern. Gewählt wurde deshalb das Muster der Kennzahlen-Tabelle (ADR 0027): erzeugt,
+  aber eingecheckt.
+* *Neuer Gradle-Task `+coverageTable+`* im Wurzelprojekt. Er misst selbst – er hängt am
+  `+jacocoTestReport+` jedes Schichtmoduls und dieses am `+test+`-Task – liest die
+  XML-Berichte über `+DocumentBuilderFactory+` (externe DTD abgeschaltet, sonst hinge der Build
+  an der Erreichbarkeit von jacoco.org) und schreibt `docs/system/abdeckung-tabelle.adoc`.
+* *Die erzeugte Datei ist bewusst keine Gradle-Ausgabe.* Sie liegt im Quellverzeichnis des
+  `+asciidoctor+`-Tasks; als deklarierte Ausgabe verlangte Gradle eine Kante zwischen beiden
+  Tasks – und genau die darf es wegen des Kreises nicht geben.
+* *JaCoCo umgestellt* (`modules/backend/build.gradle.kts`): XML-Report in *jedem* Backend-Modul
+  (voreingestellt ist nur HTML) und `+finalizedBy(jacocoTestReport)+` an jedem `+test+` statt
+  nur in `:bootstrap`. `+named("test")+` statt `+withType<Test>()+`, damit das zweite
+  Source-Set `systemtest` (ADR 0006) davon unberührt bleibt.
+* *Erzeugter jOOQ-Code fällt aus der Messung* von `:adapter`
+  (`modules/backend/adapter/build.gradle.kts`). Ohne den Filter: 14,9 % Instruktionen
+  (391/2.624), mit ihm 36,8 % (391/1.063) – 1.561 Instruktionen, die niemand geschrieben hat
+  und die kein Test aufrufen soll, bestimmten sonst die Kennzahl der Schicht.
+* *Stand der Abdeckung* (Instruktionen): `:domain` 82,9 %, `:application` 89,4 %, `:adapter`
+  36,8 %, `:bootstrap` 83,3 %, Summe 54,4 % (924/1.699).
+* *Kapitel „Abdeckung" umgeschrieben* – Tabelle per `include`, dazu die drei Sätze, ohne die die
+  Zahlen falsch gelesen würden: je Modul gemessen (was die Tests eines Moduls in einem anderen
+  ausführen, zählt nirgends), erzeugter Code ausgenommen, nur `+test+` fließt ein – nicht System-
+  und E2E-Tests.
+* *Nachgezogen:* ADR-Index in `system.adoc`, Befehlstabelle in `betrieb.adoc`, Dateitabelle und
+  Auslöser im Systemdoku-Skill, Abschnitt „Die Tabelle der Abdeckung" im Tests-Skill (dort steht
+  die Pflicht, `+coverageTable+` vor dem Commit aufzurufen).
+* *Nebenbefund, nicht angefasst:* `+./gradlew asciidoctor+` meldet zusätzlich zu den zwei
+  bekannten Meldungen eine dritte – „id assigned to section already in use: prompt-minus2" in
+  `docs/log/claudeLog.adoc`, Zeile 4220. Sie gehört zum `+KI+`-Eintrag über die
+  Asciidoctor-Meldungen im Backlog.
+
+'''
+
 [[prompt-152]]
 == 152. Prompt: „Realisiere "RFC 9457 Problem Details for HTTP API" für die Anwendung." (aus dem Backlog, `next`)
 

@@ -81,3 +81,19 @@ jooq {
         }
     }
 }
+
+// Der jOOQ-Codegen erzeugt oberhalb von `…/persistence/jooq` einige tausend Zeilen Tabellen-
+// und Record-Klassen. Gemessen wird die *geschriebene* Schicht, nicht der Generator: Ohne diese
+// Ausnahme bestünde die Abdeckung dieses Moduls zu vier Fünfteln aus Code, den niemand geschrieben
+// hat und den kein Test je aufrufen soll (ADR 0047).
+tasks.named<JacocoReport>("jacocoTestReport") {
+    classDirectories.setFrom(
+        files(
+            classDirectories.files.map { verzeichnis ->
+                fileTree(verzeichnis) {
+                    exclude("io/github/keymaster65/helloai/adapter/out/persistence/jooq/**")
+                }
+            },
+        ),
+    )
+}

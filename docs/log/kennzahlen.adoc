@@ -20,6 +20,34 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-154,154>>
+|„commit"
+| –
+| 8:37 min
+| 15:37:16 h
+| 6.011
+| 3.838.858
+| 26.596
+| 22.636.328
+| 3.527.147
+| 27:17 min
+| 85.660
+| 14.326.475
+
+| <<prompt-153,153>>
+|„Ergänze die Ergebnisse der Testabdeckung in der Systemdokumentation im Kapitel "Abdeckung"" (aus dem Backlog, `next+3`)
+| –
+| 18:40 min
+| 15:28:39 h
+| 79.649
+| 3.832.847
+| 289.069
+| 22.609.732
+| 10.799.328
+| 18:40 min
+| 79.649
+| 10.799.328
+
 | <<prompt-152,152>>
 |„Realisiere "RFC 9457 Problem Details for HTTP API" für die Anwendung." (aus dem Backlog, `next`)
 | <<commit-841657c,841657c>>

@@ -56,4 +56,26 @@ subprojects {
     tasks.withType<Test>().configureEach {
         useJUnitPlatform()
     }
+
+    // JaCoCo misst in jedem Modul, ausgewertet wird die Messung aber im Wurzelprojekt: Der Task
+    // `coverageTable` liest die XML-Fassung jedes Moduls und schreibt daraus die Tabelle des
+    // Kapitels „Abdeckung" (ADR 0047). XML ist in Gradle voreingestellt *aus* – ohne diese
+    // Zeilen gäbe es nur den HTML-Report, den kein Werkzeug lesen kann. Der Report hängt am
+    // `test`-Task des jeweiligen Moduls, weil er ohne dessen Messdatei leer wäre.
+    tasks.withType<JacocoReport>().configureEach {
+        dependsOn(tasks.named("test"))
+        reports {
+            xml.required = true
+            html.required = true
+        }
+    }
+
+    // Gemessen wird bei jedem `test`-Lauf, in jedem Modul – nicht nur in `:bootstrap`, wie es
+    // bis ADR 0047 der Fall war. Sonst zeigte die Tabelle drei Module im Stand des letzten
+    // ausdrücklichen Aufrufs und eines im Stand des letzten Testlaufs.
+    // `named("test")` statt `withType<Test>()`: In `:bootstrap` gibt es mit `systemtest` ein
+    // zweites Test-Source-Set (ADR 0006), und das soll ein `./gradlew test` nicht anstoßen.
+    tasks.named("test") {
+        finalizedBy(tasks.named("jacocoTestReport"))
+    }
 }

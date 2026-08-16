@@ -50,6 +50,13 @@ zuständig ist – und nur das.
 | `qualitaetssicherung.adoc`
 | Teststufen, Architekturtests, Abdeckung, Definition of Done
 
+| `abdeckung-tabelle.adoc`
+| Kein Kapitel, sondern die *erzeugte* Tabelle der Testabdeckung, die
+  `qualitaetssicherung.adoc` einbindet
+  (link:{adr}/0047-testabdeckung-als-eingecheckte-tabelle{adrext}[ADR 0047]). Geschrieben vom
+  Gradle-Task `coverageTable`, eingecheckt wie die Kennzahlen-Tabelle – von Hand wird daran
+  nichts geändert
+
 | `arbeitsgrundlage.adoc`
 | Master-Prompt und Skills: welche Dateien es gibt, wie sie geladen, verbunden und geprüft
   werden; dazu bindet das Kapitel deren Wortlaut per `include` aus `docs/prompt` ein. Quelle
@@ -143,6 +150,11 @@ Schritt* geändert, nicht später.
 
 | Neue Teststufe oder neuer Architekturtest
 | `qualitaetssicherung.adoc`
+
+| Geänderte Tests oder geänderter getesteter Code
+| `./gradlew coverageTable` – die Tabelle der Abdeckung wird *erzeugt*, nicht bearbeitet
+  (link:{adr}/0047-testabdeckung-als-eingecheckte-tabelle{adrext}[ADR 0047]); der Tests-Skill
+  nennt denselben Schritt
 
 | Eine Lücke wird geschlossen (Auth, Actuator, Paginierung …)
 | `betrieb.adoc`, „Offene Punkte" – Zeile *entfernen*, nicht stehen lassen
