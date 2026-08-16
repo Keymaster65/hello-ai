@@ -14,6 +14,7 @@ Datum: 2026-07-19
 
 _Delta: 5:41 min · 44.951 Token out · 226.937 Token in (neu) · 5.428.634 Token gesamt_
 _Stand (Session, 3 Prompts): 5:41 min · 44.951 Token out · 5.428.634 Token gesamt_
+_Commit: <<commit-b40fa3a,b40fa3a>>_
 
 *Aktionen:*
 
@@ -41,6 +42,13 @@ _Stand (Session, 3 Prompts): 5:41 min · 44.951 Token out · 5.428.634 Token ges
   (1:03 min). Meldungen wie zuvor (`+prompt-minus2+` doppelt, fehlendes Attribut `+id+`) – keine
   neue. Reine Doku-Änderung, kein Code angefasst: Für `+test+`, `+systemtest+` und `+e2eTest+`
   zählt der letzte grüne Lauf weiter (Butterfly-Skill, „Hinweise").
+* *Committet* als `+b40fa3a+` („Benenne den Security-Skill in security-backend um"), Author
+  `+Claude+`. Der `+Co-Authored-By+`-Trailer nennt das tatsächlich arbeitende Modell (Opus 5)
+  statt des im Develop-Skill wörtlich vorgegebenen – der Backlog-Eintrag „Halte den
+  Co-Authored-By-Trailer im Develop-Skill modellunabhängig" ist genau dazu offen.
+* *Branches zusammengeführt* nach `+git fetch origin+`: `+origin/main+`, `+origin/sm+`,
+  `+origin/doc+` und `+origin/po+` melden „Already up to date"; `dev` hat weder Remote- noch
+  lokalen Ref und wurde übergangen.
 
 '''
 

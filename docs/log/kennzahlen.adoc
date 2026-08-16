@@ -22,7 +22,7 @@
 
 | <<prompt-156,156>>
 |„Bennene den Skill security um in security-backend" (aus dem Backlog, `next`)
-| –
+| <<commit-b40fa3a,b40fa3a>>
 | 5:41 min
 | 15:47:39 h
 | 44.951
