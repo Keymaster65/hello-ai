@@ -14,7 +14,7 @@ import net.jqwik.api.constraints.Size;
 import net.jqwik.api.constraints.StringLength;
 
 /**
- * The curried factories of the domain records (ADR 0021) are an alternative way to reach the
+ * The curried factories of the domain records (docs/prompt/architektur.adoc) are an alternative way to reach the
  * canonical constructor – not a second construction path with rules of its own. These tests pin
  * exactly that: same result, same validation.
  */

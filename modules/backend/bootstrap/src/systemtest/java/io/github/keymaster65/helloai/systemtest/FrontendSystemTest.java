@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 
 /**
- * System tests for the BFF setup (see ADR 0007): the running application serves the React bundle
+ * System tests for the BFF setup (see docs/prompt/frontend.adoc): the running application serves the React bundle
  * and the API from the same origin, so the frontend needs no CORS configuration and no second
  * deployment.
  */
@@ -59,7 +59,7 @@ class FrontendSystemTest {
     @Test
     void shouldForwardSpaRoutesToTheIndexPage() {
         // A shared link like /recipes/3 exists only inside the client-side router; without the
-        // forward it would end in a 404 (see ADR 0017).
+        // forward it would end in a 404 (see docs/prompt/api.adoc).
         for (String route : java.util.List.of("/new", "/3", "/3/edit")) {
             HttpResponse<String> response = HttpProbe.get(route);
             assertThat(response.statusCode()).as(route).isEqualTo(200);

@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 /**
- * Keeps the <em>shipped</em> {@code security.txt} configuration awake (ADR 0037).
+ * Keeps the <em>shipped</em> {@code security.txt} configuration awake (docs/prompt/security-backend.adoc).
  *
  * <p>{@code Expires} ages silently: the file stays reachable, the build stays green, and the file
  * is invalid all the same. This test is the alarm clock the skill {@code docs/prompt/security.adoc}

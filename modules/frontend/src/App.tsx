@@ -4,8 +4,8 @@ import { RecipeFormPage } from './pages/RecipeFormPage'
 import { RecipeListPage } from './pages/RecipeListPage'
 
 /**
- * Routing der Anwendung (ADR 0017). `basename` stammt aus `import.meta.env.BASE_URL` und
- * spiegelt damit den Context-Path des Backends (ADR 0016) – die Routen darunter kennen ihn
+ * Routing der Anwendung (docs/prompt/frontend.adoc). `basename` stammt aus `import.meta.env.BASE_URL` und
+ * spiegelt damit den Context-Path des Backends (docs/prompt/frontend.adoc) – die Routen darunter kennen ihn
  * nicht und bleiben lesbar.
  *
  * <pre>

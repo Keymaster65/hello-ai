@@ -1,6 +1,4 @@
 // Kapitel der Systemdokumentation; siehe system.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 [appendix]
 [[quelldateien]]
 = Quelldateien
@@ -15,7 +13,7 @@ Stand, den das Repository beim Rendern hatte.
 
 Daraus folgt eine Zusicherung, die diese Dokumentation vorher nicht hatte: Ein fehlender
 `include` ist als *Build-Fehler* konfiguriert
-(link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022]). Wird eine Datei
+(Skill `docs/prompt/systemdokumentation.adoc`). Wird eine Datei
 umbenannt, verschoben oder gelöscht, *bricht `./gradlew build`* – und zwar an der Stelle, an
 der die Dokumentation noch den alten Pfad nennt. Die Dateiverweise der Systemdokumentation
 sind damit maschinell geprüft, nicht nur gut gemeint.
@@ -48,12 +46,12 @@ sind damit maschinell geprüft, nicht nur gut gemeint.
 
 | Gradle-Wrapper (`gradlew`, `gradle/wrapper/`)
 | Enthält eine Binärdatei; Festlegung und Begründung stehen in
-  link:{adr}/0009-gradle-wrapper-verbindlich{adrext}[ADR 0009].
+  Skill `docs/prompt/build.adoc`.
 
 | `docs/**`
-| Die Dokumentation selbst. Master-Prompt und Skills stehen im Wortlaut in <<wortlaut>>, die
-  ADRs sind im Abschnitt Architekturentscheidungen (ADR) verlinkt. Ausgenommen ist
-  <<src-docinfo-footer>>: CSS und JavaScript sind Quelltext, kein Text zum Lesen.
+| Die Dokumentation selbst. Master-Prompt und Skills stehen im Wortlaut in <<wortlaut>>.
+  Ausgenommen ist <<src-docinfo-footer>>: CSS und JavaScript sind Quelltext, kein Text zum
+  Lesen.
 |===
 
 [[src-gruppe-domaene]]

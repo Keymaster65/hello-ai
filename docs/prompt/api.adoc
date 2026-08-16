@@ -1,0 +1,220 @@
+// Skill der Arbeitsgrundlage; siehe prompt.adoc.
+= Skill: API – REST, Contract, Fehlerformat, Adressraum
+
+== Zweck
+
+Aktiviere diesen Skill bei jeder Änderung an der Schnittstelle nach außen: neuer oder
+geänderter Endpunkt, neues DTO-Feld, neuer Statuscode, neues Fehlerbild, neue serverseitige
+Weiterleitung, geänderter Adressraum.
+
+Der *Ist-Zustand* – welche Ressourcen es gibt, welche Validierungsregeln gelten, welche
+Fehlerbilder auftreten – steht in `docs/system/api.adoc`. Hier steht, was beim Ändern gilt.
+
+== Grundsätze
+
+. *DTOs an der Grenze.* Entities werden nie exponiert; die Validierung steht am Request-DTO
+  (Bean Validation), nicht im Controller-Rumpf.
+. *Der Contract entsteht aus dem Code.* Er wird nicht von Hand gepflegt und kann deshalb nicht
+  abdriften – aber er beschreibt nur, was annotiert ist.
+. *Fehler folgen RFC 9457.* Ein selbst erfundenes Fehlerformat gibt es nicht.
+. *Der Adressraum hat eine Wurzel.* Alles liegt unter dem Context-Path `+/recipes+`; die
+  einzige Ausnahme ist `+/.well-known/security.txt+` (Skill
+  `docs/prompt/security-backend.adoc`).
+. *Keine absolute URL im Code.* Weder im Backend noch im Frontend – der Präfix kommt aus dem
+  Kontext der Anfrage bzw. aus `+import.meta.env.BASE_URL+`.
+
+== Auslöser → Pflicht
+
+[cols="2,3", options="header"]
+|===
+| Anlass | Zu tun
+
+| Neuer oder geänderter REST-Endpunkt
+| Im *selben Commit* mit `+@Operation+` und den zutreffenden `+@ApiResponse+`-Einträgen
+  versehen; Eingabe an der Grenze validieren; `docs/system/api.adoc` (Tabelle der Ressource)
+  mitpflegen. Der Contract ist Teil der Definition of Done, nicht Nacharbeit
+
+| Neues DTO-Feld
+| `+@Schema+`-Beschreibung ergänzen. Bei einem Feld, das die Domäne *garantiert*, zusätzlich
+  `+@Schema(requiredMode = REQUIRED)+` – siehe unten, warum das nötig ist
+
+| Neuer `+@ExceptionHandler+`, neue Problemart
+| `ProblemType` erweitern (Titel und Statuscode gehören zur Art, nicht zum Handler); Anker in
+  der Systemdokumentation anlegen, auf den die `type`-URI zeigt; `docs/system/api.adoc`,
+  Tabelle der Fehlerbilder
+
+| Neue SPA-Route
+| Zeile im `SpaForwardingController` *und* Erweiterung des Systemtests um den Pfad. Ohne sie
+  funktioniert die Route in der Anwendung, aber nicht beim direkten Aufruf
+
+| Änderung am Context-Path
+| *Alle fünf* Orte mitziehen (siehe unten). Ein Build-Fehler entsteht dabei nicht – der Fehler
+  zeigt sich erst als 404
+
+| Änderung an der API
+| `+npm run generate:api+` gegen ein laufendes Backend und die aktualisierte
+  `+src/api/schema.d.ts+` mit einchecken (Skill `docs/prompt/frontend.adoc`)
+|===
+
+== Wo der Context-Path gespiegelt wird
+
+Spring kennt vier dieser fünf Stellen nicht. Laufen sie auseinander, bricht nichts im Build – es
+antwortet nur ein 404.
+
+[cols="2,3", options="header"]
+|===
+| Ort | Einstellung
+
+| `+modules/backend/bootstrap/.../application.yml+`
+| `+server.servlet.context-path: /recipes+`
+
+| `+modules/frontend/vite.config.ts+`
+| `+base: '/recipes/'+` und die drei Proxy-Regeln
+
+| `+modules/frontend/src/api/recipes.ts+`
+| `+BASE_PATH = ${import.meta.env.BASE_URL}api/recipes+`
+
+| `+modules/backend/bootstrap/src/systemtest/.../RunningApplication.java+`
+| `+CONTEXT_PATH+`, an die Basis-URL angehängt
+
+| `+modules/frontend/playwright.config.ts+`
+| exportiert `+CONTEXT_PATH+`, die Specs bilden daraus `APP`
+|===
+
+Systemtests und E2E-Tests adressieren dadurch weiterhin *fachliche* Pfade (`+/api/recipes+`,
+`+${APP}api/recipes+`), statt den Präfix überall zu wiederholen.
+
+== Prüfen
+
+[source,bash]
+----
+./gradlew test systemtest
+----
+
+Die Systemtests prüfen den Contract gegen die *laufende* Anwendung: dokumentierte Statuscodes
+gegen tatsächliches Verhalten, die Erreichbarkeit von Swagger UI und OpenAPI-Dokument und die
+serverseitigen Weiterleitungen.
+
+[[festlegungen-api]]
+== Festlegungen und ihre Gründe
+
+=== springdoc-openapi erzeugt den Contract aus dem Code
+
+*Was gilt.* `+springdoc-openapi-starter-webmvc-ui+` erzeugt zur Laufzeit ein OpenAPI-3.1-Dokument
+unter `+/v3/api-docs+` (JSON) bzw. `+/v3/api-docs.yaml+`; die UI liegt unter
+`+/swagger-ui.html+`. Dokument-Metadaten stehen als `OpenAPI`-Bean in `+bootstrap.OpenApiConfig+`,
+operations- und schemabezogene Annotationen am REST-Adapter und an den DTOs. Dokumentiert werden
+*DTOs an der API-Grenze*, niemals Domain- oder jOOQ-Typen.
+
+*Warum.* Der Contract wird aus Signaturen und Bean Validation abgeleitet und kann deshalb nicht
+vom Code abdriften; Pflichtfelder aus `+@NotBlank+`/`+@NotNull+` landen automatisch in
+`required`. Swagger UI kommt ohne zusätzlichen Build-Schritt und ohne eigenen Server mit.
+
+*Verworfen.* Design-First mit handgepflegter `openapi.yaml` und generierten Server-Stubs –
+verworfen, weil dann zwei Fassungen der Wahrheit existieren. springfox – seit Spring Boot 3 tot.
+swagger-core allein – kennt Spring-MVC-Mappings nicht. Kein OpenAPI, nur Markdown im README –
+nicht maschinenlesbar, kein Client-Generat, keine Contract-Tests.
+
+IMPORTANT: *`required` gilt nur für Anfragen automatisch.* springdoc leitet es aus Bean
+Validation ab, und die greift auf Responses nicht. Die Response-DTOs markierten deshalb zunächst
+*keine* Pflichtfelder – aufgefallen ist das erst, als das Frontend seine Typen aus dem Contract
+erzeugte. Felder, die das Domänenmodell garantiert, tragen deshalb ausdrücklich
+`+@Schema(requiredMode = REQUIRED)+`; echte Nullable-Felder bleiben bewusst optional, damit der
+Contract nicht mehr verspricht, als er hält.
+
+*Preis.* Der Contract entsteht erst zur *Laufzeit*: Für Client-Generierung im CI muss die
+Anwendung starten oder das Dokument im Test gedumpt werden. Annotationen erhöhen das Rauschen in
+Controller und DTOs – der Umfang bleibt deshalb knapp (Summary, Statuscodes, Beispiele).
+`+/v3/api-docs+` und `+/swagger-ui.html+` sind derzeit *unauthentifiziert* erreichbar; das steht
+in `docs/system/betrieb.adoc` unter „Offene Punkte".
+
+=== Context-Path `/recipes`
+
+*Was gilt.* `+server.servlet.context-path: /recipes+`. Damit liegt *alles* unter `+/recipes+`:
+`+/recipes/+` (SPA), `+/recipes/api/recipes+` (API), `+/recipes/swagger-ui.html+`,
+`+/recipes/v3/api-docs+`, `+/recipes/docs/+` (Systemdokumentation).
+
+*Warum.* Vorher belegte die Anwendung die gesamte Origin – neben anderen Anwendungen oder hinter
+einem gemeinsamen Reverse-Proxy kollidiert das, und die URL trug keinen Hinweis auf die
+Anwendung. Der Frontend-Code bleibt dabei *frei von absoluten URLs*, weil der API-Basispfad aus
+`+import.meta.env.BASE_URL+` abgeleitet wird, das Vite aus `base` erzeugt. Belegt an der
+laufenden Anwendung: `+/recipes/+`, `+/recipes/api/recipes+` und `+/recipes/v3/api-docs+`
+antworten mit 200, `+/recipes/swagger-ui.html+` mit 302 auf die UI, und `+/api/recipes+` ohne
+Präfix mit *404* – der alte Pfad ist wirklich weg.
+
+*Verworfen.* Nur den REST-Basispfad ändern – die SPA bliebe unter `+/+`, und `+/recipes+` würde
+später mit einer SPA-Route kollidieren. Ein Präfix nur für die API – trennt zwar, lässt die SPA
+aber im Wurzelpfad. Den Pfad erst im Reverse-Proxy setzen – verlagert die Frage aus dem Projekt
+heraus und macht lokale Läufe und Produktion unterschiedlich.
+
+WARNING: *Der Vite-Dev-Server darf `+/recipes+` nicht als Ganzes proxyen*, sonst verschluckt der
+Proxy die SPA, die unter derselben Basis ausgeliefert wird. Weitergeleitet werden gezielt
+`+/recipes/api+`, `+/recipes/v3+` und `+/recipes/swagger-ui+`.
+
+=== Serverseitige Weiterleitung der SPA-Routen: explizit, kein Catch-all
+
+*Was gilt.* `SpaForwardingController` leitet *genau die* Routen der SPA auf
+`+forward:/index.html+` weiter – heute `+/new+`, `+/{id}+`, `+/{id}/edit+`. Ein Catch-all-Muster
+gibt es nicht; unbekannte Pfade bleiben ein ehrlicher 404.
+
+*Warum.* Ein Catch-all könnte die API, das OpenAPI-Dokument und die Swagger-UI-Ressourcen
+verschatten – und ein stiller 200 auf einen Pfad, der eigentlich 404 ist, ist schlechter als
+eine Zeile Pflegeaufwand pro Route. Belegt durch zwei Systemtests:
+`+shouldForwardSpaRoutesToTheIndexPage+` prüft die Routen,
+`+shouldNotLetTheSpaForwardShadowTheBackend+` prüft, dass API, OpenAPI und Swagger UI
+unverändert antworten und ein unbekannter Pfad weiterhin 404 liefert.
+
+*Verworfen.* Catch-all mit Ausschlussliste – die Liste wäre die eigentliche Fehlerquelle.
+Resource-Resolver, der bei fehlender Datei auf `index.html` fällt – dasselbe Risiko, nur
+unsichtbarer.
+
+*Preis.* Jede neue Frontend-Route braucht eine Zeile im Controller. Wird sie vergessen,
+funktioniert die Route in der Anwendung, aber nicht beim direkten Aufruf – der Systemtest
+schlägt dann fehl.
+
+WARNING: Der SPA-Fallback ist *keine* Zugriffsprüfung. Eine Route wegzulassen schützt nichts;
+was nicht jeder sehen soll, wird im Backend geschützt (Skill
+`docs/prompt/security-frontend.adoc`).
+
+=== RFC 9457 Problem Details als Fehlerformat
+
+*Was gilt.* Fehlerantworten tragen `+application/problem+json+` und den Record `ProblemDetail`
+im Paket `adapter.in.rest` mit den fünf Feldern aus RFC 9457 (`type`, `title`, `status`,
+`detail`, `instance`) und `fieldErrors` als typisierter Erweiterung. Alle sechs sind im Contract
+`required`; `detail` fällt auf den `title` zurück, wenn eine Ausnahme keine Meldung mitbringt,
+und `fieldErrors` ist außerhalb der Validierung eine *leere* Liste, nie `null` – das Frontend
+darf sich darauf verlassen, ohne zu prüfen.
+
+`ProblemType` zählt die Problemarten auf (`not-found`, `validation-failed`, `malformed-request`,
+`invalid-argument`); jede kennt ihren Titel und ihren Statuscode, der Handler wählt die *Art*,
+nicht die drei Werte einzeln. Die `type`-URI zeigt auf den Anker der ausgelieferten
+Systemdokumentation (`+/recipes/docs/#problem-not-found+`); ihr Präfix stammt aus
+`+request.getContextPath()+`, nicht aus einer Konstanten – der Context-Path steht damit *nicht*
+an einer weiteren Stelle im Code. `instance` ist `+request.getRequestURI()+`.
+
+Zusätzlich beantwortet `+spring.mvc.problemdetails.enabled: true+` die Fälle, die nie einen
+eigenen Handler hatten (`405`, `415`, `406`). Damit der eigene Handler die bekannten Fälle
+behält, trägt `GlobalExceptionHandler` `+@Order(HIGHEST_PRECEDENCE)+` – Spring registriert seinen
+mit `+@Order(0)+`.
+
+*Warum.* Das vorherige Format war projektlokal: nicht wiedererkennbar, am Medientyp
+`application/json` nicht als Fehler erkennbar, und ohne Angabe der Problemart und der betroffenen
+Anfrage. RFC 9457 ist der Nachfolger von RFC 7807 und wird von Bibliotheken und Werkzeugen
+bereits ausgewertet. Die `type`-URI zeigt auf die Dokumentation, weil der RFC empfiehlt, dass sie
+beim Auflösen eine *menschenlesbare* Beschreibung liefert – ein erfundener Domänenname oder eine
+URN täte das nicht.
+
+*Verworfen.* Springs eigenes `ProblemDetail` verwenden – der kürzeste Weg, aber die Feldfehler
+wären *Extension Members* in einer `+Map<String, Object>+`: Der Contract beschriebe sie nicht,
+und das Frontend verlöre seine *generierten* Typen. Genau dafür ist der eigene Record den
+Mehraufwand wert.
+
+*Preis.* Der Record dupliziert, was Spring anbietet. Es sind zwei Fehlerformate im Umlauf – das
+eigene für die bekannten Fälle, Springs für die des Frameworks; sie sind bis auf `fieldErrors`
+gleich geformt, weshalb das Frontend dieses Feld als optional behandelt, obwohl der Contract es
+garantiert. Die `type`-URI ist nur auflösbar, solange die Dokumentation unter `+/recipes/docs/+`
+liegt – verschwindet sie, zeigen die URIs ins Leere, ohne dass etwas rot wird.
+
+*Bewusst offen.* Es gibt *keinen* eigenen `500`-Handler: Er müsste entscheiden, was er
+preisgibt, und wäre damit eine Sicherheitsentscheidung. Bis dahin ist Springs Standardantwort die
+vorsichtigere.

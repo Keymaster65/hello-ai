@@ -2,11 +2,11 @@ import { expect, test, type APIRequestContext, type Page } from '@playwright/tes
 
 import { CONTEXT_PATH } from '../playwright.config'
 
-/** Basis-URL der Anwendung inklusive Context-Path, mit Schrägstrich am Ende (ADR 0016). */
+/** Basis-URL der Anwendung inklusive Context-Path, mit Schrägstrich am Ende (docs/prompt/frontend.adoc). */
 const APP = `${CONTEXT_PATH}/`
 
 /**
- * User flows through the browser (see ADR 0008). These tests assert on what a user sees –
+ * User flows through the browser (see docs/prompt/tests.adoc). These tests assert on what a user sees –
  * status codes, JSON fields and contract details stay in the Java system tests.
  *
  * <p>The database is shared, so every test works on its own uniquely named recipe and
@@ -138,7 +138,7 @@ test.describe('Rezeptverwaltung', () => {
       await page.goto(APP)
       await titleLink(page, title).click()
 
-      // Die Adresse wandert mit – das ist die Voraussetzung fürs Teilen (ADR 0017).
+      // Die Adresse wandert mit – das ist die Voraussetzung fürs Teilen (docs/prompt/frontend.adoc).
       await expect(page).toHaveURL(new RegExp(`${APP}${id}$`))
       await expect(page.getByRole('heading', { name: title })).toBeVisible()
       await expect(page.getByRole('heading', { name: 'Zutaten' })).toBeVisible()
@@ -182,7 +182,7 @@ test.describe('Rezeptverwaltung', () => {
   })
 
   test('liefert SPA und API aus derselben Origin aus', async ({ page }) => {
-    // Der BFF-Kern aus ADR 0007: der Browser lädt die Seite und ruft die API ohne CORS.
+    // Der BFF-Kern aus docs/prompt/frontend.adoc: der Browser lädt die Seite und ruft die API ohne CORS.
     const apiCalls: string[] = []
     page.on('request', (request) => {
       if (request.url().includes('/api/')) {

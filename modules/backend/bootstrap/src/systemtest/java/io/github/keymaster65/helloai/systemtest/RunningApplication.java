@@ -19,7 +19,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  *       instance and nothing is started here.</li>
  *   <li><b>Self-hosted</b> (default) – the application is booted once on a free port, backed by an
  *       embedded PostgreSQL, so that {@code gradle systemtest} needs no external infrastructure
- *       (see ADR 0002 for why embedded PostgreSQL instead of Testcontainers).</li>
+ *       (see docs/prompt/tests.adoc for why embedded PostgreSQL instead of Testcontainers).</li>
  * </ul>
  */
 final class RunningApplication {
@@ -27,7 +27,7 @@ final class RunningApplication {
     private static final String BASE_URL_PROPERTY = "systemtest.baseUrl";
 
     /**
-     * Must match {@code server.servlet.context-path} in application.yml (see ADR 0016). It is
+     * Must match {@code server.servlet.context-path} in application.yml (see docs/prompt/api.adoc). It is
      * appended here once, so the tests keep addressing plain paths such as {@code /api/recipes}.
      */
     static final String CONTEXT_PATH = "/recipes";
@@ -65,7 +65,7 @@ final class RunningApplication {
 
     /**
      * Origin of the running application – scheme, host and port, <em>without</em> the context
-     * path. RFC 9116 puts {@code security.txt} there and nowhere else (see ADR 0037).
+     * path. RFC 9116 puts {@code security.txt} there and nowhere else (see docs/prompt/security-backend.adoc).
      */
     static String origin() {
         if (ORIGIN == null) {

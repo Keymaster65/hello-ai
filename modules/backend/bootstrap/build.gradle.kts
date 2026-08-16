@@ -2,13 +2,13 @@ plugins {
     java
     // Version and `apply false` come from the root project, so no alias here.
     id("org.springframework.boot")
-    // Separate source set for the system tests (see ADR 0006).
+    // Separate source set for the system tests (see docs/prompt/tests.adoc).
     alias(libs.plugins.test.sets)
 }
 
 description = "Spring Boot entry point – wires the layers and produces the deployable"
 
-// Keep the artifact name independent of the module name (see ADR 0011).
+// Keep the artifact name independent of the module name (see docs/prompt/architektur.adoc).
 val artifactName = "recipes"
 
 // Black-box tests against a running application, run via `./gradlew systemtest`.
@@ -21,7 +21,7 @@ dependencies {
     implementation(project(":modules:backend:adapter"))
 
     implementation(libs.spring.boot.starter.web)
-    // The transaction boundary of the use cases sits here, not in :application (ADR 0045).
+    // The transaction boundary of the use cases sits here, not in :application (docs/prompt/architektur.adoc).
     implementation(libs.spring.tx)
     // Spring Boot 4 provides Liquibase auto-configuration in a dedicated module.
     implementation(libs.spring.boot.liquibase)
@@ -36,7 +36,7 @@ dependencies {
     testImplementation(libs.spring.boot.webmvc.test)
     testImplementation(libs.zonky.embedded.postgres)
     testImplementation(enforcedPlatform(libs.zonky.postgres.binaries.bom))
-    // Enforces the layering rule (see ADR 0012). It runs here because only this module sees
+    // Enforces the layering rule (see docs/prompt/architektur.adoc). It runs here because only this module sees
     // every layer on its classpath.
     testImplementation(libs.archunit.junit5)
 
@@ -48,7 +48,7 @@ dependencies {
 }
 
 // ---------------------------------------------------------------------------
-// Frontend (React/Vite in frontend/), built into the Boot jar – see ADR 0007.
+// Frontend (React/Vite in frontend/), built into the Boot jar – see docs/prompt/frontend.adoc.
 // It belongs to this module because this is where the deployable is assembled.
 // Use -PskipFrontend to keep the Java-only inner loop fast.
 // ---------------------------------------------------------------------------
@@ -99,7 +99,7 @@ val frontendTest by tasks.registering(Exec::class) {
     outputs.upToDateWhen { false }
 }
 
-// End-to-end tests in a real browser (see ADR 0008). Not wired into `check`: they are the
+// End-to-end tests in a real browser (see docs/prompt/tests.adoc). Not wired into `check`: they are the
 // slowest layer and need a reachable PostgreSQL, so they stay an explicit step.
 tasks.register<Exec>("e2eTest") {
     group = "verification"
@@ -116,7 +116,7 @@ tasks.register<Exec>("e2eTest") {
 }
 
 // ---------------------------------------------------------------------------
-// Systemdokumentation (docs/system, gerendert nach HTML), ebenfalls im Boot-Jar – ADR 0024.
+// Systemdokumentation (docs/system, gerendert nach HTML), ebenfalls im Boot-Jar – docs/prompt/systemdokumentation.adoc.
 // Gerendert wird im Wurzelprojekt; hier wird nur eingepackt, weil hier das Deployable
 // entsteht – dieselbe Rollenteilung wie beim Frontend.
 // Use -PskipDocs to keep the Java-only inner loop fast.
@@ -134,20 +134,19 @@ tasks.named<ProcessResources>("processResources") {
 
     if (systemdokuEnabled) {
         // Cross-project dependency: der rendernde Task gehört dem Wurzelprojekt, weil die
-        // Dokumentation das Repository beschreibt und keine Schicht (ADR 0022).
+        // Dokumentation das Repository beschreibt und keine Schicht (docs/prompt/systemdokumentation.adoc).
         dependsOn(":asciidoctor")
-        // Das gerenderte Kapitelwerk samt der daneben kopierten ADRs. `system.html` heißt im
-        // Jar `index.html`, damit die Doku unter `/recipes/docs/` liegt und nicht unter einem
-        // Dateinamen; die relativen Verweise auf `adr/…` stimmen dadurch unverändert.
+        // Das gerenderte Kapitelwerk samt der daneben erzeugten Diagramme. `system.html` heißt
+        // im Jar `index.html`, damit die Doku unter `/recipes/docs/` liegt und nicht unter
+        // einem Dateinamen; die relativen Verweise stimmen dadurch unverändert.
         //
         // Das Muster ist verankert (`^…$`). Ohne die Anker sucht Gradle den Ausdruck *irgendwo*
-        // im Dateinamen – seit die ADRs als HTML danebenliegen (ADR 0026), traf er auch
-        // `0022-asciidoc-systemdokumentation-in-docs-system.html` und benannte sie in
-        // `…-in-docs-index.html` um. Aufgefallen ist das als 404 im `DocumentationSystemTest`.
+        // im Dateinamen und benennt auch Dateien um, die ihn nur enthalten – aufgefallen ist
+        // das seinerzeit als 404 im `DocumentationSystemTest`.
         from(systemdokuVerzeichnis) {
             into("static/docs")
             rename("""^system\.html$""", "index.html")
-            // Die Diagramm-Erweiterung legt neben den erzeugten SVG einen Cache ab (ADR 0042).
+            // Die Diagramm-Erweiterung legt neben den erzeugten SVG einen Cache ab (docs/prompt/systemdokumentation.adoc).
             // Er gehört zum Bauen, nicht zur Auslieferung – sonst wäre er unter
             // `/recipes/docs/.asciidoctor/` abrufbar.
             exclude(".asciidoctor/**")

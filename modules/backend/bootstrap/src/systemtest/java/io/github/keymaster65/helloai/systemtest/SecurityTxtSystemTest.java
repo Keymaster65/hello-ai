@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 
 /**
- * System tests for the machine-readable reporting channel (RFC 9116, see ADR 0037): the running
+ * System tests for the machine-readable reporting channel (RFC 9116, see docs/prompt/security-backend.adoc): the running
  * application serves {@code /.well-known/security.txt} at its <em>origin</em>, next to the
  * context path rather than below it.
  *

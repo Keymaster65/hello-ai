@@ -1,12 +1,11 @@
 // Skill der Arbeitsgrundlage; siehe prompt.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 = Skill: Java-Architektur
 
 == Zweck
 
 Aktiviere diesen Skill bei Design-Entscheidungen, neuen Modulen, Refactorings oder
-Struktur-Fragen.
+Struktur-Fragen. Er trägt die Festlegungen zu Schichtung, Modulschnitt, Paketstruktur und der
+Form der Datentypen – jede mit ihrem Grund.
 
 == Prinzipien
 
@@ -25,7 +24,7 @@ io.github.keymaster65.helloai
 ├── application.port.out       → Business-Logik ausgehende ports
 ├── application.service        → Business-Logik (Application)
 ├── domain.model               → Entities, Domain-Modelle, Value Objects
-├── domain.services            → Domänenlogik ohne eigenen Modelltyp (ADR 0020)
+├── domain.services            → Domänenlogik ohne eigenen Modelltyp
 ├── bootstrap                  → Spring Anwendung (main)
 ----
 
@@ -35,34 +34,27 @@ io.github.keymaster65.helloai
 bootstrap → adapter  →  application  →  domain
 ----
 
-Abhängigkeiten zeigen nach innen. Controller kennt keine Entities direkt.
+Abhängigkeiten zeigen nach innen. Der Controller kennt keine Entities direkt.
 
 Diese Regel ist *doppelt abgesichert*:
 
 . *Vom Build erzwungen* – jede Schicht ist ein eigenes Gradle-Modul unter `:modules:backend`
   (`:modules:backend:bootstrap` → `:modules:backend:adapter` → `:modules:backend:application` →
-  `:modules:backend:domain`). Ein Import aus einer äußeren Schicht *compiliert nicht*; siehe
-  link:{adr}/0013-ein-gradle-modul-je-schicht{adrext}[ADR 0013] und
-  link:{adr}/0014-schichtmodule-unter-backend{adrext}[ADR 0014] sowie
-  link:{adr}/0015-alle-bausteine-unter-modules{adrext}[ADR 0015].
+  `:modules:backend:domain`). Ein Import aus einer äußeren Schicht *compiliert nicht*.
 . *Von ArchUnit geprüft* – `LayeredArchitectureTest` sichert zusätzlich ab, was Modulgrenzen
-  nicht sehen: Framework-Freiheit von Domäne *und* Anwendungsschicht und „Ports sind
-  Interfaces"; siehe link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012] und
-  link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045].
-  `OnionArchitectureTest` beschreibt dieselbe Struktur als Zwiebelschalen und schließt die
-  Lücke der Schichtensicht: *Adapter kennen einander nicht* – der REST-Adapter greift nicht
-  am Port vorbei auf die Persistenz zu. Siehe
-  link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019].
+  nicht sehen: Framework-Freiheit von Domäne *und* Anwendungsschicht, die Teilung der Domäne in
+  `model` und `services` und „Ports sind Interfaces". `OnionArchitectureTest` beschreibt
+  dieselbe Struktur als Zwiebelschalen und schließt die Lücke der Schichtensicht: *Adapter
+  kennen einander nicht* – der REST-Adapter greift nicht am Port vorbei auf die Persistenz zu.
 
-Fehlt einer Klasse eine Abhängigkeit, ist das ein Hinweis auf einen Schichtverstoß – nicht
-die Aufforderung, sie im Buildskript zu ergänzen.
+Fehlt einer Klasse eine Abhängigkeit, ist das ein Hinweis auf einen Schichtverstoß – nicht die
+Aufforderung, sie im Buildskript zu ergänzen.
 
 == Die inneren Schichten sind framework-frei
 
 `domain` und `application` enthalten *keinen* Framework-Typ – kein Spring, kein jOOQ, kein
-Jakarta, kein Jackson, kein Liquibase
-(link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045]). Das ist keine
-Stilfrage: Geschäftsregeln, die an einer Laufzeit hängen, sind nur mit dieser Laufzeit prüfbar.
+Jakarta, kein Jackson, kein Liquibase. Das ist keine Stilfrage: Geschäftsregeln, die an einer
+Laufzeit hängen, sind nur mit dieser Laufzeit prüfbar.
 
 Das gilt *auch für Annotationen*. `+@Service+` und `+@Transactional+` sind Abhängigkeiten wie
 jeder Import; `+@Transactional+` obendrein eine, deren Wirkung außerhalb eines Spring-Kontexts
@@ -101,7 +93,7 @@ ergänzen – sondern die Aufforderung, den Framework-Bedarf nach außen zu verl
 
 WARNING: Wächst ein eingehender Port um einen Use Case, wächst der Dekorator mit. Wird er
 vergessen, läuft der neue Use Case *ohne Transaktion* – still, denn ArchUnit sieht im Bytecode
-nicht, ob eine Delegation in einem `TransactionTemplate` steckt (ADR 0045, „Nachteile").
+nicht, ob eine Delegation in einem `TransactionTemplate` steckt.
 
 == Records: Currying ab drei Komponenten
 
@@ -132,9 +124,8 @@ Ingredient ingredient = Ingredient.curried()
 ----
 
 Der kanonische Konstruktor bleibt der einzige Ort der Validierung; die Kette ruft ihn im
-letzten Schritt auf. `RecordCurryingTest` prüft die Form der Kette – nicht nur, dass es eine
-Methode `curried()` gibt. Begründung und Grenzen:
-link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[ADR 0021].
+letzten Schritt auf. `RecordCurryingTest` prüft die *Form der Kette* – nicht nur, dass es eine
+Methode `curried()` gibt.
 
 == Checkliste vor Implementierung
 
@@ -148,9 +139,7 @@ link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[ADR 
 
 == Beispiel: sauberer Anwendungsdienst
 
-Gewöhnliches Java: keine Annotation, kein Lombok
-(link:{adr}/0003-kein-lombok-records-und-konstruktor-injektion{adrext}[ADR 0003]),
-Konstruktor-Injektion von Hand.
+Gewöhnliches Java: keine Annotation, kein Lombok, Konstruktor-Injektion von Hand.
 
 [source,java]
 ----
@@ -175,8 +164,7 @@ public class UserService implements UserUseCases {   // der eingehende Port
 
 == Beispiel: Verdrahtung im Composition Root
 
-Hier – und nur hier – wird das Rahmenwerk sichtbar: Bean-Erzeugung und Transaktionsgrenze
-(link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045]).
+Hier – und nur hier – wird das Rahmenwerk sichtbar: Bean-Erzeugung und Transaktionsgrenze.
 
 [source,java]
 ----
@@ -213,50 +201,17 @@ public class UserController {
     public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
         return ResponseEntity.ok(userService.findById(id));
     }
-
-    @PostMapping
-    public ResponseEntity<UserDto> createUser(
-            @Valid @RequestBody CreateUserRequest request) {
-        UserDto created = userService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }
 }
 ----
 
-== Beispiel: zentrales Exception-Handling
-
-Fehlerantworten folgen RFC 9457 und tragen `+application/problem+json+`
-(link:{adr}/0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR 0046]) – nicht ein
-selbst erfundenes Fehlerformat:
-
-[source,java]
-----
-@RestControllerAdvice
-@Order(Ordered.HIGHEST_PRECEDENCE)
-public class GlobalExceptionHandler {
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ProblemDetail> handleNotFound(
-            UserNotFoundException ex, HttpServletRequest request) {
-        ProblemDetail problem = ProblemDetail.curried()
-                .type(ProblemType.NOT_FOUND.uri(request.getContextPath()))
-                .title(ProblemType.NOT_FOUND.title())
-                .status(HttpStatus.NOT_FOUND.value())
-                .detail(ex.getMessage())
-                .instance(request.getRequestURI())
-                .fieldErrors(List.of());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                .body(problem);
-    }
-}
-----
+Das Fehlerbild der API – RFC 9457, `+application/problem+json+` – steht im Skill
+`docs/prompt/api.adoc`, nicht hier.
 
 == Anti-Patterns vermeiden
 
 * Business-Logik im Controller
 * Framework-Annotation in `domain` oder `application` – auch `@Service` und `@Transactional`
-  sind Abhängigkeiten (ADR 0045)
+  sind Abhängigkeiten
 * Eine fehlende Abhängigkeit in einer inneren Schicht im Buildskript nachtragen
 * `@Autowired` auf Feldern (nutze Konstruktor-Injektion)
 * Entities direkt als API-Response zurückgeben
@@ -264,12 +219,237 @@ public class GlobalExceptionHandler {
 * Zirkuläre Abhängigkeiten zwischen Komponenten
 * Feld-Injektion erschwert Testbarkeit
 
-== Bei größeren Entscheidungen
+== Auslöser → Pflicht
 
-Jede Entscheidung mit sichtbarer Alternative bekommt ein *ADR (Architecture Decision Record)*
-unter `docs/adr`. Wie eines aufgebaut ist, wie bestehende einzuhalten und wie sie abzulösen
-sind, steht im *ADR-Skill* (`docs/prompt/adr.adoc`) – hier nicht, damit es an *einer* Stelle
-steht.
+[cols="2,3", options="header"]
+|===
+| Anlass | Zu tun
 
-Vor dem Entwurf gilt der erste Schritt von dort: Welche ADRs binden diese Aufgabe bereits? Die
-Antwort begrenzt den Entwurfsraum, bevor er aufgespannt wird.
+| Neue Klasse
+| In das Modul ihrer Schicht. Fehlt eine Abhängigkeit, ist das ein Schichtverstoß – der Ausweg
+  heißt Port in `:application`, nicht `+implementation(project(":adapter"))+`
+
+| Neuer Adapter (Messaging, weiterer Client)
+| Als *eigener* `+adapter(...)+`-Ring in `OnionArchitectureTest`. Ihn in einen bestehenden Ring
+  zu schieben, wäre die stille Variante des Verstoßes, den die Regel verhindert
+
+| Neue Schicht, umbenanntes Paket
+| `LayeredArchitectureTest` und `OnionArchitectureTest` mitziehen; beide werden zusammen
+  gepflegt. Widersprechen sie sich, ist das kein Anlass, einen zu löschen, sondern ein Hinweis,
+  dass die Struktur unklar ist
+
+| Neuer `record` mit mehr als zwei Komponenten
+| `curried()` samt Step-Interfaces ergänzen; bei einer neuen Komponente Kette *und* Interfaces
+  mitziehen
+
+| Domänenregel, die zu keinem einzelnen Typ gehört
+| Nach `+domain.services+` – nicht in den Anwendungsdienst. Die drei Bedingungen dafür stehen
+  im `+package-info.java+` dort
+
+| Bedarf an einem Framework-Typ in `domain` oder `application`
+| Nach außen verlegen (Composition Root oder Adapter), nicht die Abhängigkeit ergänzen
+
+| Neues Gradle-Modul, geänderte Modulabhängigkeit
+| Skill `docs/prompt/build.adoc` *und* `docs/system/schichten.adoc` (Diagramm und Modultabelle)
+
+| Architekturtest schlägt fehl
+| Die Ursache beheben, *nicht* die Regel entschärfen. Entweder wird die Abhängigkeit umgedreht,
+  oder die Schichtung wird bewusst geändert – dann als geänderte Festlegung hier
+|===
+
+[[festlegungen-architektur]]
+== Festlegungen und ihre Gründe
+
+=== Kein Lombok: Records und explizite Konstruktor-Injektion
+
+*Was gilt.* Domänen- und DTO-Typen sind `record` (unveränderlich); Spring-Beans bekommen ihre
+Abhängigkeiten über einen von Hand geschriebenen Konstruktor. Lombok ist keine Abhängigkeit des
+Projekts – auch nicht in Beispielen.
+
+*Warum.* Java 25 deckt mit Records und kompakten Sprachmitteln die meisten Lombok-Fälle ab. Kein
+Annotation-Processor heißt volle Transparenz für IDE und Werkzeuge, und Konstruktor-Injektion
+ohne Framework-Magie ist gut testbar.
+
+*Verworfen.* Lombok einsetzen – verworfen, weil es eine zusätzliche Abhängigkeit samt
+Annotation-Processor für Boilerplate ist, den Records ohnehin sparen. Der Preis der Entscheidung
+ist etwas mehr Schreibarbeit bei mehreren Konstruktorparametern.
+
+=== Ein Gradle-Modul je Schicht
+
+*Was gilt.* Vier Module in Abhängigkeitsrichtung: `:domain` (ohne *jede*
+Produktionsabhängigkeit), `:application` (`+api(:domain)+`), `:adapter`
+(`+api(:application)+`, Web/Validation/jOOQ/springdoc, Changelog und jOOQ-Codegen) und
+`:bootstrap` (`:adapter`, Spring-Boot-Plugin, `application.yml`, Frontend-Tasks, Systemtests,
+Boot-Jar). Was eine Schicht in ihren Signaturen weitergibt, wird mit `+api(...)+` deklariert,
+alles Interne mit `+implementation(...)+`.
+
+*Warum.* Vorher war die Schichtung eine Paketkonvention, geprüft von ArchUnit – also eine
+Zusicherung *nach* dem Kompilieren. Als Modulschnitt ist sie *strukturell*: Was ein Modul nicht
+deklariert, sieht es nicht. `:domain` hat einen leeren Compile-Classpath (`No dependencies`);
+die Framework-Freiheit ist damit garantiert statt überwacht. Belegt durch die Gegenprobe: Ein
+Record in `:application`, der einen REST-DTO importiert, compiliert nicht
+(`+package … .adapter.in.rest.dto does not exist+`).
+
+*Verworfen.* Bei einem Modul bleiben und weiter allein auf ArchUnit setzen – verworfen, weil ein
+Verstoß dann erst im Testlauf auffällt. Zwei Module (`:core`, `:app`) – verworfen, weil die zwei
+interessantesten Grenzen unbewacht blieben. Das Java Module System – verworfen, weil es sich
+schlecht mit Spring Boot und dem generierten jOOQ-Code verträgt.
+
+*Die Falle, die erst die Tests zeigten.* Nach der Aufteilung schlugen drei Controller-Tests mit
+400 statt 404/204 fehl: Das Spring-Boot-Plugin fügt `-parameters` hinzu und wird nur noch in
+`:bootstrap` angewendet – `:adapter` übersetzte ohne Parameternamen, und Spring MVC konnte
+`+@PathVariable long id+` nicht mehr binden. Behoben im Wurzelskript für alle Module.
+
+IMPORTANT: Wer ein Framework-Plugin auf einzelne Module beschränkt, verliert auch dessen
+*implizite* Konfiguration. Bei jedem solchen Schnitt ist zu prüfen, welche Compiler- oder
+Ressourcen-Einstellung den anderen Modulen dadurch fehlt.
+
+=== Alle Bausteine unter `modules/`, die Schichten unter `backend/`
+
+*Was gilt.* Das Wurzelverzeichnis enthält nur Build-Einstieg, `modules/`, `docs/` und
+`gradle/`. Darunter liegen `modules/backend` (Containerprojekt mit den vier Schichtmodulen und
+der gemeinsamen Konfiguration) und `modules/frontend` (npm-Projekt, kein Gradle-Modul). Die
+Projektpfade lauten `+:modules:backend:domain+` … `+:modules:backend:bootstrap+`. Neue
+Anwendungsmodule gehören unter `modules/`, nicht in die Wurzel; gemeinsame Konfiguration wird
+auf der Ebene gepflegt, für die sie gilt.
+
+*Warum.* Vorher standen Anwendung, Frontend, Dokumentation und Werkzeugverzeichnisse
+gleichrangig in der Wurzel, und das Wurzelprojekt trug die Konfiguration der Schichten, obwohl
+sie das Frontend nichts angeht. Jetzt zeigt der Baum die Gliederung, und ein weiterer Baustein
+hat einen offensichtlichen Platz. Belegt durch `+./gradlew projects+`, den leeren
+Compile-Classpath von `:domain` und grüne Läufe aller Teststufen nach jedem der drei Schritte.
+
+*Verworfen.* Flach lassen – verworfen, weil die Wurzel mit jedem Baustein wächst. Das Frontend
+als Gradle-Modul einhängen – verworfen: Solange nur einige `Exec`-Tasks nötig sind, wäre das
+reine Indirektion. Umbenennen statt gruppieren (`backend-domain`, …) – erzeugt Ordnung im Namen,
+aber keine im Baum.
+
+*Preis.* Lange Projektpfade (`+:modules:backend:bootstrap+`) – im Alltag folgenlos, weil Gradle
+Task-Namen an alle Projekte weiterleitet. Beim Verschieben von Modulen sind drei Dinge
+mitzuziehen, die der Compiler *nicht* findet: `+project(":…")+`-Pfade, Pfade auf
+`+build/+`-Verzeichnisse außerhalb von Gradle (Playwright) und die Pfadangaben in README und
+`CLAUDE.md`.
+
+WARNING: *Vor dem Verschieben von Verzeichnissen die generierten Inhalte löschen.* Ein
+`+git mv+` über tausende Dateien ist auf dieser Umgebung nicht verlässlich: Beim Verschieben von
+`frontend/` mit 5836 Dateien meldete `git mv` Erfolg, das Ziel war leer, und der
+Verzeichniseintrag ließ sich weder lesen noch löschen. Nach dem Entfernen von `node_modules`,
+`dist` und den übrigen erzeugten Verzeichnissen lief derselbe Befehl mit 24 Dateien fehlerfrei
+durch. *Nach jedem Verschieben die Dateizahl am Ziel prüfen*, nicht nur den Rückgabewert – und
+vorher committen.
+
+=== ArchUnit prüft Schichten und Ringe
+
+*Was gilt.* `LayeredArchitectureTest` (sechs Regeln) und `OnionArchitectureTest` (eine Regel)
+laufen in `+./gradlew test+` mit und liegen in `:bootstrap`, weil nur dort alle Schichten auf
+dem Classpath liegen. Tests selbst sind über `+ImportOption.DoNotIncludeTests+` aus der Analyse
+ausgenommen: Ein Test darf in jede Schicht greifen.
+
+*Warum.* Der Modulschnitt erzwingt die *Richtung*, sieht aber zwei Dinge nicht: die
+Framework-Freiheit auf Paketebene und die Beziehung zwischen Adaptern, die im selben Modul
+liegen. Die Zwiebelschalen-Sicht kennt Adapter als *benannte, gegenseitig unbekannte* Ringe –
+`rest`, `persistence`, `bootstrap` – und macht damit den Zugriff Adapter → Adapter zum
+Build-Fehler. Belegt gegen absichtliche Verstöße: Ein Record im Domänenpaket mit REST-DTO ließ
+zwei Schichtregeln fehlschlagen; ein Record im REST-Adapter, der den generierten jOOQ-Code
+anfasst, ließ *nur* `+rings_are_respected+` fehlschlagen, während alle Schichtregeln grün
+blieben. Damit ist belegt, dass die zweite Sicht eine echte Lücke schließt.
+
+*Verworfen.* `+layeredArchitecture()+` um `+..adapter.in..+` und `+..adapter.out..+` erweitern –
+verworfen, weil es „Adapter kennen einander nicht" in eine Reihenfolge zwingt, die es nicht
+gibt. Ein eigenes Gradle-Modul je Adapter – verworfen, weil es die Struktur ändern würde, um sie
+zu prüfen, und die jOOQ-Codegen-Konfiguration dupliziert.
+
+*Grenzen, die zu kennen sind.* ArchUnit liest Bytecode. Für Felder, Parameter und Rückgabetypen
+wertet es die generische Signatur aus; unsichtbar bleiben Typargumente dort, wo der Compiler sie
+wegwirft – etwa in lokalen Variablen. Deshalb gibt es *keine* Regel „Controller kennt keine
+Entities direkt" über Methodensignaturen: Sie wäre unvollständig und erzeugte falsche Sicherheit.
+`+withOptionalLayers(true)+` ist nötig, solange der Ring `domainServices` leer ist – der Preis
+ist, dass ein durch Umbenennung leer gelaufener Ring nicht mehr gemeldet wird.
+
+IMPORTANT: *Eine Regel, die nie fehlschlägt, ist wertlos.* Eine neue Architekturregel wird gegen
+einen absichtlichen Verstoß geprüft, bevor sie als Nachweis gilt. Neue Regeln nur, wenn sie
+tatsächlich prüfbar sind – was der Bytecode nicht hergibt, gehört nicht als Scheinprüfung hinein.
+
+=== Die Domäne ist in `model` und `services` geteilt
+
+*Was gilt.* Die Modelltypen liegen in `+io.github.keymaster65.helloai.domain.model+`, daneben
+steht `+io.github.keymaster65.helloai.domain.services+` für Domänenlogik, die zu keinem einzelnen
+Typ gehört. Eine Klasse direkt in `+..domain+` verhindert
+`+LayeredArchitectureTest.domain_is_split_into_model_and_services+`.
+
+*Warum.* Ohne benannten Ort landet eine Regel über mehrere Aggregate hinweg im
+Anwendungsdienst, weil dort Platz ist – Domänenwissen wandert nach außen, und die innerste
+Schicht wird zur Datenhaltung. Das Paket ist leer, aber nicht auf Verdacht: Sein
+`+package-info.java+` nennt die drei Bedingungen, unter denen eine Klasse dorthin gehört
+(Domänenregel statt Anwendungsfall, mehr als ein Aggregat betroffen, frei von Frameworks). Damit
+ist die Frage „wohin mit dieser Logik?" beantwortet, bevor sie gestellt wird.
+
+*Verworfen.* Alles in einem Paket lassen – verworfen, weil sich die Frage dann beim ersten
+Domain-Service unter Zeitdruck stellt. Nur `domain.model` anlegen – halber Schritt, der Ort
+bliebe unbenannt. Ein Gradle-Modul je Paket – verworfen: Module bilden *Schichten* ab, und
+Model und Services sind eine Schicht.
+
+=== Currying für Records mit mehr als zwei Komponenten
+
+*Was gilt.* Jeder Record mit mehr als zwei Komponenten trägt `curried()`, im gesamten Backend –
+Domäne *und* Adapter-DTOs. Der kanonische Konstruktor bleibt öffentlich und bleibt der einzige
+Ort der Validierung; `curried()` ist eine typisierte Fassade davor, kein zweiter
+Konstruktionsweg mit eigenen Regeln.
+
+*Warum.* `Recipe` hat acht Komponenten, darunter zwei benachbarte `String` und zwei benachbarte
+`Integer`. Wer sie vertauscht, bekommt *keinen* Compilerfehler – ein Rezept mit 25 Portionen und
+4 Minuten Zubereitungszeit ist ein reiner Laufzeitfehler. Die Kette einstelliger Schritte macht
+daraus einen Compilerfehler und stellt die Namen an die Aufrufstelle
+(`+.servings(4).prepTimeMinutes(25)+`). Teilweise angewandte Ketten sind wiederverwendbare
+Werte, was vor allem Testdaten nützt. Abgesichert durch `RecordCurryingTest`: Schritt _n_ ist ein
+Interface mit genau einer Methode, diese heißt wie Komponente _n_, nimmt genau ein Argument von
+deren Typ, und der letzte Schritt liefert den Record.
+
+*Verworfen.* Nichts ändern – die Vertauschung gleichartiger Nachbarn bleibt unentdeckbar.
+Klassischer Builder – `+build()+` kann mit halb gefülltem Zustand aufgerufen werden, und der
+veränderliche Zwischenzustand widerspricht der Immutability-Regel. Currying über
+`+java.util.function.Function+` – erzwingt Reihenfolge und Vollständigkeit, überträgt aber die
+Namen nicht (`+.apply("Carbonara").apply(null)+`), und bei acht Komponenten wird der Rückgabetyp
+unlesbar. Mehrere `+of(…)+`-Factories – lösen das Namensproblem nicht.
+
+*Die Grenze liegt bei zwei Komponenten*, und sie ist an ihrem Rand willkürlich: `Ingredient` mit
+drei bekommt die Kette, `PreparationStep` mit zweien nicht. Bis zwei ist die Argumentliste kurz
+genug, dass die Deklaration beim Lesen präsent ist; ab drei wächst die Zahl der möglichen
+Vertauschungen schneller als die Aufmerksamkeit. Die Regel gilt bewusst *auch für DTOs*, obwohl
+Jackson und springdoc dort den kanonischen Konstruktor verwenden – eine Konvention, die je
+Schicht anders lautet, muss bei jeder neuen Klasse neu entschieden werden.
+
+*Preis.* Deutlich mehr Code im Record (`Recipe` trägt acht Step-Interfaces), eine starre
+Schrittfolge – wer nur zwei Komponenten setzen will, reicht die übrigen als `null` durch – und
+Steps an DTOs, die im Produktionspfad niemand aufruft. Eine Codegenerierung dafür gibt es
+bewusst nicht: Bei dieser Zahl von Records wöge ein Annotation-Processor schwerer als der
+gesparte Boilerplate.
+
+=== Die Anwendungsschicht bleibt frei von Framework-Abhängigkeiten
+
+*Was gilt.* `:modules:backend:application` hat keine Produktionsabhängigkeit außer `:domain`.
+`+@Service+` ist einer `+@Bean+`-Methode in `ApplicationServicesConfig` gewichen,
+`+@Transactional+` dem Dekorator `TransactionalRecipeService` mit zwei `TransactionTemplate`
+(lesend/schreibend); `spring-tx` liegt jetzt in `:bootstrap`.
+
+*Warum.* Der Unterschied zwischen *wenig Framework* und *kein Framework* ist qualitativ. Die
+Zusicherung „schreibende Use Cases laufen in einer Transaktion" stand in der Anwendungsschicht,
+war aber nur außerhalb von ihr einlösbar: `+@Transactional+` wirkt nur über einen Proxy, den ein
+Spring-Kontext erzeugt – im Unit-Test der Schicht ist die Annotation wirkungslos. Als Dekorator
+ist die Grenze *ausführbarer Code* und erstmals ohne Spring-Kontext testbar
+(`TransactionalRecipeServiceTest`). Belegt gegen einen absichtlichen Verstoß: Mit wieder
+eingetragenem `spring-context` und `+@Service+` an `RecipeServiceImpl` schlug genau
+`application_is_free_of_frameworks` fehl, die übrigen fünf Regeln blieben grün.
+
+*Verworfen.* Eine eigene Annotation `+@UseCase+` samt Scanner in `:bootstrap` – ersetzt eine
+fremde Abhängigkeit durch eine eigene und braucht zusätzlich den Scanner. `+@Transactional+` an
+das jOOQ-Repository schieben – verschiebt die Grenze nach *innen*, auf den einzelnen
+Repository-Aufruf; heute fiele das nicht auf, weil jeder Use Case genau einen Aufruf macht, der
+erste mit zweien wäre still nicht mehr atomar. Ein ausgehender Port `TransactionRunner` – die
+Schicht bliebe framework-frei, müsste aber jeden Use Case in einen Lambda-Aufruf einwickeln:
+Transaktionstechnik im Text der Geschäftsregeln.
+
+*Preis.* Zwei Klassen mehr im Composition Root, die fünf Use Cases stehen dort als
+Delegationsmethoden ein zweites Mal, und die Transaktionsgrenze ist am Use Case nicht mehr
+abzulesen – der Hinweis steht im Klassenkommentar. Verhalten unverändert: Isolationsstufe,
+Propagation und die Rollback-Regel sind die Vorgabewerte, die auch `+@Transactional+` benutzt hat.

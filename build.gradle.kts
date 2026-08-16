@@ -4,9 +4,9 @@ import se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask
 // Root project: no sources of its own – it aggregates, and it renders the documentation that
 // belongs to the repository as a whole.
 //
-// Alle Bausteine liegen unter `modules/` (ADR 0015):
+// Alle Bausteine liegen unter `modules/` (docs/prompt/architektur.adoc):
 //
-//   :modules:backend   – die Anwendung, ein Untermodul je Schicht (ADR 0013, ADR 0014)
+//   :modules:backend   – die Anwendung, ein Untermodul je Schicht
 //   modules/frontend   – npm-Projekt, von :modules:backend:bootstrap ins Boot-Jar gepackt
 //
 // Die gemeinsame Konfiguration der Schichtmodule steht in `modules/backend/build.gradle.kts`,
@@ -16,20 +16,21 @@ import se.bjurr.gitchangelog.plugin.gradle.GitChangelogTask
 // Die gewohnten Kommandos funktionieren unverändert, weil Gradle einen Task-Namen an jedes
 // Projekt weiterleitet, das ihn kennt: ./gradlew clean build, test, systemtest, e2eTest.
 //
-// Versions and coordinates live solely in `gradle/libs.versions.toml` (ADR 0018); the build
-// scripts reference them as `libs.<alias>`.
+// Versions and coordinates live solely in `gradle/libs.versions.toml`
+// (docs/prompt/build.adoc); the build scripts reference them as `libs.<alias>`.
 plugins {
     alias(libs.plugins.spring.boot) apply false
     alias(libs.plugins.spring.dependency.management) apply false
 
     // Die Systemdokumentation beschreibt das Repository, nicht eine Schicht – sie liegt in
-    // `docs/system` und gehört deshalb hierher und in kein Modul (ADR 0022). Das ist das
-    // einzige Plugin, das im Wurzelprojekt auch angewendet wird.
+    // `docs/system` und gehört deshalb hierher und in kein Modul
+    // (docs/prompt/systemdokumentation.adoc). Das ist das einzige Plugin, das im Wurzelprojekt
+    // auch angewendet wird.
     alias(libs.plugins.asciidoctor.convert)
 
-    // Liest die git-Historie und schreibt daraus die Tabelle für den Anhang „Änderungen"
-    // (ADR 0036). Gehört aus demselben Grund hierher: Die Historie beschreibt das Repository
-    // als Ganzes, nicht eine Schicht.
+    // Liest die git-Historie und schreibt daraus die Tabelle für den gleichnamigen Anhang
+    // (docs/prompt/systemdokumentation.adoc). Gehört aus demselben Grund hierher: Die Historie
+    // beschreibt das Repository als Ganzes, nicht eine Schicht.
     alias(libs.plugins.git.changelog)
 
     // Liefert `clean` und `build` im Wurzelprojekt, damit die Doku am gewohnten Befehl hängt
@@ -46,8 +47,9 @@ repositories {
 
 asciidoctorj {
     // Diagramme entstehen beim Rendern aus ihrer Quelle im Dokument, nicht aus eingecheckten
-    // Bilddateien (ADR 0042). Die Erweiterung bringt PlantUML mit; sie gilt für alle drei
-    // Asciidoctor-Tasks, damit ein Diagramm überall stehen darf, wo AsciiDoc steht.
+    // Bilddateien (docs/prompt/systemdokumentation.adoc). Die Erweiterung bringt PlantUML
+    // mit; sie gilt für beide Asciidoctor-Tasks, damit ein Diagramm überall stehen darf, wo
+    // AsciiDoc steht.
     modules {
         diagram.use()
         diagram.setVersion(libs.versions.asciidoctorjDiagram.get())
@@ -66,7 +68,7 @@ asciidoctorj {
 // Asciidoctor löst `include::` selbst auf – Gradle sieht davon nichts. Für Includes innerhalb des
 // Quellverzeichnisses genügt das, weil der Task es ohnehin als Eingabe kennt. Die
 // Systemdokumentation bindet aber auch Dateien von *außerhalb* ein: die Arbeitsgrundlage aus
-// `docs/prompt` (ADR 0023) und im Anhang die Quelldateien selbst. Ohne die Deklaration unten
+// `docs/prompt` und im Anhang die Quelldateien selbst. Ohne die Deklaration unten
 // bliebe der Task nach einer Codeänderung UP-TO-DATE und der Anhang zeigte einen alten Stand –
 // nachgemessen an einem `touch` auf `Recipe.java`.
 fun includesAusserhalb(quellverzeichnis: File): List<File> =
@@ -81,38 +83,8 @@ fun includesAusserhalb(quellverzeichnis: File): List<File> =
         .distinct()
         .toList()
 
-// Die ADRs sind seit ADR 0026 ebenfalls AsciiDoc und werden gerendert, statt als Quelltext
-// mitzureisen. Eigener Task, weil sie ein eigenes Quellverzeichnis haben und – anders als
-// Systemdoku und Arbeitsgrundlage – *jede* Datei ein Eingangspunkt ist: 25 Dokumente, kein
-// Masterdokument. Das Ergebnis wird vom `asciidoctor`-Task unten neben das HTML kopiert.
-val asciidoctorAdr by tasks.registering(AsciidoctorTask::class) {
-    group = "documentation"
-    description = "Rendert die Architekturentscheidungen aus docs/adr nach HTML."
-
-    setSourceDir(file("docs/adr"))
-    baseDirFollowsSourceFile()
-    // Kein `sources`-Filter: Jedes ADR ist ein eigenständiges Dokument und damit ein eigener
-    // Eingangspunkt.
-    setOutputDir(layout.buildDirectory.dir("docs/adr").get().asFile)
-    outputOptions { backends("html5") }
-
-    attributes(
-        mapOf(
-            // Die ADRs verweisen untereinander als `link:NNNN-titel{adrext}[…]`. Im Repository
-            // steht `.adoc` (GitHub rendert es), im Ergebnis liegen die HTML-Dateien
-            // nebeneinander – deshalb hier `.html`.
-            "adrext" to ".html",
-            // Ein Stylesheet neben 25 Dokumenten statt 25-mal eingebettet; sonst wüchse das
-            // Boot-Jar um ein Vielfaches der eigentlichen Texte.
-            "linkcss" to true,
-            "copycss" to true,
-            "attribute-missing" to "warn",
-        ),
-    )
-}
-
-// Die git-Historie als Tabelle für den Anhang „Änderungen" (ADR 0036). Sie wird bei jedem Lauf
-// neu erzeugt und *nicht* eingecheckt – anders als die Kennzahlen-Tabelle (ADR 0027), deren
+// Die git-Historie als Tabelle für den gleichnamigen Anhang. Sie wird bei jedem Lauf
+// neu erzeugt und *nicht* eingecheckt – anders als die Kennzahlen-Tabelle, deren
 // Quelle im Repository liegt. Hier ist die Quelle das Repository selbst: Ein Commit kann sich
 // nicht enthalten, eine eingecheckte Fassung wäre ab ihrem Entstehen um genau einen Commit alt.
 val gitChangelogAdoc = layout.buildDirectory.file("docs/changelog/gitchangelog.adoc")
@@ -141,17 +113,16 @@ tasks.named<GitChangelogTask>("gitChangelog") {
     // Handlebars-Vorlage. `commits` ist die flache Liste aller Commits, neuester zuerst; das
     // Projekt kennt keine Tags, nach denen sich gruppieren ließe. Die Spalte „Betreff" ist
     // *literal* (`l`) – aus demselben Grund wie die Prompt-Spalte der Kennzahlen-Tabelle
-    // (ADR 0027): In einer Commit-Message steht beliebiger Text, und der darf den Build nicht
-    // brechen.
+    // In einer Commit-Message steht beliebiger Text, und der darf den Build nicht brechen.
     //
-    // Die Vorlage legt die *Gestalt* der Tabelle fest, auch die vierte Spalte „Prompt" (ADR 0038).
+    // Die Vorlage legt die *Gestalt* der Tabelle fest, auch die vierte Spalte „Prompt".
     // Deren Inhalt bleibt hier leer: Handlebars sieht nur die Commits, nicht das Session-Protokoll.
     // Gefüllt wird die Spalte – zusammen mit dem Anker je Commit – im `doLast` unten. Die Spalte
     // ist *nicht* literal, sonst blieben die Querverweise darin Text.
     templateContent.set(
         """
         // Erzeugt vom Gradle-Task `gitChangelog` aus der git-Historie – nicht von Hand ändern,
-        // nicht eingecheckt. Eingebunden in docs/system/anhang-git-historie.adoc (ADR 0036).
+        // nicht eingecheckt. Eingebunden in docs/system/anhang-git-historie.adoc.
 
         [[git-historie-tabelle]]
         .Commits, neuester zuerst
@@ -165,21 +136,21 @@ tasks.named<GitChangelogTask>("gitChangelog") {
         """.trimIndent(),
     )
 
-    // Querverweise zwischen den Anhängen „Session-Protokoll" und „Git-Historie" (ADR 0038,
-    // ADR 0044): Jede Zeile
+    // Querverweise zwischen den Anhängen „Session-Protokoll" und „Git-Historie"
+    // (docs/prompt/butterfly.adoc): Jede Zeile
     // bekommt den Anker `+commit-<kurzhash>+`, auf den das Protokoll zeigt, und in der Spalte
     // „Prompt" die Verweise zurück auf die Log-Einträge, die diesen Commit nennen.
     //
     // Die Zuordnung steht *im Protokoll*, nicht hier: Ein Log-Eintrag, aus dem ein Commit
     // hervorgegangen ist, nennt ihn in einer eigenen Zeile `+_Commit: …_+` (Butterfly-Skill).
     // Sie wird daraus abgeleitet und nirgends zweitgeführt – wie die Kennzahlen-Tabelle aus
-    // denselben Einträgen entsteht (ADR 0027).
+    // denselben Einträgen entsteht.
     //
     // Gelesen wird *ausschließlich* diese Zeile, nicht der Fließtext. Ein Eintrag nennt Hashes
     // auch aus anderen Gründen – einen Pull-Bereich (`+e94f8f9..09d4158+`), den Stand eines
     // Remote-Branches, einen fremden Commit als Nebenbefund. Über den Fließtext gelesen behauptete
     // die Spalte, dieser Prompt habe jene Commits erzeugt; sie wäre überwiegend falsch. Erraten
-    // wird nichts: Ein Commit, den keine solche Zeile nennt, bekommt `–` (ADR 0038).
+    // wird nichts: Ein Commit, den keine solche Zeile nennt, bekommt `–`.
     val protokoll = file("docs/log/claudeLog.adoc")
     val ziel = gitChangelogAdoc.get().asFile
     inputs.file(protokoll).withPropertyName("sessionProtokoll")
@@ -240,17 +211,18 @@ tasks.named<GitChangelogTask>("gitChangelog") {
     }
 }
 
-// Die Ergebnisse der Testabdeckung als Tabelle für das Kapitel „Abdeckung" (ADR 0047). Anders
+// Die Ergebnisse der Testabdeckung als Tabelle für das Kapitel „Abdeckung"
+// (docs/prompt/tests.adoc). Anders
 // als die git-Historie oben entsteht die Tabelle *nicht* beim Rendern, sondern in einem eigenen,
 // ausdrücklich aufgerufenen Schritt – und ihr Ergebnis wird eingecheckt, wie die
-// Kennzahlen-Tabelle (ADR 0027). Der Grund ist ein Kreis: `:bootstrap` packt die gerenderte
-// Dokumentation in sein Jar (ADR 0024), sein `processResources` hängt also am `asciidoctor`-Task
+// Kennzahlen-Tabelle. Der Grund ist ein Kreis: `:bootstrap` packt die gerenderte
+// Dokumentation in sein Jar, sein `processResources` hängt also am `asciidoctor`-Task
 // des Wurzelprojekts. Hinge dieser umgekehrt an den Tests, die die Messung erzeugen, wäre der
 // Task-Graph zyklisch. Eine Messung des laufenden Builds kann deshalb nicht im selben Build
 // ausgeliefert werden.
 val abdeckungTabelle = file("docs/system/abdeckung-tabelle.adoc")
 
-// Von innen nach außen, in der Reihenfolge der Schichten (ADR 0013, ADR 0014) – nicht
+// Von innen nach außen, in der Reihenfolge der Schichten – nicht
 // alphabetisch, wie `subprojects` sie lieferte. Die Tabelle liest sich damit wie das Kapitel
 // „Bausteinsicht".
 val schichtmodule = listOf("domain", "application", "adapter", "bootstrap")
@@ -345,7 +317,7 @@ tasks.register("coverageTable") {
         // gemeinsame Einrückung auf null – der Rahmen der Tabelle behielte seine Leerzeichen.
         val ausgabe = listOf(
             "// Erzeugt vom Gradle-Task `coverageTable` aus den JaCoCo-Berichten der",
-            "// Backend-Module – nicht von Hand ändern (ADR 0047). Eingebunden in",
+            "// Backend-Module – nicht von Hand ändern. Eingebunden in",
             "// docs/system/qualitaetssicherung.adoc.",
             "",
             "[[abdeckung-tabelle]]",
@@ -370,7 +342,7 @@ tasks.named<AsciidoctorTask>("asciidoctor") {
         .withPropertyName("eingebundeneDateienAusserhalb")
         .withPathSensitivity(PathSensitivity.RELATIVE)
 
-    // Die Docinfo-Fußzeile macht das Inhaltsverzeichnis klappbar (ADR 0043). Sie fällt durch
+    // Die Docinfo-Fußzeile macht das Inhaltsverzeichnis klappbar. Sie fällt durch
     // beide Netze: Der Task durchsucht `docs/system` nur nach AsciiDoc, und `includesAusserhalb`
     // sammelt ausdrücklich nur, was *außerhalb* liegt. Ohne diese Zeile bliebe er nach einer
     // Änderung an der Datei UP-TO-DATE und lieferte das alte Verzeichnis aus – nachgemessen.
@@ -391,33 +363,18 @@ tasks.named<AsciidoctorTask>("asciidoctor") {
     sources { include("system.adoc") }
     outputOptions { backends("html5") }
 
-    // Die Kapitel verlinken die ADRs, die ADRs selbst liegen aber außerhalb des Ergebnisses.
-    // Bisher hieß das: Das HTML funktioniert nur an seinem Bauplatz, weil das Attribut `adr`
-    // ins Repository zurückzeigte. Seit die Doku mit ausgeliefert wird (ADR 0024), kopiert der
-    // Task sie in einen Unterordner `adr/` neben das HTML – damit ist das Ausgabeverzeichnis
-    // in sich geschlossen und überall gültig, auch im Boot-Jar. Kopiert wird seit ADR 0026
-    // das *gerenderte* HTML aus `asciidoctorAdr`, nicht mehr der Quelltext.
-    dependsOn(asciidoctorAdr)
-    resources {
-        from(asciidoctorAdr.map { it.outputDir })
-        into("adr")
-    }
-
+    // Das Ausgabeverzeichnis ist in sich geschlossen: Alles, worauf das Dokument zeigt – die
+    // erzeugten Diagramme –, liegt daneben und wird als Ganzes ins Boot-Jar kopiert. Deshalb
+    // funktioniert das HTML auch außerhalb seines Bauplatzes.
     attributes(
         mapOf(
-            // Verweise auf die ADRs. In `docs/system` gilt `../adr`; im Ergebnis liegen sie
-            // dank des `resources`-Blocks oben direkt daneben – deshalb wird das Attribut hier
-            // überschrieben, statt es im Dokument zu verbiegen.
-            "adr" to "adr",
-            // Dort liegen sie als HTML (ADR 0026); im Repository ist es `.adoc`.
-            "adrext" to ".html",
             // Ohne diese Angabe würde eine offene Attribut-Referenz stumm im Text stehen.
             "attribute-missing" to "warn",
         ),
     )
 }
 
-// Die Arbeitsgrundlage – Master-Prompt und Skills – liegt seit ADR 0023 ebenfalls als AsciiDoc
+// Die Arbeitsgrundlage – Master-Prompt und Skills – liegt ebenfalls als AsciiDoc
 // im Repository (`docs/prompt`) und bekommt deshalb dieselbe Zusicherung wie die
 // Systemdokumentation: kaputte Includes und Querverweise brechen den Build. Die `asciidoctorj`-
 // Konfiguration oben gilt für beide Tasks.
@@ -440,13 +397,6 @@ val asciidoctorPrompt by tasks.registering(AsciidoctorTask::class) {
 
     attributes(
         mapOf(
-            // In `docs/prompt` gilt `../adr`; im gerenderten HTML unter `build/docs/prompt` muss
-            // der Pfad drei Ebenen zurück.
-            "adr" to "../../../docs/adr",
-            // Dieser Pfad zeigt ins Repository, nicht in ein Ausgabeverzeichnis – dort liegen
-            // die ADRs als Quelltext. Der Wert ist der Vorgabewert der Dateien; er steht hier,
-            // damit die Wahl sichtbar ist und nicht nur implizit gilt.
-            "adrext" to ".adoc",
             "attribute-missing" to "warn",
         ),
     )

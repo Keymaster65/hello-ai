@@ -1,5 +1,5 @@
 // Erzeugt vom Gradle-Task `coverageTable` aus den JaCoCo-Berichten der
-// Backend-Module – nicht von Hand ändern (ADR 0047). Eingebunden in
+// Backend-Module – nicht von Hand ändern. Eingebunden in
 // docs/system/qualitaetssicherung.adoc.
 
 [[abdeckung-tabelle]]

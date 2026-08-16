@@ -9,7 +9,7 @@ import com.tngtech.archunit.lang.ArchRule;
 
 /**
  * Describes the same structure as {@link LayeredArchitectureTest}, but as the rings of an onion
- * instead of a stack of layers (see ADR 0019).
+ * instead of a stack of layers (see docs/prompt/architektur.adoc).
  *
  * <p>The stacked view says which layer may be accessed by which. The onion view adds what a stack
  * cannot express: the outermost ring is not a layer but a set of <em>adapters</em> that are
@@ -21,7 +21,7 @@ import com.tngtech.archunit.lang.ArchRule;
  *
  * <pre>
  * domain model        ..domain.model..              (records and enums)
- * domain service      ..domain.services..           (currently empty, see ADR 0020)
+ * domain service      ..domain.services..           (currently empty, see docs/prompt/architektur.adoc)
  * application service ..application..               (ports and their implementations)
  * adapter "rest"      ..adapter.in.rest..
  * adapter "persist"   ..adapter.out.persistence..   (incl. generated jOOQ code)

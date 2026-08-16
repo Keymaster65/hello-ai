@@ -46,7 +46,7 @@ public record RecipeRequest(
         List<@Valid PreparationStepDto> steps) {
 
     /**
-     * Starts the curried construction of a {@link RecipeRequest} (see ADR 0021).
+     * Starts the curried construction of a {@link RecipeRequest} (see docs/prompt/architektur.adoc).
      *
      * <p>Jackson keeps using the canonical constructor when deserializing a request body; the
      * steps exist for the code that builds a request by hand, above all the tests.

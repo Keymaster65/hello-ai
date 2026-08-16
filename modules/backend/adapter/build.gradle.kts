@@ -18,7 +18,7 @@ dependencies {
     implementation(libs.spring.boot.starter.validation)
     implementation(libs.spring.boot.starter.jooq)
     // The @Operation/@Schema annotations live on the REST adapter, so the contract is
-    // described next to the code it belongs to (ADR 0005). `api` because :bootstrap builds
+    // described next to the code it belongs to (docs/prompt/api.adoc). `api` because :bootstrap builds
     // the OpenAPI document from these types.
     api(libs.springdoc.openapi.starter.webmvc.ui)
 
@@ -55,7 +55,7 @@ jooq {
                                 .withKey("includeLiquibaseTypes")
                                 .withValue("false"),
                             // Fold unquoted names to lower case so the generated names match
-                            // PostgreSQL at runtime (see ADR 0004).
+                            // PostgreSQL at runtime (see docs/prompt/persistenz.adoc).
                             Property()
                                 .withKey("defaultNameCase")
                                 .withValue("lower"),
@@ -85,7 +85,7 @@ jooq {
 // Der jOOQ-Codegen erzeugt oberhalb von `…/persistence/jooq` einige tausend Zeilen Tabellen-
 // und Record-Klassen. Gemessen wird die *geschriebene* Schicht, nicht der Generator: Ohne diese
 // Ausnahme bestünde die Abdeckung dieses Moduls zu vier Fünfteln aus Code, den niemand geschrieben
-// hat und den kein Test je aufrufen soll (ADR 0047).
+// hat und den kein Test je aufrufen soll (docs/prompt/tests.adoc).
 tasks.named<JacocoReport>("jacocoTestReport") {
     classDirectories.setFrom(
         files(

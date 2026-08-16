@@ -1,6 +1,4 @@
 // Skill der Arbeitsgrundlage; siehe prompt.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 = Skill: Develop – Entwicklungsleitfaden
 
 == Zweck
@@ -24,8 +22,8 @@ beim Commit.
   `docs/log/claudeLog.adoc`; das Format regelt der Butterfly-Skill.
 * *Hash nach Commit:* Sobald der Commit steht, wird sein Kurz-Hash im Eintrag als Zeile
   `+_Commit: <<commit-<kurzhash>,<kurzhash>>>_+` nachgetragen – die Quelle der Spalte „Prompt"
-  in der Git-Historie (link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR
-  0038]). Sie kann im eigenen Commit nicht mehr enthalten sein und reist mit dem *nächsten*
+  in der Git-Historie (Skill `docs/prompt/butterfly.adoc`). Sie kann im eigenen Commit nicht
+  mehr enthalten sein und reist mit dem *nächsten*
   mit; ein `+--amend+` verböte sich, weil er den eben eingetragenen Hash ersetzt. Ohne diese
   Zeile bleibt der Commit in der Tabelle bei `–` stehen.
 * *Author = Claude:* Beim Committen wird als Git-*Author* Claude gesetzt, nicht der bisherige
@@ -39,7 +37,7 @@ git commit --author="Claude <noreply@anthropic.com>" -m "<Message>"
 (alternativ dauerhaft via `git config user.name "Claude"` /
 `git config user.email "noreply@anthropic.com"`).
 * *Freigabe im Befehl:* Der Befehl des Nutzers – `commit`, „committe das", `commit!` – *ist*
-  die Freigabe (link:{adr}/0040-commit-freigabe-in-einem-schritt{adrext}[ADR 0040]). Der
+  die Freigabe (Begründung: <<festlegungen-develop>>). Der
   Assistent formuliert die Message und committet *ohne Zwischenfrage*. Ohne diesen Befehl wird
   weiterhin *nicht* committet.
 ** *Die Message steht im Ergebnis:* Die Antwort des Turns nennt Betreff und Rumpf im Wortlaut
@@ -49,10 +47,11 @@ git commit --author="Claude <noreply@anthropic.com>" -m "<Message>"
 ** *Korrigiert wird danach:* `+git commit --amend+`, solange kein weiterer Commit darauf liegt
    und nichts gepusht oder gemergt ist. Die Zeile `+_Commit: …_+` im Protokoll ist im selben
    Zug auf den *neuen* Kurz-Hash nachzuziehen – sonst zeigt sie ins Leere und der Build wird rot
-   (link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038]).
+   (Skill `docs/prompt/butterfly.adoc`).
 ** *Bestätigungspflichtig bleibt das Inhaltliche*, nicht das Formale: ein offener Punkt der
    Definition of Done, ein Merge-Konflikt ohne erkennbare Absicht (siehe <<merge>>), die
-   Ablösung eines ADR und die Rückfrage des PO-Skills vor einem gezogenen Backlog-Eintrag.
+   Ablösung einer Festlegung (Skill `docs/prompt/entscheidungen.adoc`) und die Rückfrage des
+   PO-Skills vor einem gezogenen Backlog-Eintrag.
 * *Commit-Message:* Als Betreff wird eine *kurze, einzeilige* Message vorgeschlagen
   (imperativ, ca. ≤ 50 Zeichen). In den Folgezeilen ergänzt der Assistent eine *kurze
   Zusammenfassung des Commit-Inhalts* (1–3 Sätze bzw. Stichpunkte). Aufbau:
@@ -75,7 +74,7 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
   werden; die Aufforderung ist deshalb der verbindliche Teil. Zwei Konsequenzen, die daraus
   folgen:
 ** Alles, was nach dem Commit noch gebraucht wird, muss *vorher* in einer Datei stehen
-   (`docs/log/claudeLog.adoc`, ADR, README) – nicht nur im Gesprächsverlauf.
+   (`docs/log/claudeLog.adoc`, Skill, README) – nicht nur im Gesprächsverlauf.
 ** `/clear` startet ein neues Transkript, damit beginnt der *Stand* der Kennzahlen bei null
    (siehe Butterfly-Skill, Abschnitt „Dauer und Tokenanzahl"). Das ist gewollt und kein
    Messfehler.
@@ -84,28 +83,22 @@ Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
 == Branches nach dem Commit zusammenführen
 
 Nach *jedem* Commit werden die Arbeitsbranches in den aktuellen gemergt – *vor* der
-Aufforderung zu `/clear` (link:{adr}/0032-branches-nach-jedem-commit-mergen{adrext}[ADR 0032]).
+Aufforderung zu `/clear` (Begründung: <<festlegungen-develop>>).
 So trifft ein Konflikt einzeln und im Kontext der eben getanen Arbeit ein, statt sich
 anzusammeln, bis ihn niemand mehr auflösen kann. Gemergt wird dabei der *zuletzt gepushte*
-Stand: Vorher wird einmal geholt
-(link:{adr}/0034-arbeitsbranches-vor-dem-merge-holen{adrext}[ADR 0034]).
+Stand: Vorher wird einmal geholt.
 
 *Welche Branches:* die *Arbeitsbranches* `main`, `sm`, `doc`, `dev`, `po` – auch den aktuellen.
 Kein anderer: ein Experiment oder ein nur zum Nachsehen geholter Zweig gehört nicht dazu.
 
 IMPORTANT: Diese Liste wird *von Hand* gepflegt. Kommt ein Arbeitsbranch dazu, gehört er hier
-ergänzt – sonst fällt er still heraus und wird nie zusammengeführt (ADR 0032, „Nachteile").
-Sie ist die *einzige* geltende Fassung: ADR 0032 und
-link:{adr}/0034-arbeitsbranches-vor-dem-merge-holen{adrext}[ADR 0034] nennen die vier Branches
-des Entscheidungszeitpunkts und bleiben als historischer Stand unverändert (ADR-Skill,
-„ADRs werden nicht umgeschrieben"). `po` ist danach hinzugekommen und wird behandelt wie die
-übrigen – auch dann, wenn es den Branch noch gar nicht gibt: Ein Name darf auf einen Branch
-warten (ADR 0032, „Welche Branches").
+ergänzt – sonst fällt er still heraus und wird nie zusammengeführt. Ein Name darf dabei auf einen
+Branch warten, den es noch nicht gibt: Was nicht existiert, wird übergangen.
 
 *Der Ablauf:*
 
 . *Einmal* `git fetch origin` – vor der Schleife, nicht in ihr
-  (link:{adr}/0034-arbeitsbranches-vor-dem-merge-holen{adrext}[ADR 0034]). Der Stand ist damit
+  (Begründung: <<festlegungen-develop>>). Der Stand ist damit
   für den ganzen Durchlauf festgelegt. Schlägt das Holen fehl (kein Remote, kein Netz), wird
   *nicht* abgebrochen: Grund nennen, mit den vorhandenen Refs weitermergen und *im Log
   vermerken*, dass ohne frischen Stand gemergt wurde.
@@ -129,13 +122,106 @@ Konvention der Datei. Ist die Absicht *nicht* erkennbar – zwei Fassungen derse
 Implementierungen derselben Methode –, dann `git merge --abort` und *fragen*. Eine Auflösung,
 die nicht zu begründen ist, ist eine stille Entscheidung über fremde Arbeit.
 
-IMPORTANT: `docs/log/kennzahlen.adoc` wird *erzeugt*, nicht von Hand aufgelöst (ADR 0027):
+IMPORTANT: `docs/log/kennzahlen.adoc` wird *erzeugt*, nicht von Hand aufgelöst (Skill
+`docs/prompt/manager.adoc`):
 erst den Konflikt im `claudeLog` auflösen, dann `python3 docs/log/kennzahlen.py` laufen lassen.
 
 WARNING: Gemergt wird nur *in* den aktuellen Branch hinein. `main` und die übrigen bleiben
 zurück – kein Push, kein Rückmerge. Auch die *lokalen* Refs werden nicht nachgezogen: `HEAD`
 enthält `+origin/main+`, während `git branch` `main` weiterhin auf einem alten Commit zeigt.
-Das ist kein Fehler, sieht aber wie einer aus (ADR 0034, „Nachteile").
+Das ist kein Fehler, sieht aber wie einer aus.
+
+[[festlegungen-develop]]
+== Festlegungen und ihre Gründe
+
+=== `commit` ist die Freigabe – die Message wird nicht vorab bestätigt
+
+*Was gilt.* Schreibt der Nutzer `commit` (oder gleichbedeutend), formuliert der Assistent die
+Message und committet *ohne Zwischenfrage*; die Antwort des Turns nennt Betreff, Rumpf und
+Kurz-Hash. Ohne diesen Befehl wird weiterhin nicht committet. Passt die Message nicht, wird sie
+mit `+git commit --amend+` geändert – solange kein weiterer Commit darauf liegt und nichts
+gepusht oder gemergt ist.
+
+*Warum.* Der Ablauf endete zuvor mit *zwei* Prompts: `commit` – Message vorlegen – „ja, commit".
+Eine Auszählung des Protokolls zeigte: Von 177 protokollierten Prompts waren *mindestens 18*
+reine Bestätigungen – rund jeder zehnte –, und *keine einzige* Message wurde dabei je verworfen.
+Der Schritt kostete einen vollen Turn samt Kontext, Protokolleintrag und Tabellenzeile; der
+teuerste gemessene Bestätigungs-Turn lag bei 53:14 min. Genau der Aufbau machte die Bestätigung
+zur Formsache: Bestätigt wurde eine Message, deren eigentliche Vorbedingung – der grüne Lauf –
+erst danach geprüft wurde. Dazu kam eine Unstimmigkeit: Merge-Commits entstanden ohnehin ohne
+Bestätigung, die Regel galt also nie für jeden Commit.
+
+*Verworfen.* Alles lassen – eine Vorbedingung, die nie greift, schützt nichts; sie gewöhnt daran,
+sie durchzuwinken. Bestätigung nur bei „großen" Commits – die Schwelle wäre Auslegungssache, und
+ausgerechnet der Assistent entschiede, wann er sich die Rückfrage erspart. Bestätigung im Editor
+(`git commit` ohne `-m`) – der Assistent arbeitet über nicht-interaktive Aufrufe. Die Message
+verpflichtend im Befehl mitgeben – als *alleinige* Form verworfen, weil sie das Formulieren auf
+den Nutzer verlagert; als *Angebot* (`+commit: <Betreff>+`) ist sie übernommen.
+
+*Bestätigungspflichtig bleibt das Inhaltliche*, nicht das Formale: ein offener Punkt der
+Definition of Done, ein Merge-Konflikt ohne erkennbare Absicht, die Ablösung einer Festlegung und
+die Rückfrage vor einem gezogenen Backlog-Eintrag.
+
+IMPORTANT: Der `+--amend+` vergibt einen *neuen* Kurz-Hash. Die Zeile `+_Commit: …_+` im
+Protokoll ist im selben Zug nachzuziehen, sonst zeigt sie ins Leere und der Build wird rot. Das
+ist der Preis dieser Entscheidung: Der Handgriff fällt beim *Korrigieren* an – statt bei jedem
+Commit.
+
+=== Nach jedem Commit die Arbeitsbranches mergen
+
+*Was gilt.* Nach *jedem* Commit werden die Arbeitsbranches in den aktuellen gemergt, *bevor* zu
+`/clear` aufgefordert wird – der aktuelle eingeschlossen, weil ein Merge in sich selbst folgenlos
+ist und eine Regel ohne Sonderfall leichter zu befolgen ist.
+
+*Warum.* Jeder Branch trägt Änderungen an denselben wenigen Dateien – Backlog, Protokoll,
+Kennzahlen, die Skills. Bleiben zwei Branches eine Woche unverbunden, treffen beim späteren
+Zusammenführen zwei Wochen Arbeit aufeinander: viele Konflikte auf einmal, in Dateien, deren
+Zustandekommen niemand mehr im Kopf hat. Der Konflikt selbst ist nicht das Problem – seine
+*Anhäufung* ist es. Der Commit ist der natürliche Zeitpunkt dagegen: Der Arbeitsbaum ist sauber,
+die Arbeitseinheit abgeschlossen, und ein Konflikt gehört sichtbar zur eben getanen Arbeit.
+
+*Verworfen.* Gar nicht automatisch zusammenführen – „wenn es stört" ist der Moment, in dem es
+bereits zu spät ist. Beim Pull vor `next` – der steht *vor* der Arbeit und bei möglicherweise
+schmutzigem Arbeitsbaum. Nach Namensmuster auswählen (`ai*`) – das Muster ist schon heute falsch,
+die Arbeitsbranches heißen anders. Alle Refs mitziehen – dann käme jedes Experiment und jeder nur
+zum Nachsehen geholte Zweig mit; was zusammengeführt wird, wäre eine Eigenschaft des Repositories
+statt eine Entscheidung. Jeden Konflikt selbst auflösen – eine Auflösung, die nicht zu begründen
+ist, ist eine stille Entscheidung über fremde Arbeit. Bei jedem Konflikt abbrechen – die häufigen
+Konflikte sind Anhänge aneinander; das machte die Regel wertlos.
+
+*Preis.* Der Commit wird teurer: Bei einem Konflikt läuft die Definition of Done ein zweites Mal.
+Die Historie bekommt Merge-Commits, auch wenn nichts zu tun war, und sie entstehen *ohne*
+Message-Bestätigung – eine Bestätigung für eine Message, die niemand formuliert hat, wäre eine
+Rückfrage ohne Gegenstand.
+
+=== Vor der Merge-Schleife einmal `git fetch origin`
+
+*Was gilt.* Vor der Schleife wird *einmal* geholt; gemergt wird anschließend
+`+origin/<branch>+`, ersatzweise der lokale Ref. Scheitert das Holen, wird *nicht* abgebrochen:
+Grund nennen, mit den vorhandenen Refs weitermergen und *im Log vermerken*, dass ohne frischen
+Stand gemergt wurde.
+
+*Warum.* Ohne Fetch war die Regel wirkungslos – und zwar *still*. Der Pull vor `next`
+aktualisiert nur *einen* Ref, den ausgecheckten Branch; ein lokaler Ref wie `main` steht auf dem
+Stand des letzten Auscheckens. `git merge main` meldet auf einem veralteten Ref „Already up to
+date" – dieselbe Meldung wie bei einem wirklich zusammengeführten Branch. Die Schleife endete,
+der Ablauf sah erledigt aus, zusammengeführt wurde ein Stand von vorgestern. Die Anhäufung
+entstand unverändert, nur unbemerkt.
+
+Der frühere Einwand – ein Fetch hole fremde Arbeit herein, ohne dass jemand den Pull angestoßen
+hat – trifft den *Merge*, nicht den Fetch: Fremde Arbeit hereinzuholen ist der Zweck des
+Schritts. Der Fetch entscheidet nicht, *ob* sie kommt, sondern nur, *wie alt* sie ist. Und er
+verändert weder Arbeitsbaum noch aktuellen Branch.
+
+*Verworfen.* Vor jedem einzelnen Merge holen – die Schleife liefe gegen ein bewegtes Ziel. Den
+Nutzer jedes Mal fragen – eine Rückfrage, deren Antwort in aller Regel „ja" lautet. Die lokalen
+Refs nachziehen (`+git fetch origin <branch>:<branch>+`) – das verändert Branches, die eine
+parallele Sitzung ausgecheckt haben kann, und bräuchte eine zweite Regel für „kein Fast-Forward
+möglich".
+
+*Bewusst nicht getan.* Kein Push und kein Rückmerge – der aktuelle Branch nimmt auf, verteilt
+wird nicht. Kein `+--prune+`, kein Löschen zusammengeführter Branches, kein Fetch anderer
+Remotes, kein Rebase.
 
 == Hinweise
 

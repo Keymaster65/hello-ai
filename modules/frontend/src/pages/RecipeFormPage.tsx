@@ -8,7 +8,7 @@ interface RecipeFormPageProps {
   mode: 'create' | 'edit'
 }
 
-/** Anlegen unter `/new`, Bearbeiten unter `/{id}/edit` (ADR 0017). */
+/** Anlegen unter `/new`, Bearbeiten unter `/{id}/edit` (docs/prompt/frontend.adoc). */
 export function RecipeFormPage({ mode }: RecipeFormPageProps) {
   const { id } = useParams()
   const navigate = useNavigate()

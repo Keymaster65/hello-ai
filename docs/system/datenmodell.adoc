@@ -1,6 +1,4 @@
 // Kapitel der Systemdokumentation; siehe system.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 = Datenmodell und Persistenz
 
 == Schema
@@ -117,7 +115,7 @@ dieselbe Reihenfolge erzeugen – wer daran arbeitet, sollte sie kennen.
 == Migration mit Liquibase
 
 Das Schema wird ausschließlich über Liquibase verwaltet
-(link:{adr}/0004-liquibase-statt-flyway{adrext}[ADR 0004]); es gibt kein
+(Skill `docs/prompt/persistenz.adoc`); es gibt kein
 Schema-Management durch das ORM, kein `ddl-auto`.
 
 [cols="2,3", options="header"]
@@ -164,8 +162,7 @@ die Identifikatoren `GENERATED ALWAYS` sind und deshalb nicht fest verdrahtet we
 
 Der typsichere Zugriff entsteht beim Build aus dem Changelog – über
 `org.jooq.meta.extensions.liquibase.LiquibaseDatabase`. Es wird dafür *keine laufende
-Datenbank* benötigt (link:{adr}/0001-jooq-codegen-aus-flyway-skripten{adrext}[ADR 0001],
-link:{adr}/0004-liquibase-statt-flyway{adrext}[ADR 0004]).
+Datenbank* benötigt (Skill `docs/prompt/persistenz.adoc`).
 
 [cols="2,3", options="header"]
 |===

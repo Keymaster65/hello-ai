@@ -1,17 +1,12 @@
 // Skill der Arbeitsgrundlage; siehe prompt.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 = Skill: PO – Backlog abarbeiten
 
 == Zweck
 
 Aktiviere diesen Skill, wenn der Nutzer `next` oder `next+N` schreibt oder wenn ein Wunsch
 aufkommt, der *nicht sofort* umgesetzt wird: Er regelt, wie das Backlog `docs/backlog.adoc`
-geführt und wie daraus der nächste Prompt gezogen wird
-(link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028],
-link:{adr}/0029-next-mit-versatz{adrext}[ADR 0029],
-link:{adr}/0030-pull-vor-next{adrext}[ADR 0030],
-link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031]).
+geführt und wie daraus der nächste Prompt gezogen wird. Warum es so geführt wird, steht unten
+unter <<festlegungen-po>>.
 
 Das Backlog ist die *Zukunft*, das Session-Protokoll die *Vergangenheit*. Was erledigt ist,
 verschwindet hier und steht dort (Butterfly-Skill, `docs/prompt/butterfly.adoc`).
@@ -37,7 +32,7 @@ Der *Anfang der Überschrift* trägt den Status:
 | ready, gebunden
 | An einen Branch gebunden, z. B. `+:ai1+` – ohne Leerzeichen hinter dem `+:+`. Auf *diesem*
   Branch steht der Eintrag *vor* allen ungebundenen; auf jedem anderen ist er *nicht ziehbar*
-  (link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031]).
+  (siehe <<festlegungen-po>>).
 
 | `+*+`
 | aktiv
@@ -63,7 +58,7 @@ Historie mitschleppt, ist nach zwanzig Prompts keine Arbeitsliste mehr.
 == Der Befehl `next`
 
 . *Stand holen* – `git pull --ff-only` auf dem aktuellen Branch, *vor* dem Lesen des Backlogs
-  (link:{adr}/0030-pull-vor-next{adrext}[ADR 0030]). Sonst wird aus einer Datei gezogen, die
+  (Begründung: <<festlegungen-po>>). Sonst wird aus einer Datei gezogen, die
   anderswo längst weiter ist. Der Ausgang entscheidet:
 +
 --
@@ -87,13 +82,13 @@ Historie mitschleppt, ist nach zwanzig Prompts keine Arbeitsliste mehr.
 . *Rückfrage (Pflicht):* Den Eintrag im *Wortlaut* vorlegen und fragen, ob er jetzt
   ausgeführt wird. Ohne Bestätigung passiert nichts: *Was* gearbeitet wird, entscheidet der
   Nutzer. Diese Rückfrage bleibt – anders als die Bestätigung der Commit-Message, die
-  link:{adr}/0040-commit-freigabe-in-einem-schritt{adrext}[ADR 0040] abgelöst hat. Der
+  abgelöst ist (Skill `docs/prompt/develop.adoc`). Der
   Unterschied ist der Gegenstand: hier eine Aufgabe, dort eine Formulierung.
 . *Marker setzen:* `+:+` → `+*+` in der Überschrift, Datei speichern – *vor* der Arbeit. Bricht
   der Turn danach ab, steht der Zustand trotzdem richtig in der Datei. Ersetzt wird nur das
   *erste Zeichen*; eine Bindung bleibt stehen (`+:ai1+` → `+*ai1+`).
 . *Prompt ausführen* wie einen Prompt des Nutzers. Alle übrigen Skills gelten unverändert:
-  Architektur, ADR, Tests, Systemdokumentation, Butterfly, Manager, Develop.
+  Architektur, Entscheidungen, Tests, Systemdokumentation, Butterfly, Manager, Develop.
 . *Eintrag entfernen*, sobald die Aufgabe erledigt ist – Überschrift, Rumpf und die zugehörige
   Leerzeile.
 . *Im Log vermerken*, dass der Prompt aus dem Backlog kam (Butterfly-Skill). Der Log ist danach
@@ -102,7 +97,7 @@ Historie mitschleppt, ist nach zwanzig Prompts keine Arbeitsliste mehr.
 +
 [source,asciidoc]
 ----
-== 104. Prompt: „Strukturiere die Inhalte in den ADR in Kapitel …" (aus dem Backlog, `next`)
+== 104. Prompt: „Ergänze Paginierung für `GET /api/recipes`" (aus dem Backlog, `next`)
 ----
 +
 `next` ist der Befehl, mit dem der Prompt gezogen wurde – nicht der Prompt. Stünde er in der
@@ -117,8 +112,7 @@ arbeitet der Assistent eine Liste ab, die der Nutzer zwischendurch nicht mehr st
 
 Gearbeitet wird auf mehreren Branches – `main`, `ai1`, `ai2` – und oft *gleichzeitig*. Weil
 alle dasselbe Backlog lesen, zöge `next` überall denselben obersten Eintrag: zwei Sessions,
-dieselbe Aufgabe, zwei Ergebnisse. Deshalb darf der ready-Marker einen Branch nennen
-(link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031]):
+dieselbe Aufgabe, zwei Ergebnisse. Deshalb darf der ready-Marker einen Branch nennen:
 
 [source,asciidoc]
 ----
@@ -146,8 +140,7 @@ kopieren, nicht tippen.
 === Tiefer ziehen: `next+1`, `next+2` …
 
 Manchmal ist der oberste ready-Eintrag gerade nicht der richtige – er wartet auf eine Antwort,
-oder der Nutzer will erst den darunter erledigen. Dafür trägt der Befehl einen *Versatz*
-(link:{adr}/0029-next-mit-versatz{adrext}[ADR 0029]):
+oder der Nutzer will erst den darunter erledigen. Dafür trägt der Befehl einen *Versatz*:
 
 [cols="1,3", options="header"]
 |===
@@ -190,7 +183,6 @@ oder der Nutzer will erst den darunter erledigen. Dafür trägt der Befehl einen
 
 | `git pull --ff-only` schlägt fehl, weil der Branch divergiert
 | Abbrechen und sagen. Kein Eintrag, kein Marker, kein Merge und kein Rebase im Vorbeigehen
-  (link:{adr}/0030-pull-vor-next{adrext}[ADR 0030])
 
 | Wunsch *des Nutzers*, der jetzt nicht umgesetzt wird
 | Als Eintrag *ohne* Marker ans Ende des Backlogs – auch wenn er im Gespräch nur nebenbei
@@ -205,8 +197,7 @@ oder der Nutzer will erst den darunter erledigen. Dafür trägt der Befehl einen
 
 | Nur Einträge mit *fremder* Bindung stehen bereit
 | Sagen, welche es sind und auf welchen Branch sie zeigen. Kein `git checkout`, kein
-  ersatzweises Ziehen (link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR
-  0031])
+  ersatzweises Ziehen
 
 | Eintrag erledigt
 | Entfernen. Kein Abhaken, kein „(done)" – der Nachweis steht im `claudeLog`
@@ -225,13 +216,120 @@ oder der Nutzer will erst den darunter erledigen. Dafür trägt der Befehl einen
 ./gradlew asciidoctor      # → build/docs/asciidoc/system.html
 ----
 
-Das Backlog ist der letzte Anhang der Systemdokumentation. Anders als das Protokoll steht es
-damit *im Build*: Eine kaputte Auszeichnung bricht ihn
-(link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022]).
+Das Backlog ist der letzte Anhang der Systemdokumentation und steht damit *im Build*: Eine
+kaputte Auszeichnung bricht ihn (Skill `docs/prompt/systemdokumentation.adoc`).
 
 WARNING: Der Build prüft die Auszeichnung, nicht die Statuszeichen. Ein `+*+`, das seit drei
 Sessions hängt, fällt nur beim Lesen auf – deshalb steht der Blick auf die aktiven Einträge am
 Anfang von `next`, gleich hinter dem Pull.
+
+[[festlegungen-po]]
+== Festlegungen und ihre Gründe
+
+=== Das Backlog ist eine Datei im Repository, der Status steht in der Überschrift
+
+*Was gilt.* `docs/backlog.adoc` führt je Überschrift *einen* Prompt; der Anfang der Überschrift
+trägt den Status (`+:+` ready, `+*+` aktiv, `+KI+` Vorschlag einer KI, sonst nicht ready). Ein
+erledigter Eintrag wird *entfernt*, nicht abgehakt. Die Datei ist der letzte Anhang der
+Systemdokumentation.
+
+*Warum.* Wünsche entstehen im Gespräch – „das später mal", „vorher noch" –, und nach jedem
+Commit läuft `/clear`: Was nur im Verlauf steht, ist danach weg. Das Session-Protokoll hilft
+nicht, es ist absteigend sortiert und beschreibt, was war. Der Status im Titel hält die
+Reihenfolge über *alle* Einträge hinweg lesbar und ist auch ohne Werkzeug im Klartext zu sehen.
+
+*`+KI+` trennt vorschlagen von freigeben.* Der Assistent darf Einträge anlegen, aber keinen auf
+ready setzen – sonst erteilte er sich über `next` seine eigene Arbeit. Derselbe Grund gilt für
+die Bindung an einen Branch: Sie setzt der Nutzer, nicht der Assistent, denn sie sagt, *wo*
+gearbeitet wird.
+
+*Verworfen.* GitHub Issues oder ein anderes Werkzeug – eine Liste außerhalb wäre offline nicht
+lesbar, nicht mit dem Commit versioniert und ein Bruch in der Werkzeugkette. Ein Abschnitt im
+Protokoll – Zukunft und Vergangenheit in einer Datei heißt, beim Lesen immer erst zu sortieren.
+Ein Kapitel unter `docs/system` – dort steht der *Ist-Zustand*; ein Backlog beschreibt nichts, es
+plant. Eine Statusspalte in einer Tabelle – der Prompt-Text stünde in einer Zelle statt in einer
+Überschrift. Eigene Abschnitte je Status – ein Statuswechsel wäre ein Verschieben, und die
+Reihenfolge über alle Einträge ginge verloren. Nummern oder IDs je Eintrag – müssten gepflegt
+werden und wären eine zweite Ordnung neben der Reihenfolge.
+
+*Preis.* Der Backlog-Text steht im Build; anders als der Log darf er deshalb *nicht* beliebig
+zitieren – Überschriften sind selbst zu formulieren. Der Status wird von Hand gesetzt: Ein `+*+`,
+das nach einem Abbruch hängen bleibt, fällt nirgends maschinell auf; deshalb beginnt `next` mit
+dem Blick darauf. Erledigtes verschwindet spurlos – wer wissen will, was aus einem Eintrag wurde,
+sieht im Protokoll oder in `git log` nach.
+
+=== `git pull --ff-only` vor jedem `next`
+
+*Was gilt.* `next` beginnt mit `git pull --ff-only` auf dem aktuellen Branch, *vor* dem Lesen des
+Backlogs. Die drei Ausgänge und ihr Verhalten stehen oben im Ablauf.
+
+*Warum.* Das Backlog wird von mehreren Seiten geändert – der Nutzer gibt frei, ergänzt,
+sortiert um, auch auf einem anderen Rechner; der Assistent entfernt Erledigtes. Ist der lokale
+Branch hinter seinem Upstream, zieht `next` aus einem *veralteten* Backlog: ein längst entfernter
+Eintrag wird ein zweites Mal gearbeitet, eine frische Freigabe bleibt unsichtbar. Auffallen kann
+das erst beim Commit – nach getaner Arbeit, im Konflikt, in Dateien, die gerade geschrieben
+wurden. Der Fehler ist *still*: Ein veraltetes Backlog sieht aus wie ein gültiges.
+
+*Warum `--ff-only`.* Es holt den fremden Stand, wenn er sich vorspulen lässt, und bricht ab, wenn
+nicht. Es entsteht kein Commit, den niemand bestätigt hat, und keine umgeschriebene Historie –
+über Merge oder Rebase entscheidet der Nutzer.
+
+*Verworfen.* Erst beim Commit ziehen – dann trifft der fremde Stand auf bereits geänderte
+Dateien, und die Doppelarbeit ist schon geleistet. Nur `git fetch` und die Abweichung melden –
+eine Warnung, die den Ablauf nicht ändert, wird nach dreimal Lesen überlesen. `git pull` mit
+Merge-Voreinstellung oder `--rebase` – beides erzeugt Historie ohne Bestätigung. Automatisches
+`git stash` – ein Eingriff in Arbeit, die der Nutzer nicht abgeschlossen hat.
+
+*Preis.* `next` braucht Netz und wird langsamer; bei Divergenz ist es blockiert, bis der Nutzer
+den Branch geordnet hat. Das ist gewollt, fühlt sich aber wie ein Fehlschlag an, obwohl nur eine
+Entscheidung fehlt.
+
+=== Versatz statt Umsortieren: `next+N`
+
+*Was gilt.* `next+N` zieht den (N+1)-ten Eintrag der Ziehreihenfolge; `next` ist `next+0`.
+Gezählt werden ausschließlich ziehbare Einträge.
+
+*Warum.* Manchmal ist der oberste ready-Eintrag gerade nicht der richtige. Ihn im Backlog nach
+oben zu schieben, änderte die Priorisierung *dauerhaft* für einen einmaligen Fall – und nach drei
+solchen Aufrufen bildet die Reihenfolge nicht mehr die Priorität ab, sondern die Historie der
+Ausnahmen. Der Versatz zählt zum Zeitpunkt des Aufrufs, gegen dieselbe Liste, die der Nutzer vor
+sich sieht; es gibt nichts zu pflegen.
+
+*Verworfen.* Den Eintrag über seinen Titel ziehen – der Titel ist lang, wird abgetippt und damit
+falsch, und der Befehl bräuchte eine Suche samt Umgang mit Mehrdeutigkeit. Nummern je Eintrag –
+siehe oben. Über *alle* Überschriften zählen statt über die ziehbaren – dann hinge die Bedeutung
+von `next+2` daran, wie viele Notizen gerade dazwischenstehen.
+
+*Preis.* Der Versatz ist *relativ und flüchtig*: Nach jedem erledigten oder freigegebenen Eintrag
+zeigt er auf etwas anderes; er taugt nicht als Verweis in einem Gespräch. Wer ihn gewohnheitsmäßig
+nutzt, umgeht die Priorisierung, statt sie zu korrigieren.
+
+=== Ein Eintrag darf an einen Branch gebunden sein
+
+*Was gilt.* Der ready-Marker darf *unmittelbar* – ohne Leerzeichen – vom Namen eines Branches
+gefolgt sein (`+:ai1+`). Auf diesem Branch steht der Eintrag vorn; auf jedem anderen ist er
+*nicht ziehbar* und zählt beim Versatz nicht mit. Verglichen wird zeichengenau; ob der Branch
+existiert, wird nicht geprüft.
+
+*Warum.* Gearbeitet wird auf mehreren Branches *gleichzeitig*, und alle lesen dasselbe Backlog –
+`next` zöge überall denselben obersten Eintrag: zwei Sessions, dieselbe Aufgabe, zwei Ergebnisse,
+auffallen kann das erst beim Zusammenführen. Umgekehrt gibt es Aufgaben, die auf einen bestimmten
+Branch gehören.
+
+*Warum Reservierung statt bloßem Vorrang.* Bei bloßem Vorrang wanderte die Arbeit doch auf den
+falschen Branch, sobald der eigene Bestand leer ist – genau der Fall, für den die Bindung gedacht
+ist.
+
+*Verworfen.* Ein Backlog je Branch – Konflikte bei jedem Merge und keine Stelle mehr, an der die
+Priorität über alle Arbeit hinweg lesbar wäre. Ein Abschnitt je Branch – dieselbe Einwendung wie
+bei Abschnitten je Status. Die Angabe im Rumpftext – der Rumpf ist Notiz für den Menschen und
+geht ausdrücklich *nicht* in die Aufgabe ein; was `next` auswertet, stünde dann an zwei Orten mit
+zwei Bedeutungen. Muster oder Mehrfachbindung (`+:ai*+`, `+:ai1,ai2+`) – führt die Mehrdeutigkeit
+wieder ein, die die Bindung gerade beseitigt.
+
+*Preis.* „Der oberste ready-Eintrag" ist nicht mehr allein an der Datei ablesbar – er hängt vom
+ausgecheckten Branch ab. Und der Tippfehler ist *still*: Der Eintrag sieht ready aus und wird nie
+gezogen, weil er zu keinem Branch passt. Der Build prüft das nicht.
 
 == Hinweise
 

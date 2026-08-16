@@ -85,7 +85,7 @@ def ueberschrift_text(prompt: str) -> str:
       keine Überschrift mehr.
     * *Escapes für `{` und `<<`.* Beides ist in einer Überschrift wirksam: `{name}` wird zur
       Attribut-Referenz und verschwindet, `<<ziel>>` zum Querverweis – und ein Querverweis
-      ins Leere ist ein Build-Fehler (ADR 0022). Der Backslash ist Asciidoctors eigenes
+      ins Leere ist ein Build-Fehler (docs/prompt/systemdokumentation.adoc). Der Backslash ist Asciidoctors eigenes
       Escape und wird nicht mitgerendert; in der literalen Prompt-Spalte der
       Kennzahlen-Tabelle bleibt er allerdings sichtbar. Wem das auffällt, der schreibt die
       Überschrift von Hand um – dafür ist sie da.
@@ -109,7 +109,7 @@ def anker(nummer: int) -> str:
     """`142` → `prompt-142`, `-2` → `prompt-minus2` – wie in `kennzahlen.py`.
 
     Das Vorzeichen wird ausgeschrieben, weil Asciidoctor `--` durch einen Geviertstrich
-    ersetzt und der Verweis darauf still ins Leere liefe (ADR 0038).
+    ersetzt und der Verweis darauf still ins Leere liefe (docs/prompt/butterfly.adoc).
     """
     return "prompt-" + str(nummer).replace("-", "minus")
 

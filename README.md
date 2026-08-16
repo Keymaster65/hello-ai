@@ -8,11 +8,11 @@ beides wird als **ein** Artefakt aus derselben Origin ausgeliefert.
 > Bausteine, Datenmodell, Fehlerbilder der API, Betrieb, Teststufen, die Arbeitsgrundlage
 > und die bewusst offenen Punkte, dazu alle Quelldateien im Anhang – steht in
 > [`docs/system/system.adoc`](docs/system/system.adoc)
-> ([ADR 0022](docs/adr/0022-asciidoc-systemdokumentation-in-docs-system.adoc)).
+> ([`docs/prompt/systemdokumentation.adoc`](docs/prompt/systemdokumentation.adoc)).
 > Rendern: `./gradlew asciidoctor` → `build/docs/asciidoc/system.html`.
 > Sie wird außerdem **mit ausgeliefert**: Die laufende Anwendung zeigt sie unter
 > <http://localhost/recipes/docs/>
-> ([ADR 0024](docs/adr/0024-systemdokumentation-im-boot-jar.adoc)).
+> ([`docs/prompt/systemdokumentation.adoc`](docs/prompt/systemdokumentation.adoc)).
 
 ## Tech-Stack
 
@@ -29,11 +29,11 @@ beides wird als **ein** Artefakt aus derselben Origin ausgeliefert.
 
 ## Projektstruktur
 
-Alle Bausteine liegen unter `modules/` ([ADR 0015](docs/adr/0015-alle-bausteine-unter-modules.adoc)),
+Alle Bausteine liegen unter `modules/` ([`docs/prompt/architektur.adoc`](docs/prompt/architektur.adoc)),
 das Backend mit **einem Modul je Schicht** – die Abhängigkeitsrichtung ist damit vom Build
 erzwungen, nicht nur dokumentiert
-([ADR 0013](docs/adr/0013-ein-gradle-modul-je-schicht.adoc),
-[ADR 0014](docs/adr/0014-schichtmodule-unter-backend.adoc)):
+([`docs/prompt/architektur.adoc`](docs/prompt/architektur.adoc),
+[`docs/prompt/architektur.adoc`](docs/prompt/architektur.adoc)):
 
 ```
 :modules:backend:bootstrap → :modules:backend:adapter
@@ -49,16 +49,16 @@ recipes/
 │   ├── backend/
 │   │   ├── build.gradle.kts    gemeinsame Konfiguration der Schichten
 │   │   ├── domain/             Domäne – ohne jede Produktionsabhängigkeit; `model`
-│   │   │                       (Records) und `services` (ADR 0020)
+│   │   │                       (Records) und `services`
 │   │   ├── application/        Use Cases, Ports, Geschäftslogik
 │   │   ├── adapter/            REST + jOOQ, Liquibase-Changelog, jOOQ-Codegen
 │   │   └── bootstrap/          Spring-Boot-Einstieg, application.yml, Boot-Jar,
 │   │                           Frontend-Einbindung, Systemtests
 │   └── frontend/               React/Vite, wird ins Boot-Jar gepackt
 └── docs/
-    ├── adr/                    Architekturentscheidungen (AsciiDoc, ADR 0026)
-    ├── system/                 Systemdokumentation (AsciiDoc, ADR 0022)
-    ├── prompt/                 Master-Prompt und Skills (AsciiDoc, ADR 0023)
+    ├── system/                 Systemdokumentation (AsciiDoc)
+    ├── prompt/                 Master-Prompt und Skills (AsciiDoc) – Regeln samt
+    │                           Begründung; ein Verzeichnis `adr/` gibt es nicht mehr
     └── log/                    Session-Protokoll
 ```
 
@@ -89,7 +89,7 @@ Das React-Frontend liegt in `modules/frontend/` und spricht ausschließlich **re
 `/api`-Pfade an. Gradle baut es (`frontendBuild`) und packt das Bundle nach
 `static/` ins Boot-Jar – Spring Boot liefert damit SPA und API aus derselben
 Origin aus: kein CORS, ein Deployable. Siehe
-[ADR 0007](docs/adr/0007-react-frontend-mit-backend-als-bff.adoc).
+[`docs/prompt/frontend.adoc`](docs/prompt/frontend.adoc).
 
 | Modus       | URL                     | Womit                                        |
 |-------------|-------------------------|----------------------------------------------|
@@ -106,7 +106,7 @@ cd modules/frontend && npm run generate:api   # benötigt ein laufendes Backend 
 ### Adressen der Oberfläche
 
 Die SPA nutzt `react-router`; die Detailansicht ist damit **teilbar**
-([ADR 0017](docs/adr/0017-router-mit-spa-fallback.adoc)):
+([`docs/prompt/frontend.adoc`](docs/prompt/frontend.adoc)):
 
 | Ansicht | Adresse |
 |---|---|
@@ -127,7 +127,7 @@ nicht-optional (`id: number` statt `id?: number`), während echte Nullable-Felde
 
 ## REST-API
 
-Basis-URL: `/recipes/api/recipes` (Context-Path `/recipes`, siehe [ADR 0016](docs/adr/0016-context-path-recipes.adoc))
+Basis-URL: `/recipes/api/recipes` (Context-Path `/recipes`, siehe [`docs/prompt/api.adoc`](docs/prompt/api.adoc))
 
 | Methode | Pfad                | Beschreibung             | Erfolg |
 |---------|---------------------|--------------------------|--------|
@@ -152,7 +152,7 @@ Bei laufender Anwendung (Port `80`, Context-Path `/recipes`):
 
 Der Contract wird zur Laufzeit aus Controller-Signaturen, Bean-Validation und den
 `@Operation`/`@Schema`-Annotationen erzeugt – siehe
-[ADR 0005](docs/adr/0005-springdoc-openapi-und-swagger-ui.adoc).
+[`docs/prompt/api.adoc`](docs/prompt/api.adoc).
 
 ### Beispiel-Request (POST)
 ```json
@@ -209,7 +209,7 @@ docker run --name recipes-db -e POSTGRES_DB=recipes \
 
 # Ohne Node/npm bzw. für die schnelle Java-Schleife:
 ./gradlew build -PskipFrontend
-./gradlew build -PskipDocs        # ohne Systemdokumentation im Jar (ADR 0024)
+./gradlew build -PskipDocs        # ohne Systemdokumentation im Jar
 
 # E2E gegen eine bereits laufende/deployte Instanz:
 ./gradlew e2eTest -Pe2e.baseUrl=http://localhost:8080   # nur Origin, ohne /recipes
@@ -225,17 +225,17 @@ cd modules/frontend && npm run dev
 - **Architektur** (`LayeredArchitectureTest`): ArchUnit erzwingt
   `bootstrap → adapter → application → domain`, die Framework-Freiheit des
   Domänenmodells, die Teilung der Domäne in `model` und `services`
-  ([ADR 0020](docs/adr/0020-domain-in-model-und-services-teilen.adoc))
+  ([`docs/prompt/architektur.adoc`](docs/prompt/architektur.adoc))
   und „Ports sind Interfaces". Siehe
-  [ADR 0012](docs/adr/0012-archunit-fuer-die-schichtenregel.adoc).
+  [`docs/prompt/architektur.adoc`](docs/prompt/architektur.adoc).
 - **Architektur** (`OnionArchitectureTest`): dieselbe Struktur als Zwiebelschalen –
   ergänzt, was die Schichtensicht nicht ausdrücken kann: REST- und Persistenz-Adapter
   kennen einander nicht. Siehe
-  [ADR 0019](docs/adr/0019-onion-architecture-regel-in-archunit.adoc).
+  [`docs/prompt/architektur.adoc`](docs/prompt/architektur.adoc).
 - **Architektur** (`RecordCurryingTest`): jeder Record mit mehr als zwei Komponenten
   bietet eine curried Factory, deren benannte Schritte die Komponenten in Reihenfolge
   und Typ abbilden. Siehe
-  [ADR 0021](docs/adr/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten.adoc).
+  [`docs/prompt/architektur.adoc`](docs/prompt/architektur.adoc).
 - **Unit** (`RecipeServiceImplTest`): Geschäftslogik mit Mockito/AssertJ.
 - **Property-based** (`CurriedFactoryTest` in `:domain` und `:adapter`): die curried
   Factories liefern dasselbe wie der kanonische Konstruktor – inklusive Validierung.
@@ -249,7 +249,7 @@ cd modules/frontend && npm run dev
   gegen das **Boot-Jar** – also gegen das ausgelieferte Artefakt inklusive der darin
   verpackten SPA. Getestet werden ausschließlich Nutzer-Flows; Statuscodes und
   Contract-Details bleiben in den Systemtests. Benötigt eine erreichbare PostgreSQL.
-  Siehe [ADR 0008](docs/adr/0008-playwright-fuer-e2e-tests.adoc).
+  Siehe [`docs/prompt/tests.adoc`](docs/prompt/tests.adoc).
 
   Zusätzlich vergleicht `aria-snapshots.spec.ts` den Accessibility-Tree gegen
   eingecheckte Baselines unter `modules/frontend/e2e/aria-snapshots.spec.ts-snapshots/`
@@ -275,7 +275,7 @@ cd modules/frontend && npm run dev
   **laufende** Anwendung, ausschließlich über HTTP. Ohne `-Psystemtest.baseUrl`
   startet die Suite die Anwendung selbst auf einem freien Port (embedded PostgreSQL),
   mit der Property läuft sie gegen eine deployte Instanz. Siehe
-  [ADR 0006](docs/adr/0006-testsets-plugin-und-systemtests.adoc).
+  [`docs/prompt/tests.adoc`](docs/prompt/tests.adoc).
 - **Integration** (`RecipeIntegrationTest`): kompletter Stack gegen ein echtes
   PostgreSQL. Genutzt wird **embedded PostgreSQL (Zonky)**, das ohne Docker
   auskommt; in Umgebungen mit Docker lässt sich stattdessen Testcontainers

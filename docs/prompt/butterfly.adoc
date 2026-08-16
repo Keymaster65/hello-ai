@@ -1,6 +1,4 @@
 // Skill der Arbeitsgrundlage; siehe prompt.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 = Skill: Butterfly – Session-Protokoll
 
 == Zweck
@@ -27,12 +25,10 @@ mit.
 
 == Format
 
-* Datei: `docs/log/claudeLog.adoc` – AsciiDoc wie der Rest von `docs/`
-  (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]). Sie ist als *erster* Anhang
-  „Session-Protokoll" in die Systemdokumentation eingebunden und wird von
-  `+./gradlew asciidoctor+` mitgerendert
-  (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033],
-  link:{adr}/0044-anhaenge-nach-entstehung-geordnet{adrext}[ADR 0044]).
+* Datei: `docs/log/claudeLog.adoc` – AsciiDoc wie der Rest von `docs/` (siehe
+  <<festlegungen-butterfly>>). Sie ist als *erster* Anhang „Session-Protokoll" in die
+  Systemdokumentation eingebunden und wird von `+./gradlew asciidoctor+` mitgerendert
+  (Skill `docs/prompt/systemdokumentation.adoc`).
 
 IMPORTANT: Der Log steht damit *im Build*. Eine kaputte Auszeichnung bricht die Auslieferung –
 und zwar in einem Protokoll, das wörtliche Prompts zitiert. Die drei Fallstricke unten sind
@@ -43,8 +39,7 @@ werden darf.
 * Neue Einträge *immer vorne* einfügen (direkt unter dem Header, vor dem bisher obersten
   Eintrag). Nummerierung fortlaufend hochzählen.
 * *Ankerzeile* `+[[prompt-<N>]]+` direkt *über* der Überschrift – das Ziel, auf das die Spalte
-  „Prompt" der Git-Historie zeigt
-  (link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038]). Bei negativer
+  „Prompt" der Git-Historie zeigt (siehe <<festlegungen-butterfly>>). Bei negativer
   Nummer wird das Vorzeichen *ausgeschrieben* (`+[[prompt-minus2]]+`): Asciidoctor macht aus
   `+--+` einen Geviertstrich, und der Verweis liefe still ins Leere.
 * Direkt unter der Überschrift zwei *Kennzahlenzeilen*: *Delta* (dieser Prompt) und *Stand*
@@ -72,8 +67,7 @@ Sie kosten beim Schreiben je einen Handgriff und sind der Preis der Umstellung:
 == Der Commit im Eintrag
 
 Ist aus dem Prompt ein Commit hervorgegangen, hält der Eintrag ihn in einer *eigenen Zeile*
-fest, direkt unter den Kennzahlenzeilen
-(link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038]):
+fest, direkt unter den Kennzahlenzeilen (Begründung: <<festlegungen-butterfly>>):
 
 [source,asciidoc]
 ----
@@ -87,7 +81,7 @@ _Commit: <<commit-66a5ae4,66a5ae4>>_
 * *Sie ist die einzige Quelle der Zuordnung – und hat zwei Leser.* Der Task `gitChangelog`
   füllt daraus die Spalte „Prompt" der Git-Historie, `+docs/log/kennzahlen.py+` die Spalte
   „Commit" der Kennzahlen-Tabelle
-  (link:{adr}/0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[ADR 0041]). Beide
+  (Skill `docs/prompt/manager.adoc`). Beide
   lesen *nur* sie, nie den Fließtext. Hashes, die anderswo im Eintrag vorkommen – ein
   Pull-Bereich, der Stand eines Remote-Branches, ein fremder Commit als Nebenbefund –, bleiben
   folgenlos. Das ist Absicht: Sie meinen nicht „hier entstanden".
@@ -234,6 +228,69 @@ _Stand (Session, <k> Prompts): <h:mm:ss> h · <out> Token out · <gesamt> Token 
 
 '''
 ----
+
+[[festlegungen-butterfly]]
+== Festlegungen und ihre Gründe
+
+=== Das Protokoll ist AsciiDoc
+
+*Was gilt.* `docs/log/claudeLog.adoc` ist AsciiDoc wie jede andere Datei unter `docs/`.
+
+*Warum.* Es war zuvor Markdown, mit zwei Begründungen, die der Prüfung nicht standhielten. Die
+erste: „`turn-stats.py` würde brechen" – das Skript erzeugt Zeilen der Form
+`+_Delta: … _+`, und der Unterstrich ist in *beiden* Formaten die Kursiv-Auszeichnung; am
+Skript war keine Zeile Code zu ändern. Die zweite: „Protokoll, kein Dokument" – das begründet,
+warum die Datei *nicht gerendert* wird, nicht, warum sie eine zweite Auszeichnungssprache im
+selben Verzeichnisbaum braucht. Wer den Log pflegte, wechselte mitten in der Arbeit die Syntax
+(`+##+` statt `+==+`, `+**fett**+` statt `+*fett*+`); genau diese Verwechslung ist mehrfach
+passiert.
+
+*Belegt durch* eine Messung statt Augenschein: Das gerenderte AsciiDoc wurde von seinem HTML
+befreit, das Markdown von seiner Auszeichnung, beides auf Zeichen ohne Leerraum normalisiert und
+verglichen – *identisch*, bei 98 Überschriften und 510 Listenpunkten, ohne eine einzige
+Asciidoctor-Warnung.
+
+*Verworfen.* Markdown behalten – der Syntaxbruch mitten in der Arbeit bliebe. Nur neue Einträge
+in AsciiDoc – eine Datei mit zwei Syntaxen ist schlechter als eine mit einer, egal welcher.
+
+*Preis.* Code-Spans mit Sonderzeichen brauchen `+`-Schutz, und eine Liste braucht eine Leerzeile
+nach dem Absatz davor. Beides steht oben unter „Drei AsciiDoc-Fallstricke" und ist die Bedingung
+dafür, dass der Log im Build stehen darf (Skill `docs/prompt/systemdokumentation.adoc`).
+
+=== Die Zeile `+_Commit:_+` ist die einzige Quelle der Zuordnung
+
+*Was gilt.* Jeder Log-Eintrag trägt den Anker `+prompt-<nummer>+`, jeder Commit in der
+Git-Historie den Anker `+commit-<kurzhash>+`. Die Richtung Prompt → Commit steht *von Hand* in
+der Zeile `+_Commit: <<commit-66a5ae4,66a5ae4>>_+`; die Gegenrichtung und die Commit-Spalte der
+Kennzahlen-Tabelle werden daraus *abgeleitet*. Gelesen wird ausschließlich diese Zeile, nie der
+Fließtext.
+
+*Warum.* Die beiden Sichten auf dieselbe Arbeit – was das Repository verändert hat und
+woraufhin – standen nebeneinander, ohne verbunden zu sein. Die Beziehung ist nicht eins zu eins:
+Ein Prompt erzeugt null, einen oder mehrere Commits, und ein Commit fasst regelmäßig mehrere
+Prompts zusammen, weil nach jedem Commit `/clear` läuft.
+
+*Warum nicht der Fließtext.* Eine Auswertung des Bestands zeigte: Von 136 Einträgen nannten 15
+überhaupt einen Hash – aber aus ganz verschiedenen Gründen: ein Pull-Bereich
+(`+e94f8f9..09d4158+`), ein fremder Commit ausdrücklich als „Nebenbefund, nicht angefasst", der
+Commit des *vorigen* Turns, der grüne Lauf eines dritten. Über den Fließtext gelesen hätte die
+Zuordnung 19 Commits verknüpft und dabei überwiegend das Falsche behauptet. Ein falscher Verweis
+ist schlechter als keiner – gerade in einem Anhang, dessen Zweck Nachvollziehbarkeit ist.
+
+*Verworfen.* Zuordnung über Zeitstempel – die Einträge tragen keine Uhrzeit, nur Dauer-Deltas.
+Die Nummer des Prompts in die Commit-Message – für den Bestand nur mit Umschreiben der Historie
+möglich. Den Bestand von Hand vollständig nachtragen – Rekonstruktion aus Betreff und
+Reihenfolge, also erneut Raten.
+
+WARNING: *Das Vorzeichen wird ausgeschrieben* (`+prompt-minus2+`, nicht `+prompt--2+`).
+Asciidoctor ersetzt `+--+` durch einen Geviertstrich; aus dem Verweis wird dabei ein Link auf ein
+*anderes Dokument* – ein toter Link, den der Build *nicht* meldet, weil Dokumentverweise nicht
+geprüft werden. Gefunden wurde das nur durch Nachzählen der Verweise im erzeugten HTML.
+
+*Preis.* Die Zeile kann vergessen werden – sie ist Sorgfalt, nicht Zwang; der Build merkt nicht,
+dass ein Commit ohne Eintrag geblieben ist. Ein *falscher* Hash bricht dagegen den Build
+(„possible invalid reference"), und das ist gewollt. Die Abdeckung wächst nur nach vorn: Der
+Bestand bleibt weitgehend unverknüpft, weil er nicht ohne Raten nachzutragen ist.
 
 == Hinweise
 

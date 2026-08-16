@@ -8,7 +8,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * Wraps every use case of a {@link RecipeService} in a transaction. The decorator exists so that
- * the application layer can stay free of framework types (ADR 0045): the boundary is still the
+ * the application layer can stay free of framework types (docs/prompt/architektur.adoc): the boundary is still the
  * use case, but the annotation that used to express it lives out here.
  *
  * <p>Reads run read-only, writes read-write. A {@code RuntimeException} escaping a write &ndash;

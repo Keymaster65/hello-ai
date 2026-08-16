@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Error payload of the API, shaped after
  * <a href="https://www.rfc-editor.org/rfc/rfc9457.html">RFC 9457</a> and served as
- * {@code application/problem+json} (see ADR 0046).
+ * {@code application/problem+json} (see docs/prompt/api.adoc).
  *
  * <p>The five members of the RFC are complemented by {@code fieldErrors}, an extension member.
  * It is described in the contract instead of living in an untyped property map, so the generated
@@ -42,7 +42,7 @@ public record ProblemDetail(
         List<FieldError> fieldErrors) {
 
     /**
-     * Starts the curried construction of a {@link ProblemDetail} (see ADR 0021).
+     * Starts the curried construction of a {@link ProblemDetail} (see docs/prompt/architektur.adoc).
      *
      * @return the first step of the curried factory
      */

@@ -1,9 +1,8 @@
 # Projekt: recipes
 
 Die Arbeitsgrundlage dieses Projekts – Master-Prompt und Skills – steht als AsciiDoc unter
-`docs/prompt/` ([ADR 0023](docs/adr/0023-asciidoc-fuer-masterprompt-und-skills.adoc)).
-Diese Datei bindet sie nur ein: `CLAUDE.md` ist der einzige Dateiname, den Claude Code
-automatisch lädt, und bleibt deshalb Markdown.
+`docs/prompt/`. Diese Datei bindet sie nur ein: `CLAUDE.md` ist der einzige Dateiname, den
+Claude Code automatisch lädt, und bleibt deshalb Markdown.
 
 **Verbindlich ist der Master-Prompt** (Rolle, Tech-Stack, Grundregeln, Coding-Konventionen,
 Workflow, Befehle, Definition of Done). Er wird hier importiert:
@@ -13,11 +12,17 @@ Workflow, Befehle, Definition of Done). Er wird hier importiert:
 Sollte der Import einmal nicht greifen, ist `docs/prompt/masterprompt.adoc` zu Beginn der
 Session zu lesen – ohne ihn fehlen die verbindlichen Regeln.
 
-Die zehn Skills werden **bei Bedarf** gelesen, nicht importiert; der Master-Prompt nennt sie
-mit Pfad und Anlass:
+Die vierzehn Skills werden **bei Bedarf** gelesen, nicht importiert; der Master-Prompt nennt
+sie mit Pfad und Anlass. Jeder Skill trägt seine Regeln **und** ihre Begründung im Abschnitt
+„Festlegungen und ihre Gründe" – eine eigene Sammlung von Architekturentscheidungen
+(`docs/adr/`) gibt es nicht mehr.
 
-- `docs/prompt/architektur.adoc` – Architektur
-- `docs/prompt/adr.adoc` – ADR / Architekturentscheidungen (`docs/adr/*.adoc`)
+- `docs/prompt/entscheidungen.adoc` – Entscheidungen festlegen, einhalten, ablösen
+- `docs/prompt/architektur.adoc` – Architektur (Schichten, Module, Records)
+- `docs/prompt/build.adoc` – Build, Abhängigkeiten, Versionen
+- `docs/prompt/persistenz.adoc` – Schema, Migration, jOOQ
+- `docs/prompt/api.adoc` – REST, Contract, Fehlerformat, Adressraum
+- `docs/prompt/frontend.adoc` – SPA, Routen, erzeugte Typen
 - `docs/prompt/tests.adoc` – Tests
 - `docs/prompt/security-backend.adoc` – Security Backend (inklusive RFC 9116 / `security.txt`)
 - `docs/prompt/security-frontend.adoc` – Security Frontend (SPA)

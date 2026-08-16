@@ -1,7 +1,5 @@
 // Backlog des Projekts; abgearbeitet nach dem Skill docs/prompt/po.adoc.
 // Eingebunden als letzter Anhang der Systemdokumentation (docs/system/system.adoc).
-ifndef::adr[:adr: adr]
-ifndef::adrext[:adrext: .adoc]
 [appendix]
 [[backlog]]
 = Backlog
@@ -9,10 +7,8 @@ ifndef::adrext[:adrext: .adoc]
 Was als Nächstes zu tun ist – *ein Prompt je Überschrift*, von oben nach unten abzuarbeiten.
 Die Überschrift *ist* der Prompt: Sie wird wörtlich als Aufgabe genommen, ein Rumpftext
 darunter ist nur Notiz. Gezogen wird mit dem Befehl `next`, den der Skill
-`docs/prompt/po.adoc` beschreibt
-(link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028]). Welcher Eintrag der
-nächste ist, hängt auch vom ausgecheckten Branch ab
-(link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031]).
+`docs/prompt/po.adoc` beschreibt. Welcher Eintrag der nächste ist, hängt auch vom
+ausgecheckten Branch ab.
 
 .Der Anfang der Überschrift ist der Status
 [cols="1,3", options="header"]
@@ -24,8 +20,7 @@ nächste ist, hängt auch vom ausgecheckten Branch ab
 
 | `+:+`<branch>
 | *ready, an einen Branch gebunden* – z. B. `+:ai1+`, ohne Leerzeichen hinter dem `+:+`. Auf
-  diesem Branch wird der Eintrag *zuerst* gezogen, auf jedem anderen gar nicht
-  (link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031]).
+  diesem Branch wird der Eintrag *zuerst* gezogen, auf jedem anderen gar nicht.
 
 | `+*+`
 | *aktiv* – wird gerade abgearbeitet. Es ist immer höchstens einer aktiv.
@@ -41,8 +36,6 @@ Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt
 was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
 `git`.
 
-
-== : Konsolidiere alle Skills und ADR so, dass keine ADR mehr notwendig sind, alle die Inhalte auf die Skills verteilt werden. Wenn sinnvoll erzeuge neue Skills.
 
 == : Ergänze einen MCP Service für den Zugriff auf Rezepte und die Systemdokumentation.
 
@@ -108,8 +101,9 @@ keine Authentifizierung gibt, ist das eine Entscheidung mit Folgen.
 
 == KI Ergänze Authentifizierung und sichere `/recipes/docs/**` mit ab
 
-Nicht ready: braucht eine Festlegung auf ein Verfahren und damit ein eigenes ADR; siehe
-„Offene Punkte" in `docs/system/betrieb.adoc`.
+Nicht ready: braucht eine Festlegung auf ein Verfahren, die in den Skill
+`docs/prompt/security-backend.adoc` gehört; siehe „Offene Punkte" in
+`docs/system/betrieb.adoc`.
 
 == KI Halte den Co-Authored-By-Trailer im Develop-Skill modellunabhängig
 
@@ -117,28 +111,26 @@ Nicht ready: braucht eine Festlegung auf ein Verfahren und damit ein eigenes ADR
 vor. Der Trailer soll das tatsächlich arbeitende Modell benennen; als fester Text veraltet er
 mit jedem Modellwechsel.
 
-== KI Beseitige die zwei Asciidoctor-Meldungen des Tasks asciidoctor
+== KI Beseitige die Asciidoctor-Meldungen des Tasks asciidoctor
 
-`+./gradlew asciidoctor+` meldet zweierlei, seit das Protokoll als Anhang „Änderungen"
-eingebunden ist (ADR 0033): „section title out of sequence: expected level 2, got level 3" für
-`docs/log/claudeLog.adoc` Zeile 3 – der Titel `+= Claude Log+` landet mit `+leveloffset=+2+`
-eine Ebene zu tief unter dem Anhang – und „skipping reference to missing attribute: id". Der
-Build bleibt grün, aber die Definition of Done verlangt „keine kritischen Warnungen";
-`+asciidoctorPrompt+` und `+asciidoctorAdr+` laufen meldungsfrei.
+`+./gradlew asciidoctor+` meldet den doppelt vergebenen Anker `+prompt-minus2+` und
+„skipping reference to missing attribute: id". Der Build bleibt grün, aber die Definition of
+Done verlangt „keine kritischen Warnungen"; `+asciidoctorPrompt+` läuft meldungsfrei.
 
 == KI Härte den Abhängigkeitsweg des Builds gegen fremde Artefakte
 
 Der Security-Skill verlangt bisher nur Versionskatalog und Herkunftsprüfung von Hand
-(link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035], „Bewusst nicht getan").
+(Skill `docs/prompt/security-backend.adoc`, „Bewusst nicht getan").
 Gemeint sind die Gradle-Mittel dafür: `+dependency-verification.xml+` mit
 `+org.gradle.dependency.verification=strict+`, ein Schreibschutz für die Lockdatei und eine
 Wartezeit, bevor eine frisch veröffentlichte Version verwendet wird. Jedes davon ist eine
-Entscheidung mit Folgen für jeden Build – deshalb zuerst ein ADR.
+Entscheidung mit Folgen für jeden Build – deshalb zuerst eine Festlegung im Skill
+`docs/prompt/build.adoc`.
 
 == KI Richte einen vertraulichen Meldeweg für Schwachstellen ein und trage ihn in die security.txt
 
 Die ausgelieferte `security.txt` nennt heute die *öffentlichen* Issues des Repositories
-(link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037]) – eine Meldung ist
+(Skill `docs/prompt/security-backend.adoc`) – eine Meldung ist
 damit ab der ersten Zeile bekannt. In Frage kommen GitHub Security Advisories oder eine
 gepflegte Adresse; beides ist eine Festlegung außerhalb des Codes und braucht danach nur noch
 den Konfigurationswert `SECURITY_TXT_CONTACT`.
@@ -146,14 +138,14 @@ den Konfigurationswert `SECURITY_TXT_CONTACT`.
 == KI Signiere die security.txt nach RFC 9116
 
 RFC 9116 erlaubt eine Clearsign-Signatur samt `Signature`-Feld. Ohne sie ist der Inhalt der
-Datei nicht als echt nachweisbar. Der Schritt verlangt einen gepflegten Schlüssel und damit ein
-eigenes ADR – so schon in
-link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035] festgehalten.
+Datei nicht als echt nachweisbar. Der Schritt verlangt einen gepflegten Schlüssel und damit
+eine eigene Entscheidung – so schon im Skill `docs/prompt/security-backend.adoc` unter
+„Bewusst nicht getan" festgehalten.
 
 == KI Miss die Abdeckung modulübergreifend mit dem Plugin jacoco-report-aggregation
 
-Aus link:{adr}/0047-testabdeckung-als-eingecheckte-tabelle{adrext}[ADR 0047], „Bewusst nicht
-getan": Heute misst jedes Modul für sich, und was die Tests eines Moduls in einem *anderen*
+Aus Skill `docs/prompt/tests.adoc`, „Preis und bekannte Grenze": Heute misst jedes Modul für
+sich, und was die Tests eines Moduls in einem *anderen*
 ausführen, zählt nirgends – der Integrationstest in `:bootstrap` fährt den ganzen Stapel durch,
 in der Zeile `:adapter` sieht man davon nichts. Das Plugin wertet die Ausführungsdaten aller
 Module gegen alle Klassen aus; die Zeile `+*Summe*+` wäre dann eine Messung statt einer Addition.
@@ -162,13 +154,7 @@ Module gegen alle Klassen aus; die Zeile `+*Summe*+` wäre dann eine Messung sta
 
 Aus `docs/system/betrieb.adoc`, „Offene Punkte": Weder Content Security Policy noch
 `X-Content-Type-Options`, `Referrer-Policy` oder `X-Frame-Options` werden gesetzt. Welche Policy
-gilt und wo sie entsteht – in der Anwendung oder im vorgelagerten Proxy –, ist eine Entscheidung
-mit Folgen für jede Antwort und braucht deshalb zuerst ein ADR; der Frontend-Skill verweist
-darauf (`docs/prompt/security-frontend.adoc`, „Abgrenzung").
-
-== KI Schreibe ein ADR über die Kapitelstruktur der ADRs
-
-Die 19 älteren ADRs sind auf Kapitel umgestellt worden, ohne dass eine Entscheidung dazu
-festgehalten wäre. ADR 0026 hatte „Keine Umbenennung der Überschriften" ausdrücklich unter
-„Bewusst nicht getan" geführt – der Schritt darüber hinaus gehört begründet, samt der Grenze:
-Struktur ja, Text nein.
+gilt und wo sie entsteht – in der Anwendung oder im vorgelagerten Proxy –, ist eine
+Entscheidung mit Folgen für jede Antwort und braucht deshalb zuerst eine Festlegung im Skill
+`docs/prompt/security-backend.adoc`; der Frontend-Skill verweist darauf
+(`docs/prompt/security-frontend.adoc`, „Abgrenzung").

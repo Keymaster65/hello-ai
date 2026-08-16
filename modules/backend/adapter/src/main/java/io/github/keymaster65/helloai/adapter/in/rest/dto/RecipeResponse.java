@@ -9,7 +9,7 @@ import java.util.List;
  *
  * <p>Fields guaranteed by the domain model are marked {@code REQUIRED} so that generated
  * clients type them as non-optional; only the genuinely nullable ones stay optional
- * (see ADR 0007).
+ * (see docs/prompt/frontend.adoc).
  *
  * @param id              database identifier, always present on a persisted recipe
  * @param title           title of the recipe, never {@code null}
@@ -37,7 +37,7 @@ public record RecipeResponse(
                 requiredMode = Schema.RequiredMode.REQUIRED) List<PreparationStepResponse> steps) {
 
     /**
-     * Starts the curried construction of a {@link RecipeResponse} (see ADR 0021).
+     * Starts the curried construction of a {@link RecipeResponse} (see docs/prompt/architektur.adoc).
      *
      * @return the first step of the curried factory
      */

@@ -23,7 +23,7 @@ import org.springframework.transaction.support.SimpleTransactionStatus;
 
 /**
  * The decorator carries the transaction boundary that {@code @Transactional} used to carry inside
- * the application layer (ADR 0045). Two things are worth a test: every use case is delegated, and
+ * the application layer (docs/prompt/architektur.adoc). Two things are worth a test: every use case is delegated, and
  * reads ask for a read-only transaction while writes do not.
  */
 @ExtendWith(MockitoExtension.class)

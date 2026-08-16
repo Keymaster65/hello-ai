@@ -1,6 +1,4 @@
 // Kapitel der Systemdokumentation; siehe system.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 = Qualitätssicherung
 
 == Prinzip
@@ -60,28 +58,26 @@ Klassenpfad liegt.
 | <<src-layered-architecture-test,`LayeredArchitectureTest`>>
 | `bootstrap → adapter → application → domain`; Framework-Freiheit des Domänenmodells *und*
   der Anwendungsschicht; Teilung der Domäne in `model` und `services`; „Ports sind Interfaces"
-  (link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012],
-  link:{adr}/0020-domain-in-model-und-services-teilen{adrext}[ADR 0020],
-  link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045])
+  (Skill `docs/prompt/architektur.adoc`)
 
 | <<src-onion-architecture-test,`OnionArchitectureTest`>>
 | Dieselbe Struktur als Ringe – und die Aussage, die der Schichtenstapel nicht ausdrücken
   kann: *Adapter kennen einander nicht*
-  (link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019])
+  (Skill `docs/prompt/architektur.adoc`)
 
 | <<src-record-currying-test,`RecordCurryingTest`>>
 | Jeder Record mit mehr als zwei Komponenten hat eine curried Factory, deren benannte
   Schritte die Komponenten in Reihenfolge und Typ abbilden – geprüft wird die *Form der
   Kette*, nicht nur die Existenz einer Methode
-  (link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[ADR 0021])
+  (Skill `docs/prompt/architektur.adoc`)
 |===
 
 [NOTE]
 ====
-Der Maßstab aus ADR 0012 gilt weiter: Eine Regel, die nie fehlschlägt, ist wertlos. Neue
-Architekturregeln werden gegen einen absichtlichen Verstoß geprüft, und dieser Nachweis
-wird im ADR festgehalten – siehe den Abschnitt „Nachweis, dass die Regel greift" in
-link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019].
+Der Maßstab gilt weiter: Eine Regel, die nie fehlschlägt, ist wertlos. Neue
+Architekturregeln werden gegen einen absichtlichen Verstoß geprüft, und dieser Nachweis wird
+bei der Festlegung festgehalten – siehe Skill `docs/prompt/architektur.adoc`, Abschnitt
+„Festlegungen und ihre Gründe".
 ====
 
 == Fachliche Tests
@@ -97,7 +93,7 @@ link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019].
 
 | <<src-transactional-recipe-service-test,`TransactionalRecipeServiceTest`>>
 | Die Transaktionsgrenze, die seit
-  link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045] im Composition Root
+  Skill `docs/prompt/architektur.adoc` im Composition Root
   liegt: jeder Use Case wird delegiert, Lesen fordert eine `readOnly`-Transaktion an, Schreiben
   nicht – und eine Ausnahme rollt zurück.
 
@@ -120,14 +116,14 @@ link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019].
 
 | <<src-recipe-integration-test,`RecipeIntegrationTest`>>
 | Der komplette Stack gegen ein echtes PostgreSQL – embedded über Zonky, damit ohne Docker
-  (link:{adr}/0002-embedded-postgres-statt-testcontainers{adrext}[ADR 0002]). Kann das native
+  (Skill `docs/prompt/tests.adoc`). Kann das native
   Binary nicht starten, wird die Klasse *übersprungen* statt rot zu werden.
 
 | <<src-security-txt-properties-test,`SecurityTxtPropertiesTest`>>
 | Das erzeugte `security.txt`: eine `Contact`-Zeile je Meldeweg in der Reihenfolge der
   Priorität, `Expires` genau einmal in RFC-3339-Form, `Preferred-Languages` höchstens einmal –
   und die Zurückweisung einer leeren Kontaktliste
-  (link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037]).
+  (Skill `docs/prompt/security-backend.adoc`).
 
 | <<src-security-txt-configuration-test,`SecurityTxtConfigurationTest`>>
 | Die *ausgelieferte* Vorgabe: `Expires` liegt in der Zukunft und weniger als ein Jahr
@@ -137,7 +133,7 @@ link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019].
 == Systemtests
 
 Black-Box über HTTP, in einem eigenen Source-Set (`src/systemtest/java`, test-sets-Plugin,
-link:{adr}/0006-testsets-plugin-und-systemtests{adrext}[ADR 0006]). Als Client genügt der
+Skill `docs/prompt/tests.adoc`). Als Client genügt der
 JDK-`HttpClient`.
 
 [source,bash]
@@ -155,15 +151,16 @@ die der Systemdokumentation (<<src-documentation-system-test,`DocumentationSyste
 die des Meldewegs am Ursprung (<<src-security-txt-system-test,`SecurityTxtSystemTest`>>).
 
 Der Meldeweg ist der einzige Pfad *außerhalb* des Context-Path
-(link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037]); geprüft wird
+(Skill `docs/prompt/security-backend.adoc`); geprüft wird
 deshalb beides – dass `+/.well-known/security.txt+` am Ursprung antwortet und dass derselbe
 Pfad unter `/recipes` ein `404` bleibt. Eine Datei an zwei Orten wäre eine, die an einem
 veraltet.
 
-Der letzte Test geht dabei über einen Statuscode hinaus: Er holt `/docs/` und ruft *jeden*
-ADR-Verweis des Dokuments einzeln ab. Ein ADR, das im Jar fehlt, während die Dokumentation
-darauf verweist, ist damit ein roter Test und kein toter Link im Betrieb
-(link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]). Mit `-PskipDocs` gebaut,
+Der letzte Test geht dabei über einen Statuscode hinaus: Er holt `/docs/` und ruft *jede*
+relativ eingebundene Ressource des Dokuments einzeln ab. Ein Diagramm, das im Jar fehlt,
+während die Dokumentation es einbindet, ist damit ein roter Test und kein totes Bild im
+Betrieb
+(Skill `docs/prompt/systemdokumentation.adoc`). Mit `-PskipDocs` gebaut,
 schlägt er fehl – gewollt: Das Flag kauft eine schnelle Schleife, kein dokumentiertes
 Deployable.
 
@@ -171,7 +168,7 @@ Deployable.
 
 Playwright treibt einen echten Chromium gegen das *Boot-Jar* – also gegen das ausgelieferte
 Artefakt inklusive der darin verpackten SPA
-(link:{adr}/0008-playwright-fuer-e2e-tests{adrext}[ADR 0008]). Getestet werden ausschließlich
+(Skill `docs/prompt/tests.adoc`). Getestet werden ausschließlich
 Nutzer-Flows; Statuscodes bleiben in den Systemtests.
 
 [source,bash]
@@ -223,12 +220,12 @@ taugen nicht als Baseline.
 Das JaCoCo-Plugin ist in jedem Backend-Modul aktiv; jedes erzeugt seinen Report beim eigenen
 `test`-Lauf, als XML *und* HTML (`build/reports/jacoco/test/`). Aus der XML-Fassung schreibt der
 Task `./gradlew coverageTable` die Tabelle unten
-(link:{adr}/0047-testabdeckung-als-eingecheckte-tabelle{adrext}[ADR 0047]). Er misst dabei
+(Skill `docs/prompt/tests.adoc`). Er misst dabei
 selbst – er hängt am `jacocoTestReport` jedes Moduls und dieses am `test`-Task.
 
 Die Tabelle ist *erzeugt, aber eingecheckt*: Sie steht als `docs/system/abdeckung-tabelle.adoc`
 im Repository, wie die Kennzahlen-Tabelle in <<kennzahlen>>
-(link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]) und anders als die
+(Skill `docs/prompt/manager.adoc`) und anders als die
 erzeugte Historie in <<git-historie>>. Der Grund ist ein Kreis: `:bootstrap` packt die
 gerenderte Dokumentation in sein Jar, also kann kein Build die Messung seines eigenen Laufs
 ausliefern. Ihr Stand ist damit der des letzten Aufrufs – kein Build zieht sie nach.
@@ -254,9 +251,8 @@ Tabelle ist aus demselben Grund eine *Beobachtung*, kein Ziel.
 [[definition-of-done]]
 == Definition of Done
 
-Verbindlich ist die Liste im Master-Prompt (`docs/prompt/masterprompt.adoc`,
-link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]); sie steht dort an einer
-Stelle, damit sie nicht zweimal gepflegt werden muss. Sie ist in diesem Dokument mitlesbar:
+Verbindlich ist die Liste im Master-Prompt (`docs/prompt/masterprompt.adoc`); sie steht dort
+an einer Stelle, damit sie nicht zweimal gepflegt werden muss. Sie ist in diesem Dokument mitlesbar:
 <<wortlaut>> bindet den Master-Prompt ein, <<arbeitsgrundlage>> beschreibt Ladeweg und
 Prüfung. Der Kern:
 

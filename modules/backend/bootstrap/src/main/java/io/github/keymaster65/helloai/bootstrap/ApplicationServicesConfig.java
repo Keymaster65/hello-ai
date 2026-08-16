@@ -9,7 +9,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 /**
  * Registers the application services as beans. Since the application layer carries no framework
- * annotations (ADR 0045), component scanning cannot find them &ndash; they are wired here, in the
+ * annotations (docs/prompt/architektur.adoc), component scanning cannot find them &ndash; they are wired here, in the
  * composition root, where knowing about Spring is the job.
  */
 @Configuration

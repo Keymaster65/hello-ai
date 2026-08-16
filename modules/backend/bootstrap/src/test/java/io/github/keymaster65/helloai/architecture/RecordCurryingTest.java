@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Enforces the currying convention of ADR 0021: every record with more than
+ * Enforces the currying convention of docs/prompt/architektur.adoc: every record with more than
  * {@value #CURRYING_THRESHOLD} components offers a curried factory whose named steps mirror the
  * record components in declaration order.
  *

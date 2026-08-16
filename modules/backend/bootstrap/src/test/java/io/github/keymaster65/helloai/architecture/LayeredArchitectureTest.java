@@ -17,7 +17,7 @@ import com.tngtech.archunit.library.Architectures.LayeredArchitecture;
  * </pre>
  *
  * <p>Dependencies point inwards only. Until now this was a convention on paper; these rules
- * make a violation fail the build instead of surviving a review (see ADR 0012).
+ * make a violation fail the build instead of surviving a review (see docs/prompt/architektur.adoc).
  *
  * <p>Tests are excluded from the analysis on purpose: a test may legitimately reach into any
  * layer, and the system tests deliberately boot the application from {@code bootstrap}.
@@ -36,7 +36,7 @@ class LayeredArchitectureTest {
 
     /**
      * The frameworks the inner layers stay away from. Listed once because two rules use it: the
-     * domain and, since ADR 0045, the application layer.
+     * domain and, since docs/prompt/architektur.adoc, the application layer.
      */
     private static final String[] FRAMEWORKS = {
         "org.springframework..",
@@ -86,7 +86,7 @@ class LayeredArchitectureTest {
             .as("Das Domänenmodell bleibt frei von Framework-Abhängigkeiten");
 
     /**
-     * The use cases are plain Java too (ADR 0045). A {@code @Service} or {@code @Transactional}
+     * The use cases are plain Java too (docs/prompt/architektur.adoc). A {@code @Service} or {@code @Transactional}
      * here would tie the business rules to the runtime that happens to host them today and make
      * the layer testable only with a container.
      *
@@ -100,7 +100,7 @@ class LayeredArchitectureTest {
             .as("Die Anwendungsschicht bleibt frei von Framework-Abhängigkeiten");
 
     /**
-     * The domain is split into model and services (ADR 0020). A class directly in {@code ..domain}
+     * The domain is split into model and services (docs/prompt/architektur.adoc). A class directly in {@code ..domain}
      * would belong to neither and quietly undo the split.
      */
     @ArchTest

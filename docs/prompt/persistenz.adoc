@@ -1,0 +1,119 @@
+// Skill der Arbeitsgrundlage; siehe prompt.adoc.
+= Skill: Persistenz – Schema, Migration, jOOQ
+
+== Zweck
+
+Aktiviere diesen Skill bei jeder Änderung an der Datenhaltung: neue Tabelle, neue Spalte, neuer
+Constraint, neuer Index, neue Abfrage, geänderte Abbildung auf die Domäne.
+
+Der *Ist-Zustand* – welche Tabellen es gibt und wie sie auf die Domäne abgebildet sind – steht
+in `docs/system/datenmodell.adoc`. Hier steht, wie daran gearbeitet wird.
+
+== Grundsätze
+
+. *Das Changelog ist die einzige Schemaquelle.* Laufzeit-Migration und Codegenerierung lesen
+  *dasselbe* Liquibase-Changelog; sie können deshalb nicht auseinanderlaufen.
+. *Kein Schema von Hand.* Keine DDL im Betrieb, kein `ALTER` am Rande – jede Schemaänderung ist
+  ein Changeset.
+. *Ein Changeset wird nicht geändert, sondern ergänzt.* Liquibase führt Prüfsummen; ein
+  nachträglich verändertes Changeset bricht die Migration auf jeder Instanz, die es schon
+  ausgeführt hat.
+. *Abfragen laufen über jOOQ mit gebundenen Parametern.* Kein Zusammenbau von SQL aus
+  Zeichenketten (Skill `docs/prompt/security-backend.adoc`).
+. *Der Build braucht keine Datenbank.* Weder zum Kompilieren noch für die Codegenerierung.
+
+== Ablauf einer Schemaänderung
+
+. *Changeset schreiben* – deklaratives XML unter
+  `+modules/backend/adapter/src/main/resources/db/changelog/changes/+`, eingehängt im
+  Master-Changelog `+db.changelog-master.xml+`.
+. `+./gradlew :modules:backend:adapter:generateJooq+` – die typsicheren Zugriffsklassen
+  entstehen neu unter `+build/generated-src/jooq/main+`.
+. *Adapter und Mapper anpassen*, dann die Domäne, falls die Änderung fachlich ist.
+. *Integrationstest* gegen ein echtes PostgreSQL (Skill `docs/prompt/tests.adoc`) – erst dort
+  zeigt sich das tatsächliche Typmapping.
+. *`docs/system/datenmodell.adoc` mitpflegen*: Spaltentabelle *und* Abbildung auf die Domäne;
+  kommt eine Tabelle oder eine Beziehung dazu, auch das Diagramm `datenmodell`.
+
+== Auslöser → Pflicht
+
+[cols="2,3", options="header"]
+|===
+| Anlass | Zu tun
+
+| Neue Tabelle, Spalte, Constraint, Index
+| Neues Changeset (nie ein vorhandenes ändern), `generateJooq`, `datenmodell.adoc`
+
+| Fremdschlüssel
+| Als eigenständiges `+<addForeignKeyConstraint>+`-Change – *nicht* als inline-`references`.
+  Siehe die Festlegung zur Quoting-Strategie unten
+
+| Neue Abfrage
+| Über jOOQ mit gebundenen Parametern; „plain SQL" braucht eine eigene Festlegung
+
+| Spalte, die die Domäne nicht kennt (`created_at`, technische Schlüssel der Kindtabellen)
+| In `datenmodell.adoc` ausdrücklich als solche benennen – sonst wird sie beim nächsten Lesen
+  für einen Mangel im Modell gehalten
+
+| Der jOOQ-Codegen schlägt fehl oder erzeugt unerwartete Namen
+| Zuerst die Quoting-Strategie des Changesets prüfen, nicht die Namen im Code anpassen
+|===
+
+== Prüfen
+
+[source,bash]
+----
+./gradlew :modules:backend:adapter:generateJooq
+./gradlew test          # darunter der Integrationstest gegen embedded PostgreSQL
+----
+
+[[festlegungen-persistenz]]
+== Festlegungen und ihre Gründe
+
+=== Liquibase als Migrationswerkzeug, deklaratives XML als Form
+
+*Was gilt.* Das Schema entsteht aus deklarativen XML-Changesets unter
+`+src/main/resources/db/changelog+` (Master-Changelog plus je Änderung eine Datei). Zur Laufzeit
+migriert die Spring-Boot-Autoconfiguration.
+
+*Warum.* Deklaratives XML ist datenbank-portabel und werkzeug-idiomatisch: `createTable`,
+`addForeignKeyConstraint`, `createIndex` sagen, *was* gilt, statt SQL zu wiederholen, das dann
+je Datenbank anders aussieht.
+
+*Verworfen.* Formatiertes SQL als Changelog – minimal-invasiv, behält aber handgeschriebene DDL
+und damit die Datenbankbindung. YAML – keine Vorteile gegenüber XML in dieser Werkzeugkette.
+Flyway, das Vorgängerwerkzeug – abgelöst; das Grundprinzip „Migrationsskripte sind die einzige
+Schemaquelle, Codegen ohne laufende DB" ist dabei unverändert geblieben, nur das Werkzeug hat
+gewechselt.
+
+=== jOOQ-Codegenerierung ohne laufende Datenbank
+
+*Was gilt.* `+org.jooq.meta.extensions.liquibase.LiquibaseDatabase+` (Artefakt
+`+jooq-meta-extensions-liquibase+`) interpretiert *dasselbe* Changelog über ein internes
+In-Memory-H2 und erzeugt daraus die Zugriffsklassen. Der Build braucht dafür weder PostgreSQL
+noch Docker.
+
+*Warum.* Ein reproduzierbarer Build darf beim Kompilieren keine laufende Infrastruktur
+voraussetzen. Da Codegen und Laufzeit dieselbe Quelle lesen, können Migration und generierter
+Code nicht auseinanderlaufen.
+
+*Verworfen.* Codegen gegen eine live PostgreSQL – macht das Build-Ergebnis von einer Umgebung
+abhängig. Codegen gegen eine zur Build-Zeit hochgefahrene Container-DB – setzt Docker voraus,
+das hier nicht verfügbar ist (Skill `docs/prompt/tests.adoc`).
+
+WARNING: *Der H2-Interpreter hebt unquotierte Namen groß.* Damit die generierten jOOQ-Namen zur
+PostgreSQL-Laufzeit (Kleinschreibung) passen, setzt das Changeset
+`+objectQuotingStrategy="QUOTE_ALL_OBJECTS"+`. Als Folge müssen Fremdschlüssel als eigenständige
+`+<addForeignKeyConstraint>+`-Changes definiert werden: Der inline-`references`-String wird von
+der Quoting-Strategie *nicht* erfasst.
+
+*Bekannte Grenze.* `LiquibaseDatabase` ist seitens jOOQ *deprecated* (Lizenzwechsel bei
+Liquibase 5.x); solange Spring Boot Liquibase 4.x mitliefert, funktioniert der Codegen. Die von
+jOOQ empfohlene Alternative – Codegen gegen eine per Testcontainers migrierte Datenbank –
+scheitert hier am fehlenden Docker. Fällt der Weg weg, ist das eine neue Entscheidung, kein
+stiller Umbau.
+
+*Der Parser ist eine Einschränkung.* Was der jOOQ-Parser nicht versteht, kann im Changelog nicht
+stehen; PostgreSQL-Spezialitäten sind damit teilweise ausgeschlossen. Feinheiten des echten
+Typmappings zeigen sich deshalb erst im Integrationstest gegen ein echtes PostgreSQL – nicht im
+Codegen.

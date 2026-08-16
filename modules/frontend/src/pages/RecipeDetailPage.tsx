@@ -4,7 +4,7 @@ import { RecipeDetail } from '../components/RecipeDetail'
 /**
  * Teilbare Detailansicht unter `/{id}`. Die Seite lädt das Rezept anhand der ID aus der
  * Adresse – ein Aufruf aus einem Lesezeichen oder einem geteilten Link funktioniert damit
- * genauso wie die Navigation aus der Liste (ADR 0017).
+ * genauso wie die Navigation aus der Liste (docs/prompt/frontend.adoc).
  */
 export function RecipeDetailPage() {
   const { id } = useParams()

@@ -113,7 +113,7 @@ describe('recipeApi', () => {
   })
 
   it('should tolerate a problem detail without our fieldErrors extension', async () => {
-    // Spring produces this shape for the errors of the framework itself (ADR 0046).
+    // Spring produces this shape for the errors of the framework itself (docs/prompt/api.adoc).
     fetchMock.mockResolvedValue(
       jsonResponse(
         { type: 'about:blank', title: 'Method Not Allowed', status: 405, detail: 'Method PATCH is not supported.' },

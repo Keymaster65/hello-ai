@@ -1,11 +1,77 @@
 // Session-Protokoll; das Format regelt der Skill docs/prompt/butterfly.adoc.
 // Diese Datei ist als Anhang „Session-Protokoll" in die Systemdokumentation eingebunden und
-// wird mitgerendert – siehe ADR 0033 und ADR 0044.
+// wird mitgerendert – siehe docs/prompt/systemdokumentation.adoc.
 = Claude Log
 
 Chronologischer Verlauf der Session (Prompts des Nutzers + Zusammenfassung meiner Aktionen).
 *Sortierung: absteigend — neuester Eintrag oben.* Neue Prompts werden immer vorne eingefügt.
 Datum: 2026-07-19
+
+'''
+
+[[prompt-160]]
+== 160. Prompt: „commit"
+
+_Delta: 16 s · 1.058 Token out · 60 Token in (neu) · 1.191.152 Token gesamt_
+_Stand (Session, 5 Prompts): 54:19 min · 349.064 Token out · 102.569.993 Token gesamt_
+
+*Aktionen:*
+
+* *Definition of Done* vollständig aus Prompt 159: `+./gradlew clean build+` grün,
+  `+systemtest+` grün (4 Klassen, 0 Fehler), `+e2eTest+` 9/9, `+asciidoctor+` und
+  `+asciidoctorPrompt+` ohne neue Meldung, `+coverageTable+` gelaufen. Seither wurde kein Code
+  angefasst; ein abschließendes `+./gradlew build+` lief nach den letzten Doku-Änderungen
+  erneut grün.
+* *Commit* mit Author „Claude": 138 Dateien – 49 gelöscht (48 ADRs und `+adr.adoc+`), fünf
+  neue Skills, der Rest nachgezogen.
+* *Trailer auf das arbeitende Modell gesetzt* – Opus 5 statt des im Develop-Skill wörtlich
+  vorgeschriebenen Opus 4.8, wie in den Prompts 154 und 158. Der `+KI+`-Eintrag dazu steht
+  weiter im Backlog.
+
+'''
+
+[[prompt-159]]
+== 159. Prompt: „Konsolidiere alle Skills und ADR so, dass keine ADR mehr notwendig sind, alle die Inhalte auf die Skills verteilt werden. Wenn sinnvoll erzeuge neue Skills." (aus dem Backlog, `next`)
+
+_Delta: 39:47 min · 253.660 Token out · 1.399.921 Token in (neu) · 75.584.976 Token gesamt_
+_Stand (Session, 4 Prompts): 49:31 min · 339.720 Token out · 92.533.912 Token gesamt_
+
+*Aktionen:*
+
+* *Gezogen mit `+next+`*: `+git pull --ff-only+` meldete „no tracking information" für
+  `konsolidierung` – kein Abbruch, weitergearbeitet auf dem lokalen Stand (PO-Skill). Kein
+  Eintrag war aktiv; der oberste ungebundene ready-Eintrag wurde im Wortlaut vorgelegt und vom
+  Nutzer freigegeben („komplett in einem Zug"), Marker `+:+` → `+*+` vor der Arbeit gesetzt.
+* *48 ADRs vollständig gelesen* und ihre Inhalte auf die Skills verteilt: Regel, Grund,
+  verworfene Wege und Beleg stehen jetzt je Skill im Abschnitt „Festlegungen und ihre Gründe".
+  `docs/adr/` und `docs/prompt/adr.adoc` sind entfernt.
+* *Fünf neue Skills*: `entscheidungen.adoc` (löst den ADR-Skill ab), `build.adoc`,
+  `persistenz.adoc`, `api.adoc`, `frontend.adoc`. Damit vierzehn statt zehn Skills;
+  Skill-Tabelle im Master-Prompt, `include`-Liste in `prompt.adoc`, `CLAUDE.md` und
+  `docs/system/arbeitsgrundlage.adoc` (Dateitabelle, Ladeweg-Diagramm, Wortlaut) nachgezogen.
+* *Rund 180 `+link:{adr}+`-Verweise* in `docs/prompt`, `docs/system`, Backlog und Protokoll auf
+  den zuständigen Skill umgestellt, die Attribute `+{adr}+`/`+{adrext}+` überall entfernt; dazu
+  ~70 ADR-Nennungen in Java, TypeScript, Buildskripten und den Log-Skripten.
+* *Build entkoppelt*: Task `+asciidoctorAdr+` entfällt, ebenso die Kopie `+adr/+` neben das
+  HTML und die ADR-Attribute beider Asciidoctor-Tasks. Die Definition of Done nennt nur noch
+  zwei Doku-Tasks.
+* *`+DocumentationSystemTest+` umgebaut*: Statt jedem ADR-Verweis folgt er jeder *relativ
+  eingebundenen Ressource* des Dokuments – heute die sechs erzeugten SVG-Diagramme. Zweck
+  unverändert: ein Verweis, der erst im Deployable ins Leere zeigt, ist ein roter Test.
+* *`docs/system` nachgezogen*: ADR-Index in `system.adoc` durch den Abschnitt „Entscheidungen"
+  ersetzt, Abgrenzungstabelle auf vier Dokumentationsarten, Anhänge, `betrieb.adoc`,
+  `api.adoc`, `qualitaetssicherung.adoc`, `schichten.adoc`, `ueberblick.adoc`,
+  `datenmodell.adoc` und `anhang-quellen.adoc` angepasst. README ohne ADR-Links.
+* *Historisches bleibt historisch*: Protokoll und Retrospektive wurden nur um tote
+  `+link:+`-Makros bereinigt (Text unverändert); die Retrospektive trägt dazu einen
+  Kopfkommentar. Der `+KI+`-Backlog-Eintrag „Schreibe ein ADR über die Kapitelstruktur der
+  ADRs" ist als gegenstandslos entfernt.
+* *Definition of Done vollständig durchlaufen:* `+./gradlew clean build+` grün (3:10 min),
+  `+systemtest+` grün (4 Klassen, 0 Fehler – darunter `+DocumentationSystemTest+` 4/4),
+  `+e2eTest+` 9/9 grün, `+asciidoctor+`/`+asciidoctorPrompt+` ohne neue Meldung (die zwei
+  bekannten – doppelter Anker `+prompt-minus2+`, fehlendes Attribut `+id+` – bestehen
+  unverändert und stehen als Backlog-Eintrag). `+coverageTable+` gelaufen: Zahlen unverändert,
+  nur der Kommentarkopf der Tabelle.
 
 '''
 
@@ -873,8 +939,8 @@ _Commit: <<commit-ea0e0c0,ea0e0c0>>_
 
 *Aktionen:*
 
-* *Erster Commit nach der neuen Regel* (link:{adr}/0040-commit-freigabe-in-einem-schritt{adrext}[ADR 0040]):
-  keine Rückfrage, Message im Ergebnis genannt.
+* *Erster Commit nach der neuen Regel* (ADR 0040): keine Rückfrage, Message im Ergebnis
+  genannt.
 * *Umfang:* ADR 0040, die vier nachgezogenen Stellen (`+develop.adoc+`, `+po.adoc+`,
   `+adr.adoc+`, `+arbeitsgrundlage.adoc+`, ADR-Index in `+system.adoc+`), die erste
   Retrospektive unter `docs/retro/` und die Protokolleinträge 137–140 samt Kennzahlen-Tabelle.

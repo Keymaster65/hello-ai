@@ -1,14 +1,11 @@
 // Skill der Arbeitsgrundlage; siehe prompt.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 = Skill: Manager – Kennzahlen-Tabelle des Protokolls
 
 == Zweck
 
 Aktiviere diesen Skill, sobald ein Eintrag in `docs/log/claudeLog.adoc` entstanden oder
 geändert ist: Er hält die *Kennzahlen-Tabelle* `docs/log/kennzahlen.adoc` nach, die dieselben
-Delta- und Stand-Werte in Spalten führt und im Anhang der Systemdokumentation steht
-(link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]).
+Delta- und Stand-Werte in Spalten führt und im Anhang der Systemdokumentation steht.
 
 Der Butterfly-Skill (`docs/prompt/butterfly.adoc`) *schreibt* den Log-Eintrag; dieser Skill
 *wertet* ihn aus. Beides gehört in denselben Turn – die Tabelle ist sonst schon veraltet,
@@ -22,10 +19,9 @@ wenn der Commit läuft.
 . *Die Tabelle wird erzeugt, nicht getippt.* `docs/log/kennzahlen.py` schreibt sie vollständig
   neu. Von Hand geändert wird sie nie – die Änderung wäre beim nächsten Lauf weg.
 . *Geschätzt wird nichts.* Fehlt eine Kennzahl im Log, steht in der Tabelle `–`.
-. *Gerechnet wird nur in den drei `Summe`-Spalten*
-  (link:{adr}/0039-summenspalten-in-der-kennzahlen-tabelle{adrext}[ADR 0039]). Alle übrigen
-  Werte werden als Zeichenkette übernommen. Wer eine weitere gerechnete Spalte erwägt, braucht
-  ein ADR – bis ADR 0039 galt „nichts wird gerechnet" ausnahmslos.
+. *Gerechnet wird nur in den drei `Summe`-Spalten* (siehe <<festlegungen-manager>>). Alle übrigen
+  Werte werden als Zeichenkette übernommen. Wer eine weitere gerechnete Spalte erwägt, ändert
+  damit eine Festlegung – zuvor galt „nichts wird gerechnet" ausnahmslos.
 
 == Ablauf pro Prompt
 
@@ -62,8 +58,7 @@ Dreizehn Spalten, neuester Eintrag oben – dieselbe Sortierung wie das Protokol
 | Nr.
 | Die Nummer aus der Überschrift `+== <N>. Prompt: …+`; auch negative Nummern der
   nachgetragenen Commits. Sie steht als *Verweis* auf den Eintrag: `+<<prompt-140,140>>+`, bei
-  negativer Nummer `+<<prompt-minus2,-2>>+`
-  (link:{adr}/0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[ADR 0041])
+  negativer Nummer `+<<prompt-minus2,-2>>+` (siehe <<festlegungen-manager>>)
 
 | Prompt
 | Der Überschriftentext ohne das führende `+Prompt: +`; `+Commit: +` bleibt stehen
@@ -71,8 +66,8 @@ Dreizehn Spalten, neuester Eintrag oben – dieselbe Sortierung wie das Protokol
 | Commit
 | Die Zeile `+_Commit:_+` des Eintrags, als *Verweis* auf die Zeile der Git-Historie
   (`+<<commit-ea0e0c0,ea0e0c0>>+`), mehrere durch Komma getrennt; fehlt die Zeile, steht `–`.
-  Dieselbe Quelle, aus der der Gradle-Task `gitChangelog` die Gegenrichtung füllt
-  (link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038])
+  Dieselbe Quelle, aus der der Gradle-Task `gitChangelog` die Gegenrichtung füllt (Skill
+  `docs/prompt/butterfly.adoc`)
 
 | Dauer, out, in (neu), gesamt
 | Die `+_Delta:+`-Zeile des Eintrags
@@ -83,8 +78,7 @@ Dreizehn Spalten, neuester Eintrag oben – dieselbe Sortierung wie das Protokol
 
 | Summe Dauer, Summe out, Summe in (neu)
 | *Errechnet*, nicht gelesen: die laufende Summe über *alle* Einträge von unten bis zu dieser
-  Zeile; die oberste trägt damit den Gesamtaufwand
-  (link:{adr}/0039-summenspalten-in-der-kennzahlen-tabelle{adrext}[ADR 0039]). Ein `–` zählt
+  Zeile; die oberste trägt damit den Gesamtaufwand (siehe <<festlegungen-manager>>). Ein `–` zählt
   darin als null, damit die Summe durchläuft – sie ist deshalb eine Untergrenze
 |===
 
@@ -99,15 +93,13 @@ Drei Festlegungen tragen das Format:
 * *Die Prompt-Spalte ist literal* (`l` im `cols`-Attribut). Ein wörtlich zitierter Prompt darf
   alles enthalten – `+*+`, `+{+`, `+<<+`, `+|+` –, ohne dass AsciiDoc es auswertet. Nur der
   Zellentrenner `+|+` wird beim Erzeugen geschützt. Diese Zusicherung ist der Grund, warum die
-  Tabelle im Build stehen darf und das Protokoll selbst nicht
-  (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]).
+  Tabelle im Build stehen darf, obwohl sie wörtliche Prompts wiedergibt.
 * *Die Einheit steht in der Spaltenüberschrift*, nicht in jeder Zelle (`out / Token`). Die
   Dauer trägt ihre Einheit weiter mit, weil sie je Zeile wechselt (`s`, `min`, `h`) – die Regel
   „jede Zahl trägt ihre Einheit" aus dem Butterfly-Skill bleibt damit erfüllt.
 * *Die Verweise gehen in Nachbarsichten, nicht ins Freie.* `Nr.` und `Commit` zeigen auf Anker,
-  die im *selben* gerenderten Dokument stehen – im Anhang „Änderungen". Deshalb darf die
-  Tabelle nicht mehr für sich allein gebaut werden; Eingangspunkt ist `docs/system/system.adoc`
-  (link:{adr}/0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[ADR 0041]).
+  die im *selben* gerenderten Dokument stehen – in den Anhängen daneben. Deshalb darf die
+  Tabelle nicht für sich allein gebaut werden; Eingangspunkt ist `docs/system/system.adoc`.
 
 [[manager-fallstricke]]
 == Wenn eine Zeile leer bleibt
@@ -161,8 +153,91 @@ python3 docs/log/kennzahlen.py --check
 
 Die Tabelle hängt über den Anhang an der Systemdokumentation. Ein fehlender `include` und eine
 defekte Tabelle sind *Build-Fehler*
-(link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022]) – anders als
+(Skill `docs/prompt/systemdokumentation.adoc`) – anders als
 beim Protokoll ist die Tabelle damit maschinell geprüft.
+
+[[festlegungen-manager]]
+== Festlegungen und ihre Gründe
+
+=== Die Tabelle wird aus dem Protokoll erzeugt und eingecheckt
+
+*Was gilt.* `docs/log/kennzahlen.py` liest `docs/log/claudeLog.adoc` und schreibt
+`docs/log/kennzahlen.adoc` vollständig neu; der Anhang `docs/system/anhang-kennzahlen.adoc`
+deutet die Spalten und bindet die Tabelle ein. Die Datei ist eingecheckt, damit der Build sie
+ohne Werkzeuglauf findet – von Hand geändert wird sie nie.
+
+*Warum.* Die Kennzahlenzeilen im Protokoll sind gut zu *schreiben*, aber nicht zu *vergleichen*:
+Die Frage „welcher Prompt war teuer?" beantwortet man sonst, indem man hundert Einträge
+durchblättert. Erzeugt statt gepflegt heißt: keine zweite Stelle, an der dieselben Zahlen
+veralten. Ein Nebeneffekt ist der eigentliche Gewinn – die Kennzahlenzeilen sind seither
+*maschinell gelesen*: Eine Zeile, die vom Format abweicht, fällt als leere Tabellenzeile auf.
+Vorher fiel sie gar nicht auf.
+
+*Warum die Tabelle im Build stehen darf, das Protokoll aber lange nicht.* Die Prompt-Spalte ist
+*literal* (`l` im `cols`-Attribut): AsciiDoc wertet darin nichts aus, geschützt werden muss
+allein der Zellentrenner `+|+`. Ein beliebiger Prompt-Text kann sie damit nicht kaputtmachen.
+
+*Verworfen.* Die Tabelle von Hand im Log pflegen oder als eigene Datei führen – dieselben Zahlen
+stünden zweimal, und die zweite Fassung veraltet beim ersten vergessenen Handgriff. Die
+Kennzahlen *nur* in der Tabelle führen und die Zeilen im Log streichen – beim Lesen eines
+Eintrags gehört sein Aufwand dorthin, und die Tabelle verlöre ihre Quelle.
+
+*Kein Gradle-Task.* Der Build hinge sonst an einem Python-Interpreter und am Vorhandensein des
+Logs; beides ist für die Auslieferung belanglos. Der Preis steht oben in der Warnung: Ein
+vergessener Lauf fällt nirgends auf – nur `--check` sagt es, und niemand ruft es automatisch auf.
+
+=== Drei gerechnete Summenspalten
+
+*Was gilt.* `Summe Dauer`, `Summe out` und `Summe in (neu)` werden gerechnet: die laufende Summe
+über alle Einträge von der ältesten Zeile aufwärts, sodass die *oberste* Zeile den Gesamtaufwand
+trägt. Alle übrigen Werte bleiben Zeichenketten aus dem Log.
+
+*Warum.* Die `Stand`-Spalten sehen so aus, als täten sie das bereits – sie tun es nicht: Sie
+gelten *je Session* und springen nach jedem `/clear` auf null zurück. Über den ganzen Bestand
+hinweg gab es damit keine Zahl, die den Gesamtaufwand nennt, sondern nur Sägezähne. Schließen
+ließ sich die Lücke nicht durch bessere Log-Zeilen: Eine laufende Summe wäre beim Schreiben jedes
+Eintrags von Hand fortzuschreiben – genau die Doppelpflege, an der die handgeführte Tabelle
+gescheitert ist. Eine Summe *deutet* nicht, sie *addiert*, und sie ist aus derselben einen Quelle
+ableitbar.
+
+*Ein fehlender Wert zählt als null, nicht als Lücke* – sonst risse die Summe ab und begänne
+darüber wieder bei sich selbst. Der Preis: Die Summe ist eine *Untergrenze*, und der Anhang sagt
+das ausdrücklich dazu. `gesamt` bekommt *keine* Summenspalte: Die Größe enthält die Cache-Reads
+und zählte aufsummiert denselben Kontext dutzendfach – als Delta je Prompt aussagekräftig, als
+Summe irreführend.
+
+*Verworfen.* Eine Summenzeile am Fuß der Tabelle – nennt nur den Endstand, und bei absteigender
+Sortierung stünde sie unten, wo niemand sie sucht. Die `Stand`-Spalten umdeuten – sie stammen
+wörtlich aus dem Log; sie zu überschreiben hieße, in einer Spalte etwas anderes zu zeigen als in
+der Quelle steht. Eine Auswertung (Durchschnitt, Median, teuerster Prompt) – das wäre Deutung,
+nicht Addition.
+
+WARNING: *Das Skript kennt jetzt die Schreibweisen des Butterfly-Skills.* Es rechnet `+45 s+`,
+`+2:09 min+` und `+1:47:30 h+` in Sekunden um. Ändert der Skill das Format, rechnet das Skript
+*still falsch* – eine unbekannte Form zählt als null, statt aufzufallen. Wer das Format ändert,
+zieht das Muster in `docs/log/kennzahlen.py` mit und prüft mit `--check` gegen den *gesamten*
+Bestand.
+
+=== Jede Zeile verweist in beide Nachbarsichten
+
+*Was gilt.* Die Spalte `Nr.` ist ein Verweis auf den Log-Eintrag (`+<<prompt-140,140>>+`), die
+Spalte `Commit` ein Verweis auf die Zeile der Git-Historie (`+<<commit-ea0e0c0,ea0e0c0>>+`).
+Beide entstehen beim Erzeugen der Tabelle aus derselben Zeile `+_Commit:_+` des Protokolls, aus
+der auch der Task `gitChangelog` die Gegenrichtung füllt.
+
+*Warum.* Die Kennzahlen-Tabelle ist die Sicht, in der *gesucht* wird – gerade dafür gebaut, teure
+oder lange Prompts zu finden. Genau dort endete der Weg: Wer eine auffällige Zeile gefunden
+hatte, musste den zugehörigen Eintrag von Hand suchen. Die Verweise behaupten nichts Neues; sie
+machen erreichbar, was schon geschrieben ist – und sie brauchen keine neue Pflegestelle und
+keinen neuen Ankersatz.
+
+*Verworfen.* Die Prompt-Spalte verlinken – sie müsste dafür ihre Literalität aufgeben, und ein
+zitierter Prompt mit `+|+` oder `+<<+` bräche fortan die Auslieferung. Eine eigene Spalte
+„Eintrag" neben `Nr.` – führte die Nummer ein zweites Mal nebeneinander. Nur auf das Protokoll
+verweisen – der halbe Weg wäre schwerer zu erklären als beide.
+
+*Preis.* Die Tabelle ist nicht mehr allein renderbar: Für sich gebaut trüge sie über hundert
+Verweise ins Leere. Sie wurde noch nie allein gebaut – ab jetzt darf sie es auch nicht mehr.
 
 == Hinweise
 

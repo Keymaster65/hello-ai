@@ -1,39 +1,37 @@
 // Kapitel der Systemdokumentation; siehe system.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 [appendix]
 [[session-protokoll]]
 = Session-Protokoll
 
-Die Kapitel beschreiben den *Ist-Zustand*, die ADRs die *Entscheidungen* dahinter. Keine von
-beiden sagt, wie dieser Zustand entstanden ist: in welcher Reihenfolge die Bausteine kamen,
+Die Kapitel beschreiben den *Ist-Zustand*, die Skills der Arbeitsgrundlage die
+*Festlegungen* dahinter. Keine von beiden sagt, wie dieser Zustand entstanden ist: in welcher Reihenfolge die Bausteine kamen,
 welcher Prompt eine Änderung ausgelöst hat, was ein Schritt gekostet hat.
 
 Dieser Anhang sagt es aus der Richtung des *Prompts*: Das Session-Protokoll
 `docs/log/claudeLog.adoc` führt einen Eintrag je Prompt, neuester oben. Es wird hier eingebunden
 und ausschließlich an seinem Ort gepflegt, nach dem Skill `docs/prompt/butterfly.adoc`; eine
 zweite Fassung, die veralten könnte, gibt es nicht
-(link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]).
+(Skill `docs/prompt/butterfly.adoc`).
 
 Zwei weitere Sichten auf dieselbe Arbeit stehen als eigene Anhänge daneben – in der Reihenfolge,
 in der man sie liest:
 
 * die *Kennzahlen* dieser Einträge als Tabelle in <<kennzahlen>>: dieselbe Quelle, andere Sicht
-  (link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]);
+  (Skill `docs/prompt/manager.adoc`);
 * die *Git-Historie* in <<git-historie>> – *was* das Repository verändert hat, ein Eintrag je
-  Commit (link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036]).
+  Commit (Skill `docs/prompt/systemdokumentation.adoc`).
 
 Protokoll und Historie sind *untereinander verlinkt*
-(link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038]): Die Zeile
+(Skill `docs/prompt/butterfly.adoc`): Die Zeile
 `+_Commit:_+` eines Eintrags führt auf die Zeile des Commits, die Spalte „Prompt" der Tabelle
 dort zurück auf den auslösenden Eintrag. Die Kennzahlen-Tabelle zeigt in *beide* Richtungen –
 die Nummer auf den Eintrag hier, ihre Spalte „Commit" auf die Zeile der Historie
-(link:{adr}/0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[ADR 0041]).
+(Skill `docs/prompt/manager.adoc`).
 
 *Eingebunden, nicht kopiert* – wie die Git-Historie in <<git-historie>>, die Kennzahlen-Tabelle
 in <<kennzahlen>> und die Quelldateien in <<quelldateien>>. Damit steht die Entstehung neben dem
 Ergebnis, in *einem* Dokument, das auch die laufende Anwendung unter `/recipes/docs/` ausliefert
-(link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]).
+(Skill `docs/prompt/systemdokumentation.adoc`).
 
 == Die Einträge
 

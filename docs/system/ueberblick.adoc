@@ -1,6 +1,4 @@
 // Kapitel der Systemdokumentation; siehe system.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 = Überblick
 
 == Aufgabe des Systems
@@ -26,9 +24,7 @@ Die Reihenfolge ist bewusst: Bei einem Konflikt gewinnt das weiter oben stehende
 | Strukturtreue
 | Die Abhängigkeitsrichtung der Schichten gilt ohne Ausnahme, auch unter Zeitdruck.
 | Ein Gradle-Modul je Schicht, zusätzlich zwei ArchUnit-Sichten
-  (link:{adr}/0013-ein-gradle-modul-je-schicht{adrext}[ADR 0013],
-  link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012],
-  link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019])
+  (Skill `docs/prompt/architektur.adoc`)
 
 | Prüfbarkeit
 | Jede Aussage über das System ist automatisiert nachweisbar – vom Datentyp bis zum
@@ -39,19 +35,19 @@ Die Reihenfolge ist bewusst: Bei einem Konflikt gewinnt das weiter oben stehende
 | Fehler fallen beim Kompilieren auf, nicht zur Laufzeit: SQL, API-Contract und
   Record-Konstruktion sind typisiert.
 | jOOQ-Codegen aus dem Changelog, generierte TS-Typen aus OpenAPI, curried Factories
-  (link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[ADR 0021])
+  (Skill `docs/prompt/architektur.adoc`)
 
 | Einfachheit des Deployments
 | Ein Artefakt, eine Origin, keine CORS-Konfiguration.
 | Das Frontend wird ins Boot-Jar gepackt
-  (link:{adr}/0007-react-frontend-mit-backend-als-bff{adrext}[ADR 0007])
+  (Skill `docs/prompt/frontend.adoc`)
 
 | Reproduzierbarer Build
 | Derselbe Befehl führt auf jeder Maschine zum selben Ergebnis, ohne Docker und ohne
   lokale Datenbank.
-| Gradle-Wrapper (link:{adr}/0009-gradle-wrapper-verbindlich{adrext}[ADR 0009]),
-  Versionskatalog (link:{adr}/0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018]),
-  embedded PostgreSQL (link:{adr}/0002-embedded-postgres-statt-testcontainers{adrext}[ADR 0002])
+| Gradle-Wrapper (Skill `docs/prompt/build.adoc`),
+  Versionskatalog (Skill `docs/prompt/build.adoc`),
+  embedded PostgreSQL (Skill `docs/prompt/tests.adoc`)
 |===
 
 == Systemkontext
@@ -78,7 +74,7 @@ recipes --> db : JDBC (jOOQ)\nSchema-Migration (Liquibase)
 
 Weitere Nachbarn gibt es nicht: Das System ruft von sich aus kein Fremdsystem auf. Das
 Diagramm entsteht beim Rendern aus seiner Quelle in dieser Datei
-(link:{adr}/0042-plantuml-fuer-diagramme{adrext}[ADR 0042]).
+(Skill `docs/prompt/systemdokumentation.adoc`).
 
 [cols="1,1,3", options="header"]
 |===
@@ -88,7 +84,7 @@ Diagramm entsteht beim Rendern aus seiner Quelle in dieser Datei
 | eingehend
 | HTTP: SPA unter `/recipes/`, JSON-API unter `/recipes/api/recipes`, Contract unter
   `/recipes/v3/api-docs`. Ein Port, eine Origin
-  (link:{adr}/0016-context-path-recipes{adrext}[ADR 0016]).
+  (Skill `docs/prompt/api.adoc`).
 
 | PostgreSQL
 | ausgehend
@@ -118,15 +114,13 @@ Diagramm entsteht beim Rendern aus seiner Quelle in dieser Datei
 
 | Dokumentation
 | `docs/`
-| ADRs (`docs/adr/`), diese Systemdokumentation (`docs/system/`), das Session-Protokoll
-  (`docs/log/claudeLog.adoc`, Anhang <<session-protokoll>>) und das Backlog (`docs/backlog.adoc`,
-  Anhang <<backlog>>) – alles AsciiDoc
-  (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026],
-  link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]). Das Protokoll ist seit
-  link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033] eingebunden und damit
+| Diese Systemdokumentation (`docs/system/`), die Arbeitsgrundlage (`docs/prompt/`), das
+  Session-Protokoll (`docs/log/claudeLog.adoc`, Anhang <<session-protokoll>>) und das Backlog
+  (`docs/backlog.adoc`, Anhang <<backlog>>) – alles AsciiDoc
+  (Skill `docs/prompt/systemdokumentation.adoc`). Das Protokoll ist eingebunden und damit
   Teil des Builds; seine Kennzahlen stehen als erzeugte Tabelle `docs/log/kennzahlen.adoc` im
   Anhang <<kennzahlen>>
-  (link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]).
+  (Skill `docs/prompt/manager.adoc`).
 
 | Arbeitsgrundlage
 | `docs/prompt/` und `CLAUDE.md`
@@ -135,7 +129,7 @@ Diagramm entsteht beim Rendern aus seiner Quelle in dieser Datei
 |===
 
 Alle Bausteine liegen unter `modules/`
-(link:{adr}/0015-alle-bausteine-unter-modules{adrext}[ADR 0015]); das Wurzelprojekt trägt keinen
+(Skill `docs/prompt/architektur.adoc`); das Wurzelprojekt trägt keinen
 Quellcode und aggregiert nur. Die Quellen selbst stehen im Anhang <<quelldateien>>.
 
 == Randbedingungen
@@ -143,13 +137,12 @@ Quellcode und aggregiert nur. Die Quellen selbst stehen im Anhang <<quelldateien
 * *Java 25* als Toolchain-Vorgabe in allen Backend-Modulen; moderne Sprachmittel (Records,
   Pattern Matching, Text Blocks) sind ausdrücklich erwünscht.
 * *Kein Lombok.* Records und Konstruktor-Injektion ersetzen es
-  (link:{adr}/0003-kein-lombok-records-und-konstruktor-injektion{adrext}[ADR 0003]).
+  (Skill `docs/prompt/architektur.adoc`).
 * *Gradle ausschließlich über den Wrapper*, Buildskripte im Kotlin-DSL
-  (link:{adr}/0009-gradle-wrapper-verbindlich{adrext}[ADR 0009],
-  link:{adr}/0010-gradle-kotlin-dsl{adrext}[ADR 0010]).
+  (Skill `docs/prompt/build.adoc`).
 * *Der Build braucht keine laufende Datenbank* – weder für die Codegenerierung noch für die
   Tests. Docker ist nicht erforderlich.
 * *Code und JavaDoc auf Englisch*, Dokumentation und Oberfläche auf Deutsch.
 * *Die Arbeitsweise ist versioniert.* Rolle, Grundregeln, Konventionen und die Definition of
   Done stehen als Master-Prompt und Skills im Repository, nicht im Gedächtnis der Beteiligten
-  (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]).
+  (`docs/prompt/prompt.adoc`).

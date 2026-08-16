@@ -1,6 +1,4 @@
 // Kapitel der Systemdokumentation; siehe system.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 [appendix]
 [[kennzahlen]]
 = Kennzahlen der Sessions
@@ -19,23 +17,20 @@ Kennzahl in einer eigenen Spalte, neuester Prompt oben wie im Protokoll selbst.
 Protokoll *erzeugt* und als `docs/log/kennzahlen.adoc` hier eingebunden. Der Log bleibt die
 einzige Quelle; die Werte je Zeile werden übernommen, nicht neu gerechnet. Gepflegt wird sie
 nach dem Skill `docs/prompt/manager.adoc`
-(link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]). Die drei
+(Skill `docs/prompt/manager.adoc`). Die drei
 `Summe`-Spalten sind die *einzige* Ausnahme: Sie werden gerechnet, weil eine laufende Summe im
-Protokoll nicht steht (link:{adr}/0039-summenspalten-in-der-kennzahlen-tabelle{adrext}[ADR
-0039]).
+Protokoll nicht steht (Skill `docs/prompt/manager.adoc`).
 
 Text und Zahlen desselben Eintrags stehen seit
-link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033] im selben Dokument. Für die
+Skill `docs/prompt/butterfly.adoc` im selben Dokument. Für die
 Prompt-Spalte ändert das nichts: Sie ist *literal* gesetzt (`l` im `cols`-Attribut), AsciiDoc
 wertet dort nichts aus.
 
-*Jede Zeile ist verlinkt* (link:{adr}/0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[ADR
-0041]): Die Nummer führt zum Eintrag des Protokolls in <<session-protokoll>>, die Spalte
+*Jede Zeile ist verlinkt* (Skill `docs/prompt/manager.adoc`): Die Nummer führt zum Eintrag des Protokolls in <<session-protokoll>>, die Spalte
 „Commit" zur Zeile in <<git-historie>>. Damit hängt die Sicht, in der man *sucht*, an den
 beiden, in denen man *nachliest*. Die Commit-Spalte ist wie alles hier abgeleitet: Gelesen wird
 allein die Zeile `+_Commit:_+` des Eintrags, dieselbe Quelle, aus der die Git-Historie ihre
-Spalte „Prompt" füllt (link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR
-0038]).
+Spalte „Prompt" füllt (Skill `docs/prompt/butterfly.adoc`).
 
 .Zu den Spalten
 [cols="2,3", options="header"]
@@ -73,7 +68,7 @@ Spalte „Prompt" füllt (link:{adr}/0038-querverweise-zwischen-prompt-und-commi
   nebeneinander zu lesen sind. Anders als `Stand …` läuft die Summe über die Sessions hinweg
   durch und springt nirgends zurück; die *oberste* Zeile trägt damit den Gesamtaufwand des
   Projekts. Sie wird gerechnet, nicht aus dem Protokoll gelesen
-  (link:{adr}/0039-summenspalten-in-der-kennzahlen-tabelle{adrext}[ADR 0039]).
+  (Skill `docs/prompt/manager.adoc`).
 
 | `–`
 | Im Protokoll steht für diesen Eintrag keine Kennzahl. Frühe Einträge entstanden vor der

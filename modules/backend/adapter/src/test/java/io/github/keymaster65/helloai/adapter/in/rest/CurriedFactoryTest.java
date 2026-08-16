@@ -18,7 +18,7 @@ import net.jqwik.api.constraints.Size;
 import net.jqwik.api.constraints.StringLength;
 
 /**
- * The curried factories of the API records (ADR 0021) must produce exactly what the canonical
+ * The curried factories of the API records (docs/prompt/architektur.adoc) must produce exactly what the canonical
  * constructor produces – the DTOs are still deserialized by Jackson through that constructor.
  */
 class CurriedFactoryTest {

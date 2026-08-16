@@ -1,7 +1,5 @@
 // Master-Prompt des Projekts; siehe prompt.adoc. Diese Datei wird von `CLAUDE.md` per
 // @-Import geladen und ist damit die verbindliche Arbeitsgrundlage jeder Session.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 = Master-Prompt: recipes
 
 == Rolle
@@ -28,8 +26,7 @@ bearbeiteten Datei bzw. Aufgabe.
 * Sprache: TypeScript
 * Build-Tool / Dev-Server: Vite
 * Testing: Vitest (Komponenten), Playwright (E2E im echten Browser)
-* UI-Framework: React mit react-router (Routen siehe
-  link:{adr}/0017-router-mit-spa-fallback{adrext}[ADR 0017])
+* UI-Framework: React mit react-router (Routen siehe Skill `docs/prompt/frontend.adoc`)
 
 == Grundregeln
 
@@ -50,9 +47,11 @@ bearbeiteten Datei bzw. Aufgabe.
 
 == Skills
 
-Die zehn Skills stehen als eigene AsciiDoc-Dateien neben dieser Datei und werden *bei Bedarf*
-gelesen – anders als dieser Master-Prompt, der in jeder Session gilt
-(link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]).
+Die vierzehn Skills stehen als eigene AsciiDoc-Dateien neben dieser Datei und werden *bei
+Bedarf* gelesen – anders als dieser Master-Prompt, der in jeder Session gilt. Jeder Skill trägt
+seine Regeln *und* ihre Begründung: Der Abschnitt „Festlegungen und ihre Gründe" nennt je
+Festlegung, was gilt, warum, was verworfen wurde und womit es belegt ist. Eine eigene Sammlung
+von Architekturentscheidungen gibt es nicht mehr.
 
 [cols="1,2,3", options="header"]
 |===
@@ -62,10 +61,26 @@ gelesen – anders als dieser Master-Prompt, der in jeder Session gilt
 | `docs/prompt/architektur.adoc`
 | Design-Entscheidungen, neue Module, Refactorings, Struktur-Fragen
 
-| ADR
-| `docs/prompt/adr.adoc`
-| Vor jeder Entscheidung und bei jeder Berührung einer bestehenden: bestehende ADRs einhalten,
-  neue schreiben, alte ablösen
+| Entscheidungen
+| `docs/prompt/entscheidungen.adoc`
+| Vor jeder Entscheidung und bei jeder Berührung einer bestehenden: wo eine Festlegung steht,
+  wie sie geschrieben und wie sie abgelöst wird
+
+| Build
+| `docs/prompt/build.adoc`
+| Neue Abhängigkeit, neue Version, neuer Gradle-Task, geänderte Buildlogik
+
+| Persistenz
+| `docs/prompt/persistenz.adoc`
+| Schemaänderung, Migration, neue Abfrage, jOOQ-Codegenerierung
+
+| API
+| `docs/prompt/api.adoc`
+| Neuer oder geänderter Endpunkt, DTO-Feld, Fehlerbild, Contract, Adressraum des Servers
+
+| Frontend
+| `docs/prompt/frontend.adoc`
+| Änderungen unter `modules/frontend`: Komponente, Route, Aufruf des Backends, erzeugte Typen
 
 | Tests
 | `docs/prompt/tests.adoc`
@@ -75,20 +90,17 @@ gelesen – anders als dieser Master-Prompt, der in jeder Session gilt
 | `docs/prompt/security-backend.adoc`
 | Änderungen, die die Angriffsfläche des Backends berühren: Endpunkt, Fehlerbild, Abfrage,
   Protokoll, Konfiguration, Abhängigkeit, offener Pfad; enthält die Bindung an RFC 9116
-  (link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035]). Je Seite ein eigener
-  Skill (link:{adr}/0048-security-skill-je-seite{adrext}[ADR 0048])
+  und die `security.txt`
 
 | Security Frontend
 | `docs/prompt/security-frontend.adoc`
 | Änderungen, die die Angriffsfläche der SPA berühren: Route, Darstellung von Daten des
   Backends, Formularfeld, Aufruf des Backends, Browser-Speicher, Abhängigkeit in
   `package.json`, Fehlerbild in der Oberfläche
-  (link:{adr}/0048-security-skill-je-seite{adrext}[ADR 0048])
 
 | Systemdokumentation
 | `docs/prompt/systemdokumentation.adoc`
 | Bei *jeder* Änderung am Ist-Zustand des Systems; pflegt `docs/system/*.adoc`
-  (link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022])
 
 | Butterfly / Session-Protokoll
 | `docs/prompt/butterfly.adoc`
@@ -126,8 +138,7 @@ steht in `docs/prompt/prompt.adoc`, Abschnitt „Pflege dieser Arbeitsgrundlage"
 == Nützliche Befehle
 
 IMPORTANT: *Immer den Gradle-Wrapper `./gradlew` verwenden* (Windows: `gradlew.bat`), nie ein
-lokal installiertes `gradle` – siehe
-link:{adr}/0009-gradle-wrapper-verbindlich{adrext}[ADR 0009].
+lokal installiertes `gradle` – siehe Skill `docs/prompt/build.adoc`.
 
 [cols="2,3", options="header"]
 |===
@@ -167,8 +178,8 @@ Develop-Skill verweisen darauf, statt sie zu wiederholen.
 * [ ] Tests grün (`./gradlew test`)
 * [ ] *Systemtests grün (`./gradlew systemtest`)* – prüfen die laufende Anwendung über HTTP
 * [ ] *E2E-Tests grün (`./gradlew e2eTest`)* – prüfen die Nutzer-Flows im echten Browser
-* [ ] *Dokumentation gebaut* – Systemdokumentation (`./gradlew asciidoctor`),
-  Arbeitsgrundlage (`./gradlew asciidoctorPrompt`) und ADRs (`./gradlew asciidoctorAdr`); ein
-  fehlender `include` und ein Querverweis ins Leere sind Build-Fehler
+* [ ] *Dokumentation gebaut* – Systemdokumentation (`./gradlew asciidoctor`) und
+  Arbeitsgrundlage (`./gradlew asciidoctorPrompt`); ein fehlender `include` und ein Querverweis
+  ins Leere sind Build-Fehler
 * [ ] Keine kritischen Warnungen/Linter-Fehler
 * [ ] Architektur- und Test-Prinzipien eingehalten

@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 /**
- * Central translation of exceptions into RFC 9457 problem details (see ADR 0046).
+ * Central translation of exceptions into RFC 9457 problem details (see docs/prompt/api.adoc).
  *
  * <p>Spring answers the exceptions of the framework itself – {@code 405}, {@code 415} and their
  * kind – once {@code spring.mvc.problemdetails.enabled} is set. Its handler is ordered at

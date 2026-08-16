@@ -1,0 +1,231 @@
+// Skill der Arbeitsgrundlage; siehe prompt.adoc.
+= Skill: Build und Abhängigkeiten
+
+== Zweck
+
+Aktiviere diesen Skill, sobald der Build berührt wird: neue Abhängigkeit, neue Version, neuer
+Gradle-Task, geänderte Buildlogik, neues Modul im Projektbaum. Er trägt die Festlegungen zu
+Werkzeug, Buildsprache und Versionshoheit.
+
+Der Zuschnitt der Module – welche Schicht welches Modul ist – steht im Architektur-Skill
+(`docs/prompt/architektur.adoc`); hier steht, *wie* der Build sie baut.
+
+== Grundsätze
+
+. *Immer der Wrapper.* `./gradlew` (Windows: `+gradlew.bat+`), nie ein lokal installiertes
+  `gradle` – in Doku, Skripten, Befehlen und CI-Konfigurationen.
+. *Buildskripte sind Kotlin.* `+build.gradle.kts+`, `+settings.gradle.kts+`;
+  `+.gradle+`-Dateien in Groovy werden nicht wieder eingeführt.
+. *Versionen stehen im Katalog.* `+gradle/libs.versions.toml+` für alles Java-seitige,
+  `+modules/frontend/package.json+` für das Frontend. Eine Koordinate als Zeichenkette im
+  Buildskript ist ein Fehler.
+. *Gemeinsames wandert nach oben, aber nur so weit wie nötig.* Konfiguration der Schichtmodule
+  steht in `+modules/backend/build.gradle.kts+`, nicht im Wurzelskript – dort steht, was das
+  Repository als Ganzes betrifft.
+
+== Die Befehle
+
+Die vollständige Liste mit Wirkung steht im Master-Prompt (`docs/prompt/masterprompt.adoc`,
+„Nützliche Befehle") und im Ist-Zustand in `docs/system/betrieb.adoc`. Hier nur, was beim
+Ändern des Builds gebraucht wird:
+
+[cols="2,3", options="header"]
+|===
+| Befehl | Wirkung
+
+| `+./gradlew -PskipFrontend …+`
+| Überspringt `npmInstall`, `frontendBuild` und `frontendTest` – hält die reine Java-Schleife
+  schnell
+
+| `+./gradlew -PskipDocs …+`
+| Überspringt das Einpacken der gerenderten Dokumentation ins Boot-Jar. Ein so gebautes Jar
+  fällt in `DocumentationSystemTest` durch; das ist gewollt
+
+| `+./gradlew projects+`
+| Zeigt den Projektbaum – die Probe nach einer Änderung am Layout
+
+| `+./gradlew :modules:backend:<modul>:dependencies+`
+| Die aufgelösten Abhängigkeiten eines Moduls; der Maßstab für jeden
+  Gleichwertigkeitsnachweis
+
+| `+./gradlew coverageTable+`
+| Misst und schreibt `docs/system/abdeckung-tabelle.adoc` (Skill Tests)
+|===
+
+== Auslöser → Pflicht
+
+[cols="2,3", options="header"]
+|===
+| Anlass | Zu tun
+
+| Neue Abhängigkeit
+| *Zuerst* im Versionskatalog anlegen, dann über ihren Alias verwenden. Herkunft und
+  Pflegezustand prüfen, keine Snapshot- oder RC-Version, kein zusätzliches Repository ohne
+  eigene Festlegung (Skill `docs/prompt/security-backend.adoc`)
+
+| Version anheben
+| Vorher prüfen, ob sie mehrfach referenziert wird (`+version.ref+`); der Katalog macht das
+  sichtbar, verhindert es aber nicht
+
+| Abhängigkeit, deren Version das Spring-Boot-BOM verwaltet
+| Eintrag *ohne* `version` (`+{ module = "…" }+`). Der Katalog führt die vollständige Liste, die
+  Versionshoheit bleibt beim BOM
+
+| Neue Frontend-Abhängigkeit
+| In `package.json`, festgeschrieben über `package-lock.json`; installiert wird mit `+npm ci+`,
+  nicht `+npm install+`
+
+| Neuer Gradle-Task
+| `group` und `description` setzen; Befehlstabelle in `docs/prompt/masterprompt.adoc` *und*
+  `docs/system/betrieb.adoc` ergänzen, wenn er zum Alltag gehört
+
+| Gradle-Version wechseln
+| Ausschließlich `+./gradlew wrapper --gradle-version <x.y.z>+`; `distributionSha256Sum` mit
+  anpassen und beides im selben Commit
+
+| Ein Task liest oder schreibt Dateien außerhalb seines Quellverzeichnisses
+| Als Eingabe anmelden (`+inputs.file(...)+`). Sonst bleibt er UP-TO-DATE und liefert einen
+  alten Stand – das ist zweimal passiert
+
+| Buildlogik aus einer Plugin-Doku übernehmen
+| Vor der Übernahme aus Groovy übersetzen, insbesondere bei verschachtelten Closures auf
+  JAXB- oder POJO-Bäume
+
+| Neues Gradle-Modul
+| Unter `modules/`; prüfen, ob `archiveBaseName`, die Playwright-Konfiguration und die
+  `.gitignore` mitzuziehen sind. Dazu `docs/system/schichten.adoc` (Diagramm *und*
+  Modultabelle)
+|===
+
+== Prüfen
+
+[source,bash]
+----
+./gradlew clean build
+----
+
+Der Lauf enthält beide Doku-Tasks und die Java-Tests. Was darüber hinaus vor einem Commit gilt,
+steht in der Definition of Done (`docs/prompt/masterprompt.adoc`).
+
+[[festlegungen-build]]
+== Festlegungen und ihre Gründe
+
+=== Gradle ausschließlich über den Wrapper
+
+*Was gilt.* Sämtliche Aufrufe laufen über `./gradlew`. Die Wrapper-Dateien sind eingecheckt; die
+`.gitignore` nimmt `+gradle-wrapper.jar+` ausdrücklich von der `+*.jar+`-Regel aus, damit der
+Wrapper nach einem frischen Clone sofort funktioniert. Wer die `.gitignore` anfasst, erhält
+diese Ausnahme.
+
+*Warum.* Ein blankes `gradle` benutzt die *lokal installierte* Version – in dieser Umgebung
+nachgemessen eine andere als die des Wrappers. Damit hinge das Build-Ergebnis davon ab, wer es
+startet; genau das soll der Wrapper verhindern. Verschärfend: Die Definition of Done verweist
+auf diese Kommandos, und sie sind Commit-Vorbedingung.
+
+*Verworfen.* Lokale Installation plus Versionsprüfung im Build – löst das Problem nur, wenn die
+Prüfung greift, und lässt zwei Wege nebeneinander bestehen. Den Wrapper entfernen und die
+Version über Toolchain-Doku regeln – verlagert die Zusicherung in Prosa.
+
+*Integrität der Distribution.* `+gradle-wrapper.properties+` enthält `distributionSha256Sum`
+aus der offiziellen Quelle; beidseitig verifiziert – mit frischem `+GRADLE_USER_HOME+` lädt und
+akzeptiert der Wrapper die Distribution, mit verfälschter Prüfsumme bricht er mit
+`+Verification of Gradle distribution failed!+` ab.
+
+WARNING: Geprüft wird nur *beim Download*. Ist die Distribution im `+GRADLE_USER_HOME+` bereits
+entpackt, läuft der Build ohne erneute Prüfung – eine falsche Prüfsumme fällt auf einer Maschine
+mit warmem Cache nicht auf. Die Absicherung greift dort, wo sie zählt: bei frischen CI-Runnern
+und neuen Arbeitsplätzen. *Die Prüfsumme gilt pro Distribution*: Wird sie bei einem
+Versionswechsel vergessen, schlägt der nächste frische Download fehl.
+
+*Preis.* Der `+gradle-wrapper.jar+` liegt als Binärdatei im Repository und ist durch die
+Prüfsumme *nicht* abgedeckt – er bleibt der Vertrauensanker. Der erste Lauf nach einem
+Versionswechsel lädt rund 100 MB nach.
+
+=== Buildskripte in der Kotlin-DSL
+
+*Was gilt.* `+build.gradle.kts+` und `+settings.gradle.kts+`; neue Build-Logik wird dort
+ergänzt.
+
+*Warum.* Der Build trägt jOOQ-Codegen, ein zusätzliches Test-Source-Set, die Frontend-Tasks und
+die Doku-Tasks. In der Groovy-DSL ist all das dynamisch typisiert: Tippfehler in Task- oder
+Property-Namen fallen erst zur Laufzeit auf, und die IDE kann kaum navigieren. Da das Projekt
+ohnehin auf statisch typisierte Sprachen setzt (Java 25, TypeScript im `strict`-Modus), passt
+eine dynamisch typisierte Build-Sprache schlecht ins Bild.
+
+*Belegt durch* einen Gleichwertigkeitsnachweis statt eines grünen Laufs: Der von `generateJooq`
+erzeugte Code war *byte-identisch* zum Ergebnis des Groovy-Builds (`+diff -r+` über alle elf
+Dateien ohne Unterschied) – der aussagekräftigste Test, weil der jOOQ-Block die komplexeste
+Übersetzung war. Dazu alle Teststufen grün und unverändertes Verhalten der Schalter.
+
+*Verworfen.* Groovy beibehalten – kein Aufwand, aber die Nachteile bleiben. Version Catalog plus
+Groovy – löst nur die Abhängigkeitsverwaltung, nicht die Typisierung (der Katalog kam später
+ohnehin). Wechsel auf Maven – unverhältnismäßig.
+
+*Drei Stellen, die sich nicht mechanisch übertragen lassen* – dieselben Fallen bei jeder neuen
+Übersetzung aus einer Plugin-Doku:
+
+. *jOOQ-Codegen.* Statt verschachtelter Closures wird direkt auf den JAXB-Objektbaum zugegriffen
+  (`+jooqConfiguration.apply { generator.apply { … } }+`). Die booleschen Schalter heißen dort
+  `isRecords`, `isPojos`, `isDaos`, `isFluentSetters` (JavaBeans-Konvention).
+. *Dynamisch erzeugte Konfigurationen.* `+systemtestImplementation+` entsteht erst, wenn
+  `+testSets { create("systemtest") }+` gelaufen ist; für sie gibt es im selben Skript *keine*
+  typsicheren Accessoren. Sie werden über ihren Namen als String angesprochen:
+  `+"systemtestImplementation"("…")+`.
+. *Gemeinsame Task-Inputs.* Der Groovy-Trick, eine Closure in einer Variablen zu halten, hat in
+  Kotlin kein Gegenstück – stattdessen eine Erweiterungsfunktion (`+fun Exec.frontendSources()+`).
+
+*Preis.* Die erste Konfiguration nach einer Änderung ist langsamer, weil das Skript kompiliert
+wird; die Kotlin-Laufzeit kommt als Build-Abhängigkeit dazu.
+
+=== Abhängigkeiten im Versionskatalog `libs.versions.toml`
+
+*Was gilt.* Alle Bibliotheken und alle Plugins stehen im Katalog – auch die, deren Version das
+Spring-Boot-BOM bestimmt; diese ohne `version`. Der `+[versions]+`-Block ist damit genau die
+Liste der Versionen, für die das Projekt selbst verantwortlich ist. Plugins werden über
+`+alias(libs.plugins.…)+` deklariert.
+
+*Warum.* Koordinaten und Versionen standen verteilt in fünf Buildskripten, drei davon redundant:
+die jOOQ-Version *dreimal* in `+adapter/build.gradle.kts+`, Zonkys `embedded-postgres` samt BOM
+*zweimal* in `bootstrap`, jqwik in zwei Modulen. Läuft eine dieser Kopien auseinander, fällt das
+nicht beim Konfigurieren auf, sondern als schwer deutbarer Laufzeitfehler – bei jOOQ etwa, wenn
+generierter Code und Runtime verschiedene Versionen haben. Ein Tippfehler im Alias ist dagegen
+ein *Kompilierfehler des Buildskripts*.
+
+*Belegt durch* denselben Maßstab wie die Kotlin-Umstellung:
+`+./gradlew :modules:backend:<modul>:dependencies+` wurde für alle vier Module vor und nach der
+Umstellung erzeugt – die Ausgabe ist *zeichengleich*, über sämtliche Konfigurationen hinweg
+inklusive der aufgelösten transitiven Versionen (3.019 Zeilen, `diff` ohne Unterschied).
+
+*Verworfen.* Versionen als Properties in `gradle.properties` – zentral, aber untypisiert und
+ohne Werkzeugunterstützung. Konstanten in `buildSrc` oder einem Convention-Plugin – typsicher,
+aber ein eigenes Kompilat und deutlich mehr Apparat für ein Projekt dieser Größe.
+
+*Drei Fallstricke:*
+
+* *`libs` funktioniert in `+subprojects { }+` nicht.* Der Empfänger ist dort das Untermodul,
+  dessen Katalog-Erweiterung erst mit seiner eigenen Auswertung entsteht – der Block läuft
+  vorher. Abhilfe: `+rootProject.libs+` verwenden
+  (`+"testImplementation"(rootProject.libs.assertj.core)+`).
+* *Plugin-Version und Bibliotheks-Version sind zweierlei.* Für jOOQ gibt es das Gradle-Plugin
+  `nu.studer.jooq` und jOOQ selbst; sie stehen unter zwei Schlüsseln (`jooqPlugin`, `jooq`). Ein
+  gemeinsamer Eintrag wäre eine falsche Kopplung.
+* *Nicht jedes Plugin bekommt ein `alias`.* In `bootstrap` bleibt
+  `+id("org.springframework.boot")+` ohne Version stehen – Version und `+apply false+` kommen
+  aus dem Wurzelprojekt; ein `alias` würde die Version dort ein zweites Mal anfordern.
+
+*Preis.* Eine Indirektion mehr: Im Buildskript steht nicht länger die Version. Bindestriche im
+Alias werden im Accessor zu Punkten (`+spring-boot-starter-web+` →
+`+libs.spring.boot.starter.web+`).
+
+=== Das Wurzelprojekt wendet die Doku-Plugins an
+
+*Was gilt.* Das Wurzelprojekt trägt keine Quellen, aber die Plugins für Asciidoctor und die
+git-Historie sowie `base` für `clean` und `build` – dazu einen `repositories`-Block, weil
+Asciidoctor seine Laufzeit selbst nachlädt.
+
+*Warum.* Das ist eine bewusste Abweichung von der Rolle „aggregiert nur, keine angewendeten
+Plugins": Die Dokumentation beschreibt das *Repository als Ganzes* und gehört in kein
+Schichtmodul. Ein eigenes Gradle-Modul `docs` wäre die Alternative gewesen – es hätte die Regel
+„alle Bausteine unter `modules/`" auf Dokumentation ausgedehnt, die kein Baustein der Anwendung
+ist, und ein Modul ohne Quellcode und ohne Abhängigkeiten eingeführt. Die Abweichung ist
+billiger als das Modul.

@@ -9,7 +9,7 @@ import java.util.List;
  * Application service implementing the recipe use cases. Contains the business rules and
  * delegates persistence to the {@link RecipeRepository} outbound port.
  *
- * <p>Plain Java on purpose: this layer carries no framework annotations at all (ADR 0045).
+ * <p>Plain Java on purpose: this layer carries no framework annotations at all (docs/prompt/architektur.adoc).
  * Who instantiates this class, and inside which transaction its use cases run, is decided in
  * the composition root {@code :bootstrap} &ndash; not here.
  */

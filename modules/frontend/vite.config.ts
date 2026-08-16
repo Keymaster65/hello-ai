@@ -3,7 +3,7 @@ import { defineConfig } from 'vitest/config'
 
 /**
  * The Spring Boot application is the BFF: in production it serves this bundle from its own
- * origin under the context path `/recipes` (ADR 0016), so the app only ever calls paths
+ * origin under the context path `/recipes` (docs/prompt/frontend.adoc), so the app only ever calls paths
  * relative to `import.meta.env.BASE_URL`. During development Vite serves under the same base
  * and proxies the backend paths, which keeps the code identical in both modes.
  */

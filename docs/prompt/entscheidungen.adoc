@@ -1,0 +1,266 @@
+// Skill der Arbeitsgrundlage; siehe prompt.adoc.
+= Skill: Entscheidungen – festlegen, einhalten, ablösen
+
+== Zweck
+
+Aktiviere diesen Skill, *bevor* eine Entscheidung getroffen wird, und *bevor* eine bestehende
+berührt wird. Er sagt, wo eine Festlegung steht, wie sie geschrieben wird und was zu tun ist,
+wenn sie nicht mehr passt.
+
+Der Architektur-Skill (`docs/prompt/architektur.adoc`) sagt, *wie* entworfen wird; dieser hier
+sagt, *woran* der Entwurf schon gebunden ist.
+
+[[keine-adr]]
+== Die Festlegung steht im Skill, nicht in einer eigenen Datei
+
+Das Projekt führte bis 2026-08-16 achtundvierzig Architekturentscheidungen als eigene Dateien
+unter `docs/adr`. Dieses Verzeichnis gibt es nicht mehr: *Jede Festlegung steht in dem Skill,
+dessen Regel sie ist* – zusammen mit ihrem Grund und den verworfenen Wegen.
+
+Der Grund für die Zusammenlegung ist der Abstand, den die Trennung erzeugt hat:
+
+* *Die Regel stand woanders als ihre Begründung.* Ein Skill schrieb vor, ein ADR begründete –
+  wer die Regel las, las den Grund nicht mit und konnte deshalb nicht beurteilen, ob sie noch
+  trägt. Genau diese Beurteilung ist der Zweck einer festgehaltenen Entscheidung.
+* *Der Wegweiser wurde zur Pflegestelle.* Der ADR-Skill führte eine Tabelle „welche Aufgabe
+  bindet welche ADRs" – eine dritte Liste neben Index und Dateien, die bei jeder Entscheidung
+  mitzuziehen war.
+* *Die Verweise waren teuer und ungeprüft.* Rund zweihundert `+link:+`-Makros zeigten aus
+  Skills, Systemdokumentation und Backlog auf ADR-Dateien. `+link:+` prüft kein Build; ein
+  Vertipper zeigte im Repository richtig und im ausgelieferten HTML ins Leere.
+* *Ein ADR wurde nie umgeschrieben – der Bestand widersprach sich deshalb selbst.* Drei ADRs
+  beschrieben die Commit-Freigabe in ihrer abgelösten Form weiter, drei nannten einen
+  Dateinamen, den es nicht mehr gab. Für eine *historische* Sammlung ist das richtig; für eine
+  *Arbeitsgrundlage* ist es die Anleitung, das Falsche zu tun.
+
+Was dabei bewusst aufgegeben wurde, steht in <<preis>>. Wo die Historie einer Entscheidung
+gebraucht wird, beantwortet sie `+git log+` und das Session-Protokoll
+`docs/log/claudeLog.adoc`.
+
+== Grundsätze
+
+. *Eine Festlegung gilt, bis sie geändert ist.* Wer davon abweicht, bricht keine Konvention,
+  sondern eine Entscheidung.
+. *Eine Abweichung ist eine Änderung am Skill*, kein stiller Sonderfall. Der Ausweg aus einer
+  Festlegung führt immer über eine neue Festlegung – geschrieben, bevor der Code ihr folgt.
+. *Eine Regel steht an genau einer Stelle.* Steht dieselbe Aussage in zwei Skills, wird eine
+  davon zum Verweis. Die Definition of Done ist der Prüffall: Sie steht im Master-Prompt, und
+  alles andere verweist.
+. *Regel und Grund stehen beieinander.* Eine Festlegung ohne ihren Grund ist eine Anweisung,
+  die niemand prüfen kann; ein Grund ohne verworfene Wege ist eine Behauptung.
+. *Der Nachweis gehört dazu.* Womit die Entscheidung belegt ist – Testlauf, Messung, Zahlen –,
+  steht dabei. „Sieht gut aus" ist kein Nachweis.
+. *Nachfragen statt einseitig entscheiden* (Grundregel 5 des Master-Prompts). Eine Ablösung ist
+  nie die Nebenwirkung einer anderen Aufgabe.
+
+== Wo eine Festlegung hingehört
+
+Die Zuordnung ist die eigentliche Regel dieses Skills. Sie ist zugleich der Wegweiser vor der
+Arbeit: *Welcher Skill bindet diese Aufgabe schon?*
+
+[cols="2,3", options="header"]
+|===
+| Gegenstand | Skill
+
+| Schichten, Module, Pakete, Domänenmodell, Records, Framework-Freiheit
+| `docs/prompt/architektur.adoc`
+
+| Gradle, Wrapper, Buildsprache, Versionen, Abhängigkeiten, Tasks
+| `docs/prompt/build.adoc`
+
+| Datenbank, Migration, Schema, jOOQ-Codegenerierung
+| `docs/prompt/persistenz.adoc`
+
+| REST-Endpunkt, Fehlerformat, OpenAPI, Adressraum des Servers
+| `docs/prompt/api.adoc`
+
+| SPA, Routen, Vite, erzeugte TypeScript-Typen, Aufrufe des Backends
+| `docs/prompt/frontend.adoc`
+
+| Teststufen, Testwerkzeuge, Architekturtests, Abdeckung
+| `docs/prompt/tests.adoc`
+
+| Angriffsfläche des Servers, `security.txt`
+| `docs/prompt/security-backend.adoc`
+
+| Angriffsfläche der SPA
+| `docs/prompt/security-frontend.adoc`
+
+| Aufbau, Format und Auslieferung der Dokumentation, Diagramme, Anhänge
+| `docs/prompt/systemdokumentation.adoc`
+
+| Session-Protokoll, Kennzahlenzeilen, Verweis auf den Commit
+| `docs/prompt/butterfly.adoc`
+
+| Kennzahlen-Tabelle
+| `docs/prompt/manager.adoc`
+
+| Backlog, Befehl `next`
+| `docs/prompt/po.adoc`
+
+| Commit, Zusammenführen der Branches
+| `docs/prompt/develop.adoc`
+
+| Rolle, Tech-Stack, Grundregeln, Coding-Konventionen, Definition of Done
+| `docs/prompt/masterprompt.adoc`
+
+| Aufbau und Ladeweg der Arbeitsgrundlage selbst
+| `docs/prompt/prompt.adoc`
+|===
+
+Passt eine Entscheidung in *keinen* dieser Skills, ist das der Anlass, einen neuen anzulegen –
+nicht der Anlass, sie irgendwo unterzubringen. Wie ein Skill registriert wird, steht in
+`docs/prompt/prompt.adoc`, Abschnitt „Pflege dieser Arbeitsgrundlage".
+
+== Wie eine Festlegung geschrieben wird
+
+Jeder Skill trägt einen Abschnitt „Festlegungen und ihre Gründe". Eine Festlegung darin hat vier
+Teile – knapp, in dieser Reihenfolge:
+
+[cols="1,3", options="header"]
+|===
+| Teil | Inhalt
+
+| Was gilt
+| Ein Satz im Indikativ: `+Gebaut wird ausschließlich über den Wrapper `./gradlew`.+` Keine
+  Empfehlung, keine Absichtserklärung.
+
+| Warum
+| Die Lage, die die Entscheidung nötig machte, und der Grund für den gewählten Weg.
+
+| Verworfen
+| Die erwogenen Alternativen *mit* ihrem Grund. Sie sind der eigentliche Wert: Wer die Regel
+  später ändern will, findet hier, ob sein Vorschlag schon einmal geprüft wurde.
+
+| Belegt durch
+| Testname, Messung, Gegenprobe. Fehlt der Beleg, steht das dabei.
+|===
+
+*Der Umfang folgt dem Gewicht.* Eine Festlegung mit sichtbaren Alternativen bekommt alle vier
+Teile; eine Konvention ohne Alternative – Namensform, Reihenfolge einer Tabelle – steht als
+Regel im Fließtext des Skills, ohne eigenen Abschnitt.
+
+*Das Datum steht dabei*, wenn die Festlegung eine ältere ablöst: `+(2026-08-16, löst … ab)+`.
+Nur dann – ein Datum an jeder Regel wäre Verwaltung.
+
+== Eine Festlegung ändern: der Ablauf
+
+. *Den Abschnitt vollständig lesen*, besonders „Verworfen". Häufig steht die jetzt erwogene
+  Alternative dort schon, mit Grund.
+. *Prüfen, ob der Grund weggefallen ist.* Ist er es, ist die Lage neu und eine Entscheidung
+  fällig. Ist er es nicht, gilt die Festlegung weiter.
+. *Nachfragen.* Was gearbeitet wird, entscheidet der Nutzer.
+. *Den Abschnitt umschreiben* – Regel, Grund, verworfene Wege, Beleg. Der alte Weg wandert dabei
+  nach „Verworfen", zusammen mit dem Grund, aus dem er nicht mehr trägt. So bleibt die
+  Erfahrung erhalten, ohne dass ein überholter Text weiter als Anweisung gelesen wird.
+. *Nachziehen, was die Entscheidung berührt*: das zuständige Kapitel unter `docs/system` (Skill
+  Systemdokumentation) und jeder andere Skill, dessen Regel sich dadurch ändert.
+. *Umsetzen.* Bleibt Code zurück, der der neuen Entscheidung nicht folgt, wird er im Abschnitt
+  ausdrücklich benannt.
+
+IMPORTANT: Ein überholter Satz wird *geändert*, nicht stehen gelassen. Das ist der Unterschied
+zur früheren ADR-Sammlung: Diese Dateien sind Anweisung, nicht Archiv. Was gestern galt, steht
+in `git log`.
+
+== Was der Build erzwingt – und was nicht
+
+Ein Teil der Festlegungen ist maschinell abgesichert; der Rest hängt am Lesen. Der zweite Teil
+ist der gefährlichere.
+
+*Erzwungen:*
+
+* *Schichtgrenzen* – ein Import aus einer äußeren Schicht compiliert nicht; zusätzlich prüfen
+  `LayeredArchitectureTest` und `OnionArchitectureTest` (Skill Architektur).
+* *Framework-Freiheit von `domain` und `application`* – beide Module deklarieren keine
+  Framework-Abhängigkeit, eine Annotation dort compiliert nicht; dazu zwei ArchUnit-Regeln.
+* *Currying ab drei Record-Komponenten* – `RecordCurryingTest`.
+* *Dokumentation* – ein fehlender `include` und ein Querverweis ins Leere brechen den Build;
+  das gilt für beide Asciidoctor-Tasks.
+* *Auslieferung der Doku* – `DocumentationSystemTest` prüft über HTTP, dass sie im Boot-Jar
+  erreichbar ist.
+* *`Expires` der `security.txt`* – `SecurityTxtConfigurationTest` macht den Build rot, sobald
+  das Datum abgelaufen oder weiter als ein Jahr entfernt ist.
+
+*Nicht erzwungen – hier ist Einhaltung reine Sorgfalt:*
+
+* Kein Lombok, auch nicht in Beispielen.
+* `./gradlew` statt `gradle` in Doku, Skripten und Befehlen.
+* Versionen nur im Versionskatalog bzw. in `package.json`.
+* Context-Path an *allen* verankerten Stellen ändern.
+* Der Lauf von `+./gradlew coverageTable+` und `+python3 docs/log/kennzahlen.py+` nach einer
+  Änderung, die sie betrifft.
+
+WARNING: Fehlt einer Klasse eine Abhängigkeit oder schlägt ein Architekturtest fehl, ist das in
+aller Regel *der Fund*, nicht ein Mangel im Buildskript. Erst die zugehörige Festlegung lesen,
+dann handeln – eine gelockerte Regel ist die teuerste Art, einen Test grün zu bekommen.
+
+== Auslöser → Pflicht
+
+[cols="2,3", options="header"]
+|===
+| Anlass | Zu tun
+
+| Entscheidung mit sichtbarer Alternative (Bibliothek, Werkzeug, Struktur, Format)
+| Abschnitt „Festlegungen und ihre Gründe" des zuständigen Skills ergänzen – Regel, Grund,
+  verworfene Wege, Beleg. Dazu das betroffene Kapitel unter `docs/system`
+
+| Eine Entscheidung passt in keinen bestehenden Skill
+| Neuen Skill anlegen und registrieren (`docs/prompt/prompt.adoc`, „Pflege dieser
+  Arbeitsgrundlage"). Nicht: sie im nächstbesten Skill unterbringen
+
+| Eine Festlegung ist überholt
+| Abschnitt umschreiben, den alten Weg nach „Verworfen" überführen. *Nicht* stehen lassen
+
+| Widerspruch zwischen Code/Doku und einer Festlegung entdeckt
+| Ansprechen, nicht übergehen: entweder die Stelle korrigieren oder die Festlegung ändern. Ein
+  unbenannter Widerspruch wird beim nächsten Lesen zur Regel
+
+| Werkzeug oder Abhängigkeit ohne Festlegung eingeführt
+| Vor dem Commit nachziehen. Was nur im Verlauf steht, ist nach `/clear` weg (Develop-Skill)
+
+| Dieselbe Regel steht in zwei Skills
+| Eine der beiden zum Verweis machen. Welche bleibt, entscheidet der Anlass: Sie steht dort, wo
+  sie zuerst gebraucht wird
+|===
+
+[[preis]]
+== Der Preis dieser Ordnung
+
+Was die Zusammenlegung gekostet hat, gehört benannt – sonst wird es beim nächsten Zweifel neu
+entdeckt:
+
+* *Die Entscheidungshistorie ist nicht mehr als Dokument lesbar.* Wer wissen will, wann und in
+  welcher Reihenfolge etwas entschieden wurde, braucht `+git log+` und das Session-Protokoll.
+  Das ist der eigentliche Verlust; er wird in Kauf genommen, weil eine Arbeitsgrundlage gelesen
+  wird, um zu handeln, nicht um nachzuschlagen, was einmal war.
+* *Die Skills werden länger.* Ein Skill trägt jetzt Regel *und* Begründung; das kostet Kontext,
+  sobald sein Anlass eintritt. Dagegen steht, dass er nur bei Anlass gelesen wird und dass die
+  Begründung genau dann gebraucht wird, wenn die Regel angewandt oder in Frage gestellt wird.
+* *Die Abgrenzung zwischen den Skills hängt an der Sorgfalt.* Der Build prüft Verweise, nicht
+  Zuständigkeiten. Zwei Skills, die dieselbe Regel tragen, fallen nur beim Lesen auf – dafür
+  sind Master-Prompt und Arbeitsgrundlage als *ein* Dokument renderbar.
+* *Verworfene Optionen werden verdichtet.* Aus mehrseitigen Abwägungen sind Sätze geworden. Wer
+  eine davon in voller Länge braucht, findet sie in der Historie des Repositories.
+
+== Prüfen
+
+[source,bash]
+----
+./gradlew asciidoctorPrompt      # → build/docs/prompt/prompt.html
+./gradlew asciidoctor            # → build/docs/asciidoc/system.html
+----
+
+Beide Tasks hängen an `./gradlew build`. Ein fehlender `include` und ein Querverweis ins Leere
+sind Build-Fehler.
+
+WARNING: Der Build prüft Verweise, nicht Inhalte. Dass eine Festlegung hier noch der gelebten
+Arbeitsweise entspricht, kann kein Task feststellen – das entscheidet der Blick beim Ändern.
+
+== Hinweise
+
+* *Die Festlegung entsteht mit der Entscheidung*, nicht als Nachtrag am Ende der Session. Danach
+  ist die Begründung schon zur Erinnerung geschrumpft – und genau sie ist der Inhalt.
+* *Zwei Modi, ein Sachverhalt:* Die Arbeitsgrundlage schreibt vor und begründet (*was zu tun ist
+  und warum*), `docs/system` beschreibt (*was ist*). Wiederholt wird nichts davon – verwiesen
+  schon.
+* In dieser Umgebung stabil: `./gradlew <task> --no-daemon -g /tmp/gradle-home`.

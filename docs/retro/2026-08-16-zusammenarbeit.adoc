@@ -1,7 +1,7 @@
 // Retrospektive; entstanden aus Prompt 137 des Session-Protokolls docs/log/claudeLog.adoc.
 // Diese Datei hängt (noch) an keinem Build-Task – siehe „Offene Punkte" am Ende.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
+// Historischer Stand vom 2026-08-16: Die genannten ADRs gibt es seit der Konsolidierung nicht
+// mehr als eigene Dateien; ihre Inhalte stehen in den Skills unter docs/prompt.
 = Retrospektive: Zusammenarbeit im Projekt
 :toc: left
 :toclevels: 2
@@ -19,8 +19,8 @@ der Nutzer, und es landet dann in `docs/prompt` und in einem ADR.
 Gemessen wurde aus drei Quellen, ohne Schätzung:
 
 * `docs/log/kennzahlen.adoc` – Dauer und Token je Prompt, erzeugt aus dem Session-Protokoll
-  (link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027],
-  link:{adr}/0039-summenspalten-in-der-kennzahlen-tabelle{adrext}[ADR 0039]).
+  (ADR 0027,
+  ADR 0039).
 * `+git log+` – Autor, Betreff und Anzahl der Commits.
 * `docs/backlog.adoc`, `docs/prompt/*.adoc` und das Verzeichnis `+.claude/+` – der Zustand der
   Arbeitsgrundlage selbst.
@@ -91,7 +91,7 @@ und die Bestätigung fällt praktisch immer gleich aus („ja, commit").
 |===
 
 Die Folge: Die Spalte „Prompt" der Git-Historie
-(link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038]) bleibt für rund
+(ADR 0038) bleibt für rund
 88 % der Commits leer. Die Zuordnung entsteht nur dort, wo der Assistent selbst committet.
 
 Dazu kommt die *Bruchstelle beim Umschreiben*: In Prompt 136 hat ein interaktiver Rebase aus
@@ -111,7 +111,7 @@ nicht freigegeben), die übrigen beginnen mit `+dev+`, `+doc+`, `+sm+`, `+?dev+`
 dem Text.
 
 Die Präfixe `+dev+`, `+doc+` und `+sm+` *sehen aus* wie die Branchbindung nach
-link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031], sind es aber nicht –
+ADR 0031, sind es aber nicht –
 die Bindung verlangt den Doppelpunkt (`+:doc+`). Ohne ihn gilt „sonst: nicht ready". Genau
 diese Falle hat in Prompt 135 schon einmal zugeschlagen, dort wegen eines *fehlenden
 Leerzeichens* (`+:Ergänze+` statt `+: Ergänze+`).
@@ -129,8 +129,8 @@ bleibt der Gesamtaufwand des Projekts eine Untergrenze.
   jeder `+git+`-Aufruf kann rückfragen) und kein Hook.
 * `+.claude/skills/+` ist leer – ein Verzeichnis ohne Inhalt, während das Backlog unter
   „butterfly timelines" von „den aktuellen Skills in `+.claude+`" spricht. Die Skills liegen
-  tatsächlich in `docs/prompt` (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR
-  0023]).
+  tatsächlich in `docs/prompt` (ADR
+  0023).
 * Der `UserPromptSubmit`-Hook, den der Butterfly-Skill selbst als deterministische Absicherung
   des Protokolls nennt, ist nicht eingerichtet – siehe Befund 5.
 
@@ -188,7 +188,7 @@ braucht nach dem ADR-Skill zuerst eine Entscheidung.
 
 *Stand 2026-08-16:* Umgesetzt sind
 
-* *Vorschlag 3* – link:{adr}/0040-commit-freigabe-in-einem-schritt{adrext}[ADR 0040] löst die
+* *Vorschlag 3* – ADR 0040 löst die
   Regel „Message-Bestätigung (Pflicht)" des Develop-Skills ab.
 * *Vorschlag 4* – `+.claude/settings.json+` existiert: Freigabeliste für `+./gradlew+`, die
   Log-Skripte und die lokal wirkenden `+git+`-Befehle, dazu der `UserPromptSubmit`-Hook auf

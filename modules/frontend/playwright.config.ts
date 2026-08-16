@@ -2,7 +2,7 @@ import { defineConfig } from '@playwright/test'
 import { existsSync, readdirSync } from 'node:fs'
 
 /**
- * End-to-end tests against a real browser (see ADR 0008).
+ * End-to-end tests against a real browser (see docs/prompt/tests.adoc).
  *
  * <p>By default Playwright starts the **Boot jar** – the artifact that is actually shipped,
  * including the SPA packaged into it – so the tests exercise the same single-origin setup as
@@ -16,12 +16,12 @@ import { existsSync, readdirSync } from 'node:fs'
  */
 const externalBaseUrl = process.env.E2E_BASE_URL?.trim()
 const port = Number(process.env.E2E_PORT ?? 8080)
-/** Origin only – the context path (ADR 0016) is part of the paths in the specs. */
+/** Origin only – the context path (docs/prompt/frontend.adoc) is part of the paths in the specs. */
 const baseURL = externalBaseUrl || `http://localhost:${port}`
 /** Must match server.servlet.context-path of the backend. */
 export const CONTEXT_PATH = '/recipes'
 
-/** Relative to this config: the build dir of :backend:bootstrap (see ADR 0013, ADR 0014). */
+/** Relative to this config: the build dir of :backend:bootstrap (see docs/prompt/architektur.adoc). */
 const ARTEFACT_DIR = '../backend/bootstrap/build/e2e'
 
 function bootJar(): string {

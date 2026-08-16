@@ -10,9 +10,9 @@ import org.apache.catalina.valves.ValveBase;
 
 /**
  * Serves {@code /.well-known/security.txt} at the <em>origin</em> of the application (RFC 9116,
- * see ADR 0037).
+ * see docs/prompt/security-backend.adoc).
  *
- * <p>The application itself lives under the context path {@code /recipes} (ADR 0016), and RFC
+ * <p>The application itself lives under the context path {@code /recipes} (docs/prompt/api.adoc), and RFC
  * 9116 names exactly one place for this file: the origin, not a path below it. Nothing in Spring
  * MVC can answer there – Tomcat maps such a request to no context at all, so there is no
  * dispatcher servlet and no resource handler behind it.
@@ -27,7 +27,7 @@ import org.apache.catalina.valves.ValveBase;
  */
 public final class SecurityTxtValve extends ValveBase {
 
-    /** The one place RFC 9116 allows. Deliberately not configurable – see ADR 0037. */
+    /** The one place RFC 9116 allows. Deliberately not configurable – see docs/prompt/security-backend.adoc. */
     static final String PATH = "/.well-known/security.txt";
 
     private final byte[] document;

@@ -12,7 +12,7 @@ export const DIFFICULTIES: readonly Difficulty[] = ['EASY', 'MEDIUM', 'HARD']
 
 /**
  * A non-2xx answer from the BFF. Carries the backend's RFC 9457 problem detail so that
- * validation messages can be shown on the field that caused them (ADR 0046).
+ * validation messages can be shown on the field that caused them (docs/prompt/api.adoc).
  */
 export class ApiError extends Error {
   readonly status: number
@@ -40,7 +40,7 @@ export class ApiError extends Error {
   }
 }
 
-// Derived from the bundle's base URL, which mirrors the backend's context path (ADR 0016):
+// Derived from the bundle's base URL, which mirrors the backend's context path (docs/prompt/frontend.adoc):
 // `/recipes/` in production and during development, `/` in the jsdom unit tests. The app
 // therefore never carries an absolute origin – only a path relative to where it is served.
 const BASE_PATH = `${import.meta.env.BASE_URL}api/recipes`

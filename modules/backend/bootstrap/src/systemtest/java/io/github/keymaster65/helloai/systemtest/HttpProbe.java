@@ -32,7 +32,7 @@ final class HttpProbe {
 
     /**
      * Performs a GET against the <em>origin</em>, so without the context path – the address space
-     * of {@code /.well-known/security.txt} (see ADR 0037).
+     * of {@code /.well-known/security.txt} (see docs/prompt/security-backend.adoc).
      */
     static HttpResponse<String> getFromOrigin(String path) {
         return send(HttpRequest.newBuilder(URI.create(RunningApplication.origin() + path))

@@ -9,7 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /**
- * The rendered {@code security.txt} – the part of ADR 0037 that can be checked without a running
+ * The rendered {@code security.txt} – the part of docs/prompt/security-backend.adoc that can be checked without a running
  * container. That it is actually reachable at the origin is the job of {@code
  * SecurityTxtSystemTest}.
  */

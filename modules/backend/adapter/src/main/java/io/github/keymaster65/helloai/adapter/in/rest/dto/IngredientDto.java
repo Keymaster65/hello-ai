@@ -25,7 +25,7 @@ public record IngredientDto(
         @Size(max = 50) String unit) {
 
     /**
-     * Starts the curried construction of an {@link IngredientDto} (see ADR 0021).
+     * Starts the curried construction of an {@link IngredientDto} (see docs/prompt/architektur.adoc).
      *
      * @return the first step of the curried factory
      */

@@ -82,7 +82,7 @@ class RecipeControllerTest {
                 .andExpect(jsonPath("$.fieldErrors").isEmpty());
     }
 
-    /** The framework's own exceptions answer as problem details as well (see ADR 0046). */
+    /** The framework's own exceptions answer as problem details as well (see docs/prompt/api.adoc). */
     @Test
     void shouldReturn405AsProblemDetails_whenMethodIsNotAllowed() throws Exception {
         mockMvc.perform(patch("/api/recipes/1"))

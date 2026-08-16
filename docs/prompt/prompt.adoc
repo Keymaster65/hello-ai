@@ -7,21 +7,14 @@
 :icons: font
 :source-highlighter: highlight.js
 :experimental:
-// Pfad zu den ADRs, relativ zu docs/prompt. Alle Dateien liegen im selben Verzeichnis, der
-// Wert gilt damit auch, wenn eine Datei einzeln gerendert wird.
-:adr: ../adr
-// Endung der ADR-Dateien (ADR 0026). Hier zeigen die Verweise ins Repository, dort liegen
-// die ADRs als Quelltext – deshalb `.adoc`.
-:adrext: .adoc
 
 Dieses Dokument bündelt die Anweisungen, unter denen an *recipes* gearbeitet wird: den
-Master-Prompt, der in jeder Session gilt, und die zehn Skills, die bei Bedarf hinzukommen.
-Entscheidung und Begründung:
-link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023].
+Master-Prompt, der in jeder Session gilt, und die vierzehn Skills, die bei Bedarf hinzukommen.
+Warum es diese Form hat, steht unten unter <<festlegungen-prompt>>.
 
 == Zweck und Abgrenzung
 
-Das Projekt kennt fünf Dokumentationsarten mit klar getrennten Aufgaben. Wer etwas ergänzt,
+Das Projekt kennt vier Dokumentationsarten mit klar getrennten Aufgaben. Wer etwas ergänzt,
 wählt danach den Ort:
 
 [cols="1,2,3", options="header"]
@@ -32,11 +25,6 @@ wählt danach den Ort:
 | Wie fange ich an? Welcher Befehl tut was?
 | Einstieg und Bedienung, bewusst knapp
 
-| `docs/adr/`
-| Warum ist es so und nicht anders?
-| Eine Entscheidung je Datei, mit Optionen und Konsequenzen; historisch, wird nicht
-  umgeschrieben
-
 | `docs/system/`
 | Was gibt es, und wie greift es ineinander?
 | Zusammenhängende Sicht auf das System im *Ist-Zustand*
@@ -44,19 +32,22 @@ wählt danach den Ort:
 | `docs/backlog.adoc`
 | Was kommt als Nächstes?
 | Ein Prompt je Überschrift; der Status steht im Anfang der Überschrift. Gezogen wird mit
-  `next` (Skill `po.adoc`,
-  link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028])
+  `next` (Skill `docs/prompt/po.adoc`)
 
 | `docs/prompt/` (hier)
-| Wie wird an diesem Projekt gearbeitet?
+| Wie wird an diesem Projekt gearbeitet – und *warum so*?
 | Anweisung, nicht Beschreibung: Rolle, Regeln, Konventionen, Abläufe – in der
-  *Gegenwartsform der Vorschrift*
+  *Gegenwartsform der Vorschrift*, jeweils mit ihrer Begründung
 |===
 
 Der Unterschied zu `docs/system` ist der Modus, nicht das Thema: Die Systemdokumentation
-beschreibt, *was ist*; die Arbeitsgrundlage schreibt vor, *was zu tun ist*. Eine Aussage über
-den Ist-Zustand gehört deshalb nie hierher, sondern nach `docs/system` – und wird von hier aus
-höchstens verlangt.
+beschreibt, *was ist*; die Arbeitsgrundlage schreibt vor, *was zu tun ist*, und sagt, warum.
+Eine Aussage über den Ist-Zustand gehört deshalb nie hierher, sondern nach `docs/system` – und
+wird von hier aus höchstens verlangt.
+
+Dazu kommt das Session-Protokoll `docs/log/claudeLog.adoc`: Es beantwortet, *wie* etwas
+entstanden ist. Es ist Nachweis, keine Dokumentationsart mit eigenem Gegenstand, und wird nach
+dem Skill `docs/prompt/butterfly.adoc` geführt.
 
 NOTE: Dieselben Dateien sind zusätzlich in `docs/system/arbeitsgrundlage.adoc` per `include`
 eingebunden, damit sie beim Lesen der Systemdokumentation mitkommen. Ein Wortlaut, zwei
@@ -88,9 +79,17 @@ Rohtext verständlich ist, und deshalb bindet es die Skills nicht per `include` 
 
 include::masterprompt.adoc[leveloffset=+1]
 
+include::entscheidungen.adoc[leveloffset=+1]
+
 include::architektur.adoc[leveloffset=+1]
 
-include::adr.adoc[leveloffset=+1]
+include::build.adoc[leveloffset=+1]
+
+include::persistenz.adoc[leveloffset=+1]
+
+include::api.adoc[leveloffset=+1]
+
+include::frontend.adoc[leveloffset=+1]
 
 include::tests.adoc[leveloffset=+1]
 
@@ -129,13 +128,26 @@ gepflegt, die sie betrifft.
   Develop-Skill verweisen darauf, statt die Liste zu wiederholen.
 
 | Neuer Gradle-Befehl, der zum Alltag gehört
-| `masterprompt.adoc`, Befehlstabelle *und* `docs/system/betrieb.adoc` (dort im Ist-Zustand)
+| `masterprompt.adoc`, Befehlstabelle *und* `docs/system/betrieb.adoc` (dort im Ist-Zustand);
+  die Regeln dazu in `build.adoc`
 
 | Neue Architektur- oder Struktur-Regel
 | `architektur.adoc`
 
-| Neue Regel zum Umgang mit ADRs (Einhaltung, Aufbau, Ablösung)
-| `adr.adoc`; die ADRs selbst bleiben unter `docs/adr`, ihr Index in `docs/system/system.adoc`
+| Neue Regel zum Umgang mit Entscheidungen (Aufbau, Ort, Ablösung)
+| `entscheidungen.adoc`; die Festlegungen selbst stehen im jeweils zuständigen Skill
+
+| Neue Regel zu Build, Abhängigkeiten oder Versionen
+| `build.adoc`
+
+| Neue Regel zu Schema, Migration oder Datenzugriff
+| `persistenz.adoc`; der Ist-Zustand bleibt in `docs/system/datenmodell.adoc`
+
+| Neue Regel zu Endpunkten, Contract, Fehlerformat oder Adressraum
+| `api.adoc`; der Ist-Zustand bleibt in `docs/system/api.adoc`
+
+| Neue Regel zur SPA
+| `frontend.adoc`; was die Angriffsfläche betrifft, gehört in `security-frontend.adoc`
 
 | Neue Test-Konvention, neues Test-Werkzeug
 | `tests.adoc`; die Teststufen selbst stehen in `docs/system/qualitaetssicherung.adoc`
@@ -144,12 +156,10 @@ gepflegt, die sie betrifft.
 | `security-backend.adoc`; der *Zustand* – welche Lücke offen ist – bleibt in
   `docs/system/betrieb.adoc`, „Offene Punkte". Regeln für die SPA gehören *nicht* hierher,
   sondern in den eigenen Frontend-Skill
-  (link:{adr}/0048-security-skill-je-seite{adrext}[ADR 0048])
 
 | Neue Sicherheitsregel für die SPA
 | `security-frontend.adoc`; was den Server betrifft – Validierung an der Grenze, Fehlerbilder,
-  `security.txt` –, bleibt im Backend-Skill und wird von dort verlinkt statt abgeschrieben.
-  Der *Zustand* steht auch hier in `docs/system` (`api.adoc`, `betrieb.adoc`)
+  `security.txt` –, bleibt im Backend-Skill und wird von dort verlinkt statt abgeschrieben
 
 | Neue Regel zur Pflege der Systemdokumentation
 | `systemdokumentation.adoc`
@@ -167,19 +177,20 @@ gepflegt, die sie betrifft.
 | Geänderte Commit-Regel (Vorbedingung, Message, Zusammenführen der Branches, `/clear`)
 | `develop.adoc`
 
+| Neue Entscheidung mit sichtbarer Alternative
+| Abschnitt „Festlegungen und ihre Gründe" des zuständigen Skills – Regel, Grund, verworfene
+  Wege, Beleg. Welcher Skill zuständig ist, sagt die Tabelle in `entscheidungen.adoc`
+
 | Neuer Skill
 | Datei anlegen, `include` in dieser Datei ergänzen *und* eine Zeile in der Skill-Tabelle des
   Master-Prompts – ohne beides ist der Skill unsichtbar. Dazu der zweite `include` in
   `docs/system/arbeitsgrundlage.adoc` (siehe nächste Zeile)
 
 | Neue Datei hier, geänderter Ladeweg, andere Aufteilung zwischen Master-Prompt und Skills
-| Zusätzlich `docs/system/arbeitsgrundlage.adoc`: Dateitabelle, Abschnitt „Ladeweg" und ein
-  `include` im Abschnitt „Wortlaut" – das Kapitel gibt diese Dateien vollständig wieder. Eine
-  geänderte *Regel* braucht dort nichts: Sie kommt über den `include` mit.
-
-| Neues ADR, das eine Regel hier ändert
-| Betroffene Datei anpassen und auf das ADR verlinken; zusätzlich den ADR-Index in
-  `docs/system/system.adoc` ergänzen
+| Zusätzlich `docs/system/arbeitsgrundlage.adoc`: Dateitabelle, Abschnitt „Ladeweg" samt
+  Diagramm und ein `include` im Abschnitt „Wortlaut" – das Kapitel gibt diese Dateien
+  vollständig wieder. Eine geänderte *Regel* braucht dort nichts: Sie kommt über den `include`
+  mit.
 |===
 
 === Regeln
@@ -187,15 +198,15 @@ gepflegt, die sie betrifft.
 . *Eine Regel steht an genau einer Stelle.* Die Definition of Done ist der Prüffall: Sie steht
   im Master-Prompt, und alles andere verweist. Eine Regel an zwei Stellen ist eine Regel, die
   an einer Stelle veraltet.
-. *Verlinken statt begründen.* Warum eine Regel gilt, steht im ADR
-  (`+link:{adr}/NNNN-titel{adrext}[ADR NNNN]+` – die Endung kommt aus dem Attribut, siehe
-  <<asciidoc-konventionen>>). Hier steht, was zu tun ist.
+. *Regel und Grund stehen beieinander.* Warum eine Regel gilt, steht im selben Skill, im
+  Abschnitt „Festlegungen und ihre Gründe" – nicht in einem zweiten Dokument. Wie eine
+  Festlegung geschrieben wird, sagt `entscheidungen.adoc`.
 . *Kurz vor vollständig.* Der Master-Prompt wird in jeder Session gelesen – was nur manchmal
   gebraucht wird, gehört in einen Skill.
 . *`CLAUDE.md` bleibt ein Einbinder.* Keine Regel wird dort ergänzt; sonst gibt es die
   Arbeitsgrundlage an zwei Orten.
-. *AsciiDoc-Konventionen wie in der Systemdokumentation* – siehe
-  <<asciidoc-konventionen>>.
+. *AsciiDoc-Konventionen wie in der Systemdokumentation* – siehe `systemdokumentation.adoc`,
+  Abschnitt „AsciiDoc-Konventionen".
 
 === Prüfen
 
@@ -205,8 +216,52 @@ gepflegt, die sie betrifft.
 ----
 
 Der Task hängt an `./gradlew build`. Ein fehlender `include` und ein Querverweis, der ins Leere
-zeigt, sind *Build-Fehler* – dieselbe Konfiguration wie für die Systemdokumentation
-(link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022]).
+zeigt, sind *Build-Fehler* – dieselbe Konfiguration wie für die Systemdokumentation.
 
 WARNING: Der Build prüft Verweise, nicht Inhalte. Dass eine Regel hier noch der gelebten
 Arbeitsweise entspricht, kann kein Task feststellen – das entscheidet der Blick beim Ändern.
+
+[[festlegungen-prompt]]
+== Festlegungen und ihre Gründe
+
+=== Master-Prompt und Skills liegen als AsciiDoc unter `docs/prompt`
+
+*Was gilt.* Die Arbeitsgrundlage liegt als AsciiDoc unter `docs/prompt`, mit diesem Dokument als
+Eingangspunkt; `CLAUDE.md` ist ein Einbinder von wenigen Zeilen und holt den Master-Prompt per
+`@`-Import.
+
+*Warum.* Vorher lag der Prompt im Wurzelverzeichnis und die Skills unter `.claude/` – einem
+werkzeugspezifischen Verzeichnis, das im Repository sonst nichts enthält –, und zwar als
+Markdown. Vier Dinge fehlten dadurch: ein *Gesamtdokument*, in dem eine doppelt oder
+widersprüchlich formulierte Regel überhaupt auffällt (genau so war die Definition of Done an zwei
+Stellen entstanden); *Attribute* statt ablageabhängiger Pfade; eine *geprüfte Zusicherung*, wie
+sie `docs/system` längst hatte; und *ein* Ort für eine Sache.
+
+*Die Randbedingung.* `CLAUDE.md` ist der einzige Dateiname, den Claude Code automatisch lädt –
+ein `CLAUDE.adoc` würde nie gelesen. Für die Skills gilt diese Bindung ausdrücklich *nicht*: Sie
+sind keine Claude-Code-Skills im technischen Sinn, sondern gewöhnliche Dokumente, die der
+Master-Prompt mit Pfad und Anlass nennt.
+
+*Verworfen.* Nichts ändern – der Widerspruch zwischen vorgeschriebener und gelebter Konvention
+bliebe stehen. Nur die Skills umwandeln – aus einem Bruch würden zwei. AsciiDoc-Syntax in
+`CLAUDE.md` belassen – GitHub und jede IDE rendern die Datei als Markdown, also falsch; eine
+Datei, die vorgibt, etwas anderes zu sein, als sie ist, ist ein schlechter Ort für verbindliche
+Regeln. Echte Claude-Code-Skills (`.claude/skills/<name>/SKILL.md`) – das ist eine Entscheidung
+über den *Lademechanismus* und verlangt Markdown mit YAML-Frontmatter. Alles in eine Datei – bei
+tausend Zeilen wäre das die Datei, die in jeder Session vollständig geladen wird; die Trennung
+„gilt immer" / „gilt bei Anlass" wäre verloren, und genau die ist der Sinn der Skills.
+
+*Preis.* Der Ladeweg hat eine Indirektion mehr: Greift der `@`-Import nicht, bleibt nur die
+Prosa-Zeile in `CLAUDE.md` als Absicherung. Der Rohtext kommt mit AsciiDoc-Auszeichnung in den
+Kontext – lesbar, aber weniger glatt als Markdown, und ein paar Tokens teurer.
+
+=== Es gibt keine getrennte Sammlung von Architekturentscheidungen mehr
+
+*Was gilt.* Jede Festlegung steht im Skill, dessen Regel sie ist – Regel, Grund, verworfene Wege
+und Beleg beieinander, im Abschnitt „Festlegungen und ihre Gründe". Ein Verzeichnis `docs/adr`
+gibt es nicht.
+
+*Warum, was das kostet und wie eine Festlegung geschrieben wird*, steht vollständig im Skill
+`entscheidungen.adoc`. Hier steht nur die Folge für dieses Dokument: Die Arbeitsgrundlage ist
+damit *der* Ort, an dem eine Regel und ihre Begründung nachzulesen sind, und die
+Abgrenzungstabelle oben kennt vier Dokumentationsarten statt fünf.

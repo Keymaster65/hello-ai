@@ -49,7 +49,7 @@ public record Recipe(
     }
 
     /**
-     * Starts the curried construction of a {@link Recipe} (see ADR 0021).
+     * Starts the curried construction of a {@link Recipe} (see docs/prompt/architektur.adoc).
      *
      * <p>Every component is supplied by its own named step. With four adjacent components of
      * only two types ({@code String}/{@code Integer}), the canonical constructor accepts a

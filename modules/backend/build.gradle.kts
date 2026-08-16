@@ -1,7 +1,7 @@
 import org.springframework.boot.gradle.plugin.SpringBootPlugin
 
 // Container module for the application. It carries no sources of its own; each layer is a
-// submodule (see ADR 0013 for the split, ADR 0014 for this grouping):
+// submodule (see docs/prompt/architektur.adoc for the split, docs/prompt/architektur.adoc for this grouping):
 //
 //     :backend:bootstrap  →  :backend:adapter  →  :backend:application  →  :backend:domain
 //
@@ -37,7 +37,7 @@ subprojects {
 
     // `rootProject.libs`, not plain `libs`: inside `subprojects` the receiver is the
     // submodule, and its catalog extension does not exist yet while this block runs
-    // (see ADR 0018). The configuration names stay strings because `java` is applied
+    // (see docs/prompt/build.adoc). The configuration names stay strings because `java` is applied
     // dynamically above, so there are no type-safe accessors in this script.
     dependencies {
         "testImplementation"(rootProject.libs.assertj.core)
@@ -48,7 +48,7 @@ subprojects {
     // The Spring Boot plugin adds this automatically, but it now only applies to
     // :backend:bootstrap. Without it, parameter names are missing from the bytecode and
     // Spring MVC cannot bind `@PathVariable long id` – requests would fail with 400
-    // instead of reaching the handler (see ADR 0013).
+    // instead of reaching the handler (see docs/prompt/architektur.adoc).
     tasks.withType<JavaCompile>().configureEach {
         options.compilerArgs.add("-parameters")
     }
@@ -59,7 +59,7 @@ subprojects {
 
     // JaCoCo misst in jedem Modul, ausgewertet wird die Messung aber im Wurzelprojekt: Der Task
     // `coverageTable` liest die XML-Fassung jedes Moduls und schreibt daraus die Tabelle des
-    // Kapitels „Abdeckung" (ADR 0047). XML ist in Gradle voreingestellt *aus* – ohne diese
+    // Kapitels „Abdeckung" (docs/prompt/tests.adoc). XML ist in Gradle voreingestellt *aus* – ohne diese
     // Zeilen gäbe es nur den HTML-Report, den kein Werkzeug lesen kann. Der Report hängt am
     // `test`-Task des jeweiligen Moduls, weil er ohne dessen Messdatei leer wäre.
     tasks.withType<JacocoReport>().configureEach {
@@ -71,10 +71,10 @@ subprojects {
     }
 
     // Gemessen wird bei jedem `test`-Lauf, in jedem Modul – nicht nur in `:bootstrap`, wie es
-    // bis ADR 0047 der Fall war. Sonst zeigte die Tabelle drei Module im Stand des letzten
+    // bis docs/prompt/tests.adoc der Fall war. Sonst zeigte die Tabelle drei Module im Stand des letzten
     // ausdrücklichen Aufrufs und eines im Stand des letzten Testlaufs.
     // `named("test")` statt `withType<Test>()`: In `:bootstrap` gibt es mit `systemtest` ein
-    // zweites Test-Source-Set (ADR 0006), und das soll ein `./gradlew test` nicht anstoßen.
+    // zweites Test-Source-Set (docs/prompt/tests.adoc), und das soll ein `./gradlew test` nicht anstoßen.
     tasks.named("test") {
         finalizedBy(tasks.named("jacocoTestReport"))
     }

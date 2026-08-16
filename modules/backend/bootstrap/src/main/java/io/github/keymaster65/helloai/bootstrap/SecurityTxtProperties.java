@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
- * Content of the {@code security.txt} the application serves at its origin (RFC 9116, see ADR
- * 0037). The record renders the document itself, so field names and their order live in one
- * place.
+ * Content of the {@code security.txt} the application serves at its origin (RFC 9116, see
+ * docs/prompt/security-backend.adoc). The record renders the document itself, so field names
+ * and their order live in one place.
  *
  * <p>Configured under {@code recipes.security-txt} – the reporting channel and the expiry date
  * change without a new artifact, like the database credentials next to them.
@@ -44,7 +44,7 @@ public record SecurityTxtProperties(
     }
 
     /**
-     * Starts the curried construction of {@link SecurityTxtProperties} (see ADR 0021).
+     * Starts the curried construction of {@link SecurityTxtProperties} (see docs/prompt/architektur.adoc).
      *
      * <pre>{@code
      * SecurityTxtProperties properties = SecurityTxtProperties.curried()

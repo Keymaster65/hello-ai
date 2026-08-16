@@ -1,13 +1,10 @@
 // Kapitel der Systemdokumentation; siehe system.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 = Bausteine und Schichten
 
 == Die Regel
 
 Das Backend folgt einer Hexagonal-/Clean-Architecture mit *einem Gradle-Modul je Schicht*
-(link:{adr}/0013-ein-gradle-modul-je-schicht{adrext}[ADR 0013],
-link:{adr}/0014-schichtmodule-unter-backend{adrext}[ADR 0014]). Abhängigkeiten zeigen nach innen:
+(Skill `docs/prompt/architektur.adoc`). Abhängigkeiten zeigen nach innen:
 
 .Abhängigkeiten der Gradle-Module, wie sie in den Buildskripten deklariert sind
 [plantuml,modulabhaengigkeiten,svg]
@@ -39,9 +36,9 @@ braucht sie auch, wer den Port benutzt. `implementation` behält sie für sich:
 `:modules:backend:bootstrap` deklariert nur den Adapter, Anwendung und Domäne kommen
 transitiv. `modules/frontend` ist kein Gradle-Modul, sondern ein npm-Projekt; sein Build wird
 von `:modules:backend:bootstrap` ins Boot-Jar gepackt
-(link:{adr}/0015-alle-bausteine-unter-modules{adrext}[ADR 0015]). Das Diagramm entsteht beim
+(Skill `docs/prompt/architektur.adoc`). Das Diagramm entsteht beim
 Rendern aus seiner Quelle in dieser Datei
-(link:{adr}/0042-plantuml-fuer-diagramme{adrext}[ADR 0042]).
+(Skill `docs/prompt/systemdokumentation.adoc`).
 
 Entscheidend ist, dass die Regel nicht nur dokumentiert, sondern *dreifach* abgesichert ist:
 
@@ -49,15 +46,14 @@ Entscheidend ist, dass die Regel nicht nur dokumentiert, sondern *dreifach* abge
   äußeren Schicht compiliert nicht. `:domain` und `:application` haben dabei überhaupt keine
   Framework-Abhängigkeit – Framework-Freiheit ist in beiden inneren Schichten strukturell
   garantiert, nicht bloß geprüft
-  (link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045]).
+  (Skill `docs/prompt/architektur.adoc`).
 . *Von ArchUnit als Schichtenstapel geprüft* (<<src-layered-architecture-test,`LayeredArchitectureTest`>>): zusätzlich
   Framework-Freiheit von Domäne und Anwendungsschicht, die Teilung in `model`/`services` und
-  „Ports sind Interfaces" (link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012],
-  link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045]).
+  „Ports sind Interfaces" (Skill `docs/prompt/architektur.adoc`).
 . *Von ArchUnit als Zwiebelschalen geprüft* (<<src-onion-architecture-test,`OnionArchitectureTest`>>): Adapter kennen
   einander nicht – der REST-Adapter greift nicht am Port vorbei auf die Persistenz zu. Diese
   Lücke kann die Schichtensicht nicht schließen, weil beide Adapter im selben Modul liegen
-  (link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019]).
+  (Skill `docs/prompt/architektur.adoc`).
 
 Fehlt einer Klasse eine Abhängigkeit, ist das ein Hinweis auf einen Schichtverstoß – nicht
 die Aufforderung, sie im Buildskript zu ergänzen.
@@ -79,7 +75,7 @@ Basispaket ist `io.github.keymaster65.helloai`.
 | `:modules:backend:domain`
 | `domain.services`
 | Domänenlogik ohne eigenen Modelltyp. Aktuell leer – nur <<src-package-info-services,`package-info.java`>> markiert den
-  Platz (link:{adr}/0020-domain-in-model-und-services-teilen{adrext}[ADR 0020]).
+  Platz (Skill `docs/prompt/architektur.adoc`).
 
 | `:modules:backend:application`
 | `application.port.in`
@@ -116,11 +112,11 @@ Basispaket ist `io.github.keymaster65.helloai`.
   mit `scanBasePackages`), <<src-application-services-config,`ApplicationServicesConfig`>> und
   <<src-transactional-recipe-service,`TransactionalRecipeService`>> (Bean und
   Transaktionsgrenze der Anwendungsschicht,
-  link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045]),
+  Skill `docs/prompt/architektur.adoc`),
   <<src-openapi-config,`OpenApiConfig`>> und
   <<src-documentation-routing-config,`DocumentationRoutingConfig`>> (Adresse der
   mitgelieferten Systemdokumentation,
-  link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]). Hier entsteht das Deployable.
+  Skill `docs/prompt/systemdokumentation.adoc`). Hier entsteht das Deployable.
 |===
 
 Das Modul `:modules:backend` selbst trägt keinen Quellcode; es hält die gemeinsame
@@ -153,7 +149,7 @@ Die vier Records samt Paketmarkierung stehen im Original in <<src-gruppe-domaene
 
 Records mit mehr als zwei Komponenten bieten zusätzlich eine curried Factory `curried()` –
 eine Kette benannter Einzelschritte, die Reihenfolge und Vollständigkeit über das Typsystem
-erzwingt (link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[ADR 0021]).
+erzwingt (Skill `docs/prompt/architektur.adoc`).
 Der kanonische Konstruktor bleibt der einzige Ort der Validierung.
 
 == Anwendungsschicht
@@ -161,7 +157,7 @@ Der kanonische Konstruktor bleibt der einzige Ort der Validierung.
 `RecipeServiceImpl` implementiert den eingehenden Port – als *gewöhnliche Java-Klasse*, ohne
 eine einzige Annotation. Die Schicht kennt weder Web noch Persistenztechnik noch Spring: Im
 Buildskript steht außer `:domain` keine Produktionsabhängigkeit
-(link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045]).
+(Skill `docs/prompt/architektur.adoc`).
 
 Beides, was dafür nötig ist, liegt im Composition Root `:bootstrap`:
 `ApplicationServicesConfig` erzeugt die Bean, `TransactionalRecipeService` umschließt jeden
@@ -190,7 +186,7 @@ keinen Statuscode.
 `RecipeController` bleibt dünn – er mappt, delegiert an den Port und setzt den Statuscode;
 Geschäftslogik enthält er nicht. Die OpenAPI-Annotationen sitzen direkt an dieser Schicht,
 damit der Contract neben dem Code steht, den er beschreibt
-(link:{adr}/0005-springdoc-openapi-und-swagger-ui{adrext}[ADR 0005]).
+(Skill `docs/prompt/api.adoc`).
 
 `RecipeRestMapper` trennt API und Domäne. Zwei Festlegungen stecken darin:
 
@@ -200,14 +196,14 @@ damit der Contract neben dem Code steht, den er beschreibt
 
 `GlobalExceptionHandler` (`@RestControllerAdvice`) übersetzt Exceptions zentral in ein
 Problem Detail nach RFC 9457
-(link:{adr}/0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR 0046]); die Zuordnung
+(Skill `docs/prompt/api.adoc`); die Zuordnung
 steht im Kapitel API.
 
 `SpaForwardingController` leitet die Routen der Oberfläche serverseitig auf die
 `index.html` weiter, damit ein geteilter Link wie `/recipes/3` nicht im 404 endet. Die
 Routen sind *einzeln aufgezählt* statt per Wildcard gefangen, weil ein Catch-all API,
 OpenAPI-Dokument und Swagger UI verschatten könnte
-(link:{adr}/0017-router-mit-spa-fallback{adrext}[ADR 0017]).
+(Skill `docs/prompt/api.adoc`).
 
 [WARNING]
 ====
@@ -341,7 +337,7 @@ Liquibase-Migration gegen die konfigurierte Datenbank → `DSLContext` bereitste
 == Frontend
 
 Das Frontend ist eine React-SPA mit `react-router`
-(link:{adr}/0017-router-mit-spa-fallback{adrext}[ADR 0017]) und spricht ausschließlich
+(Skill `docs/prompt/frontend.adoc`) und spricht ausschließlich
 *relative* Pfade an – abgeleitet aus `import.meta.env.BASE_URL`, das den Context-Path des
 Backends spiegelt. Eine absolute Origin steht nirgends im Code, deshalb ist derselbe Build
 in Entwicklung und Produktion gültig.

@@ -1,13 +1,15 @@
 // Kapitel der Systemdokumentation; siehe system.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 [[arbeitsgrundlage]]
 = Arbeitsgrundlage: Master-Prompt und Skills
 
 Das Repository enthält nicht nur die Anwendung, sondern auch die Anweisungen, unter denen an
-ihr gearbeitet wird: einen *Master-Prompt*, der in jeder Entwicklungs-Session gilt, und zehn
-*Skills*, die bei einem bestimmten Anlass hinzukommen. Beides liegt als AsciiDoc unter
-`docs/prompt` (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]).
+ihr gearbeitet wird: einen *Master-Prompt*, der in jeder Entwicklungs-Session gilt, und
+vierzehn *Skills*, die bei einem bestimmten Anlass hinzukommen. Beides liegt als AsciiDoc unter
+`docs/prompt`.
+
+Jeder Skill trägt seine Regeln *und* deren Begründung: Der Abschnitt „Festlegungen und ihre
+Gründe" nennt je Festlegung, was gilt, warum, was verworfen wurde und womit es belegt ist. Ein
+eigenes Verzeichnis für Architekturentscheidungen gibt es deshalb nicht.
 
 Dieses Kapitel beschreibt zuerst, *was dort existiert und wie es geladen und geprüft wird*,
 und gibt anschließend den vollständigen <<wortlaut>> wieder – Master-Prompt und Skills sind
@@ -35,31 +37,46 @@ herein, also gibt es keine zweite Fassung, die veralten kann.
 | Rolle, Tech-Stack, Grundregeln, Coding-Konventionen, Skill-Verweise, Workflow, Befehle und
   die Definition of Done.
 
+| `docs/prompt/entscheidungen.adoc`
+| Skill: wo eine Festlegung steht, wie sie geschrieben und wie sie abgelöst wird; die Tabelle
+  „Gegenstand → Skill"; was der Build erzwingt und was nicht.
+
 | `docs/prompt/architektur.adoc`
 | Skill: Schichten und Abhängigkeitsregel, Package-Struktur, Currying-Konvention für Records,
-  Anti-Patterns, ADR-Pflicht bei größeren Entscheidungen.
+  Anti-Patterns – dazu die Festlegungen zu Modulschnitt, ArchUnit und Framework-Freiheit.
 
-| `docs/prompt/adr.adoc`
-| Skill: Umgang mit den Architekturentscheidungen – welche ADRs eine Aufgabe binden, was der
-  Build davon erzwingt, wie abgewichen und wie ein neues ADR geschrieben wird.
+| `docs/prompt/build.adoc`
+| Skill: Gradle-Wrapper, Kotlin-DSL, Versionskatalog, Umgang mit Abhängigkeiten und Tasks.
+
+| `docs/prompt/persistenz.adoc`
+| Skill: Liquibase-Changesets, jOOQ-Codegenerierung ohne Datenbank, Ablauf einer
+  Schemaänderung.
+
+| `docs/prompt/api.adoc`
+| Skill: Endpunkte und Contract, Fehlerformat nach RFC 9457, Context-Path und die fünf Orte,
+  an denen er gespiegelt ist.
+
+| `docs/prompt/frontend.adoc`
+| Skill: SPA und Auslieferung als BFF, Routen, erzeugte TypeScript-Typen, Aufrufe des
+  Backends.
 
 | `docs/prompt/tests.adoc`
-| Skill: Testpyramide, Prinzipien (AAA, F.I.R.S.T.), Beispiele für Unit-, Slice- und
-  Integrationstests, Mocking-Regeln.
+| Skill: die fünf Teststufen und ihre Abgrenzung, Prinzipien (AAA, F.I.R.S.T.), Beispiele,
+  Mocking-Regeln, Abdeckung.
 
 | `docs/prompt/security-backend.adoc`
 | Skill: Sicherheit im Backend – Grundsätze, Pflichten je Anlass (Endpunkt, Fehlerbild,
   Abfrage, Protokoll, Konfiguration, Abhängigkeit, offener Pfad) und die Bindung an RFC 9116
-  mit `security.txt` (link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035]). Je
+  mit `security.txt` (Skill `docs/prompt/security-backend.adoc`). Je
   Seite gibt es einen eigenen Skill
-  (link:{adr}/0048-security-skill-je-seite{adrext}[ADR 0048])
+  (Skill `docs/prompt/security-frontend.adoc`)
 
 | `docs/prompt/security-frontend.adoc`
 | Skill: Sicherheit in der SPA – Grundsätze und Pflichten je Anlass (Route, Darstellung von
   Daten des Backends, Formularfeld, Aufruf des Backends, Browser-Speicher, Abhängigkeit in
   `package.json`, Fehlerbild in der Oberfläche). Was den Server betrifft, steht im
   Backend-Skill und wird von hier verlinkt, nicht wiederholt
-  (link:{adr}/0048-security-skill-je-seite{adrext}[ADR 0048])
+  (Skill `docs/prompt/security-frontend.adoc`)
 
 | `docs/prompt/systemdokumentation.adoc`
 | Skill: Pflege *dieser* Systemdokumentation – welche Änderung welches Kapitel berührt, dazu
@@ -80,7 +97,7 @@ herein, also gibt es keine zweite Fassung, die veralten kann.
 
 | `docs/prompt/develop.adoc`
 | Skill: Commit-Regeln – Definition of Done als Vorbedingung, Author, Freigabe im Befehl
-  `commit` (link:{adr}/0040-commit-freigabe-in-einem-schritt{adrext}[ADR 0040]),
+  `commit` (Skill `docs/prompt/develop.adoc`),
   Zusammenführen der übrigen Branches und `/clear` danach.
 |===
 
@@ -104,9 +121,9 @@ versioniert, gilt also für jeden, der im Repository arbeitet.
   lokal schreibenden* `+git+`-Befehle, die Develop- und PO-Skill verlangen – bis
   `+git merge+`. Was die Historie umschreibt oder nach außen wirkt (`+push+`, `+reset+`,
   `+rebase+`, `+clean+`), steht bewusst *nicht* darin und fragt weiterhin nach: `+push+` ist
-  nach link:{adr}/0034-arbeitsbranches-vor-dem-merge-holen{adrext}[ADR 0034] ohnehin nicht
-  Teil des Ablaufs, und ein umgeschriebener Commit macht die Verweise des Protokolls ungültig
-  (link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038]).
+  nach Skill `docs/prompt/develop.adoc` ohnehin nicht Teil des Ablaufs, und ein umgeschriebener
+  Commit macht die Verweise des Protokolls ungültig
+  (Skill `docs/prompt/butterfly.adoc`).
 
 | `hooks.UserPromptSubmit`
 | Ruft `+python3 docs/log/prompt-eingang.py+` bei jedem Prompt auf. Das Skript legt in
@@ -129,7 +146,7 @@ Damit hängen drei Skripte unter `docs/log` am Protokoll, jedes mit einer eigene
 
 | `docs/log/kennzahlen.py`
 | *Aus* dem Protokoll in die Tabelle `docs/log/kennzahlen.adoc`
-  (link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]).
+  (Skill `docs/prompt/manager.adoc`).
 |===
 
 NOTE: Keines der drei hängt am Gradle-Build. Ein Fehler darin fällt nicht als roter Build auf,
@@ -151,7 +168,7 @@ skinparam componentStyle rectangle
 
 file "CLAUDE.md" as claude
 file "docs/prompt/masterprompt.adoc" as master
-file "docs/prompt/*.adoc\n\narchitektur · adr · tests\nsecurity-backend · security-frontend\nsystemdokumentation · butterfly\nmanager · po · develop" as skills
+file "docs/prompt/*.adoc\n\nentscheidungen · architektur · build\npersistenz · api · frontend · tests\nsecurity-backend · security-frontend\nsystemdokumentation · butterfly\nmanager · po · develop" as skills
 
 claude --> master : @-Import\njede Session, vollständig
 claude --> skills : nennt Pfad und Anlass\nnur bei Anlass gelesen
@@ -201,7 +218,7 @@ auch nicht folgenlos.
 Der Task ist im Wurzelprojekt konfiguriert, hängt an `./gradlew build` und erbt dieselbe
 `asciidoctorj`-Einstellung wie die Systemdokumentation: Ein fehlender `include` und ein
 Querverweis, der ins Leere zeigt, sind *Build-Fehler*
-(link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022]). Master-Prompt und
+(Skill `docs/prompt/systemdokumentation.adoc`). Master-Prompt und
 Skills sind damit als *ein* Dokument lesbar, in dem eine doppelt oder widersprüchlich
 formulierte Regel auffällt.
 
@@ -211,7 +228,8 @@ entspricht, stellt kein Task fest – das entscheidet der Blick beim Ändern.
 [[wortlaut]]
 == Wortlaut
 
-Es folgen der Master-Prompt und die zehn Skills im Original, aus `docs/prompt` eingebunden.
+Es folgen der Master-Prompt und die vierzehn Skills im Original, aus `docs/prompt`
+eingebunden.
 Der Master-Prompt gilt in jeder Session; die Skills gelten bei ihrem jeweiligen Anlass, der
 im Abschnitt „Skills" des Master-Prompts steht.
 
@@ -224,9 +242,17 @@ Zwei Dinge sind beim Lesen zu beachten:
 
 include::../prompt/masterprompt.adoc[leveloffset=+2]
 
+include::../prompt/entscheidungen.adoc[leveloffset=+2]
+
 include::../prompt/architektur.adoc[leveloffset=+2]
 
-include::../prompt/adr.adoc[leveloffset=+2]
+include::../prompt/build.adoc[leveloffset=+2]
+
+include::../prompt/persistenz.adoc[leveloffset=+2]
+
+include::../prompt/api.adoc[leveloffset=+2]
+
+include::../prompt/frontend.adoc[leveloffset=+2]
 
 include::../prompt/tests.adoc[leveloffset=+2]
 

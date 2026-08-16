@@ -14,6 +14,6 @@
  *   <li>it stays free of frameworks and of any outer ring, like the model next to it.
  * </ul>
  *
- * <p>See ADR 0020.
+ * <p>See docs/prompt/architektur.adoc.
  */
 package io.github.keymaster65.helloai.domain.services;

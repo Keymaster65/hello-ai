@@ -26,7 +26,7 @@ function renderList(overrides: Partial<Parameters<typeof RecipeList>[0]> = {}) {
     onDelete: vi.fn(),
     ...overrides,
   }
-  // Der Titel ist jetzt ein Link – das braucht einen Router-Kontext (ADR 0017).
+  // Der Titel ist jetzt ein Link – das braucht einen Router-Kontext (docs/prompt/frontend.adoc).
   render(
     <MemoryRouter>
       <RecipeList {...props} />

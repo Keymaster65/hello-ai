@@ -1,14 +1,12 @@
 // Kapitel der Systemdokumentation; siehe system.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 = Schnittstellen
 
 == Adressraum
 
 Alles liegt unter dem Context-Path `/recipes`
-(link:{adr}/0016-context-path-recipes{adrext}[ADR 0016]) – SPA, API und Contract teilen eine
+(Skill `docs/prompt/api.adoc`) – SPA, API und Contract teilen eine
 Origin. Genau das macht CORS überflüssig
-(link:{adr}/0007-react-frontend-mit-backend-als-bff{adrext}[ADR 0007]).
+(Skill `docs/prompt/frontend.adoc`).
 
 [cols="2,2,3", options="header"]
 |===
@@ -20,11 +18,9 @@ Origin. Genau das macht CORS überflüssig
 | OpenAPI 3.1, YAML | `/recipes/v3/api-docs.yaml` | dasselbe Dokument
 | Swagger UI | `/recipes/swagger-ui.html` | Operationen nach Methode, Tags alphabetisch
 | Systemdokumentation | `/recipes/docs/` | dieses Dokument, gerendert und im Jar
-  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024])
-| ADRs | `/recipes/docs/adr/\{datei}.html` | gerendertes AsciiDoc, aus der Doku heraus
-  verlinkt (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026])
+  (Skill `docs/prompt/systemdokumentation.adoc`)
 | Meldeweg | `/.well-known/security.txt` | *ohne* Context-Path – RFC 9116 kennt nur den
-  Ursprung (link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037])
+  Ursprung (Skill `docs/prompt/security-backend.adoc`)
 |===
 
 Die letzte Zeile ist die einzige Ausnahme von „alles unter `/recipes`". Sie ist keine
@@ -35,8 +31,8 @@ dorthin gelangt eine Anfrage außerhalb des Context-Path gar nicht –, sondern 
 <<src-security-txt-properties,`SecurityTxtProperties`>> und damit aus der Konfiguration.
 
 Die Adresse der Dokumentation endet auf einen Schrägstrich. `/recipes/docs` leitet dorthin
-um, statt weiterzuleiten: Nur mit dem Schrägstrich lösen die relativen Verweise auf die ADRs
-im Browser richtig auf. Beides richtet <<src-documentation-routing-config,`DocumentationRoutingConfig`>>
+um, statt weiterzuleiten: Nur mit dem Schrägstrich lösen die relativen Verweise auf die
+Diagramme im Browser richtig auf. Beides richtet <<src-documentation-routing-config,`DocumentationRoutingConfig`>>
 ein, weil Spring Boot eine Verzeichnis-Startseite nur für die Wurzel der Anwendung kennt.
 
 == REST-Ressource `recipes`
@@ -112,8 +108,7 @@ Frontend `id: number` statt `id?: number` steht und garantierte Felder ohne Prü
 
 Jeder Fehler antwortet als *Problem Detail* nach
 https://www.rfc-editor.org/rfc/rfc9457.html[RFC 9457], im Medientyp
-`+application/problem+json+` (link:{adr}/0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR
-0046]). Der Rumpf ist <<src-problem-detail,`ProblemDetail`>>, zentral erzeugt im
+`+application/problem+json+` (Skill `docs/prompt/api.adoc`). Der Rumpf ist <<src-problem-detail,`ProblemDetail`>>, zentral erzeugt im
 <<src-global-exception-handler,`GlobalExceptionHandler`>>:
 
 [source,json]
@@ -199,7 +194,7 @@ RFC, aber *kein* `fieldErrors`; das Frontend behandelt es deshalb als optional.
 
 Der Contract wird zur *Laufzeit* aus Controller-Signaturen, Bean-Validation und den
 `@Operation`/`@Schema`-Annotationen erzeugt
-(link:{adr}/0005-springdoc-openapi-und-swagger-ui{adrext}[ADR 0005]). Es gibt keine
+(Skill `docs/prompt/api.adoc`). Es gibt keine
 handgepflegte Spezifikationsdatei, die veralten könnte.
 
 Dokumentweite Angaben (Titel, Beschreibung, Version, Kontakt, Lizenz) stehen in
@@ -243,7 +238,7 @@ veralteten Contract typisiert – der Build ist grün und die Laufzeit falsch.
 Damit diese Adressen auch beim *direkten* Aufruf funktionieren, leitet
 <<src-spa-forwarding-controller,`SpaForwardingController`>> sie serverseitig auf die `index.html` weiter – explizit
 aufgezählt, damit der Fallback API, OpenAPI und Swagger UI nicht verschattet
-(link:{adr}/0017-router-mit-spa-fallback{adrext}[ADR 0017]). Die Detail- und Bearbeiten-Routen
+(Skill `docs/prompt/api.adoc`). Die Detail- und Bearbeiten-Routen
 sind serverseitig auf Ziffern eingeschränkt (`{id:\\d+}`).
 
 == Keine weiteren Schnittstellen

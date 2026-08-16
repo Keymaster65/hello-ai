@@ -1,24 +1,59 @@
 // Skill der Arbeitsgrundlage; siehe prompt.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 = Skill: Java-Testing
 
 == Zweck
 
-Aktiviere diesen Skill beim Schreiben, Prüfen oder Refactoring von Tests.
+Aktiviere diesen Skill beim Schreiben, Prüfen oder Refactoring von Tests – und immer dann, wenn
+eine Teststufe berührt wird.
+
+Welche Stufen es gibt und was sie heute abdecken, steht im Ist-Zustand in
+`docs/system/qualitaetssicherung.adoc`. Hier steht, wie geschrieben und wo abgegrenzt wird.
 
 == Stack
 
-* *Spring Boot Test* – Integrationstests
-* *Testcontainers* – echte DB in Integrationstests
+* *JUnit 5* mit *AssertJ* – Assertions immer über `+assertThat(...)+`
+* *Mockito* – für externe Abhängigkeiten
+* *jqwik* – Property-Tests
+* *Zonky embedded-postgres* – echtes PostgreSQL in Integrationstests, ohne Docker
+* *ArchUnit* – die Architekturregeln als ausführbare Tests
+* *Vitest* – Komponenten der SPA gegen jsdom
+* *Playwright* – Nutzer-Flows im echten Browser
+* *JaCoCo* – Abdeckung, in jedem Backend-Modul
 
-== Testpyramide
+== Die fünf Stufen und ihre Grenze
 
-----
-      /\      E2E / @SpringBootTest (wenige)
-     /--\     Integration / @DataJpaTest, @WebMvcTest
-    /----\    Unit-Tests mit Mockito (viele)
-----
+Die Abgrenzung ist die eigentliche Regel: Ohne sie wird jede Stufe zur langsameren Zweitkopie
+der darunter.
+
+[cols="1,2,2", options="header"]
+|===
+| Stufe | Prüft | Prüft *nicht*
+
+| Unit / Property (`test`)
+| Logik einer Klasse, Invarianten, Randfälle
+| Verdrahtung, HTTP, Datenbank
+
+| Slice (`test`, `+@WebMvcTest+`)
+| Controller-Bindung, Statuscodes, Serialisierung
+| Zusammenspiel über Schichten hinweg
+
+| Integration (`test`, embedded PostgreSQL)
+| Den vollen Stapel gegen ein echtes PostgreSQL, echtes Typmapping
+| Auslieferung, Oberfläche
+
+| System (`systemtest`)
+| HTTP-Contract, Statuscodes, Auslieferung von SPA und Dokumentation
+| DOM, Interaktion
+
+| E2E (`e2eTest`)
+| *Nutzer-Flows im Browser*
+| *API-Details, Statuscodes, Schemata*
+|===
+
+IMPORTANT: Wer dasselbe auf zwei Stufen prüft, zahlt den Preis doppelt und bekommt bei jeder
+Änderung zwei rote Suiten. Ein neuer E2E-Test entsteht nur für einen Flow, der für Nutzende
+*sichtbar* anders ist – ein zusätzliches Feld im Formular rechtfertigt keinen, ein neuer
+Bearbeitungsablauf schon.
 
 == Prinzipien
 
@@ -39,19 +74,13 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private UserMapper userMapper;
-
     @InjectMocks
     private UserService userService;
 
     @Test
     void shouldReturnUser_whenUserExists() {
         // Arrange
-        User user = new User(1L, "Anna");
-        UserDto dto = new UserDto(1L, "Anna");
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(userMapper.toDto(user)).thenReturn(dto);
+        when(userRepository.findById(1L)).thenReturn(Optional.of(new User(1L, "Anna")));
 
         // Act
         UserDto result = userService.findById(1L);
@@ -63,15 +92,17 @@ class UserServiceTest {
 
     @Test
     void shouldThrowException_whenUserNotFound() {
-        // Arrange
         when(userRepository.findById(99L)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThatThrownBy(() -> userService.findById(99L))
                 .isInstanceOf(UserNotFoundException.class);
     }
 }
 ----
+
+Die inneren Schichten sind framework-frei (Skill `docs/prompt/architektur.adoc`) – ihre Tests
+brauchen deshalb *keinen* Spring-Kontext. Ein Anwendungsdienst wird mit `+new+` erzeugt, nicht
+mit `+@SpringBootTest+`.
 
 == Parametrisierte Tests
 
@@ -85,11 +116,10 @@ void shouldThrowException_whenNameIsBlank(String invalidName) {
 }
 ----
 
-== Slice-Tests (Spring Boot)
+== Slice-Test (Spring Boot)
 
 [source,java]
 ----
-// Nur Web-Layer testen
 @WebMvcTest(UserController.class)
 class UserControllerTest {
 
@@ -97,79 +127,50 @@ class UserControllerTest {
     MockMvc mockMvc;
 
     @MockBean
-    UserService userService;
+    UserUseCases userUseCases;
 
     @Test
     void shouldReturn200_whenUserExists() throws Exception {
-        when(userService.findById(1L))
-            .thenReturn(new UserDto(1L, "Anna"));
+        when(userUseCases.findById(1L)).thenReturn(new UserDto(1L, "Anna"));
 
         mockMvc.perform(get("/api/users/1"))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.name").value("Anna"));
     }
 }
-
-// Nur JPA-Layer testen
-@DataJpaTest
-class UserRepositoryTest {
-
-    @Autowired
-    UserRepository userRepository;
-
-    @Test
-    void shouldFindUserByEmail() {
-        userRepository.save(new User(null, "Anna", "anna@example.com"));
-
-        Optional<User> result = userRepository.findByEmail("anna@example.com");
-
-        assertThat(result).isPresent();
-    }
-}
 ----
 
-== Integrationstest mit Testcontainers
+Slice- und Integrationstests liegen in `:modules:backend:bootstrap` – nur dort liegen alle
+Schichten auf dem Classpath. Framework-freie Tests bleiben bei ihrer Schicht.
+
+== Integrationstest gegen embedded PostgreSQL
 
 [source,java]
 ----
 @SpringBootTest
-@Testcontainers
-class UserIntegrationTest {
-
-    @Container
-    static PostgreSQLContainer<?> postgres =
-        new PostgreSQLContainer<>("postgres:18");
+@EnabledIf("embeddedPostgresAvailable")
+class RecipeIntegrationTest {
 
     @DynamicPropertySource
     static void props(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-    }
-
-    @Autowired
-    UserService userService;
-
-    @Test
-    void shouldPersistAndRetrieveUser() {
-        UserDto created = userService.create(
-            new CreateUserRequest("Anna", "anna@example.com"));
-
-        UserDto found = userService.findById(created.id());
-
-        assertThat(found.name()).isEqualTo("Anna");
+        registry.add("spring.datasource.url", …);
     }
 }
 ----
+
+Die Klasse überspringt sich selbst, wenn das native Binary nicht startet – statt den Build rot
+zu machen. Der Grund steht unten.
 
 == Checkliste
 
 . Happy-Path getestet?
 . Fehlerfälle & Edge-Cases (null, leer, ungültig)?
-. Wurde gemockt, was extern ist (Repo, API)?
+. Wurde gemockt, was extern ist (Repository, Client)?
 . AssertJ für lesbare Assertions genutzt?
+. Liegt der Test auf der *untersten* Stufe, die ihn tragen kann?
 . `./gradlew test` grün?
 . Keine flaky Tests (Zeit/Reihenfolge)?
+. `+./gradlew coverageTable+` gelaufen, wenn Tests oder getesteter Code geändert wurden?
 
 == Mocking-Regeln
 
@@ -178,9 +179,37 @@ class UserIntegrationTest {
 * `verify(...)` nur für relevante Interaktionen
 * `@MockBean` in Spring-Slice-Tests, `@Mock` in reinen Unit-Tests
 
+== Auslöser → Pflicht
+
+[cols="2,3", options="header"]
+|===
+| Anlass | Zu tun
+
+| Geänderte Tests oder geänderter getesteter Code
+| `+./gradlew coverageTable+` *vor* dem Commit; die Datei
+  `docs/system/abdeckung-tabelle.adoc` wird nie von Hand angefasst
+
+| Neue Teststufe oder neuer Architekturtest
+| `docs/system/qualitaetssicherung.adoc` mitpflegen
+
+| Neuer Systemtest
+| Nach `+src/systemtest/java+`; *ausschließlich* über HTTP zugreifen – kein Zugriff auf Beans,
+  kein direkter DB-Zugriff. Nur so bleibt er gegen eine deployte Instanz lauffähig
+
+| Neuer E2E-Test
+| Nur für einen sichtbar anderen Flow. Selektoren über `getByRole`/`getByLabel`, Testdaten pro
+  Lauf eindeutig benennen und im `finally` entfernen
+
+| Ein Architekturtest schlägt fehl
+| Ursache beheben, nicht die Regel entschärfen (Skill `docs/prompt/architektur.adoc`)
+
+| Neue Architekturregel
+| Gegen einen *absichtlichen Verstoß* prüfen, bevor sie als Nachweis gilt
+|===
+
 == Nützliche Befehle
 
-Immer über den Wrapper (siehe link:{adr}/0009-gradle-wrapper-verbindlich{adrext}[ADR 0009]):
+Immer über den Wrapper (Skill `docs/prompt/build.adoc`):
 
 * Alle Tests: `./gradlew test`
 * Einzelne Klasse: `./gradlew test --tests "*.UserServiceTest"`
@@ -188,16 +217,143 @@ Immer über den Wrapper (siehe link:{adr}/0009-gradle-wrapper-verbindlich{adrext
 * Coverage (JaCoCo): läuft automatisch mit – `test` ist in *jedem* Backend-Modul per
   `finalizedBy` an `jacocoTestReport` gekoppelt; Report unter
   `build/reports/jacoco/test/html/index.html`
+* Systemtests gegen eine laufende Instanz:
+  `+./gradlew systemtest -Psystemtest.baseUrl=http://localhost:8080+`
+* E2E gegen eine laufende Instanz: `+./gradlew e2eTest -Pe2e.baseUrl=http://localhost:8080+`
 * Abdeckung in der Systemdokumentation nachziehen: `./gradlew coverageTable`
 
-== Die Tabelle der Abdeckung
+[[festlegungen-tests]]
+== Festlegungen und ihre Gründe
 
-Die Ergebnisse der Messung stehen als Tabelle im Kapitel „Abdeckung" der Systemdokumentation
-(`docs/system/qualitaetssicherung.adoc`). Sie ist *erzeugt, aber eingecheckt*
-(link:{adr}/0047-testabdeckung-als-eingecheckte-tabelle{adrext}[ADR 0047]) – kein Build zieht sie
-nach, weil kein Build die Messung seines eigenen Laufs ausliefern kann.
+=== Embedded PostgreSQL statt Testcontainers
 
-*Wer Tests oder getesteten Code ändert, ruft vor dem Commit `./gradlew coverageTable` auf.* Der
-Task misst selbst und schreibt `docs/system/abdeckung-tabelle.adoc`; die Datei wird *nie* von
-Hand angefasst. Bleibt der Aufruf aus, zeigt die Dokumentation den Stand von vorher – und das
-sieht ihr niemand an.
+*Was gilt.* Integrationstests starten *Zonky embedded-postgres* – ein echtes
+PostgreSQL-Binary ohne Docker – und binden es über `+@DynamicPropertySource+` an die Datasource.
+Kann das native Binary nicht starten, überspringt sich die Testklasse
+(`+@EnabledIf("embeddedPostgresAvailable")+`), statt den Build rot zu machen.
+
+*Warum.* Testcontainers war ursprünglich gewünscht, verlangt aber eine laufende
+Docker-Umgebung; in dieser Entwicklungs- und CI-Umgebung ist Docker *nicht verfügbar*. Die Tests
+sollen trotzdem den vollen Stapel gegen ein echtes PostgreSQL prüfen und hermetisch laufen. Das
+Design bleibt Testcontainers-kompatibel: Ausgetauscht ist nur die Bereitstellung der Datenbank.
+
+*Verworfen.* Testcontainers beibehalten – die Tests liefen hier nicht. Gegen eine extern
+bereitgestellte Datenbank testen – nicht hermetisch, das Ergebnis hinge an einer Umgebung.
+
+*Preis.* Leicht anderes Laufzeitverhalten als ein Container und eine plattformspezifische
+Test-Abhängigkeit. Die Entscheidung wirkt über die Tests hinaus: Sie ist auch der Grund, warum
+die jOOQ-Codegenerierung ohne Datenbank arbeitet (Skill `docs/prompt/persistenz.adoc`), warum
+Diagramme ohne Graphviz gerendert werden (Skill `docs/prompt/systemdokumentation.adoc`) und
+warum Playwright *keine* Pixelvergleiche macht (siehe unten). Wird Docker je verfügbar, ist die
+Rückkehr zu Testcontainers eine eigene Entscheidung.
+
+=== Systemtests in einem eigenen Source-Set
+
+*Was gilt.* Das Plugin `+org.unbroken-dome.test-sets+` legt `+src/systemtest/java+` und den Task
+`+./gradlew systemtest+` an. Die Systemtests sprechen die Anwendung *nur über HTTP* an
+(JDK-`HttpClient`); Einstiegspunkt ist `RunningApplication` mit zwei Betriebsarten: gegen eine
+laufende Instanz (`+-Psystemtest.baseUrl=…+`) oder selbst-gehostet auf einem freien Port gegen
+embedded PostgreSQL. Der Task hängt *bewusst nicht* an `check`/`build`, sondern ist ein eigener
+Schritt der Definition of Done.
+
+*Warum.* Systemtests verhalten sich grundlegend anders als der Rest: Sie sind langsam, brauchen
+eine Datenbank und sollen den schnellen `test`-Zyklus nicht ausbremsen. Weil sie nur HTTP kennen,
+laufen sie unverändert gegen jede Umgebung – lokal, Stage, Prod-Smoke. Der Contract wird damit
+gegen die *Realität* geprüft, nicht nur gegen sich selbst.
+
+*Verworfen.* Gradles eingebautes `+jvm-test-suite+` – deckt denselben Zweck ab, war zum
+Zeitpunkt der Entscheidung aber geschwätziger und teilweise incubating. Source-Set von Hand –
+mehr Verdrahtung ohne Gewinn. Alles in `+src/test+` lassen und per JUnit-Tag filtern – die
+Trennung hinge dann an einer Namenskonvention.
+
+*Preis und bekannte Grenze.* Das Plugin ist *wenig gepflegt* (letzter Release 2023); bricht ein
+künftiges Gradle-Update es, ist die Migration auf `+jvm-test-suite+` der vorgesehene Ausweg – die
+Testklassen selbst bleiben davon unberührt. Beim Selbst-Hosting müssen Port und Datenquelle als
+*Command-Line-Argumente* gesetzt werden, nicht über
+`+SpringApplicationBuilder.properties(...)+`: Letztere landen in `defaultProperties` und werden
+von `+application.yml+` überstimmt.
+
+=== Playwright für End-to-End-Tests
+
+*Was gilt.* Tests unter `+modules/frontend/e2e/+` mit eigener `+playwright.config.ts+`. Die
+`webServer`-Konfiguration startet das *Boot-Jar* – getestet wird damit exakt das ausgelieferte
+Artefakt inklusive der ins Jar gepackten SPA, nicht der Vite-Dev-Server. Standardmäßig läuft nur
+*Chromium*. Die Suite läuft mit `+workers: 1+`, weil die Datenbank geteilt ist.
+
+*Warum.* Vitest prüft gegen jsdom – eine Nachbildung, kein Browser –, und die Systemtests sehen
+nur HTTP, kein DOM. Was fehlte, war der Nachweis, dass die Anwendung *in einem echten Browser*
+funktioniert. Auto-Waiting statt `sleep` adressiert die Flakiness-Vorgabe direkt, und dieselben
+Queries wie in den Testing-Library-Tests (`getByRole`, `getByLabel`) vermeiden ein zweites
+Selektor-Modell im Projekt.
+
+*Verworfen.* Cypress – ausgereift, aber eigener Runner-Unterbau und schwächer bei mehreren
+Tabs/Origins. Vitest Browser Mode – zielt auf *Komponenten* im echten Browser, nicht auf
+systemweite Flows (und nutzt intern ohnehin Playwright). WebdriverIO/Selenium – mehr
+Konfiguration, kein vergleichbares Auto-Waiting. Puppeteer – kein Runner, kein Assertion-Modell.
+
+WARNING: *`+exact: true+` nicht vergessen.* Playwright matcht Accessible Names als *Teilstring*,
+Testing Library dagegen exakt. `+getByLabel('Schritt 1')+` trifft deshalb auch den Button
+„Schritt 1 entfernen" – ein Query, der im Vitest-Test grün ist, kann in E2E mehrdeutig sein.
+
+*Preis.* Rund 115 MB Browser-Binary pro CI-Runner (cachebar); `+playwright install --with-deps+`
+benötigt root – hier funktionierte die Installation ohne Systempakete, das ist aber *nicht
+portabel garantiert*. E2E-Tests sind die langsamsten und teuersten Tests im Projekt: Jar-Build,
+Serverstart und Browser pro Lauf.
+
+=== Video ist Diagnose, Aria-Snapshot ist Assertion
+
+*Was gilt.* Jeder E2E-Lauf wird *als Video aufgezeichnet* (`+video: 'on'+`, WebM, 1280×800) –
+nicht nur Fehlschläge. Sämtliche Artefakte landen unter `+build/e2e/+`: Videos je Test, der
+HTML-Report je Lauf, Screenshot und Trace nur bei Fehlschlag. Für *strukturelle* Regression wird
+`+toMatchAriaSnapshot()+` verwendet, verglichen gegen eine eingecheckte Baseline.
+
+*Warum.* Die Aufzeichnung soll die Durchführung dokumentieren, nicht nur die Diagnose stützen –
+deshalb auch bei grünem Lauf. Als *erwartetes Ergebnis* taugen Videos dagegen nicht: Playwright
+zeichnet per Screencast auf, Frames entstehen bei Änderungen mit Wanduhr-Zeitstempeln, und die
+VP8-Kodierung ist nicht bit-reproduzierbar. Empirisch gemessen unterschieden sich zwei identische
+Läufe derselben fünf Tests in der Videogröße um bis zu *40 %*; ein Baseline-Vergleich wäre
+dauerhaft rot. Der Accessibility-Tree als *Text* ist dagegen deterministisch, unabhängig von
+Fonts, GPU und Plattform, im Review als Zeilen-Diff lesbar – und er sichert genau das ab, worauf
+die übrigen Tests bauen: Rollen und Accessible Names.
+
+*Regeln für Snapshots.* Nur auf *datenunabhängige* oder im Test selbst erzeugte Ausschnitte –
+niemals auf die Rezeptliste, deren Inhalt von der Datenbank abhängt. Die von Playwright
+eingesetzten `+\d++`-Platzhalter *durch literale Werte ersetzen*, wenn die Testdaten fest sind;
+sonst bliebe ein Mapper-Fehler, der 300 zu 30 macht, unentdeckt. Baseline-Änderungen sind
+bewusste Entscheidungen: `+npx playwright test --update-snapshots+` und den Diff im Review prüfen.
+
+*Verworfen.* `+toHaveScreenshot()+` (Pixelvergleich) – Baselines sind plattformabhängig und
+erfordern ein festes CI-Image; das gibt es hier mangels Docker nicht.
+
+*Warum `+build/+`.* Das Verzeichnis wird von `+clean+` ohnehin geleert und ist über `.gitignore`
+ausgeschlossen – weder Aufräum-Logik noch zusätzliche Ignore-Einträge nötig. Preis: rund 0,5 MB
+Video pro Lauf plus eine Kopie im Report; auf CI-Runnern gehört es archiviert, nicht aufbewahrt.
+
+=== Die Abdeckung ist eine erzeugte, aber eingecheckte Tabelle
+
+*Was gilt.* Der Task `+./gradlew coverageTable+` misst selbst – er hängt am `jacocoTestReport`
+jedes Schichtmoduls und dieses am `test`-Task seines Moduls – und schreibt
+`docs/system/abdeckung-tabelle.adoc`. Das Kapitel „Abdeckung" bindet die Datei ein. *Wer Tests
+oder getesteten Code ändert, ruft den Task vor dem Commit auf*; die Datei wird nie von Hand
+angefasst. Gemessen wird *geschriebener* Code: Die vom jOOQ-Codegen erzeugten Klassen sind aus
+dem Report des Moduls `:adapter` ausgenommen.
+
+*Warum.* Ein Kapitel, das die Messung erklärt, aber ihr Ergebnis verschweigt, beantwortet die
+einzige Frage nicht, die ein Leser daran hat. Die Tabelle ist eingecheckt, weil *ein Build die
+Messung seines eigenen Laufs nicht ausliefern kann*: `:bootstrap` packt die gerenderte
+Dokumentation in sein Jar, sein `processResources` hängt also am `asciidoctor`-Task; hinge dieser
+umgekehrt an den Tests, wäre der Task-Graph zyklisch. Der jOOQ-Filter ist nötig, weil der
+erzeugte Code mit über tausend Instruktionen die Mehrheit des Moduls stellt und von keinem Test
+aufgerufen werden soll – ungefiltert bestimmte der Generator die Kennzahl der Schicht (14,9 %
+statt 36,8 % Instruktionen).
+
+*Verworfen.* Zahlen von Hand ins Kapitel schreiben – veraltet beim ersten vergessenen Handgriff.
+Beim Rendern erzeugen – der Kreis oben. Auf den JaCoCo-Report verlinken – er liegt unter
+`build/` und wird nicht ausgeliefert. Eine Mindestquote als Build-Bedingung – bleibt bewusst aus,
+aus dem Grund, den das Kapitel seit jeher nennt.
+
+*Preis und bekannte Grenze.* Der Lauf steht im Ermessen; vergisst ihn jemand, ist die Tabelle
+veraltet, ohne dass der Build etwas merkt – deshalb nennt der Tabellentitel den Task, der sie
+erzeugt hat. Die Quoten sind *je Modul* gemessen: Was die Tests eines Moduls in einem *anderen*
+ausführen, zählt nirgends – der Integrationstest in `:bootstrap` fährt den ganzen Stapel durch,
+in der Zeile `:adapter` sieht man davon nichts. Systemtests und E2E-Tests bleiben ungemessen.

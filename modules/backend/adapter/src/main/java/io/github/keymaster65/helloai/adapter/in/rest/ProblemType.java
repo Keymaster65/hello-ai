@@ -3,7 +3,7 @@ package io.github.keymaster65.helloai.adapter.in.rest;
 import org.springframework.http.HttpStatus;
 
 /**
- * The problem types this API answers with, as defined by RFC 9457 (see ADR 0046).
+ * The problem types this API answers with, as defined by RFC 9457 (see docs/prompt/api.adoc).
  *
  * <p>Each constant carries everything that is constant for its kind of problem: the identifying
  * slug, the human-readable title and the HTTP status. Only the {@code detail} of a single
@@ -24,7 +24,7 @@ public enum ProblemType {
     INVALID_ARGUMENT("invalid-argument", "Invalid argument", HttpStatus.BAD_REQUEST);
 
     /**
-     * Anchor prefix inside the delivered system documentation (ADR 0024). RFC 9457 asks the type
+     * Anchor prefix inside the delivered system documentation (docs/prompt/systemdokumentation.adoc). RFC 9457 asks the type
      * URI to yield human-readable documentation when dereferenced; this is that documentation.
      */
     private static final String DOCUMENTATION_ANCHOR = "/docs/#problem-";
@@ -44,7 +44,7 @@ public enum ProblemType {
      * system documentation that describes this kind of problem.
      *
      * @param contextPath context path of the current request, as reported by the servlet container
-     *                    (see ADR 0016); it is read from the request rather than configured here,
+     *                    (see docs/prompt/api.adoc); it is read from the request rather than configured here,
      *                    so the path stays anchored in exactly one place
      * @return the type URI reference
      */

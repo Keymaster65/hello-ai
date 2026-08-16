@@ -9,7 +9,7 @@ import org.junit.jupiter.api.condition.EnabledIf;
 import tools.jackson.databind.JsonNode;
 
 /**
- * System tests for the Swagger/OpenAPI surface of a running application (see ADR 0005 and 0006).
+ * System tests for the Swagger/OpenAPI surface of a running application (see docs/prompt/api.adoc and 0006).
  *
  * <p>Everything here goes through HTTP against {@link RunningApplication#baseUrl()}, so the tests
  * are equally valid against a locally booted instance and against a deployed environment.
@@ -81,7 +81,7 @@ class SwaggerSystemTest {
                 "id", "title", "difficulty", "ingredients", "steps");
         assertThat(requiredOf(schemas, "PreparationStepResponse"))
                 .containsExactlyInAnyOrder("position", "instruction");
-        // The five members of RFC 9457 plus the typed extension (ADR 0046).
+        // The five members of RFC 9457 plus the typed extension (docs/prompt/api.adoc).
         assertThat(requiredOf(schemas, "ProblemDetail"))
                 .containsExactlyInAnyOrder("type", "title", "status", "detail", "instance", "fieldErrors");
         assertThat(requiredOf(schemas, "FieldError")).containsExactlyInAnyOrder("field", "message");
@@ -128,7 +128,7 @@ class SwaggerSystemTest {
     void shouldPointSwaggerUiAtThisApplicationsContract() {
         // The stock WebJar initializer points at petstore.swagger.io; springdoc has to override that
         // via configUrl, otherwise the UI would render a foreign API. Both values must carry the
-        // context path (ADR 0016) – otherwise the UI would look for the contract at the wrong place.
+        // context path (docs/prompt/api.adoc) – otherwise the UI would look for the contract at the wrong place.
         String contextPath = RunningApplication.CONTEXT_PATH;
         assertThat(HttpProbe.get("/swagger-ui/swagger-initializer.js").body())
                 .contains("\"configUrl\" : \"" + contextPath + "/v3/api-docs/swagger-config\"");

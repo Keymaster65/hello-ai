@@ -35,7 +35,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Tag(name = "Recipes", description = "Create, read, update and delete recipes")
 public class RecipeController {
 
-    /** Errors answer as RFC 9457 problem details, not as plain JSON (see ADR 0046). */
+    /** Errors answer as RFC 9457 problem details, not as plain JSON (see docs/prompt/api.adoc). */
     private static final String ERROR_MEDIA_TYPE = MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 
     private final RecipeService recipeService;

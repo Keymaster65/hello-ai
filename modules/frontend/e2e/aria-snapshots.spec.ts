@@ -2,12 +2,12 @@ import { expect, test, type APIRequestContext } from '@playwright/test'
 
 import { CONTEXT_PATH } from '../playwright.config'
 
-/** Basis-URL der Anwendung inklusive Context-Path, mit Schrägstrich am Ende (ADR 0016). */
+/** Basis-URL der Anwendung inklusive Context-Path, mit Schrägstrich am Ende (docs/prompt/frontend.adoc). */
 const APP = `${CONTEXT_PATH}/`
 
 /**
  * Structural regression tests: the accessibility tree of a view is compared against a committed
- * baseline (see ADR 0008).
+ * baseline (see docs/prompt/tests.adoc).
  *
  * <p>Unlike the recorded videos – which are diagnostics and not reproducible byte-for-byte – an
  * aria snapshot is deterministic text: it survives font, GPU and platform differences and shows

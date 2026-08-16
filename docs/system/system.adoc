@@ -8,17 +8,11 @@
 :source-highlighter: highlight.js
 :experimental:
 // Bindet `docinfo-footer.html` vor `</body>` ein – die Datei macht das Inhaltsverzeichnis
-// auf- und zuklappbar (ADR 0043). `shared-footer` meint genau diese eine Datei; eine
+// auf- und zuklappbar. `shared-footer` meint genau diese eine Datei; eine
 // `docinfo.html` für den Kopf gibt es nicht.
 :docinfo: shared-footer
 // Ohne das steht in der Überschrift des Anhangs „Appendix" – der Rest ist deutsch.
 :appendix-caption: Anhang
-// Pfad zu den ADRs, relativ zu docs/system. Alle Kapiteldateien liegen im selben
-// Verzeichnis, der Wert gilt damit auch, wenn ein Kapitel einzeln gerendert wird.
-:adr: ../adr
-// Endung der ADR-Dateien: im Repository `.adoc`, im gerenderten Ergebnis `.html`
-// (ADR 0026). Der Build überschreibt das Attribut, die Kapitel schreiben `{adrext}`.
-:adrext: .adoc
 
 Diese Dokumentation beschreibt das System *recipes* im Zusammenhang: welche Bausteine es
 gibt, wie sie ineinandergreifen, welche Daten sie halten und wie das Ganze gebaut,
@@ -30,12 +24,12 @@ betrieben und geprüft wird.
 * Ein Sprung auf einen Abschnitt – aus dem Verzeichnis, aus dem Text oder über die
   Adresszeile – klappt den Weg dorthin von selbst auf.
 * Ohne JavaScript steht das Verzeichnis vollständig offen; die Bedienung ist eine Zutat, keine
-  Bedingung (link:{adr}/0043-inhaltsverzeichnis-klappbar-per-docinfo{adrext}[ADR 0043]). Sie
+  Bedingung (Skill `docs/prompt/systemdokumentation.adoc`). Sie
   steckt in <<src-docinfo-footer>>, das Asciidoctor beim Rendern in diese Seite kopiert.
 
 == Zweck und Abgrenzung
 
-Das Projekt kennt sechs Dokumentationsarten mit klar getrennten Aufgaben. Wer etwas ergänzt,
+Das Projekt kennt fünf Dokumentationsarten mit klar getrennten Aufgaben. Wer etwas ergänzt,
 wählt danach den Ort:
 
 [cols="1,2,3", options="header"]
@@ -46,11 +40,6 @@ wählt danach den Ort:
 | Wie fange ich an? Welcher Befehl tut was?
 | Einstieg und Bedienung, bewusst knapp
 
-| `docs/adr/`
-| Warum ist es so und nicht anders?
-| Eine Entscheidung je Datei, mit Optionen und Konsequenzen; historisch, wird nicht
-  umgeschrieben
-
 | `docs/system/` (hier)
 | Was gibt es, und wie greift es ineinander?
 | Zusammenhängende Sicht auf das System im *Ist-Zustand*
@@ -58,34 +47,34 @@ wählt danach den Ort:
 | `docs/log/claudeLog.adoc`
 | Wie ist es entstanden?
 | Ein Eintrag je Prompt, neuester oben – Protokoll statt Beschreibung
-  (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]). Eingebunden als erster Anhang
-  <<session-protokoll>> (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033],
-  link:{adr}/0044-anhaenge-nach-entstehung-geordnet{adrext}[ADR 0044]), die Kennzahlen daraus
+  (Skill `docs/prompt/butterfly.adoc`). Eingebunden als erster Anhang
+  <<session-protokoll>> (Skill `docs/prompt/butterfly.adoc`,
+  Skill `docs/prompt/systemdokumentation.adoc`), die Kennzahlen daraus
   als <<kennzahlen>>, die Commits als <<git-historie>>
 
 | `docs/backlog.adoc`
 | Was kommt als Nächstes?
 | Ein Prompt je Überschrift, von oben abzuarbeiten; der Status steht im Anfang der Überschrift
-  (link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028]) und darf einen
+  (Skill `docs/prompt/po.adoc`) und darf einen
   Branch nennen, an den der Eintrag gebunden ist
-  (link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031]). Eingebunden als
+  (Skill `docs/prompt/po.adoc`). Eingebunden als
   letzter Anhang <<backlog>>
 
 | `docs/prompt/`
 | Wie wird an diesem Projekt gearbeitet?
-| Master-Prompt und Skills – Anweisung statt Beschreibung
-  (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]). Aufbau, Ladeweg und
-  der vollständige Wortlaut stehen in <<arbeitsgrundlage>>; die Dateien dort bleiben die
-  Quelle, das Kapitel bindet sie ein
+| Master-Prompt und Skills – Anweisung statt Beschreibung, jede Regel mit ihrer Begründung.
+  Aufbau, Ladeweg und der vollständige Wortlaut stehen in <<arbeitsgrundlage>>; die Dateien
+  dort bleiben die Quelle, das Kapitel bindet sie ein
 |===
 
 Daraus folgen drei Regeln für diese Dokumentation:
 
-* *Sie verlinkt statt zu kopieren.* Begründungen stehen im jeweiligen ADR, nicht hier.
-  Hier steht, was gilt – dahinter der Verweis, warum.
+* *Sie verlinkt statt zu kopieren.* Begründungen stehen im zuständigen Skill unter
+  „Festlegungen und ihre Gründe", nicht hier. Hier steht, was gilt – dahinter der Verweis,
+  warum.
 * *Sie nennt keine Versionsnummern.* Die einzige Quelle dafür ist
   `gradle/libs.versions.toml` bzw. `modules/frontend/package.json`
-  (link:{adr}/0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018]). Eine Version an zwei
+  (Skill `docs/prompt/build.adoc`). Eine Version an zwei
   Stellen ist eine Version, die an einer Stelle veraltet.
 * *Bei Widerspruch gewinnt der Code.* Diese Dateien sind Beschreibung, nicht Spezifikation.
   Ein Widerspruch ist ein Fehler in der Dokumentation und wird dort behoben.
@@ -113,79 +102,25 @@ include::qualitaetssicherung.adoc[leveloffset=+1]
 
 include::arbeitsgrundlage.adoc[leveloffset=+1]
 
-== Architekturentscheidungen (ADR)
+== Entscheidungen
 
-Die Begründungen liegen in `docs/adr/` – ein Verzeichnis, das diese Dokumentation
-absichtlich nicht zusammenfasst, weil eine Zusammenfassung die Optionen und damit den Wert
-eines ADR verliert. Die Kapitel verweisen jeweils an der Stelle, an der die Entscheidung
-wirkt.
+Warum das System so aussieht und nicht anders, steht *nicht* hier: Jede Festlegung steht in dem
+Skill der Arbeitsgrundlage, dessen Regel sie ist – im Abschnitt „Festlegungen und ihre Gründe",
+zusammen mit den verworfenen Wegen und dem Beleg. Ein eigenes Verzeichnis für
+Architekturentscheidungen gibt es nicht mehr; welcher Skill wofür zuständig ist, sagt
+`docs/prompt/entscheidungen.adoc`. Der vollständige Wortlaut aller Skills steht im Kapitel
+<<arbeitsgrundlage>>.
 
-Die Tabelle ist *absteigend* sortiert – das neueste ADR steht oben, wie im Session-Protokoll
-und in der Kennzahlen-Tabelle. Wer wissen will, was zuletzt entschieden wurde, liest die
-erste Zeile.
-
-[cols="1,3", options="header"]
-|===
-| ADR | Thema
-
-| link:{adr}/0048-security-skill-je-seite{adrext}[0048] | Je Seite ein eigener Security-Skill: `docs/prompt/security-backend.adoc`, das Frontend bekommt eine eigene Datei (löst den Zuschnitt „eine Datei mit Abschnitten je Seite" aus 0035 ab)
-| link:{adr}/0047-testabdeckung-als-eingecheckte-tabelle{adrext}[0047] | Die Testabdeckung steht als erzeugte, aber eingecheckte Tabelle im Kapitel „Abdeckung"; erzeugter jOOQ-Code fällt aus der Messung (folgt 0027, gegen die Ablage in `build/` aus 0036)
-| link:{adr}/0046-rfc-9457-problem-details-als-fehlerformat{adrext}[0046] | Fehlerantworten folgen RFC 9457 (`+application/problem+json+`) statt dem eigenen `ErrorResponse`; `fieldErrors` bleibt als typisierte Erweiterung im Contract (löst ein Format aus 0021 ab)
-| link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[0045] | Die Anwendungsschicht bleibt frei von Framework-Abhängigkeiten – Bean-Erzeugung und Transaktionsgrenze wandern in den Composition Root (führt 0012 fort)
-| link:{adr}/0044-anhaenge-nach-entstehung-geordnet{adrext}[0044] | Session-Protokoll und Git-Historie als eigene Anhänge, nach der Entstehung geordnet (löst eine Festlegung aus 0033 und eine aus 0036 ab)
-| link:{adr}/0043-inhaltsverzeichnis-klappbar-per-docinfo{adrext}[0043] | Klappbares Inhaltsverzeichnis per Docinfo-Fußzeile
-| link:{adr}/0042-plantuml-fuer-diagramme{adrext}[0042] | PlantUML als Werkzeug für Diagramme, gerendert beim Bauen
-| link:{adr}/0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[0041] | Die Kennzahlen-Tabelle verweist auf Protokoll und Git-Historie (löst eine Festlegung aus 0038 ab)
-| link:{adr}/0040-commit-freigabe-in-einem-schritt{adrext}[0040] | `commit` ist die Freigabe – die Bestätigung der Message entfällt (löst eine Regel des Develop-Skills ab)
-| link:{adr}/0039-summenspalten-in-der-kennzahlen-tabelle{adrext}[0039] | Summenspalten in der Kennzahlen-Tabelle (löst zwei Festlegungen aus 0027 ab)
-| link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[0038] | Querverweise zwischen Prompt und Commit im Anhang „Änderungen"
-| link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[0037] | `security.txt` am Ursprung, ausgeliefert von einem Engine-Valve
-| link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[0036] | Git-Historie als erzeugtes Kapitel im Anhang „Änderungen"
-| link:{adr}/0035-security-skill-und-security-txt{adrext}[0035] | Security-Skill für das Backend, mit `security.txt` nach RFC 9116
-| link:{adr}/0034-arbeitsbranches-vor-dem-merge-holen{adrext}[0034] | Arbeitsbranches vor dem Merge vom Remote holen
-| link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[0033] | Session-Protokoll als Anhang „Änderungen" der Systemdokumentation
-| link:{adr}/0032-branches-nach-jedem-commit-mergen{adrext}[0032] | Nach jedem Commit die Arbeitsbranches mergen
-| link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[0031] | `next` bevorzugt Einträge, die an den aktuellen Branch gebunden sind
-| link:{adr}/0030-pull-vor-next{adrext}[0030] | `git pull --ff-only` vor jedem `next`
-| link:{adr}/0029-next-mit-versatz{adrext}[0029] | `next` mit Versatz – `next+1`, `next+2`
-| link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[0028] | Backlog als Anhang, Status im Anfang der Überschrift
-| link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[0027] | Kennzahlen des `claudeLog` als erzeugte Tabelle im Anhang
-| link:{adr}/0026-adrs-als-asciidoc{adrext}[0026] | ADRs als AsciiDoc, gerendert im Boot-Jar
-| link:{adr}/0025-claudelog-als-asciidoc{adrext}[0025] | Session-Protokoll `claudeLog` als AsciiDoc
-| link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[0024] | Systemdokumentation im Boot-Jar unter `/recipes/docs/`
-| link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[0023] | AsciiDoc für Master-Prompt und Skills in `docs/prompt`
-| link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[0022] | AsciiDoc-Systemdokumentation in `docs/system`
-| link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[0021] | Currying für Records mit mehr als zwei Komponenten
-| link:{adr}/0020-domain-in-model-und-services-teilen{adrext}[0020] | Domäne in `model` und `services` teilen
-| link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[0019] | Onion-Architecture-Regel in ArchUnit
-| link:{adr}/0018-versionskatalog-libs-versions-toml{adrext}[0018] | Versionskatalog `libs.versions.toml`
-| link:{adr}/0017-router-mit-spa-fallback{adrext}[0017] | Router mit SPA-Fallback
-| link:{adr}/0016-context-path-recipes{adrext}[0016] | Context-Path `/recipes`
-| link:{adr}/0015-alle-bausteine-unter-modules{adrext}[0015] | Alle Bausteine unter `modules`
-| link:{adr}/0014-schichtmodule-unter-backend{adrext}[0014] | Schichtmodule unter `backend`
-| link:{adr}/0013-ein-gradle-modul-je-schicht{adrext}[0013] | Ein Gradle-Modul je Schicht
-| link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[0012] | ArchUnit für die Schichtenregel
-| link:{adr}/0011-backend-als-gradle-modul{adrext}[0011] | Backend als Gradle-Modul
-| link:{adr}/0010-gradle-kotlin-dsl{adrext}[0010] | Gradle Kotlin-DSL
-| link:{adr}/0009-gradle-wrapper-verbindlich{adrext}[0009] | Gradle-Wrapper verbindlich
-| link:{adr}/0008-playwright-fuer-e2e-tests{adrext}[0008] | Playwright für E2E-Tests
-| link:{adr}/0007-react-frontend-mit-backend-als-bff{adrext}[0007] | React-Frontend mit Backend als BFF
-| link:{adr}/0006-testsets-plugin-und-systemtests{adrext}[0006] | test-sets-Plugin und Systemtests
-| link:{adr}/0005-springdoc-openapi-und-swagger-ui{adrext}[0005] | springdoc-openapi und Swagger UI
-| link:{adr}/0004-liquibase-statt-flyway{adrext}[0004] | Liquibase statt Flyway
-| link:{adr}/0003-kein-lombok-records-und-konstruktor-injektion{adrext}[0003] | Kein Lombok, Records, Konstruktor-Injektion
-| link:{adr}/0002-embedded-postgres-statt-testcontainers{adrext}[0002] | Embedded PostgreSQL statt Testcontainers
-| link:{adr}/0001-jooq-codegen-aus-flyway-skripten{adrext}[0001] | jOOQ-Codegen aus Migrationsskripten
-|===
+Diese Kapitel beschreiben den *Ist-Zustand* und verweisen an der Stelle, an der eine Festlegung
+wirkt, auf den zuständigen Skill.
 
 [[pflege-dieser-dokumentation]]
 == Pflege dieser Dokumentation
 
 Die Dokumentation wird *mit* der Änderung gepflegt, die sie betrifft – nicht nachgelagert.
-Welche Änderung welches Kapitel berührt, steht in `docs/prompt/systemdokumentation.adoc`
-(link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]); die
-Entscheidung dazu in
-link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022].
+Welche Änderung welches Kapitel berührt, steht im Skill
+`docs/prompt/systemdokumentation.adoc`; dort steht auch, warum diese Dokumentation so
+aufgebaut ist.
 
 Gerendert wird mit:
 
@@ -194,11 +129,9 @@ Gerendert wird mit:
 ./gradlew asciidoctor   # → build/docs/asciidoc/system.html
 ----
 
-Neben dem HTML legt der Task die ADRs als `adr/` ab – gerendert von `./gradlew asciidoctorAdr`,
-an dem er hängt (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026]). Das Ergebnis ist damit
-als Ganzes kopierbar und wird genau so ins Boot-Jar gepackt – die laufende Anwendung liefert es
-unter `/recipes/docs/` aus
-(link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]).
+Neben dem HTML legt der Task die erzeugten Diagramme ab. Das Ergebnis ist damit als Ganzes
+kopierbar und wird genau so ins Boot-Jar gepackt – die laufende Anwendung liefert es unter
+`/recipes/docs/` aus (Skill `docs/prompt/systemdokumentation.adoc`).
 
 Der Task läuft als Teil von `./gradlew build` mit. Ein fehlender `include`, eine
 unbekannte Attribut-Referenz oder eine defekte Tabelle fällt damit im Build auf und nicht

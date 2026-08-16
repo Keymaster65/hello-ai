@@ -18,7 +18,7 @@ export function RecipeList({ recipes, onEdit, onDelete }: RecipeListProps) {
         <li key={recipe.id} className="recipe-card">
           <div className="recipe-card__main">
             {/* Ein echter Link, damit die Detailansicht teilbar ist: Adresse kopieren,
-                neuer Tab und Zurück-Taste funktionieren wie erwartet (ADR 0017). */}
+                neuer Tab und Zurück-Taste funktionieren wie erwartet (docs/prompt/frontend.adoc). */}
             <Link className="link" to={`/${recipe.id}`}>
               {recipe.title}
             </Link>

@@ -10,16 +10,16 @@ Die Tabelle ist damit *abgeleitet*: Der Log bleibt die einzige Quelle, die Zahle
 nicht zweitgeführt. Die Werte je Zeile werden als Zeichenkette übernommen, nicht neu
 gerechnet – was im Log steht, steht in der Tabelle.
 
-Ausgenommen sind die drei `Summe`-Spalten: Sie werden *gerechnet* (ADR 0039), weil eine
+Ausgenommen sind die drei `Summe`-Spalten: Sie werden *gerechnet* (docs/prompt/manager.adoc), weil eine
 laufende Summe im Log nicht steht und dort auch nicht hingehört. Gezählt wird über alle
 Einträge hinweg, anders als die `Stand`-Spalten, die je Session gelten.
 
-Jede Zeile ist außerdem in beide Nachbarsichten des Anhangs „Änderungen" *verlinkt* (ADR
-0041): Die Spalte `Nr.` zeigt auf den Log-Eintrag (`+<<prompt-N>>+`), die Spalte `Commit` auf
+Jede Zeile ist außerdem in beide Nachbarsichten *verlinkt* (docs/prompt/manager.adoc): Die
+Spalte `Nr.` zeigt auf den Log-Eintrag (`+<<prompt-N>>+`), die Spalte `Commit` auf
 die Zeile der Git-Historie (`+<<commit-<kurzhash>>>+`). Beide Ziele stehen im selben
 gerenderten Dokument. Auch die Commit-Spalte ist *abgeleitet*: Gelesen wird allein die Zeile
 `+_Commit:_+` des Eintrags, dieselbe Quelle, aus der der Gradle-Task `gitChangelog` die
-Gegenrichtung füllt (ADR 0038).
+Gegenrichtung füllt (docs/prompt/butterfly.adoc).
 
 Aufruf:
 
@@ -57,7 +57,7 @@ STAND = re.compile(
     r"(?P<out>[\d.]+) Token out · (?P<gesamt>[\d.]+) Token gesamt_$"
 )
 
-# `_Commit: <<commit-66a5ae4,66a5ae4>>_`, bei mehreren durch Komma getrennt (ADR 0038).
+# `_Commit: <<commit-66a5ae4,66a5ae4>>_`, bei mehreren durch Komma getrennt (docs/prompt/butterfly.adoc).
 # Dieselbe Zeile, die der Gradle-Task `gitChangelog` liest – die Zuordnung steht im Protokoll
 # und wird nirgends zweitgeführt.
 COMMIT = re.compile(r"^_Commit: (?P<verweise>.+)_$")
@@ -147,10 +147,10 @@ class Entry:
         self.text = text
         self.delta: re.Match | None = None
         self.stand: re.Match | None = None
-        # Kurz-Hashes aus der Zeile `_Commit:_`, in der Reihenfolge des Eintrags (ADR 0038).
+        # Kurz-Hashes aus der Zeile `_Commit:_`, in der Reihenfolge des Eintrags (docs/prompt/butterfly.adoc).
         # Meist leer: Die wenigsten Prompts erzeugen einen Commit.
         self.commits: list[str] = []
-        # Laufende Summen über *alle* Einträge bis hierher (ADR 0039); von `akkumulieren`
+        # Laufende Summen über *alle* Einträge bis hierher (docs/prompt/manager.adoc); von `akkumulieren`
         # gesetzt, nicht aus dem Log gelesen.
         self.summe_dauer = 0
         self.summe_out = 0
@@ -167,16 +167,16 @@ class Entry:
 
         Das Vorzeichen wird *ausgeschrieben*, weil Asciidoctor `--` durch einen Geviertstrich
         ersetzt – aus `<<prompt--2,-2>>` würde dabei still ein Verweis auf ein anderes
-        Dokument (ADR 0038).
+        Dokument (docs/prompt/butterfly.adoc).
         """
         return "prompt-" + self.nr.replace("-", "minus")
 
     def nr_cell(self) -> str:
-        """Die Nummer als Verweis auf den Log-Eintrag im Anhang „Änderungen" (ADR 0041)."""
+        """Die Nummer als Verweis auf den Log-Eintrag im Anhang „Änderungen" (docs/prompt/manager.adoc)."""
         return f"<<{self.anker()},{self.nr}>>"
 
     def commit_cell(self) -> str:
-        """Die Commits des Eintrags als Verweise auf die Git-Historie – oder `–` (ADR 0041).
+        """Die Commits des Eintrags als Verweise auf die Git-Historie – oder `–` (docs/prompt/manager.adoc).
 
         `–` heißt hier wie in der Gegenrichtung *„der Eintrag schreibt sich keinen Commit
         zu"*, nicht „es gab keinen": Gelesen wird allein die Zeile `_Commit:_`.
@@ -232,7 +232,7 @@ def prompt_cell(text: str) -> str:
 
 
 def akkumulieren(entries: list[Entry]) -> None:
-    """Setzt je Eintrag die laufende Summe über *alle* Einträge bis zu ihm (ADR 0039).
+    """Setzt je Eintrag die laufende Summe über *alle* Einträge bis zu ihm (docs/prompt/manager.adoc).
 
     Gezählt wird von der *ältesten* Zeile aufwärts – die Liste steht absteigend, deshalb
     `reversed`. Die oberste Zeile trägt damit die Gesamtsumme des Projekts.

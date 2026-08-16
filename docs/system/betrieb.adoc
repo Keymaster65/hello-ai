@@ -1,14 +1,12 @@
 // Kapitel der Systemdokumentation; siehe system.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 = Build und Betrieb
 
 == Build
 
 Gebaut wird ausschließlich über den Gradle-Wrapper
-(link:{adr}/0009-gradle-wrapper-verbindlich{adrext}[ADR 0009]), Buildskripte im Kotlin-DSL
-(link:{adr}/0010-gradle-kotlin-dsl{adrext}[ADR 0010]). Alle Koordinaten und Versionen stehen in
-<<src-libs-versions,`gradle/libs.versions.toml`>> (link:{adr}/0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018]).
+(Skill `docs/prompt/build.adoc`), Buildskripte im Kotlin-DSL
+(Skill `docs/prompt/build.adoc`). Alle Koordinaten und Versionen stehen in
+<<src-libs-versions,`gradle/libs.versions.toml`>> (Skill `docs/prompt/build.adoc`).
 
 [cols="2,3", options="header"]
 |===
@@ -26,32 +24,26 @@ Gebaut wird ausschließlich über den Gradle-Wrapper
 | `./gradlew e2eTest`
 | Playwright im echten Browser gegen das Boot-Jar. Braucht eine erreichbare PostgreSQL.
 | `./gradlew asciidoctor`
-| Rendert `docs/system/system.adoc` nach `build/docs/asciidoc/system.html` und legt die ADRs
-  als `adr/` daneben. Enthaltene PlantUML-Diagramme werden dabei aus ihrer Quelle im Dokument
-  zu SVG-Dateien neben dem HTML (link:{adr}/0042-plantuml-fuer-diagramme{adrext}[ADR 0042]).
+| Rendert `docs/system/system.adoc` nach `build/docs/asciidoc/system.html`. Enthaltene
+  PlantUML-Diagramme werden dabei aus ihrer Quelle im Dokument zu SVG-Dateien neben dem HTML (Skill `docs/prompt/systemdokumentation.adoc`).
   Das Ergebnis wandert von dort ins Boot-Jar
-  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]); ausgenommen ist der
+  (Skill `docs/prompt/systemdokumentation.adoc`); ausgenommen ist der
   Diagramm-Cache `.asciidoctor/`, der zum Bauen gehört. In das HTML kopiert wird außerdem
   `docs/system/docinfo-footer.html`, das Beiwerk des klappbaren Inhaltsverzeichnisses
-  (link:{adr}/0043-inhaltsverzeichnis-klappbar-per-docinfo{adrext}[ADR 0043]) – als
+  (Skill `docs/prompt/systemdokumentation.adoc`) – als
   Nicht-AsciiDoc-Datei ist sie im Buildskript *einzeln* als Eingabe angemeldet.
-| `./gradlew asciidoctorAdr`
-| Rendert `docs/adr/*.adoc` nach `build/docs/adr/`. Hängt am Task darüber, der das Ergebnis
-  neben die Systemdokumentation kopiert
-  (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026]).
 | `./gradlew gitChangelog`
 | Schreibt die git-Historie als Tabelle nach `build/docs/changelog/gitchangelog.adoc`, die der
   Anhang <<git-historie>> einbindet. Hängt am `asciidoctor`-Task darüber und läuft *immer*, nie
-  „up-to-date" (link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036]).
+  „up-to-date" (Skill `docs/prompt/systemdokumentation.adoc`).
 | `./gradlew coverageTable`
 | Misst die Abdeckung – er stößt den `test`-Lauf jedes Backend-Moduls an – und schreibt sie als
   Tabelle nach `docs/system/abdeckung-tabelle.adoc`, die das Kapitel <<abdeckung-tabelle>>
-  einbindet (link:{adr}/0047-testabdeckung-als-eingecheckte-tabelle{adrext}[ADR 0047]). Hängt an
+  einbindet (Skill `docs/prompt/tests.adoc`). Hängt an
   keinem anderen Task: Das Ergebnis ist eingecheckt und wird ausdrücklich nachgezogen.
 | `./gradlew asciidoctorPrompt`
 | Rendert `docs/prompt/prompt.adoc` – Master-Prompt und Skills – nach
-  `build/docs/prompt/prompt.html`
-  (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]).
+  `build/docs/prompt/prompt.html`.
 | `./gradlew bootRun`
 | Startet die Anwendung. Braucht eine erreichbare PostgreSQL.
 | `./gradlew build -PskipFrontend`
@@ -94,22 +86,22 @@ bootstrap --> jar : processResources: dist/ → static/,\nDoku → static/docs/;
 Der Frontend-Build hängt am Modul `:bootstrap`, weil dort das Deployable zusammengesetzt
 wird. Spring Boot liefert das Bundle anschließend aus dem Klassenpfad aus – SPA und API
 kommen aus derselben Origin
-(link:{adr}/0007-react-frontend-mit-backend-als-bff{adrext}[ADR 0007]).
+(Skill `docs/prompt/frontend.adoc`).
 
 Dieselbe Rollenteilung gilt für die Systemdokumentation: Gerendert wird sie im
 Wurzelprojekt (`asciidoctor`), eingepackt in `:bootstrap`. Beim Kopieren wird `system.html`
-zu `index.html`, die mitkopierten ADRs behalten ihren Ordner. Ausgeliefert wird das unter
+zu `index.html`, die erzeugten Diagramme reisen daneben mit. Ausgeliefert wird das unter
 `/recipes/docs/`
-(link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]) – die Anwendung trägt ihre
+(Skill `docs/prompt/systemdokumentation.adoc`) – die Anwendung trägt ihre
 Beschreibung damit bei sich.
 
 Zwei Eigenschaften, die im Alltag zählen:
 
 * *Der Build braucht keine Datenbank.* Die jOOQ-Codegenerierung interpretiert das
   Liquibase-Changelog im Speicher, die Integrationstests nutzen embedded PostgreSQL
-  (link:{adr}/0002-embedded-postgres-statt-testcontainers{adrext}[ADR 0002]).
+  (Skill `docs/prompt/tests.adoc`).
 * *Der Artefaktname ist vom Modulnamen entkoppelt*: `recipes-<version>.jar`, nicht
-  `bootstrap-<version>.jar` (link:{adr}/0011-backend-als-gradle-modul{adrext}[ADR 0011]).
+  `bootstrap-<version>.jar` (Skill `docs/prompt/architektur.adoc`).
 
 == Konfiguration
 
@@ -148,7 +140,7 @@ lokale Entwicklung. Es gibt bewusst keine Profil-Dateien je Umgebung.
 | `https://github.com/Keymaster65/hello-ai/issues`
 | Meldeweg für Schwachstellen, ausgeliefert unter `+/.well-known/security.txt+` (RFC 9116).
   Mehrere URIs kommagetrennt, die bevorzugte zuerst
-  (link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037]).
+  (Skill `docs/prompt/security-backend.adoc`).
 
 | `SECURITY_TXT_EXPIRES`
 | `2027-08-01T00:00:00Z`
@@ -168,7 +160,7 @@ anzupassen:
 | <<src-vite-config,`vite.config.ts`>> (`base`),
   <<src-playwright-config,`playwright.config.ts`>> (`CONTEXT_PATH`), der `basename` der
   SPA. Eine Änderung betrifft alle drei
-  (link:{adr}/0016-context-path-recipes{adrext}[ADR 0016]).
+  (Skill `docs/prompt/api.adoc`).
 
 | Liquibase aktiv, Changelog-Pfad
 | Die jOOQ-Codegenerierung liest dieselbe Datei; ein Umzug betrifft
@@ -181,7 +173,7 @@ anzupassen:
 | Ohne den Schalter fallen `405`, `415` und ihresgleichen wieder auf die Standardseite zurück,
   während die vier eigenen Fälle weiter `+application/problem+json+` liefern – zwei
   Fehlerbilder statt einem
-  (link:{adr}/0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR 0046]).
+  (Skill `docs/prompt/api.adoc`).
 |===
 
 == Laufzeitumgebung
@@ -235,7 +227,7 @@ Der Anwendungscode ist in beiden Modi identisch, weil er nur relative Pfade kenn
 . jOOQ erhält seinen `DSLContext` auf der konfigurierten `DataSource`.
 . Der HTTP-Port wird geöffnet; SPA, API, Swagger UI und Systemdokumentation sind erreichbar –
   dazu, als einziger Pfad *neben* dem Context-Path, `+/.well-known/security.txt+`
-  (link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037]).
+  (Skill `docs/prompt/security-backend.adoc`).
 
 Ein Rollback von Changesets ist nicht vorgesehen; das Vorgehen bei einer fehlerhaften
 Migration ist ein neues, korrigierendes Changeset.
@@ -254,7 +246,7 @@ Umgebung betreibt, ohne sie zu kennen.
 | Authentifizierung und Autorisierung
 | Jeder, der den Port erreicht, kann alle Rezepte lesen, ändern und löschen – und unter
   `/recipes/docs/` diese Dokumentation samt der Liste hier lesen
-  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]). Die Anwendung
+  (Skill `docs/prompt/systemdokumentation.adoc`). Die Anwendung
   gehört daher hinter einen kontrollierten Zugang oder in ein privates Netz; kommt eine
   Authentifizierung, ist `/recipes/docs/**` mit abzusichern.
 
@@ -285,15 +277,14 @@ Umgebung betreibt, ohne sie zu kennen.
   Auslieferung.
 
 | Vertraulicher Meldeweg für Schwachstellen
-| Die `security.txt` ist da (link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR
-  0037]), ihr `Contact` zeigt aber auf die *öffentlichen* Issues des Repositories. Wer eine
+| Die `security.txt` ist da (Skill `docs/prompt/security-backend.adoc`), ihr `Contact` zeigt aber auf die *öffentlichen* Issues des Repositories. Wer eine
   Schwachstelle meldet, macht sie damit im selben Moment bekannt. Ein privater Kanal – etwa
   GitHub Security Advisories oder eine gepflegte Adresse – steht als Vorschlag im Backlog.
 
 | Signatur der `security.txt`
 | RFC 9116 erlaubt eine Clearsign-Signatur samt `Signature`-Feld. Sie fehlt: Ohne sie ist der
   Inhalt der Datei nicht als echt nachweisbar. Ein gepflegter Schlüssel ist eine eigene
-  Entscheidung (link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035]).
+  Entscheidung (Skill `docs/prompt/security-backend.adoc`).
 
 | Prüfbedingung auf `difficulty`
 | Die Spalte ist ein `VARCHAR` ohne `CHECK`. Ein per Hand eingefügter Fremdwert fällt erst

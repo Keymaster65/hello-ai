@@ -20,6 +20,34 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-160,160>>
+|„commit"
+| –
+| 16 s
+| 16:35:21 h
+| 1.058
+| 4.255.476
+| 60
+| 24.808.079
+| 1.191.152
+| 54:19 min
+| 349.064
+| 102.569.993
+
+| <<prompt-159,159>>
+|„Konsolidiere alle Skills und ADR so, dass keine ADR mehr notwendig sind, alle die Inhalte auf die Skills verteilt werden. Wenn sinnvoll erzeuge neue Skills." (aus dem Backlog, `next`)
+| –
+| 39:47 min
+| 16:35:05 h
+| 253.660
+| 4.254.418
+| 1.399.921
+| 24.808.019
+| 75.584.976
+| 49:31 min
+| 339.720
+| 92.533.912
+
 | <<prompt-158,158>>
 |„commit"
 | <<commit-60cfb74,60cfb74>>

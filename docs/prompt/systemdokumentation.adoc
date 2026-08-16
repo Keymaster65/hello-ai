@@ -1,16 +1,12 @@
 // Skill der Arbeitsgrundlage; siehe prompt.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 = Skill: Systemdokumentation
 
 == Zweck
 
 Aktiviere diesen Skill, sobald eine Änderung den *Ist-Zustand des Systems* verschiebt – also
 bei neuen Endpunkten, geänderten Schemata, neuen Bausteinen, geänderten Build-/Betriebsschritten
-und neuen Teststufen. Er hält `docs/system/*.adoc` mit dem Code gleich.
-
-Entscheidung und Begründung:
-link:{adr}/0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022].
+und neuen Teststufen. Er hält `docs/system/*.adoc` mit dem Code gleich und trägt die
+Festlegungen zu Format, Diagrammen und Auslieferung der Dokumentation.
 
 == Wo was steht
 
@@ -22,15 +18,14 @@ zuständig ist – und nur das.
 | Datei | Zuständig für
 
 | `system.adoc`
-| Master: Attribute, Abgrenzung zu README/ADR/Arbeitsgrundlage, `include`-Liste, ADR-Index
+| Master: Attribute, Abgrenzung zu README und Arbeitsgrundlage, `include`-Liste
 
 | `docinfo-footer.html`
 | Kein Kapitel, sondern Beiwerk des gerenderten HTML: CSS und JavaScript, die das
-  Inhaltsverzeichnis klappbar machen
-  (link:{adr}/0043-inhaltsverzeichnis-klappbar-per-docinfo{adrext}[ADR 0043]). Asciidoctor
-  kopiert die Datei wegen `+:docinfo: shared-footer+` in `system.adoc` unverändert vor
-  `+</body>+`. Sie hängt an der HTML-Struktur, die Asciidoctor für das Verzeichnis erzeugt –
-  wie ein Diagramm ist sie ungeprüft, siehe <<diagramme>>
+  Inhaltsverzeichnis klappbar machen. Asciidoctor kopiert die Datei wegen
+  `+:docinfo: shared-footer+` in `system.adoc` unverändert vor `+</body>+`. Sie hängt an der
+  HTML-Struktur, die Asciidoctor für das Verzeichnis erzeugt – wie ein Diagramm ist sie
+  ungeprüft, siehe <<diagramme>>
 
 | `ueberblick.adoc`
 | Aufgabe des Systems, Qualitätsziele, Systemkontext (Nachbarn), Randbedingungen
@@ -52,10 +47,9 @@ zuständig ist – und nur das.
 
 | `abdeckung-tabelle.adoc`
 | Kein Kapitel, sondern die *erzeugte* Tabelle der Testabdeckung, die
-  `qualitaetssicherung.adoc` einbindet
-  (link:{adr}/0047-testabdeckung-als-eingecheckte-tabelle{adrext}[ADR 0047]). Geschrieben vom
-  Gradle-Task `coverageTable`, eingecheckt wie die Kennzahlen-Tabelle – von Hand wird daran
-  nichts geändert
+  `qualitaetssicherung.adoc` einbindet. Geschrieben vom Gradle-Task `coverageTable`,
+  eingecheckt wie die Kennzahlen-Tabelle – von Hand wird daran nichts geändert (Skill
+  `docs/prompt/tests.adoc`)
 
 | `arbeitsgrundlage.adoc`
 | Master-Prompt und Skills: welche Dateien es gibt, wie sie geladen, verbunden und geprüft
@@ -63,20 +57,17 @@ zuständig ist – und nur das.
   und Änderungsort bleiben die Dateien dort
 
 | `anhang-session-protokoll.adoc`
-| *Erster* Anhang: bindet das Protokoll `docs/log/claudeLog.adoc` ein
-  (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]). Gepflegt wird es an
-  seiner Quelle nach dem Butterfly-Skill, nicht hier
+| *Erster* Anhang: bindet das Protokoll `docs/log/claudeLog.adoc` ein. Gepflegt wird es an
+  seiner Quelle nach dem Skill `docs/prompt/butterfly.adoc`, nicht hier
 
 | `anhang-kennzahlen.adoc`
 | Anhang: Deutung der Spalten der Kennzahlen-Tabelle; die Tabelle selbst ist erzeugt und wird
-  aus `docs/log/kennzahlen.adoc` eingebunden (Manager-Skill)
+  aus `docs/log/kennzahlen.adoc` eingebunden (Skill `docs/prompt/manager.adoc`)
 
 | `anhang-git-historie.adoc`
-| Anhang: bindet die vom Gradle-Task `gitChangelog` erzeugte Tabelle ein
-  (link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036]) – von Hand wird daran
+| Anhang: bindet die vom Gradle-Task `gitChangelog` erzeugte Tabelle ein – von Hand wird daran
   nichts gepflegt. Mit dem Protokoll über Anker in beide Richtungen verbunden; die Spalte
-  „Prompt" stammt aus dessen Zeile `+_Commit:_+`
-  (link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038])
+  „Prompt" stammt aus dessen Zeile `+_Commit:_+` (Skill `docs/prompt/butterfly.adoc`)
 
 | `anhang-quellen.adoc`
 | Anhang: die Quelldateien des Projekts, per `include` eingebunden und in Klapp-Blöcken je
@@ -84,13 +75,12 @@ zuständig ist – und nur das.
 
 | `../backlog.adoc`
 | Letzter Anhang: das Backlog. Liegt außerhalb von `docs/system`, weil es plant statt zu
-  beschreiben; gepflegt wird es nach dem PO-Skill
+  beschreiben; gepflegt wird es nach dem Skill `docs/prompt/po.adoc`
 |===
 
 Die vier erzählenden Anhänge stehen in der Reihenfolge, in der sie gelesen werden – Prompt,
-Zahlen zum Prompt, Commit, Code –, das Backlog als Plan zuletzt
-(link:{adr}/0044-anhaenge-nach-entstehung-geordnet{adrext}[ADR 0044]). Ein neuer Anhang wird in
-diese Ordnung eingefügt, nicht angehängt.
+Zahlen zum Prompt, Commit, Code –, das Backlog als Plan zuletzt. Ein neuer Anhang wird in diese
+Ordnung *eingefügt*, nicht angehängt; die Begründung steht unten.
 
 == Auslöser → Pflicht
 
@@ -107,8 +97,9 @@ Schritt* geändert, nicht später.
 | Neue oder geänderte Bean-Validation-Annotation an einem DTO
 | `api.adoc`, Abschnitt „Anfrage"
 
-| Neuer `@ExceptionHandler` oder neuer `error`-Code
-| `api.adoc`, Tabelle der Fehlerbilder
+| Neuer `@ExceptionHandler` oder neue Problemart
+| `api.adoc`, Tabelle der Fehlerbilder – dazu der Anker, auf den die `type`-URI zeigt (Skill
+  `docs/prompt/api.adoc`)
 
 | Neues Liquibase-Changeset (Tabelle, Spalte, Constraint, Index)
 | `datenmodell.adoc` (Spaltentabelle *und* Abbildung auf die Domäne); kommt eine *Tabelle*
@@ -152,17 +143,16 @@ Schritt* geändert, nicht später.
 | `qualitaetssicherung.adoc`
 
 | Geänderte Tests oder geänderter getesteter Code
-| `./gradlew coverageTable` – die Tabelle der Abdeckung wird *erzeugt*, nicht bearbeitet
-  (link:{adr}/0047-testabdeckung-als-eingecheckte-tabelle{adrext}[ADR 0047]); der Tests-Skill
-  nennt denselben Schritt
+| `./gradlew coverageTable` – die Tabelle der Abdeckung wird *erzeugt*, nicht bearbeitet; der
+  Skill `docs/prompt/tests.adoc` nennt denselben Schritt
 
 | Eine Lücke wird geschlossen (Auth, Actuator, Paginierung …)
 | `betrieb.adoc`, „Offene Punkte" – Zeile *entfernen*, nicht stehen lassen
 
 | Eine neue Lücke entsteht bewusst
 | `betrieb.adoc`, „Offene Punkte" – Zeile *ergänzen*. Soll sie *abgearbeitet* werden, gehört
-  zusätzlich ein Eintrag ins Backlog (PO-Skill): „Offene Punkte" beschreibt den Zustand, das
-  Backlog plant die Änderung
+  zusätzlich ein Eintrag ins Backlog (Skill `docs/prompt/po.adoc`): „Offene Punkte" beschreibt
+  den Zustand, das Backlog plant die Änderung
 
 | Neue Datei in `docs/prompt`, geänderter Ladeweg oder geänderte Aufteilung zwischen
   Master-Prompt und Skills
@@ -181,24 +171,20 @@ Schritt* geändert, nicht später.
   der Stelle, weil ein fehlender `include` als Fehler konfiguriert ist.
 
 | Neue Spalte oder andere Sortierung der Kennzahlen-Tabelle
-| `anhang-kennzahlen.adoc`, Spaltentabelle – *und* `docs/log/kennzahlen.py` (Manager-Skill).
-  Die Tabelle selbst wird nie von Hand angefasst
-
-| Neues ADR
-| `system.adoc`, ADR-Index; zusätzlich Verweis im betroffenen Kapitel
+| `anhang-kennzahlen.adoc`, Spaltentabelle – *und* `docs/log/kennzahlen.py` (Skill
+  `docs/prompt/manager.adoc`). Die Tabelle selbst wird nie von Hand angefasst
 
 | Neues Kapitel
 | Datei anlegen *und* `include` in `system.adoc` – ohne den `include` ist das Kapitel
-  unsichtbar
+  unsichtbar. Neuer Anhang: in die Lesereihenfolge *einfügen*, nicht anhängen
 |===
 
 == Drei Regeln
 
-. *Verlinken statt kopieren.* Begründungen stehen im ADR (`+link:{adr}/…[ADR NNNN]+`), nicht
-  in der Systemdoku. Sie sagt, *was* gilt.
+. *Verlinken statt kopieren.* Begründungen stehen im zuständigen Skill unter „Festlegungen und
+  ihre Gründe", nicht in der Systemdoku. Sie sagt, *was* gilt.
 . *Keine Versionsnummern.* Einzige Quelle ist `gradle/libs.versions.toml` bzw.
-  `modules/frontend/package.json`
-  (link:{adr}/0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018]).
+  `modules/frontend/package.json` (Skill `docs/prompt/build.adoc`).
 . *Bei Widerspruch gewinnt der Code.* Ein Widerspruch ist ein Fehler in der Doku und wird
   dort behoben – nicht im Code weggeredet.
 
@@ -219,25 +205,20 @@ besonders leicht zu vergessen:
 == AsciiDoc-Konventionen
 
 Diese Konventionen gelten für *jede* AsciiDoc-Datei im Projekt, also auch für die
-Arbeitsgrundlage unter `docs/prompt`
-(link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]).
+Arbeitsgrundlage unter `docs/prompt`.
 
 * Ein Kapitel je Datei, Titel als Ebene 0 (`= Titel`); die Einbindung setzt `leveloffset=+1`.
-* Jede Kapiteldatei beginnt mit dem Kommentar-Hinweis und den beiden Zeilen
-  `+ifndef::adr[:adr: ../adr]+` und `+ifndef::adrext[:adrext: .adoc]+`, damit sie auch einzeln
-  gerendert korrekte ADR-Links hat.
-* ADRs werden als `+link:{adr}/NNNN-titel{adrext}[ADR NNNN]+` verlinkt – *nie* mit fester
-  Endung. Der Build biegt `+{adrext}+` dort auf `+.html+`, wo die ADRs gerendert danebenliegen
-  (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026]).
+* Jede Datei beginnt mit einer Kommentarzeile, die sagt, wozu sie gehört
+  (`+// Kapitel der Systemdokumentation; siehe system.adoc.+` bzw.
+  `+// Skill der Arbeitsgrundlage; siehe prompt.adoc.+`).
 * Anker als Kleinschreibung mit Bindestrich: `+[[offene-punkte]]+`, Verweis
-  `+<<offene-punkte>>+`. *Keine Leerzeichen in IDs* – das bricht den Build (siehe unten).
+  `+<<offene-punkte>>+`. *Keine Leerzeichen in IDs* – das bricht den Build.
 * Was als Anhang im Dokument steht, wird auch *verlinkt*, nicht nur mit Pfad genannt: das
   Session-Protokoll als `+<<session-protokoll>>+`, dazu `+<<kennzahlen>>+`,
-  `+<<git-historie>>+`, `+<<backlog>>+`,
-  `+<<quelldateien>>+` und `+<<wortlaut>>+`. Verlinkt wird die Stelle, an der ein Dokument
-  *eingeführt* wird, nicht jede Wiederholung seines Namens. In den Skills selbst steht
-  *kein* solcher Verweis – sie werden auch allein gerendert (`+asciidoctorPrompt+`), wo das
-  Ziel fehlt und der Verweis den Build bräche.
+  `+<<git-historie>>+`, `+<<backlog>>+`, `+<<quelldateien>>+` und `+<<wortlaut>>+`. Verlinkt
+  wird die Stelle, an der ein Dokument *eingeführt* wird, nicht jede Wiederholung seines
+  Namens. In den Skills selbst steht *kein* solcher Verweis – sie werden auch allein gerendert
+  (`+asciidoctorPrompt+`), wo das Ziel fehlt und der Verweis den Build bräche.
 * Literale geschweifte Klammern escapen: `\{id}`. Unescaped liest AsciiDoc sie als
   Attribut-Referenz. Dasselbe gilt für Beispiele mit Anker- oder Verweis-Syntax: in
   Monospace-Text greift die Makro-Substitution, deshalb dort `+…+` als Passthrough.
@@ -248,9 +229,8 @@ Arbeitsgrundlage unter `docs/prompt`
 [[diagramme]]
 == Diagramme
 
-Diagramme werden mit *PlantUML* geschrieben und beim Rendern erzeugt
-(link:{adr}/0042-plantuml-fuer-diagramme{adrext}[ADR 0042]). Die Quelle steht *im Dokument*,
-an der Stelle, die sie zeigt:
+Diagramme werden mit *PlantUML* geschrieben und beim Rendern erzeugt. Die Quelle steht *im
+Dokument*, an der Stelle, die sie zeigt:
 
 [source,asciidoc]
 ----
@@ -265,8 +245,7 @@ an der Stelle, die sie zeigt:
 ----
 
 * *Der zweite Parameter ist der Dateiname* des erzeugten SVG, ohne Endung – gewählt, nicht vom
-  Werkzeug vergeben. Er landet neben `system.html` und wird mit ausgeliefert
-  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]).
+  Werkzeug vergeben. Er landet neben `system.html` und wird mit ausgeliefert.
 * *Jedes Diagramm beginnt mit* `+!pragma layout smetana+`. Ohne diese Zeile verlangt PlantUML
   das native `+dot+` aus Graphviz, und der Build läuft nur noch auf Rechnern, auf denen es
   installiert ist.
@@ -285,21 +264,19 @@ sondern „trägt das Bild die Aussage besser als der Satz?".
 
 * *Ein Bild aus Zeichen ist keines.* Wo eine Pfeilkette, ein Kasten oder ein Baum in einem
   Literalblock steht, gehört PlantUML hin. ASCII-Kunst ist im Projekt keine Darstellungsform
-  mehr: Jede Änderung daran ist Layout-Arbeit von Hand, und genau die unterbleibt
-  (link:{adr}/0042-plantuml-fuer-diagramme{adrext}[ADR 0042], „Optionen").
+  mehr: Jede Änderung daran ist Layout-Arbeit von Hand, und genau die unterbleibt.
 * *Sinnvoll ist ein Diagramm, wo eine Richtung, eine Schachtelung oder eine zeitliche Folge
   die Aussage trägt* – Abhängigkeiten, Nachbarn, Beziehungen zwischen Tabellen, der Weg einer
   Anfrage durch die Schichten, der Weg der Artefakte in das Deployable.
 * *Kein Diagramm, wo eine Tabelle die Aussage trägt.* Was Merkmale je Zeile aufzählt – Spalten
   und Typen, Endpunkte und Statuscodes, Konfigurationsschlüssel, Teststufen, Routen –, bleibt
-  Tabelle. Ein Bild daneben wäre die zweite Fassung, die veraltet; das ist dieselbe Regel wie
-  „Ein Diagramm ersetzt Text" oben, von der anderen Seite gelesen.
+  Tabelle. Ein Bild daneben wäre die zweite Fassung, die veraltet.
 * *Kein Diagramm für eine Aufzählung von vier Schritten.* Eine nummerierte Liste, die
   geradeaus läuft (etwa der Startablauf in `betrieb.adoc`), wird als Bild nicht klarer.
   Verzweigt der Ablauf oder hat er mehrere Beteiligte, kippt die Antwort.
 * *Die Diagrammart folgt dem Gegenstand*, nicht der Gewohnheit: Komponenten für Struktur,
-  Sequenz für Abläufe, `entity` mit `+||--o{+` für Tabellenbeziehungen. ADR 0042 legt das
-  Werkzeug fest, ausdrücklich nicht die Zeichnung.
+  Sequenz für Abläufe, `entity` mit `+||--o{+` für Tabellenbeziehungen. Festgelegt ist das
+  Werkzeug, ausdrücklich nicht die Zeichnung.
 * *Welches Diagramm eine Änderung berührt, steht in der Zuordnungstabelle oben*, bei der Zeile
   der Änderung – nicht in einer eigenen Liste der Diagramme. Eine solche Liste wäre der zweite
   Ort, an dem ein Diagramm gepflegt werden müsste.
@@ -333,14 +310,247 @@ JRuby-Warnungen zu `sun.misc.Unsafe` sind Rauschen der Laufzeit und kein Fehler 
 
 . Code ändern.
 . Zuordnungstabelle oben durchgehen: Welches Kapitel ist betroffen?
-. Kapitel anpassen – knapp, im Ist-Zustand, mit Verweis auf das ADR statt einer Begründung.
+. Kapitel anpassen – knapp, im Ist-Zustand, mit Verweis auf den Skill statt einer Begründung.
 . `./gradlew asciidoctor` laufen lassen.
-. Bei einer *Entscheidung* zusätzlich ein ADR anlegen und in `system.adoc` verlinken.
+. Bei einer *Entscheidung* zusätzlich den Abschnitt „Festlegungen und ihre Gründe" des
+  zuständigen Skills ergänzen (Skill `docs/prompt/entscheidungen.adoc`).
+
+[[festlegungen-systemdokumentation]]
+== Festlegungen und ihre Gründe
+
+=== Eine eigene schlanke Gliederung in AsciiDoc unter `docs/system`
+
+*Was gilt.* Die Systemdokumentation ist ein Kapitel je Datei unter `docs/system`, gerendert
+über das Asciidoctor-Gradle-Plugin zu *einem* Dokument. Wächst ein Kapitel über die Lesbarkeit
+hinaus, wird es geteilt.
+
+*Warum.* README und die frühere Sammlung von Architekturentscheidungen beantworteten die Frage
+„wie greift das alles ineinander?" *nicht*: Das README ist auf den Einstieg zugeschnitten und
+wuchs mit jedem Thema, das nirgendwo sonst hinpasste; eine Entscheidungssammlung ist punktuell.
+Konkret vermisst wurden Antworten, die sonst nur der Code gibt – welche Fehlerbilder die API
+liefert, was in der Datenbank steht, das das Domänenmodell *nicht* kennt, welche Festlegung mehr
+als eine Datei kennt, und was *bewusst fehlt*. Der letzte Punkt ist der schwerste: Eine Lücke,
+die nirgends steht, ist von einem Versehen nicht zu unterscheiden.
+
+*AsciiDoc statt Markdown* wegen vier Eigenschaften: `include` (ein Kapitel je Datei *und* ein
+Gesamtdokument), Attribute (ein Pfad an einer Stelle), semantische Auszeichnung (Admonitions,
+Tabellen mit Spaltenbreiten) und – der eigentliche Grund – *ein Build-Schritt, der die Quelle
+prüfen kann*.
+
+*Verworfen.* Das README weiter ausbauen – Markdown ohne Includes zwingt alles in *eine* Datei;
+bei der erreichten Länge war das die Ursache, nicht die Lösung. arc42 vollständig – mehrere
+Kapitel blieben absehbar leer, und leere Kapitel erziehen dazu, die Doku zu überblättern. arc42
+gekürzt – wer arc42 kennt, sucht die fehlenden Nummern. Markdown mit mehreren verlinkten Dateien
+– kein Gesamtdokument, keine Attribute, kein Build-Schritt. Generieren statt schreiben (Javadoc,
+Structurizr) – beschreibt nur, was im Code steht, nicht die Absicht und nicht die Lücken; genau
+das war der Bedarf.
+
+*Der Build prüft zwei Dinge*, konfiguriert als `fatalWarnings`: einen fehlenden `include` und
+einen Querverweis ins Leere. Das ist die einzige Zusicherung, die ein Build über Prosa geben
+kann – aber es ist genau die Klasse von Verfall, die beim Umbenennen und Verschieben entsteht.
+Nachgewiesen an einem echten Fall: Der Anker `+[[Offene Punkte]]+` mit Leerzeichen in der ID
+ließ den Task fehlschlagen, bis er korrigiert war; ohne die Regel wäre daraus ein stiller toter
+Verweis geworden.
+
+*Grenze.* Der Build erkennt kaputte Verweise, aber keine Aussage, die einmal richtig war und
+heute falsch ist. Dagegen hilft nur die Pflege mit der Änderung. Ein Test, der Doku gegen Code
+vergleicht, bliebe auf die maschinell erfassbare Teilmenge beschränkt und täuschte Sorgfalt vor,
+wo Prosa steht.
+
+=== Die Dokumentation reist im Boot-Jar mit, unter `/recipes/docs/`
+
+*Was gilt.* Der `asciidoctor`-Task rendert nach `build/docs/asciidoc/`; `:bootstrap` packt das
+Ergebnis nach `static/docs` ins Boot-Jar und benennt `system.html` in `index.html` um.
+`DocumentationRoutingConfig` schließt die Lücke, die Spring Boot bei Verzeichnis-Startseiten
+außerhalb der Anwendungswurzel lässt: `+/docs+` *leitet um* auf `+/docs/+`, und `+/docs/+`
+leitet weiter auf `+/docs/index.html+`. `-PskipDocs` überspringt den Schritt.
+
+*Warum.* Wer die *laufende* Anwendung vor sich hat, hatte bisher nur die API-Selbstbeschreibung;
+die Zusammenhänge dahinter standen nur im Repository. Ein Deployable, eine Origin – dieselbe
+Linie wie beim Frontend. Das Renderergebnis ist dafür *in sich geschlossen* gemacht worden:
+Alles, worauf das Dokument zeigt, liegt daneben und wird mitkopiert.
+
+WARNING: *Der abschließende Schrägstrich ist kein Schönheitsfehler.* Er ist die Bedingung dafür,
+dass relative Verweise im Browser unterhalb von `+/recipes/docs/+` auflösen und nicht eine Ebene
+zu hoch landen. Deshalb *leitet* `+/docs+` um, statt weiterzuleiten.
+
+*Verworfen.* Nichts ausliefern – die laufende Anwendung bliebe für alles jenseits der API stumm.
+Auf ein Forge-Portal verlinken – die Dokumentation der Instanz bräuchte Netzzugang und ein
+öffentliches Repository, die Repository-URL stünde im Buildskript, und Links auf einen Branch
+beschrieben nicht den ausgelieferten Stand. In die SPA einbetten – bindet die Dokumentation an
+das Frontend, obwohl sie das System beschreibt.
+
+*Belegt durch* `DocumentationSystemTest`: Er holt `+/docs/+` über HTTP, prüft Medientyp und
+Titel, folgt *jeder relativ eingebundenen Ressource* des Dokuments und prüft die Antwort. Genau
+dafür ist er gebaut – ein Verweis, der im Repository und im Renderergebnis stimmt und erst im
+Deployable ins Leere zeigt. Das ist einmal eingetreten: Der Kopierschritt benannte per
+`+rename(regex, …)+` alles um, was den Ausdruck *irgendwo* im Dateinamen trug; das Muster ist
+seither verankert (`+^system\.html$+`). Kein Build und kein Unit-Test hätte das gesehen.
+
+*Preis.* Das Jar wächst um die Dokumentation. `processResources` hängt am `asciidoctor`-Task des
+Wurzelprojekts – jede Änderung an einer Quelldatei lässt die Doku vor `test` neu rendern; dafür
+gibt es `-PskipDocs`. Und: *Die Dokumentation ist öffentlich, sobald der Port es ist.* Sie nennt
+die offenen Punkte – für jemanden mit Zugriff auf die Instanz ist das eine Landkarte. Solange es
+keine Authentifizierung gibt, gilt ohnehin, dass die Anwendung nicht offen betrieben wird; mit
+einer Authentifizierung wird `+/docs/**+` mit abzusichern sein.
+
+*Nicht ausgeliefert wird die Arbeitsgrundlage* als eigenes Dokument: Sie ist Anweisung an den
+Assistenten, nicht Beschreibung des Systems. Ihr Wortlaut steht ohnehin im Kapitel
+„Arbeitsgrundlage" und reist damit mit.
+
+=== Das Session-Protokoll steht im Dokument – und damit im Build
+
+*Was gilt.* `docs/log/claudeLog.adoc` ist als *erster* Anhang eingebunden, mit
+`+leveloffset=+2+`. Gepflegt wird es unverändert an seiner Quelle (Skill
+`docs/prompt/butterfly.adoc`); der Anhang führt keine zweite Fassung.
+
+*Warum.* Die Dokumentation beschreibt den Ist-Zustand, aber nicht, wie er entstanden ist –
+Reihenfolge, auslösender Prompt, Aufwand je Schritt standen daneben. Zugleich war die Trennung
+schon nicht mehr vollständig: Die *Kennzahlen* derselben Einträge sind seit längerem ein Anhang.
+Aus dem Protokoll war damit der Zahlenteil im Dokument und der Text daneben.
+
+*Der Einwand dagegen war ernst*: Der Log zitiert wörtliche Prompts, also beliebigen Text; ein
+`+{+`, ein `+<<+` oder eine Zeile, die wie ein Listenmarker aussieht, färbt den Build rot – und
+ein Protokoll darf die Auslieferung nicht blockieren. Was sich geändert hat, ist die
+*Wahrscheinlichkeit*: Der Skill `docs/prompt/butterfly.adoc` schreibt den Passthrough-Schutz für
+Code-Spans vor, und der Bestand hielt ihn nachweislich ein. Der Preis wird bewusst gezahlt –
+dafür *wird* der Log geprüft: Eine kaputte Auszeichnung fällt beim Build auf statt beim Lesen.
+
+*`+leveloffset=+2+` ist gemessen, nicht geschätzt.* Mit `+1` landen die Prompt-Überschriften auf
+Ebene 3 und stehen alle im Inhaltsverzeichnis – aus gut hundert Einträgen würden über zweihundert.
+Mit `+2` erscheint der Log als *ein* Eintrag im Verzeichnis, die Prompts liegen unterhalb von
+`+:toclevels: 3+` und sind trotzdem über Anker erreichbar.
+
+*Verworfen.* Draußen lassen – ein kaputter Log fällt dann nie auf. Eine gerenderte Kopie
+danebenlegen – zwei Dokumente statt einem. Nur die letzten N Einträge einbinden (`+lines=+`) –
+ein zeilenbasierter Ausschnitt bricht still, sobald oben etwas dazukommt, und genau das passiert
+bei jedem Prompt.
+
+=== Die Git-Historie wird beim Rendern erzeugt, nicht eingecheckt
+
+*Was gilt.* Das Wurzelprojekt wendet das Plugin `git-changelog` an; der Task `gitChangelog`
+schreibt `build/docs/changelog/gitchangelog.adoc`, und der Anhang „Git-Historie" bindet die Datei
+ein. `asciidoctor` hängt am Task, damit der `include` nie ins Leere zeigt.
+
+*Warum.* Das Plugin liest die Historie über JGit – der Build braucht also kein `git` im `PATH` –
+und rendert sie über eine Handlebars-Vorlage; das Format steht damit an *einer* Stelle im
+Buildskript. Anders als die Kennzahlen-Tabelle ist die Quelle hier das *Repository selbst*: Eine
+eingecheckte Fassung wäre ab ihrem Entstehen um genau einen Commit alt – den, der sie einführt.
+Deshalb liegt das Ergebnis in `build/` und kann nicht veralten.
+
+*Vier Festlegungen tragen das.* Der Task ist *nie* up-to-date: Ein Commit ändert weder Buildskript
+noch Arbeitsverzeichnis, Gradle hätte keine Eingabe, an der es die Änderung bemerkt – er kostet
+Sekundenbruchteile. Die Spalte „Betreff" ist *literal* (`l`), weil in einer Commit-Message
+beliebiger Text steht. Die Voreinstellung `+^Merge.*+` ist auf die von git selbst erzeugten
+Messages verengt, sonst verschluckte sie jeden Commit, der mit dem Wort „Merge" beginnt. Und die
+Spalte „Prompt" wird im `+doLast+` gefüllt, weil Handlebars nur die Commits sieht, nicht das
+Protokoll.
+
+*Verworfen.* `git log` von Hand in eine Datei schreiben – eine zweite Fassung, die beim ersten
+vergessenen Handgriff veraltet. Eigener `Exec`-Task mit `+git log --pretty=…+` – der Build hinge
+an einem `git` im `PATH` und an dessen Ausgabeformat, und das Zitieren für AsciiDoc wäre
+selbstgeschriebene Zeichenkettenarbeit an einer Stelle, an der ein Fehler die Auslieferung bricht.
+Nach Tags gruppieren – das Projekt führt keine.
+
+*Preis.* Der Build braucht das `.git`-Verzeichnis; aus einem exportierten Quell-Archiv ohne
+Historie läuft `asciidoctor` nicht mehr durch. Wer die Kapiteldatei im Editor liest, sieht einen
+unaufgelösten `include` auf `build/`. Aufgehobene Commits fehlen: Das Plugin erkennt
+`This reverts commit …` und lässt Revert und Reverted weg – nicht abschaltbar, deshalb sagt der
+Anhang es im Text dazu. Und ein `+|+` in einer Commit-Message bräche die Tabelle; die literale
+Spalte schützt vor allem außer dem Zellentrenner selbst.
+
+=== Anhänge stehen in der Reihenfolge, in der eine Änderung entsteht
+
+*Was gilt.* Die Anhänge lauten: Session-Protokoll, Kennzahlen der Sessions, Git-Historie,
+Quelldateien, Backlog. Jeder trägt *einen* Gegenstand und heißt danach; die Anker sind nach dem
+Gegenstand benannt (`+session-protokoll+`, `+git-historie+`, `+kennzahlen+`, `+quelldateien+`,
+`+backlog+`).
+
+*Warum.* Vorher gab es einen Sammelanhang „Änderungen" mit Git-Historie und Protokoll darin –
+zwei Dinge, die nur eines gemeinsam haben: Sie beschreiben nicht den Ist-Zustand. Das ist kein
+Thema, sondern eine Restmenge, und im Inhaltsverzeichnis stand „Änderungen", während gesucht
+wurde nach „Session-Protokoll". Die neue Reihenfolge folgt dem *Weg einer Änderung* – Prompt,
+Zahlen zum Prompt, Commit, Ergebnis im Code –, das Backlog zuletzt, weil es plant statt zu
+beschreiben. Damit liegt die Kennzahlen-Tabelle zwischen den beiden Sichten, auf die sie
+verweist; vorher stand der längste Anhang des Dokuments dazwischen.
+
+*Verworfen.* Den Sammelanhang umbenennen – behebt nur den Namen, die Sichten blieben
+Unterkapitel. Nach Entstehung des Dokuments sortieren – für den Leser keine Ordnung, sondern
+Zufall. Nach Länge oder Erzeugtheit sortieren – Eigenschaften der Herstellung, keine
+Lesereihenfolge.
+
+*Preis.* Die Anhangsbuchstaben verschieben sich, wenn ein Anhang dazukommt. Verweise laufen über
+Anker und sind davon nicht betroffen; ein zitierter Buchstabe wäre falsch – im Dokument tut das
+niemand.
+
+=== PlantUML als Werkzeug für Diagramme
+
+*Was gilt.* Siehe <<diagramme>>. Die Erweiterung `asciidoctor-diagram` wird einmal im
+`+asciidoctorj+`-Block des Wurzelprojekts eingeschaltet und gilt damit für *beide*
+Asciidoctor-Tasks – ein Diagramm darf überall stehen, wo AsciiDoc steht. Der Diagramm-Cache
+`+.asciidoctor/+` wird beim Einpacken ins Boot-Jar ausgeschlossen.
+
+*Warum.* Wo eine Richtung gezeigt werden sollte, stand ASCII-Kunst. Das trägt, solange die
+Struktur eine Kette ist – schon vier Module sind es nicht ganz, und die Unterscheidung zwischen
+`api` (durchgereicht) und `implementation` (nicht durchgereicht) ist in einer Zeile Text nicht
+unterzubringen. Vor allem kostet jede Änderung an ASCII-Kunst Layout-Arbeit von Hand: der
+sicherste Weg, dass ein Bild nicht mitgepflegt wird. Die Erweiterung ist eine Java-Bibliothek und
+kommt über denselben Weg wie jede andere Abhängigkeit; der Build braucht dafür nichts, was er
+nicht ohnehin hat.
+
+*Warum Smetana.* PlantUML verlangt für Struktur-Diagramme sonst das native `+dot+` aus Graphviz.
+`+!pragma layout smetana+` ist der mitgelieferte Ersatz in Java – derselbe Grundsatz wie beim
+Verzicht auf Docker in den Tests: Der Build läuft auf einem Rechner, auf dem nichts installiert
+wurde. Nachgemessen mit `+GRAPHVIZ_DOT=/nonexistent/dot+` und gelöschtem Cache: derselbe grüne
+Lauf, dasselbe SVG.
+
+*Verworfen.* Bilddateien einchecken – die Quelle läge außerhalb des Projekts oder in einem
+Binärformat; ein Diff zeigte „Bild geändert" statt „diese Kante ist dazugekommen", und beim
+Umbenennen eines Moduls veraltete das Bild *still*. Mermaid – rendert nur über einen Node-Prozess
+oder einen Kroki-Server und brächte eine Laufzeit in den Doku-Build. Kroki als Dienst – Netz für
+*jedes* Diagramm, und der Quelltext ginge an einen fremden Dienst. Das Diagramm aus dem
+Gradle-Modell erzeugen – kann nicht veralten, zeigt aber *jede* Kante, auch die uninteressanten;
+die Aussage einer Doku ist die Auswahl, und die trifft ein Mensch. Der Gedanke bleibt gültig,
+sobald die Zahl der Module Handpflege unzuverlässig macht.
+
+*Preis.* Der Doku-Build lädt PlantUML, Batik und ditaa nach – einmalig rund 17 MB im Cache.
+Smetana layoutet bei großen Graphen schlechter als Graphviz; wird ein Diagramm zu unruhig, ist
+das ein Grund, es zu *teilen*, nicht Graphviz nachzuinstallieren. Und GitHub rendert den Block
+nicht: Wer nur die `+.adoc+` liest, liest PlantUML-Quelltext.
+
+=== Klappbares Inhaltsverzeichnis per Docinfo-Fußzeile
+
+*Was gilt.* `docs/system/docinfo-footer.html` bringt ein `+<style>+` für den zugeklappten Zustand
+und ein `+<script>+` für die Schalter mit; `system.adoc` setzt `+:docinfo: shared-footer+`.
+Zugeklappt ist der Anfangszustand; ein Sprungziel deckt seinen Weg auf; ohne JavaScript steht das
+Verzeichnis vollständig offen, und auf Papier ebenso.
+
+*Warum.* Das Verzeichnis war vollständig ausgeklappt – von gut hundert Einträgen bilden fünfzehn
+die oberste Ebene, und die übrigen sind ungleich verteilt: Der Anhang „Backlog" bringt allein
+zwei Dutzend mit, weil dort jeder geplante Prompt eine Überschrift ist, das Kapitel
+„Arbeitsgrundlage" ähnlich viele, weil es Master-Prompt und Skills im Wortlaut einbindet. Beide
+wachsen mit der *Arbeit*, nicht mit dem System – und die Gliederung, um die es beim Einstieg
+geht, rutscht aus dem Blick.
+
+*Verworfen.* `+:toclevels: 1+` – das ist keine Bedienung, sondern eine Kürzung: Die Unterpunkte
+wären nicht zugeklappt, sondern *weg*. Das Verzeichnis als `+[%collapsible]+`-Block – klappt
+alles oder nichts, und `+:toc: macro+` gäbe die linke Spalte auf. Ein fertiges Theme – brächte
+eine Abhängigkeit mit eigener Version und änderte das Aussehen des ganzen Dokuments, um eine
+Spalte zu bedienen.
+
+WARNING: Die Datei ist im Buildskript *einzeln als Eingabe angemeldet*. Ohne das bleibt der Task
+nach einer Änderung daran „up-to-date" und liefert das alte Verzeichnis aus – genau so beim
+ersten Lauf geschehen. Der Task durchsucht `docs/system` nur nach AsciiDoc, und die Sammelfunktion
+für eingebundene Dateien nimmt ausdrücklich nur, was *außerhalb* des Quellverzeichnisses liegt.
+
+*Preis.* Eine handgeschriebene Datei mit CSS und JavaScript, die niemand testet: Sie hängt an der
+HTML-Struktur, die Asciidoctor für `+:toc: left+` erzeugt – ändert sich die mit einer neuen
+Version, bleibt das Verzeichnis stumm ausgeklappt, und der Build merkt davon nichts. Der Zustand
+überlebt kein Neuladen der Seite; ihn in `+localStorage+` zu merken wäre Zustand über die Seite
+hinaus, gespeichert von einem Dokument aus einem Boot-Jar.
 
 == Hinweise
 
-* Die Systemdoku ist *nicht* der Ort für Bedienungsanleitungen (README), für verworfene
-  Optionen (ADR) oder für Arbeitsanweisungen an den Assistenten (`docs/prompt`).
-* Wächst ein Kapitel über die Lesbarkeit hinaus, wird es geteilt – ein neues Kapitel ist
-  billiger als ein Kapitel, das niemand liest.
+* Die Systemdoku ist *nicht* der Ort für Bedienungsanleitungen (README) oder für
+  Arbeitsanweisungen an den Assistenten (`docs/prompt`).
 * In dieser Umgebung stabil: `./gradlew asciidoctor --no-daemon -g /tmp/gradle-home`.

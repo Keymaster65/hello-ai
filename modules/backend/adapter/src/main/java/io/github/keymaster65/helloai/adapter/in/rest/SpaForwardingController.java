@@ -5,7 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
 /**
- * Forwards the routes of the single-page application to its {@code index.html} (see ADR 0017).
+ * Forwards the routes of the single-page application to its {@code index.html} (see docs/prompt/api.adoc).
  *
  * <p>Without this, a shared link such as {@code /recipes/3} would hit the server directly and
  * end in a 404: the browser asks for a path that only exists inside the client-side router.

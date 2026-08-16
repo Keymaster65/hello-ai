@@ -1,0 +1,135 @@
+// Skill der Arbeitsgrundlage; siehe prompt.adoc.
+= Skill: Frontend – SPA, Routen, Typen, Auslieferung
+
+== Zweck
+
+Aktiviere diesen Skill bei jeder Änderung unter `modules/frontend`: neue Komponente, neue
+Route, neuer Aufruf des Backends, geänderte Vite-Konfiguration, neue Abhängigkeit in
+`package.json`.
+
+Was die *Angriffsfläche* der SPA betrifft, steht im Skill
+`docs/prompt/security-frontend.adoc`; was die *Schnittstelle* betrifft, im Skill
+`docs/prompt/api.adoc`. Der Ist-Zustand der Oberfläche steht in `docs/system/api.adoc`.
+
+== Grundsätze
+
+. *Ein Artefakt, eine Origin.* Die SPA wird vom Backend ausgeliefert; es gibt kein zweites
+  Deployment, keine CORS-Freigabe und keinen Grund, eine einzuführen.
+. *Nur relative Pfade.* Alles, was zum Backend geht, wird aus `+import.meta.env.BASE_URL+`
+  abgeleitet – keine absolute Backend-URL, keine Origin aus der Umgebung. Das ist die Bedingung
+  dafür, dass Dev-Proxy und Produktionsauslieferung denselben Code tragen.
+. *API-Typen werden abgeleitet, nicht nachgebaut.* `+src/api/schema.d.ts+` entsteht aus dem
+  OpenAPI-Contract; eine handgeschriebene Deklaration eines API-Typs ist ein Fehler.
+. *Ein Ort für HTTP.* Aufrufe des Backends laufen über `+src/api/recipes.ts+`, nicht über ein
+  `+fetch+` in der Komponente.
+. *TypeScript im `strict`-Modus.* Ein Feld, das das Backend ändert, bricht `tsc` im Build –
+  nicht erst der Browser zur Laufzeit.
+
+== Auslöser → Pflicht
+
+[cols="2,3", options="header"]
+|===
+| Anlass | Zu tun
+
+| Neue Route
+| Route im Router *und* eine Zeile im `SpaForwardingController` des Backends (Skill
+  `docs/prompt/api.adoc`); den Systemtest um den Pfad erweitern; `docs/system/api.adoc`
+  (Oberfläche) mitpflegen
+
+| Neuer oder geänderter Aufruf des Backends
+| Über `+src/api/recipes.ts+`, Pfad relativ zu `+import.meta.env.BASE_URL+`
+
+| API-Änderung im Backend
+| `+npm run generate:api+` gegen ein laufendes Backend, die aktualisierte
+  `+src/api/schema.d.ts+` mit einchecken. Neue API-Typen werden *nicht* von Hand in TypeScript
+  nachgebaut
+
+| Neue Abhängigkeit
+| In `package.json`, festgeschrieben über `package-lock.json`; installiert wird mit `+npm ci+`.
+  Herkunft, Pflegezustand und Umfang vorher prüfen, keine Vorab- oder Kandidatenversion
+
+| Neue Komponente
+| Vitest-Test dazu; Queries über `getByRole`/`getByLabel`, nicht über CSS-Klassen oder
+  Test-IDs (Skill `docs/prompt/tests.adoc`)
+
+| Änderung am Context-Path
+| Alle fünf Orte mitziehen – die Tabelle steht im Skill `docs/prompt/api.adoc`
+
+| Neues Asset oder neue Zeile in `index.html`
+| Aus dem eigenen Ursprung, kein CDN, kein Inline-Skript (Skill
+  `docs/prompt/security-frontend.adoc`)
+|===
+
+== Prüfen
+
+[source,bash]
+----
+./gradlew frontendTest      # Vitest: Komponenten und der API-Zugriff
+./gradlew e2eTest           # Playwright: die Flows im echten Browser
+----
+
+Beide sind Teil der Definition of Done. `-PskipFrontend` überspringt den Frontend-Teil des
+Builds und ist für die schnelle Java-Schleife gedacht, nicht für einen Commit.
+
+[[festlegungen-frontend]]
+== Festlegungen und ihre Gründe
+
+=== Das Backend ist das BFF: ein Artefakt, eine Origin
+
+*Was gilt.* Das Frontend liegt in `modules/frontend` als npm-Projekt. Gradle-Tasks
+`npmInstall`, `frontendBuild` und `frontendTest` binden npm ein; `processResources` kopiert
+`+dist+` nach `+static/+` ins Boot-Jar. Spring Boot liefert damit SPA und API aus *derselben
+Origin* aus. Im Dev-Betrieb proxyt der Vite-Server die Backend-Pfade, sodass der
+Anwendungscode in beiden Modi identisch bleibt.
+
+*Warum.* Ein Deployable und eine Origin heißen: kein CORS, kein zweites Deployment, keine
+Origin-Konfiguration im Code. Der Contract ist dabei Single Source of Truth bis in die
+Oberfläche – ändert das Backend ein Feld, bricht `tsc` im Build.
+
+*Verworfen.* Eigenständiges Frontend-Projekt mit separatem Deployment – braucht CORS oder einen
+Reverse-Proxy und verdoppelt die Auslieferung. Das Frontend als Gradle-Modul einhängen –
+verworfen, solange nur einige `Exec`-Tasks nötig sind: reine Indirektion. Handgeschriebene
+API-Typen – verworfen, weil sie beim ersten Feldwechsel still falsch werden.
+
+*Preis.* `+./gradlew build+` braucht Node und npm; ohne sie schlägt der Build fehl (Ausweg:
+`-PskipFrontend`). Die generierte `+schema.d.ts+` ist eingecheckt und kann veralten – sie muss
+nach API-Änderungen mit `+npm run generate:api+` erneuert werden, bei laufendem Backend.
+
+=== Router mit teilbaren Adressen
+
+*Was gilt.* `react-router` mit `+basename={import.meta.env.BASE_URL}+` – der Router erbt damit
+den Context-Path, ohne ihn zu kennen. Routen: `+/+` (Liste), `+/new+` (Anlegen), `+/{id}+`
+(Detail, *teilbar*), `+/{id}/edit+` (Bearbeiten). Serverseitig leitet `SpaForwardingController`
+genau diese Pfade weiter (Skill `docs/prompt/api.adoc`).
+
+*Warum.* Vorher war die Ansicht Komponenten-State: Die Adresszeile änderte sich nie, ein Rezept
+ließ sich nicht verlinken, die Zurück-Taste verließ die Anwendung, und ein Neuladen warf den
+Nutzer aus der Detailansicht. Mit dem Router ist der Rezepttitel ein echtes `+<a href>+`;
+Mittelklick und „Link in neuem Tab öffnen" funktionieren ohne Zusatzarbeit.
+
+*Verworfen.* Hash-Routing (`+/#/3+`) – bräuchte keinen Server-Fallback, erzeugt aber unschöne
+Adressen. Beim State-Umschalten bleiben – der Ausgangszustand, dessen Preis oben steht.
+
+*Preis.* Die Detailseite lädt das Rezept immer selbst, auch wenn es aus der Liste kommt – ein
+zusätzlicher Request im Tausch gegen die Teilbarkeit.
+
+=== Zwei Fallen, die beim Testen des Routers auftraten
+
+Sie sind keine Entscheidung, aber sie kosten jedes Mal eine halbe Stunde, wenn man sie nicht
+kennt:
+
+* *Die jsdom-Historie ist über Tests hinweg gemeinsam.* `BrowserRouter` arbeitet auf der echten
+  `+window.history+`, und jsdom teilt sie innerhalb einer Testdatei. Nach dem ersten Test, der
+  zur Detailansicht navigiert, starten die folgenden dort. Abhilfe im `beforeEach`:
+  `+window.history.pushState({}, '', '/')+`.
+* *`reuseExistingServer` testet stillschweigend die alte Anwendung.* Läuft aus einem früheren
+  Schritt noch eine Instanz auf dem Zielport, prüfen alle E2E-Tests das *alte* Bundle – die
+  Fehlschläge sehen wie ein Router-Problem aus. Vor einem E2E-Lauf gehört der Port freigeräumt.
+
+=== TypeScript bleibt auf 5.x
+
+*Was gilt.* `typescript` ist auf 5.9 gepinnt, obwohl neuere Hauptversionen verfügbar sind.
+
+*Warum.* `openapi-typescript` – das Werkzeug, das die API-Typen erzeugt – verlangt derzeit
+`+peer typescript@^5.x+`. Die Bindung ist damit keine Vorliebe, sondern eine Folge der
+Typerzeugung; sie fällt weg, sobald das Werkzeug nachzieht.

@@ -1,6 +1,4 @@
 // Skill der Arbeitsgrundlage; siehe prompt.adoc.
-ifndef::adr[:adr: ../adr]
-ifndef::adrext[:adrext: .adoc]
 = Skill: Security – Backend
 
 == Zweck
@@ -11,15 +9,11 @@ Protokollausgabe, neuer Konfigurationsschlüssel, neue Abhängigkeit, neuer offe
 Pfad. Er sagt, was dabei einzuhalten ist – und er bindet die Anwendung an
 <<security-txt,RFC 9116>>.
 
-*Geltungsbereich ist das Backend* – der Dateiname sagt es. Die Regeln für das Frontend bekommen
-einen *eigenen* Skill `docs/prompt/security-frontend.adoc`, sobald sie festgelegt sind; bis
-dahin steht nirgends etwas über die SPA, und hier soll auch nichts darüber stehen
-(link:{adr}/0048-security-skill-je-seite{adrext}[ADR 0048], der die eine gemeinsame Datei aus
-link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035] ablöst).
+*Geltungsbereich ist das Backend* – der Dateiname sagt es. Die Regeln für die SPA stehen im
+eigenen Skill `docs/prompt/security-frontend.adoc`.
 
 Dieser Skill schreibt vor, er beschreibt nicht. *Welche* Lücken bewusst offen sind, steht in
-`docs/system/betrieb.adoc`, Abschnitt „Offene Punkte"; *warum* es diesen Skill gibt, in
-link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035].
+`docs/system/betrieb.adoc`, Abschnitt „Offene Punkte".
 
 == Grundsätze
 
@@ -32,8 +26,9 @@ link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035].
 . *Eine Lücke wird benannt.* Was bewusst offen bleibt, gehört in „Offene Punkte"
   (`docs/system/betrieb.adoc`) und – wenn es abgearbeitet werden soll – ins Backlog. Eine
   Lücke, die nirgends steht, ist von einem Versehen nicht zu unterscheiden.
-. *Abweichung braucht ein ADR*, wie jede andere Entscheidung (Skill ADR,
-  `docs/prompt/adr.adoc`). Eine gelockerte Sicherheitsregel ist nie eine Nebenwirkung.
+. *Abweichung ist eine geänderte Festlegung*, wie überall (Skill
+  `docs/prompt/entscheidungen.adoc`). Eine gelockerte Sicherheitsregel ist nie eine
+  Nebenwirkung.
 
 IMPORTANT: Eine gefundene Schwachstelle wird *nicht im Vorbeigehen* behoben und *nicht
 stillschweigend*. Sie wird benannt – im Log, in „Offene Punkte" und als Backlog-Eintrag –,
@@ -52,11 +47,12 @@ damit die Behebung eine eigene, prüfbare Arbeitseinheit ist.
 
 | Neues Fehlerbild oder neuer `+@ExceptionHandler+`
 | Meldung ohne Stacktrace, ohne SQL, ohne interne Pfade und Klassennamen. Der Statuscode trägt
-  die Aussage, der Text nur so viel, wie der Aufrufer zum Korrigieren braucht
+  die Aussage, der Text nur so viel, wie der Aufrufer zum Korrigieren braucht. Die Form regelt
+  der Skill `docs/prompt/api.adoc`
 
 | Neue Datenbankabfrage
 | Über jOOQ mit *gebundenen Parametern*. Kein Zusammenbau von SQL aus Zeichenketten, kein
-  „plain SQL" ohne ADR
+  „plain SQL" ohne eigene Festlegung (Skill `docs/prompt/persistenz.adoc`)
 
 | Neue Protokollausgabe
 | Keine Zugangsdaten, keine vollständigen Anfragekörper, keine personenbezogenen Daten. Wer
@@ -67,16 +63,14 @@ damit die Behebung eine eigene, prüfbare Arbeitseinheit ist.
   als Vorgabe; Zeile in der Konfigurationstabelle von `docs/system/betrieb.adoc`
 
 | Neue Abhängigkeit
-| Über den Versionskatalog
-  (link:{adr}/0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018]), keine Snapshot- oder
-  RC-Version, kein zusätzliches Repository ohne ADR. Herkunft und Pflegezustand prüfen, bevor
+| Über den Versionskatalog (Skill `docs/prompt/build.adoc`), keine Snapshot- oder RC-Version,
+  kein zusätzliches Repository ohne eigene Festlegung. Herkunft und Pflegezustand prüfen, bevor
   sie eingetragen wird
 
 | Neuer offen erreichbarer Pfad (Endpunkt, statische Datei, Dokumentation)
 | Prüfen, was er preisgibt. Was den Ist-Zustand des Systems offenlegt – etwa
-  `+/recipes/docs/**+` mit dieser Dokumentation
-  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]) –, gehört in „Offene
-  Punkte", solange es ungeschützt ist
+  `+/recipes/docs/**+` mit dieser Dokumentation –, gehört in „Offene Punkte", solange es
+  ungeschützt ist
 
 | Der Meldeweg ändert sich (Adresse, Sprache, Ablaufdatum)
 | `security.txt` nachziehen – siehe <<security-txt>>
@@ -91,8 +85,7 @@ damit die Behebung eine eigene, prüfbare Arbeitseinheit ist.
 
 *Die Anwendung hält https://www.rfc-editor.org/rfc/rfc9116.html[RFC 9116] ein.* Wer eine
 Schwachstelle findet, soll den Meldeweg *maschinenlesbar* vorfinden, statt ihn zu erraten – ein
-Kontaktweg, den niemand findet, ist kein Kontaktweg
-(link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035]).
+Kontaktweg, den niemand findet, ist kein Kontaktweg.
 
 === Was das verlangt
 
@@ -132,27 +125,18 @@ Preferred-Languages: de, en
 Canonical: https://example.org/.well-known/security.txt
 ----
 
-WARNING: *Der Context-Path ist hier der Stolperstein.* Die Anwendung liegt unter `/recipes`
-(link:{adr}/0016-context-path-recipes{adrext}[ADR 0016]). Eine Datei, die nur unter
-`+/recipes/.well-known/security.txt+` erreichbar ist, erfüllt RFC 9116 *nicht* – gefordert ist
-der Ursprung. Wer sie ausliefert, löst das ausdrücklich: durch eine Zuordnung, die den
-Context-Path umgeht, oder durch einen vorgelagerten Proxy. Welcher Weg gewählt wird, ist eine
-Entscheidung und gehört in ein ADR – für diese Anwendung ist er in
-link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037] entschieden. Eine
-Änderung daran folgt dem Ablauf „Abweichen" des ADR-Skills, nicht der Bequemlichkeit.
-
 === Pflege
 
 * *`Expires` liegt weniger als ein Jahr in der Zukunft* – so empfiehlt es RFC 9116. Das Datum
   ist damit kein Beiwerk, sondern eine wiederkehrende Aufgabe.
-* *Jede Änderung am Meldeweg zieht die Datei nach*, nicht umgekehrt.
-* *Die Erreichbarkeit wird geprüft, nicht angenommen:* Wird die Datei ausgeliefert, gehört ein
-  Systemtest dazu, der sie über HTTP abruft und auf `Contact` und `Expires` prüft
-  (Skill Tests, `docs/prompt/tests.adoc`).
+* *Jede Änderung am Meldeweg zieht die Datei nach*, nicht umgekehrt. Inhalt und Ablaufdatum
+  stehen in der Konfiguration, nicht im Code – siehe <<festlegungen-security-backend>>.
+* *Die Erreichbarkeit wird geprüft, nicht angenommen:* `SecurityTxtSystemTest` ruft die Datei
+  über HTTP am Ursprung ab.
 
-WARNING: `Expires` veraltet *still*. Die Datei bleibt erreichbar, der Build bleibt grün, und
-ungültig ist sie trotzdem. Ein Datum, das niemand prüft, ist der wahrscheinlichste Weg, wie
-diese Regel unbemerkt aufhört zu gelten.
+WARNING: `Expires` veraltet *still* – die Datei bliebe erreichbar und wäre trotzdem ungültig.
+Deshalb hält `SecurityTxtConfigurationTest` das Datum wach: Er lässt den Build fehlschlagen,
+sobald es abgelaufen oder weiter als ein Jahr entfernt ist. Das ist gewollt, aber es ist Arbeit.
 
 == Prüfen
 
@@ -166,12 +150,91 @@ wird es durch Tests, die die jeweilige Regel festhalten – ein Test für ein zu
 Eingabefeld, einer für ein Fehlerbild ohne interne Details, einer für die ausgelieferte
 `security.txt`. Alles Übrige regelt die *Definition of Done* im Master-Prompt.
 
+[[festlegungen-security-backend]]
+== Festlegungen und ihre Gründe
+
+=== Sicherheit steht in eigenen Skills, je Seite einer
+
+*Was gilt.* Es gibt `security-backend.adoc` und `security-frontend.adoc`. Was für beide Seiten
+gilt, steht *genau einmal* – im Backend-Skill – und wird vom Frontend-Skill verwiesen, nicht
+abgeschrieben.
+
+*Warum.* Vor diesen Skills kam Sicherheit in der Arbeitsgrundlage nicht vor: Der Master-Prompt
+nannte Validierung nur mittelbar über die Coding-Konventionen, der Architektur-Skill über die
+Schichtenregel. Wer einen Endpunkt ergänzte, fand nirgends, was dabei zu prüfen ist –
+Sicherheitsfragen wurden von Fall zu Fall entschieden und waren nach `/clear` nicht mehr
+nachlesbar. Der Schnitt je Seite folgte später, weil die Anlässe verschieden sind: Wer eine
+React-Route ändert, soll nicht die Regeln zu jOOQ, Protokollausgabe und `security.txt`
+mitladen; und der Dateiname nennt den Geltungsbereich, statt ihn erst im Titel zu verraten.
+
+*Verworfen.* Sicherheitsregeln in den Master-Prompt – er wird in *jeder* Session vollständig
+geladen, die Regeln greifen aber nur bei bestimmten Anlässen. Verteilt in die bestehenden Skills
+(Validierung zu Architektur, Fehlerbilder zu Tests, offene Pfade zur Systemdokumentation) –
+dieselbe Regel stünde an drei Orten, und es gäbe keine Stelle zum Nachschlagen, bevor jemand
+einen Pfad öffnet. Eine gemeinsame Datei mit Abschnitten je Seite – war der erste Zuschnitt und
+ist am Kontextverbrauch gescheitert. Eine dritte Datei für seitenübergreifende Regeln – ein
+weiterer Ort, bevor feststeht, wie viel wirklich für beide Seiten gilt.
+
+*Preis.* Zwei Dateien für ein Thema; gemeinsame Regeln brauchen jedes Mal die Entscheidung
+„verlinken oder wiederholen". Der Build prüft das nicht.
+
+*Bewusst offen.* Der Skill bindet die Anwendung an Anforderungen, die sie nicht vollständig
+erfüllt – keine Authentifizierung, kein HTTPS, kein Actuator, keine Sicherheits-Header. Jeder
+dieser Punkte steht in „Offene Punkte" und im Backlog; keiner wird im Vorbeigehen umgesetzt.
+Auch die Härtung des Abhängigkeitswegs (`+dependency-verification.xml+`, Lockdateien) ist eine
+eigene Entscheidung – dieser Skill verlangt nur Versionskatalog und Herkunftsprüfung von Hand.
+
+=== `security.txt` am Ursprung, ausgeliefert von einem Engine-Valve
+
+*Was gilt.* `SecurityTxtValve` (Modul `:bootstrap`) hängt als Engine-Valve in der
+Tomcat-Pipeline, eingehängt von `SecurityTxtConfig` über einen
+`+WebServerFactoryCustomizer<ConfigurableTomcatWebServerFactory>+`. Es beantwortet `GET` und
+`HEAD` auf genau `+/.well-known/security.txt+` mit `+text/plain; charset=utf-8+` und reicht jede
+andere Anfrage unverändert weiter. Der Pfad steht als Zeichenkette im Valve – er stammt aus
+RFC 9116 und ändert sich nicht; ein Konfigurationsschlüssel dafür wäre eine Einladung, den
+Standard zu verfehlen.
+
+*Warum das trägt.* Die Anwendung liegt vollständig unter dem Context-Path `/recipes`; ein Pfad
+außerhalb davon erreicht Spring überhaupt nicht – Tomcat bildet die Anfrage auf keinen Context
+ab, und ohne Context gibt es keinen `DispatcherServlet`. Findet Tomcat keinen Context, beendet er
+die Anfrage aber *nicht* sofort, sondern durchläuft die Pipeline; erst `StandardHostValve`
+antwortet mit 404. Ein Valve *vor* dieser Stelle sieht die Anfrage also. Der Context-Path kommt
+in der Umsetzung damit an keiner Stelle vor: Die Datei liegt am Ursprung, weil sie nie in einen
+Context hineingerät – und bliebe richtig, wenn `/recipes` je geändert wird.
+
+*Verworfen.* Statische Datei im Klassenpfad – wäre unter `+/recipes/.well-known/security.txt+`
+erreichbar und damit an der falschen Stelle; „fast dort" ist nicht auffindbar. Vorgelagerter
+Proxy – es gibt keinen, das Deployable ist ein Boot-Jar, und *kein* Systemtest könnte die
+Anforderung prüfen. Context-Path aufgeben – eine Zeile Meldeweg rechtfertigt keinen Eingriff in
+den Adressraum der ganzen Anwendung. Zweiter Tomcat-Context unter `+""+` – eigener Lebenszyklus,
+eigenes `docBase`, eigene Registrierung für eine Datei mit zwei Feldern. `RewriteValve` – verlangt
+den Context-Path ein zweites Mal als Zeichenkette in einer Rewrite-Regel, die kein Test mit
+`application.yml` abgleicht.
+
+*Der Inhalt ist Konfiguration.* `SecurityTxtProperties` (Präfix `+recipes.security-txt+`) hält
+`contact` (mindestens eine URI, Reihenfolge = Priorität), `expires` (`OffsetDateTime`) und
+`preferredLanguages`; der Record erzeugt das Dokument selbst, sodass Feldnamen und Reihenfolge an
+*einer* Stelle stehen. Fehlt `contact`, startet die Anwendung nicht – eine `security.txt` ohne
+Meldeweg ist keine. Eine feste Datei im Repository wurde verworfen, weil `Expires` ein Datum mit
+Verfallszeit ist und der Meldeweg sich ändern kann, ohne dass ein neues Artefakt gebaut wird.
+
+*Preis.* Der Meldeweg zeigt heute auf die *öffentlichen* Issues des Repositories – der Weg
+existiert nachweislich und wird gelesen, aber eine Meldung ist damit ab der ersten Zeile bekannt.
+Das steht als eigener Punkt in „Offene Punkte" und im Backlog. Ein Valve ist Tomcat-Code: Die
+Antwort entsteht am Servlet-Container vorbei, also ohne Spring MVC – kein `MockMvc`, keine
+`+@ExceptionHandler+`, keine Filterkette; belegt ist die Auslieferung deshalb über HTTP im
+Systemtest. Ein Wechsel des Servlet-Containers erzwingt eine neue Umsetzung.
+
+*Bewusst nicht getan.* Keine Clearsign-Signatur (verlangt einen gepflegten Schlüssel), kein
+`Canonical` (die Anwendung kennt ihren Ursprung nicht, nur ihren Port), keine weiteren optionalen
+Felder ohne gepflegten Inhalt, kein `405` für andere Methoden – ein `POST` fällt durch die
+Pipeline und wird zu `404` wie jeder Pfad außerhalb des Context-Path.
+
 == Hinweise
 
-* *Drei Modi, ein Sachverhalt:* Dieser Skill schreibt vor (*was zu tun ist*),
-  `docs/system/betrieb.adoc` beschreibt (*was ist*, samt „Offene Punkte"), das ADR begründet
-  (*warum*). Wiederholt wird nichts davon.
-* *Keine Sicherheitsbibliothek ohne ADR.* Authentifizierung, Rate Limiting, Header-Filter –
-  jedes davon ist eine Entscheidung mit sichtbaren Alternativen und damit ein eigenes ADR.
+* *Zwei Modi, ein Sachverhalt:* Dieser Skill schreibt vor und begründet (*was zu tun ist und
+  warum*), `docs/system/betrieb.adoc` beschreibt (*was ist*, samt „Offene Punkte").
+* *Keine Sicherheitsbibliothek ohne eigene Festlegung.* Authentifizierung, Rate Limiting,
+  Header-Filter – jedes davon ist eine Entscheidung mit sichtbaren Alternativen.
 * *Bequemlichkeit ist kein Grund.* Ein abgeschalteter Schutz „für den Testlauf" ist der Zustand,
   der ausgeliefert wird.

@@ -20,7 +20,7 @@ public record Ingredient(String name, BigDecimal quantity, String unit) {
     }
 
     /**
-     * Starts the curried construction of an {@link Ingredient} (see ADR 0021).
+     * Starts the curried construction of an {@link Ingredient} (see docs/prompt/architektur.adoc).
      *
      * <p>Every component is supplied by its own named step, so neighbouring components of the
      * same type cannot be swapped unnoticed:

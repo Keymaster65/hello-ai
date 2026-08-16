@@ -12,7 +12,7 @@ spring:
     sql-dialect: POSTGRES
   mvc:
     # Auch die Ausnahmen des Frameworks (405, 415, 406 …) antworten als RFC 9457 problem+json,
-    # nicht mehr als Standardseite (ADR 0046). Die vier eigenen Fälle behält der
+    # nicht mehr als Standardseite (docs/prompt/api.adoc). Die vier eigenen Fälle behält der
     # GlobalExceptionHandler – er ist höher priorisiert als Springs Handler.
     problemdetails:
       enabled: true
@@ -32,13 +32,13 @@ springdoc:
 server:
   port: 80
   servlet:
-    # Basis-URL der Anwendung: SPA, API und Swagger UI liegen unter /recipes (ADR 0016).
+    # Basis-URL der Anwendung: SPA, API und Swagger UI liegen unter /recipes (docs/prompt/api.adoc).
     context-path: /recipes
 
 recipes:
   security-txt:
     # Meldeweg für Schwachstellen nach RFC 9116, ausgeliefert unter /.well-known/security.txt –
-    # am Ursprung, also *neben* dem Context-Path (ADR 0037).
+    # am Ursprung, also *neben* dem Context-Path (docs/prompt/security-backend.adoc).
     contact: ${SECURITY_TXT_CONTACT:https://github.com/Keymaster65/hello-ai/issues}
     # RFC 3339; RFC 9116 empfiehlt weniger als ein Jahr in der Zukunft. SecurityTxtConfigurationTest
     # bricht den Build, sobald das Datum abgelaufen oder zu weit entfernt ist.
