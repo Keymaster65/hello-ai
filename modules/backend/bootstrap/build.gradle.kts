@@ -145,6 +145,10 @@ tasks.named<ProcessResources>("processResources") {
         from(systemdokuVerzeichnis) {
             into("static/docs")
             rename("""^system\.html$""", "index.html")
+            // Die Diagramm-Erweiterung legt neben den erzeugten SVG einen Cache ab (ADR 0042).
+            // Er gehört zum Bauen, nicht zur Auslieferung – sonst wäre er unter
+            // `/recipes/docs/.asciidoctor/` abrufbar.
+            exclude(".asciidoctor/**")
         }
     }
 }

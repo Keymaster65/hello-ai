@@ -9,10 +9,39 @@ Das Backend folgt einer Hexagonal-/Clean-Architecture mit *einem Gradle-Modul je
 (link:{adr}/0013-ein-gradle-modul-je-schicht{adrext}[ADR 0013],
 link:{adr}/0014-schichtmodule-unter-backend{adrext}[ADR 0014]). Abhängigkeiten zeigen nach innen:
 
-----
-:modules:backend:bootstrap → :modules:backend:adapter
-        → :modules:backend:application → :modules:backend:domain
-----
+.Abhängigkeiten der Gradle-Module, wie sie in den Buildskripten deklariert sind
+[plantuml,modulabhaengigkeiten,svg]
+....
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam defaultTextAlignment center
+
+package "modules/backend" as backend {
+  [bootstrap]
+  [adapter]
+  [application]
+  [domain]
+}
+
+[frontend]
+
+[bootstrap] --> [adapter] : implementation
+[adapter] --> [application] : api
+[application] --> [domain] : api
+[bootstrap] ..> [frontend] : npm-Build ins Boot-Jar
+@enduml
+....
+
+`api` bedeutet, dass die Abhängigkeit *durchgereicht* wird – ein Port zeigt Domänentypen, also
+braucht sie auch, wer den Port benutzt. `implementation` behält sie für sich:
+`:modules:backend:bootstrap` deklariert nur den Adapter, Anwendung und Domäne kommen
+transitiv. `modules/frontend` ist kein Gradle-Modul, sondern ein npm-Projekt; sein Build wird
+von `:modules:backend:bootstrap` ins Boot-Jar gepackt
+(link:{adr}/0015-alle-bausteine-unter-modules{adrext}[ADR 0015]). Das Diagramm entsteht beim
+Rendern aus seiner Quelle in dieser Datei
+(link:{adr}/0042-plantuml-fuer-diagramme{adrext}[ADR 0042]).
 
 Entscheidend ist, dass die Regel nicht nur dokumentiert, sondern *dreifach* abgesichert ist:
 

@@ -9,6 +9,57 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-145]]
+== 145. Prompt: „Ergänze ein Plant UML Diagram für die Abhängigkeiten der gradle Module in der Asciidoc Systemdokumentation unter „Bausteine und Schichten". Ergänze die Pflege der Abhängigkeiten in dem Skill systemdoku. Ergänze ein ADR zur Verwendung von Plant UML als Tool zur Diagramerstellung." (aus dem Backlog, `next`)
+
+_Delta: 14:49 min · 73.245 Token out · 213.461 Token in (neu) · 13.370.604 Token gesamt_
+_Stand (Session, 4 Prompts): 15:28 min · 79.019 Token out · 13.774.998 Token gesamt_
+
+*Aktionen:*
+
+* *Pull vor `next`* (ADR 0030): `+git pull --ff-only+` auf `main` meldete „Already up to date",
+  nichts geholt. Kein Eintrag stand auf aktiv.
+* *Ziehreihenfolge auf `main`:* keine gebundenen Einträge; von den fünf ungebundenen
+  ready-Einträgen wurde der erste gezogen, nach Rückfrage im Wortlaut bestätigt und der Marker
+  vor der Arbeit auf `+*+` gesetzt.
+* *Der Hook hat wieder nicht gefeuert* – kein Gerüst `+prompt-145+`; dieser Eintrag ist von Hand
+  geschrieben. Der *Delta* misst den Ausführungs-Turn; der Rückfrage-Turn (39 s, 5.774 Token
+  out) steckt nur im *Stand*.
+* *ADR 0042 „PlantUML als Werkzeug für Diagramme"* angelegt – mit sechs erwogenen Optionen
+  (ASCII-Kunst, eingecheckte Bilder, Mermaid, Kroki, Erzeugung aus dem Gradle-Modell, PlantUML)
+  und den Gründen der fünf verworfenen. Zeile im ADR-Index von `docs/system/system.adoc`
+  ergänzt, Wegweiser in `docs/prompt/adr.adoc` nachgezogen (Zeile „Dokumentation …", Zahl 41
+  → 42).
+* *Build:* `+asciidoctorj-diagram+` als Modul im `+asciidoctorj+`-Block des Wurzelprojekts
+  eingeschaltet – damit gilt es für alle drei Asciidoctor-Tasks; Version als
+  `+asciidoctorjDiagram+` im Versionskatalog (ADR 0018). `+processResources+` in
+  `+:modules:backend:bootstrap+` schließt den Diagramm-Cache `+.asciidoctor/+` vom Einpacken
+  aus – sonst läge er im Boot-Jar unter `+/recipes/docs/+`.
+* *Diagramm in `docs/system/schichten.adoc`, Abschnitt „Die Regel":* die bisherige
+  ASCII-Pfeilkette *ersetzt* (nicht ergänzt) durch ein PlantUML-Komponentendiagramm mit den vier
+  Schichtmodulen im Rahmen `+modules/backend+`, dem npm-Projekt `+frontend+` und beschrifteten
+  Kanten (`api` / `implementation`). Darunter zwei Sätze zu dem, was das Bild nicht zeigen kann.
+* *Kein Graphviz nötig:* `+!pragma layout smetana+` als erste Zeile jedes Diagramms. Nachgemessen
+  mit `+GRAPHVIZ_DOT=/nonexistent/dot+` und gelöschtem Cache – der Lauf bleibt grün und erzeugt
+  dasselbe SVG.
+* *Skill `docs/prompt/systemdoku.adoc`:* neuer Abschnitt „Diagramme" (Quelle im Dokument,
+  Dateiname als zweiter Parameter, `smetana`, Diagramm ersetzt Text, keine eigene `+.puml+`-Datei,
+  Titelzeile) und eine neue Zeile in „Auslöser → Pflicht" für die *Pflege der Abhängigkeiten*:
+  neues/entferntes Modul oder geänderte `+project()+`-Abhängigkeit – auch der Wechsel zwischen
+  `api` und `implementation` – berührt Diagramm *und* Modultabelle in `schichten.adoc`.
+* *`docs/system/betrieb.adoc`:* Zeile des Tasks `+asciidoctor+` um das Rendern der Diagramme und
+  den ausgeschlossenen Cache ergänzt.
+* *Definition of Done:* `+./gradlew clean build+` grün (3:03 min, inklusive `test` und
+  `frontendTest`), `+./gradlew systemtest e2eTest+` grün (1:27 min), alle drei Doku-Tasks grün.
+  Keine neuen Asciidoctor-Meldungen – die zwei bekannten sind unverändert und stehen als eigener
+  Backlog-Eintrag.
+* *Nachgesehen statt abgelesen:* Das SVG liegt im Boot-Jar unter
+  `+BOOT-INF/classes/static/docs/modulabhaengigkeiten.svg+` (5 KB), der Cache `+.asciidoctor/+`
+  nicht. Das gerenderte Bild wurde geprüft – alle sechs Kästen und vier Kanten sind lesbar.
+* *Backlog:* der gezogene Eintrag entfernt.
+
+'''
+
 [[prompt-144]]
 == 144. Prompt: „Ergänze die Behandlung des Branch `po` wie die Branche `main`, `sm`, `doc`, `dev`." (aus dem Backlog, `next`)
 

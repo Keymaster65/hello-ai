@@ -8,6 +8,9 @@
 [versions]
 archunit = "1.5.0"
 asciidoctor = "4.0.5"
+# Asciidoctor-Erweiterung, die PlantUML beim Rendern ausführt (ADR 0042). Die 2.3.x passt zu
+# dem AsciidoctorJ 2.5.x, das das Gradle-Plugin oben mitbringt.
+asciidoctorjDiagram = "2.3.2"
 gitChangelog = "3.1.2"
 jooq = "3.21.6"
 jooqPlugin = "10.2.1"

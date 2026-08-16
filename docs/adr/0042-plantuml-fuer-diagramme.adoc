@@ -1,0 +1,191 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= ADR 0042: PlantUML als Werkzeug für Diagramme
+
+== Status
+
+Akzeptiert – 2026-08-16
+
+Ergänzt link:0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022] und
+link:0026-adrs-als-asciidoc{adrext}[ADR 0026] um eine Darstellungsform. Abgelöst wird nichts:
+Prosa und Tabellen bleiben die Regel, ein Diagramm ist die Ausnahme für Strukturen, die als
+Text nicht mehr lesbar sind.
+
+== Kontext
+
+Die Systemdokumentation beschreibt Strukturen bisher in Prosa und Tabellen. Wo eine *Richtung*
+gezeigt werden sollte, stand ASCII-Kunst – die Abhängigkeit der Schichtmodule etwa als
+Pfeilkette in einem Literalblock:
+
+----
+:modules:backend:bootstrap → :modules:backend:adapter
+        → :modules:backend:application → :modules:backend:domain
+----
+
+Das trägt genau so weit, wie die Struktur eine Kette ist. Schon die vorhandenen vier Module
+sind es nicht ganz: `modules/frontend` hängt daran, ohne ein Gradle-Modul zu sein, und die
+Unterscheidung zwischen `api` (durchgereicht) und `implementation` (nicht durchgereicht) ist
+in einer Zeile Text nicht unterzubringen. Beim nächsten Modul wird die Kette zum Geflecht, und
+Handarbeit am Layout beginnt.
+
+Ein Bild statt der Zeile ist damit fällig – und ein Bild ist eine Entscheidung, keine
+Formatierung. Zu klären ist, *woher* es kommt, *wo seine Quelle liegt* und *wer es aktuell
+hält*. Drei Eigenschaften des Bestands schränken die Wahl ein:
+
+*Die Doku wird ausgeliefert.* Das gerenderte Verzeichnis wandert ins Boot-Jar und wird unter
+`/recipes/docs/` bedient (link:0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]). Was ein
+Diagramm erzeugt, muss deshalb *neben* dem HTML landen und darf zur Laufzeit nichts nachladen.
+
+*Der Build ist selbsttragend.* Gebaut wird über den Wrapper
+(link:0009-gradle-wrapper-verbindlich{adrext}[ADR 0009]); für die Datenbank in den Tests wurde
+aus demselben Grund Embedded PostgreSQL statt Docker gewählt
+(link:0002-embedded-postgres-statt-testcontainers{adrext}[ADR 0002]). Ein Werkzeug, das erst
+von Hand auf dem Rechner installiert werden muss, passt nicht dazu.
+
+*Versionen stehen im Versionskatalog*, nirgends sonst
+(link:0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018]).
+
+== Optionen
+
+. *Bei ASCII-Kunst bleiben.* Verworfen: Sie ist bei drei Kästen lesbar und bei acht nicht mehr.
+  Vor allem kostet jede Änderung Layout-Arbeit von Hand – der sicherste Weg, dass ein Bild
+  nicht mitgepflegt wird.
+. *Bilddateien einchecken*, gezeichnet in einem Programm außerhalb des Repositories. Verworfen:
+  Die Quelle läge außerhalb des Projekts oder in einem Binärformat. Ein Diff zeigte dann
+  „Bild geändert" statt „diese Kante ist dazugekommen", und beim Umbenennen eines Moduls
+  veraltete das Bild *still* – niemand sieht einem PNG an, dass es überholt ist.
+. *Mermaid.* Verworfen: `asciidoctor-diagram` rendert es nur über einen Node-Prozess (`mmdc`)
+  oder über einen Kroki-Server. Beides bringt eine Laufzeit in den Doku-Build, die der Build
+  bisher nicht braucht – das Frontend-npm hängt an `:modules:backend:bootstrap`, nicht am
+  Wurzelprojekt.
+. *Kroki als Dienst.* Verworfen: Der Build bräuchte Netz für *jedes* Diagramm, und der
+  Quelltext der Dokumentation ginge dafür an einen fremden Dienst. Ein eigener Kroki-Container
+  wäre die Docker-Abhängigkeit, die ADR 0002 gerade vermieden hat.
+. *Das Diagramm aus dem Gradle-Modell erzeugen* – ein Task, der die `project()`-Abhängigkeiten
+  ausliest und PlantUML schreibt. Verworfen, aber nicht für immer (siehe „Bewusst nicht
+  getan"): Ein erzeugtes Diagramm kann nicht veralten, zeigt dafür aber *jede* Kante, auch die
+  uninteressanten – Test-Abhängigkeiten, BOMs, Plugin-Classpath. Die Aussage einer Doku ist die
+  Auswahl; die trifft hier ein Mensch.
+. *PlantUML über `asciidoctor-diagram`, Quelle im Dokument, gerendert beim Bauen* – gewählt.
+  Die Erweiterung ist eine Java-Bibliothek und kommt über denselben Weg wie jede andere
+  Abhängigkeit; der Build braucht dafür nichts, was er nicht ohnehin hat.
+
+== Entscheidung
+
+Diagramme in der Dokumentation werden mit *PlantUML* geschrieben und beim Rendern erzeugt.
+
+*Die Quelle steht im Dokument*, als Block `+[plantuml,<name>,svg]+` an der Stelle, die sie
+zeigt – nicht in einer eigenen `+.puml+`-Datei daneben. Damit steht das Diagramm bei dem
+Absatz, den es illustriert, und wer den Absatz ändert, hat die Kanten vor Augen. Eine eigene
+Datei wäre ein zweiter Ort mit eigener Pflege und ein Eintrag mehr im Quellenanhang.
+
+*Erzeugt wird SVG.* Es skaliert, bleibt lesbar und ist selbst Text; die Datei liegt nach dem
+Lauf neben `+system.html+` und wandert mit ins Boot-Jar (ADR 0024). Der Dateiname ist der
+zweite Parameter des Blocks – er wird gewählt, nicht vom Werkzeug vergeben, damit im
+Ausgabeverzeichnis nicht `+diag-a1b2c3.svg+` steht.
+
+*Layout ohne Graphviz.* Jedes Diagramm beginnt mit `+!pragma layout smetana+`. PlantUML
+verlangt für Struktur-Diagramme sonst das native `+dot+` aus Graphviz; Smetana ist der
+mitgelieferte Ersatz in Java. Das ist der Punkt, an dem diese Entscheidung an ADR 0002 und ADR
+0009 anschließt: Der Doku-Build läuft auf einem Rechner, auf dem nichts installiert wurde.
+
+*Der Diagramm-Cache wird nicht ausgeliefert.* Die Erweiterung legt neben den SVG ein
+Verzeichnis `+.asciidoctor/+` ab. Es gehört zum Bauen; `+processResources+` in
+`+:modules:backend:bootstrap+` schließt es beim Einpacken aus, sonst wäre es unter
+`+/recipes/docs/.asciidoctor/+` abrufbar.
+
+*Die Erweiterung gilt für alle drei Asciidoctor-Tasks.* Sie wird einmal im
+`+asciidoctorj+`-Block des Wurzelprojekts eingeschaltet, nicht je Task. Ein Diagramm darf
+damit überall stehen, wo AsciiDoc steht – in der Systemdokumentation, in einem ADR, in einem
+Skill. Die Version steht als `+asciidoctorjDiagram+` im Versionskatalog (ADR 0018).
+
+*Ein Diagramm ersetzt Text, es begleitet ihn nicht.* Die Pfeilkette oben ist durch das
+Diagramm *ersetzt* worden. Beides nebeneinander wären zwei Fassungen derselben Aussage, von
+denen eine irgendwann falsch ist – dieselbe Regel, die in dieser Dokumentation Verlinken statt
+Kopieren verlangt (ADR 0022).
+
+*Gepflegt wird es wie jede andere Aussage über den Ist-Zustand*: mit der Änderung, nicht
+danach. Der Auslöser dafür steht im Skill Systemdokumentation (`docs/prompt/systemdoku.adoc`),
+weil dort schon steht, welche Änderung welches Kapitel berührt.
+
+== Konsequenzen
+
+=== Vorteile
+
+* *Die Quelle ist versioniert und lesbar.* Eine neue Kante ist im Diff eine Zeile, kein
+  geändertes Binärformat.
+* *Kein natives Werkzeug.* `+./gradlew asciidoctor+` genügt; Graphviz muss nirgends installiert
+  sein – nachgemessen, siehe „Prüfung".
+* *Das Ergebnis bleibt in sich geschlossen.* Das SVG liegt neben dem HTML, das Boot-Jar liefert
+  beides aus, zur Laufzeit wird nichts nachgeladen (ADR 0024).
+* *Die Unterscheidung `api`/`implementation` wird sichtbar* – eine Aussage, die in der
+  Pfeilkette nicht unterzubringen war.
+* *Der Weg ist für weitere Diagramme offen*, ohne dass jedes Mal neu entschieden werden muss;
+  auch ein ADR oder ein Skill darf eines enthalten.
+
+=== Nachteile
+
+* *Der Doku-Build lädt mehr.* PlantUML, Batik und ditaa kommen mit der Erweiterung – rund
+  17 MB zusätzlich im Abhängigkeits-Cache, einmalig.
+* *Ein Diagramm wird nicht geprüft.* Ein fehlender `include` und ein toter Querverweis brechen
+  den Build (ADR 0022); ein Pfeil, der in die falsche Richtung zeigt, bricht ihn nicht. Das
+  Diagramm ist damit die *ungeprüfteste* Stelle der Dokumentation – deshalb die Pflegeregel im
+  Skill, nicht bloß der Hinweis hier.
+* *Smetana layoutet anders als Graphviz.* Bei kleinen Graphen ist der Unterschied nicht zu
+  sehen; bei großen ordnet Graphviz besser. Wird ein Diagramm einmal zu unruhig, ist das ein
+  Grund, es zu *teilen* – nicht, Graphviz nachzuinstallieren.
+* *Der Ort ist eng an AsciiDoc gebunden.* Ein Diagramm ist ohne den Doku-Build nicht zu sehen;
+  wer nur die `+.adoc+` liest, liest PlantUML-Quelltext. GitHub rendert den Block nicht.
+
+=== Bewusst nicht getan
+
+* *Kein Diagramm-Cache eingecheckt.* Das SVG entsteht bei jedem Lauf und liegt unter `+build/+`.
+  Eingecheckt wäre es ein zweiter Stand derselben Aussage.
+* *Keine weiteren Diagramme in dieser Entscheidung.* Nur die Pfeilkette in „Bausteine und
+  Schichten" ist ersetzt. Wo sonst eines guttut – Systemkontext, Laufzeitsicht –, steht im
+  Backlog und wird einzeln entschieden.
+* *Kein erzeugtes Diagramm aus dem Gradle-Modell* (Option 5). Der Gedanke bleibt gültig: Er
+  wird interessant, sobald die Zahl der Module so wächst, dass Handpflege unzuverlässig wird.
+  Dann ist er eine eigene Entscheidung, kein Nebenweg dieser.
+* *Kein PNG als zusätzliches Format.* SVG genügt für Browser und Boot-Jar; ein zweites Format
+  wäre eine zweite Datei ohne Leser.
+* *Keine Festlegung auf Diagrammarten.* Ob Komponenten-, Sequenz- oder Klassendiagramm,
+  entscheidet der Gegenstand. Festgelegt ist das Werkzeug, nicht die Zeichnung.
+
+== Prüfung
+
+* `+./gradlew asciidoctor+` läuft grün und legt `+build/docs/asciidoc/modulabhaengigkeiten.svg+`
+  (5 KB) neben `+system.html+`; das HTML bindet es als `+<img src="modulabhaengigkeiten.svg">+`
+  ein. Neue `+SEVERE:+`-Meldungen entstehen nicht – die zwei bekannten Meldungen des Tasks sind
+  dieselben wie vorher und stehen als eigener Backlog-Eintrag.
+* `+./gradlew clean build+` bleibt grün, und das SVG liegt im Boot-Jar unter
+  `+BOOT-INF/classes/static/docs/modulabhaengigkeiten.svg+`. Der Diagramm-Cache
+  `+.asciidoctor/+` ist *nicht* darin – er wird beim Einpacken ausgeschlossen.
+* *Ohne Graphviz nachgemessen:* derselbe Lauf mit `+GRAPHVIZ_DOT=/nonexistent/dot+` und
+  gelöschtem Diagramm-Cache bleibt grün und erzeugt dasselbe SVG. Smetana braucht `+dot+`
+  tatsächlich nicht; die Aussage ist nicht aus der Dokumentation von PlantUML abgeschrieben.
+* *Im Bild nachgesehen*, nicht nur am grünen Build abgelesen: Alle vier Schichtmodule, der
+  Rahmen `+modules/backend+`, `+frontend+` und die vier beschrifteten Kanten sind vorhanden und
+  lesbar.
+
+== Referenzen
+
+* link:0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022] – AsciiDoc als Format
+  der Systemdokumentation; „Verlinken statt kopieren" und die Build-Fehler, die ein Diagramm
+  gerade *nicht* auslöst
+* link:0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024] – die Doku wird ausgeliefert;
+  deshalb muss das SVG neben dem HTML liegen
+* link:0026-adrs-als-asciidoc{adrext}[ADR 0026] – dieselbe Erweiterung gilt für die ADRs
+* link:0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023] – und für die
+  Arbeitsgrundlage
+* link:0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018] – die Version der Erweiterung
+  steht im Katalog
+* link:0002-embedded-postgres-statt-testcontainers{adrext}[ADR 0002],
+  link:0009-gradle-wrapper-verbindlich{adrext}[ADR 0009] – der selbsttragende Build, an den
+  „kein Graphviz" anschließt
+* link:0013-ein-gradle-modul-je-schicht{adrext}[ADR 0013],
+  link:0014-schichtmodule-unter-backend{adrext}[ADR 0014],
+  link:0015-alle-bausteine-unter-modules{adrext}[ADR 0015] – die Struktur, die das erste
+  Diagramm zeigt
+* `docs/system/schichten.adoc`, `docs/prompt/systemdoku.adoc`, `build.gradle.kts`,
+  `gradle/libs.versions.toml`

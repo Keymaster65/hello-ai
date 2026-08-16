@@ -27,8 +27,11 @@ Gebaut wird ausschließlich über den Gradle-Wrapper
 | Playwright im echten Browser gegen das Boot-Jar. Braucht eine erreichbare PostgreSQL.
 | `./gradlew asciidoctor`
 | Rendert `docs/system/system.adoc` nach `build/docs/asciidoc/system.html` und legt die ADRs
-  als `adr/` daneben. Das Ergebnis wandert von dort ins Boot-Jar
-  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]).
+  als `adr/` daneben. Enthaltene PlantUML-Diagramme werden dabei aus ihrer Quelle im Dokument
+  zu SVG-Dateien neben dem HTML (link:{adr}/0042-plantuml-fuer-diagramme{adrext}[ADR 0042]).
+  Das Ergebnis wandert von dort ins Boot-Jar
+  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]); ausgenommen ist der
+  Diagramm-Cache `.asciidoctor/`, der zum Bauen gehört.
 | `./gradlew asciidoctorAdr`
 | Rendert `docs/adr/*.adoc` nach `build/docs/adr/`. Hängt am Task darüber, der das Ergebnis
   neben die Systemdokumentation kopiert

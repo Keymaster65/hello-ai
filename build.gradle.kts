@@ -45,6 +45,14 @@ repositories {
 }
 
 asciidoctorj {
+    // Diagramme entstehen beim Rendern aus ihrer Quelle im Dokument, nicht aus eingecheckten
+    // Bilddateien (ADR 0042). Die Erweiterung bringt PlantUML mit; sie gilt für alle drei
+    // Asciidoctor-Tasks, damit ein Diagramm überall stehen darf, wo AsciiDoc steht.
+    modules {
+        diagram.use()
+        diagram.setVersion(libs.versions.asciidoctorjDiagram.get())
+    }
+
     // Asciidoctor meldet einen kaputten Querverweis nur als INFO. Ohne diese Stufe würde die
     // Meldung nicht erfasst und die Regel unten nie greifen.
     logLevel = LogLevel.INFO

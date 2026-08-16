@@ -27,7 +27,7 @@ wenn diese Bindung nicht mehr passt.
 
 == Vor der Arbeit: welche ADRs gelten
 
-Nicht alle 41 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
+Nicht alle 42 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
 Zusammenfassung: *Was* gilt, steht im ADR selbst.
 
 [cols="2,3", options="header"]
@@ -93,7 +93,8 @@ Zusammenfassung: *Was* gilt, steht im ADR selbst.
   link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[0036],
   link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[0038],
   link:{adr}/0039-summenspalten-in-der-kennzahlen-tabelle{adrext}[0039],
-  link:{adr}/0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[0041]
+  link:{adr}/0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[0041],
+  link:{adr}/0042-plantuml-fuer-diagramme{adrext}[0042]
 
 | Commit, Zusammenführen von Branches
 | link:{adr}/0040-commit-freigabe-in-einem-schritt{adrext}[0040],

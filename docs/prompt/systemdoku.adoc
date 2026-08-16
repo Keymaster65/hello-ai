@@ -104,6 +104,12 @@ Schritt* geändert, nicht später.
 | Neue SPA-Route
 | `api.adoc` (Oberfläche) – und daran denken: `SpaForwardingController` braucht eine Zeile
 
+| Neues Gradle-Modul, entferntes Modul oder geänderte `project()`-Abhängigkeit zwischen
+  Modulen – auch ein Wechsel zwischen `api` und `implementation`
+| `schichten.adoc`: das Diagramm „Abhängigkeiten der Gradle-Module" *und* die Modultabelle
+  darunter. Beide beschreiben denselben Sachverhalt aus zwei Richtungen; wird nur eines
+  gepflegt, widersprechen sie sich. Der Build merkt davon nichts – siehe <<diagramme>>
+
 | Neuer Gradle-Task, geänderter Buildablauf
 | `betrieb.adoc`, Befehlstabelle
 
@@ -200,6 +206,48 @@ Arbeitsgrundlage unter `docs/prompt`
 * Admonitions nutzen, wo es eine Warnung *ist*: `NOTE`, `WARNING`, `IMPORTANT` – nicht
   Fettdruck.
 * Tabellen mit `[cols="…", options="header"]`; lange Zellen umbrechen und einrücken.
+
+[[diagramme]]
+== Diagramme
+
+Diagramme werden mit *PlantUML* geschrieben und beim Rendern erzeugt
+(link:{adr}/0042-plantuml-fuer-diagramme{adrext}[ADR 0042]). Die Quelle steht *im Dokument*,
+an der Stelle, die sie zeigt:
+
+[source,asciidoc]
+----
+.Abhängigkeiten der Gradle-Module, wie sie in den Buildskripten deklariert sind
+[plantuml,modulabhaengigkeiten,svg]
+....
+@startuml
+!pragma layout smetana
+...
+@enduml
+....
+----
+
+* *Der zweite Parameter ist der Dateiname* des erzeugten SVG, ohne Endung – gewählt, nicht vom
+  Werkzeug vergeben. Er landet neben `system.html` und wird mit ausgeliefert
+  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]).
+* *Jedes Diagramm beginnt mit* `+!pragma layout smetana+`. Ohne diese Zeile verlangt PlantUML
+  das native `+dot+` aus Graphviz, und der Build läuft nur noch auf Rechnern, auf denen es
+  installiert ist.
+* *Ein Diagramm ersetzt Text, es begleitet ihn nicht.* Was das Bild zeigt, steht nicht daneben
+  noch einmal in Prosa – sonst gibt es zwei Fassungen, von denen eine veraltet. Was es *nicht*
+  zeigen kann, gehört als Satz darunter.
+* *Keine eigene `+.puml+`-Datei*, kein eingechecktes Bild. Damit gäbe es einen zweiten Ort mit
+  eigener Pflege und einen Eintrag mehr in `anhang-quellen.adoc`.
+* *Titelzeile davor* (`+.Titel+`), wie bei Tabellen. Ein Bild ohne Bildunterschrift ist im
+  Inhaltsverzeichnis nicht auffindbar.
+
+IMPORTANT: Ein Diagramm ist die *ungeprüfteste* Stelle der Dokumentation. Fehlender `include`
+und toter Querverweis brechen den Build; ein Pfeil in die falsche Richtung bricht ihn nicht.
+Nach jeder Änderung an einem Diagramm wird das Ergebnis deshalb *angesehen* – nicht nur der
+grüne Build abgelesen.
+
+Wird ein Diagramm zu unruhig, wird es *geteilt*. Ein zweites Bild ist billiger als eines, das
+niemand entziffert – und billiger, als für das Layout ein natives Werkzeug in den Build zu
+holen.
 
 == Prüfen
 
