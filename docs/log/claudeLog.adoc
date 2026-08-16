@@ -14,6 +14,7 @@ Datum: 2026-07-19
 
 _Delta: 16:28 min · 81.424 Token out · 307.248 Token in (neu) · 13.121.010 Token gesamt_
 _Stand (Session, 3 Prompts): 16:28 min · 81.424 Token out · 13.121.010 Token gesamt_
+_Commit: <<commit-f36801d,f36801d>>_
 
 *Aktionen:*
 
@@ -60,6 +61,11 @@ _Stand (Session, 3 Prompts): 16:28 min · 81.424 Token out · 13.121.010 Token g
   Meldungen wie zuvor (`+prompt-minus2+` doppelt, fehlendes Attribut `+id+`) – keine neue.
 * *Backlog:* Eintrag entfernt (PO-Skill), Kennzahlen-Tabelle mit
   `+python3 docs/log/kennzahlen.py+` neu erzeugt.
+* *Merge nach dem Commit* (ADR 0032/0034): einmal `+git fetch origin+`, dann `main`, `sm`,
+  `doc`, `po`; `dev` gibt es weiterhin nicht und wurde übergangen. Nur `po` brachte etwas mit –
+  zwei neue Backlog-Einträge des Nutzers zu Testabdeckung und Testergebnissen, kein Code und
+  kein Konflikt. Danach sind alle vier vorhandenen Branches Vorfahr von `HEAD`;
+  `+./gradlew asciidoctor+` nach dem Merge erneut ohne neue Meldung.
 
 '''
 
