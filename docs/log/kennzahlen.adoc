@@ -22,7 +22,7 @@
 
 | <<prompt-149,149>>
 |„Order die Anhänge neu: Git-Historie und Session-Protokoll sollen eigene Anhänge bilden. Die Reihenfolge soll sein: Session-Protokoll, Kennzahlen der Sessions, Git-Historie, Quelldateien und Backlog." (aus dem Backlog, `next`)
-| –
+| <<commit-b78e5c6,b78e5c6>>
 | 11:36 min
 | 14:26:00 h
 | 67.149
