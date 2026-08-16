@@ -151,7 +151,7 @@ tasks.named<GitChangelogTask>("gitChangelog") {
     templateContent.set(
         """
         // Erzeugt vom Gradle-Task `gitChangelog` aus der git-Historie – nicht von Hand ändern,
-        // nicht eingecheckt. Eingebunden in docs/system/anhang-aenderungen.adoc (ADR 0036).
+        // nicht eingecheckt. Eingebunden in docs/system/anhang-git-historie.adoc (ADR 0036).
 
         [[git-historie-tabelle]]
         .Commits, neuester zuerst
@@ -165,7 +165,8 @@ tasks.named<GitChangelogTask>("gitChangelog") {
         """.trimIndent(),
     )
 
-    // Querverweise zwischen den beiden Sichten des Anhangs „Änderungen" (ADR 0038): Jede Zeile
+    // Querverweise zwischen den Anhängen „Session-Protokoll" und „Git-Historie" (ADR 0038,
+    // ADR 0044): Jede Zeile
     // bekommt den Anker `+commit-<kurzhash>+`, auf den das Protokoll zeigt, und in der Spalte
     // „Prompt" die Verweise zurück auf die Log-Einträge, die diesen Commit nennen.
     //

@@ -119,7 +119,7 @@ Diagramm entsteht beim Rendern aus seiner Quelle in dieser Datei
 | Dokumentation
 | `docs/`
 | ADRs (`docs/adr/`), diese Systemdokumentation (`docs/system/`), das Session-Protokoll
-  (`docs/log/claudeLog.adoc`, Anhang <<aenderungen>>) und das Backlog (`docs/backlog.adoc`,
+  (`docs/log/claudeLog.adoc`, Anhang <<session-protokoll>>) und das Backlog (`docs/backlog.adoc`,
   Anhang <<backlog>>) – alles AsciiDoc
   (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026],
   link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]). Das Protokoll ist seit

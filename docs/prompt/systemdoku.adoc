@@ -55,29 +55,35 @@ zuständig ist – und nur das.
   werden; dazu bindet das Kapitel deren Wortlaut per `include` aus `docs/prompt` ein. Quelle
   und Änderungsort bleiben die Dateien dort
 
-| `anhang-aenderungen.adoc`
-| Anhang: die Entstehung des Systems, in zwei Kapiteln. „Git-Historie" bindet die vom
-  Gradle-Task `gitChangelog` erzeugte Tabelle ein
-  (link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036]), „Session-Protokoll"
-  das Protokoll `docs/log/claudeLog.adoc`
-  (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]). Beides wird an seiner
-  Quelle gepflegt – das Protokoll nach dem Butterfly-Skill, die Tabelle gar nicht –, nicht hier.
-  Verbunden sind die zwei Kapitel über Anker in beide Richtungen; die Spalte „Prompt" der
-  Tabelle stammt aus der Zeile `+_Commit:_+` des Protokolls
+| `anhang-session-protokoll.adoc`
+| *Erster* Anhang: bindet das Protokoll `docs/log/claudeLog.adoc` ein
+  (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]). Gepflegt wird es an
+  seiner Quelle nach dem Butterfly-Skill, nicht hier
+
+| `anhang-kennzahlen.adoc`
+| Anhang: Deutung der Spalten der Kennzahlen-Tabelle; die Tabelle selbst ist erzeugt und wird
+  aus `docs/log/kennzahlen.adoc` eingebunden (Manager-Skill)
+
+| `anhang-git-historie.adoc`
+| Anhang: bindet die vom Gradle-Task `gitChangelog` erzeugte Tabelle ein
+  (link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036]) – von Hand wird daran
+  nichts gepflegt. Mit dem Protokoll über Anker in beide Richtungen verbunden; die Spalte
+  „Prompt" stammt aus dessen Zeile `+_Commit:_+`
   (link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038])
 
 | `anhang-quellen.adoc`
 | Anhang: die Quelldateien des Projekts, per `include` eingebunden und in Klapp-Blöcken je
   Datei. Gruppiert wie die Schichten; nichts davon wird abgeschrieben
 
-| `anhang-kennzahlen.adoc`
-| Anhang: Deutung der Spalten der Kennzahlen-Tabelle; die Tabelle selbst ist erzeugt und wird
-  aus `docs/log/kennzahlen.adoc` eingebunden (Manager-Skill)
-
 | `../backlog.adoc`
 | Letzter Anhang: das Backlog. Liegt außerhalb von `docs/system`, weil es plant statt zu
   beschreiben; gepflegt wird es nach dem PO-Skill
 |===
+
+Die vier erzählenden Anhänge stehen in der Reihenfolge, in der sie gelesen werden – Prompt,
+Zahlen zum Prompt, Commit, Code –, das Backlog als Plan zuletzt
+(link:{adr}/0044-anhaenge-nach-entstehung-geordnet{adrext}[ADR 0044]). Ein neuer Anhang wird in
+diese Ordnung eingefügt, nicht angehängt.
 
 == Auslöser → Pflicht
 
@@ -214,7 +220,8 @@ Arbeitsgrundlage unter `docs/prompt`
 * Anker als Kleinschreibung mit Bindestrich: `+[[offene-punkte]]+`, Verweis
   `+<<offene-punkte>>+`. *Keine Leerzeichen in IDs* – das bricht den Build (siehe unten).
 * Was als Anhang im Dokument steht, wird auch *verlinkt*, nicht nur mit Pfad genannt: das
-  Session-Protokoll als `+<<aenderungen>>+`, dazu `+<<kennzahlen>>+`, `+<<backlog>>+`,
+  Session-Protokoll als `+<<session-protokoll>>+`, dazu `+<<kennzahlen>>+`,
+  `+<<git-historie>>+`, `+<<backlog>>+`,
   `+<<quelldateien>>+` und `+<<wortlaut>>+`. Verlinkt wird die Stelle, an der ein Dokument
   *eingeführt* wird, nicht jede Wiederholung seines Namens. In den Skills selbst steht
   *kein* solcher Verweis – sie werden auch allein gerendert (`+asciidoctorPrompt+`), wo das

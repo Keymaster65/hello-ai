@@ -5,7 +5,7 @@ ifndef::adrext[:adrext: .adoc]
 [[kennzahlen]]
 = Kennzahlen der Sessions
 
-Das Session-Protokoll `docs/log/claudeLog.adoc` – eingebunden als Anhang <<aenderungen>> –
+Das Session-Protokoll `docs/log/claudeLog.adoc` – eingebunden als Anhang <<session-protokoll>> –
 führt unter jeder Überschrift zwei
 Kennzahlenzeilen mit: *Delta* – der Aufwand dieses einen Prompts – und *Stand* – der
 kumulierte Aufwand der Session bis dorthin. So geschrieben sind sie gut zu pflegen, aber
@@ -30,8 +30,8 @@ Prompt-Spalte ändert das nichts: Sie ist *literal* gesetzt (`l` im `cols`-Attri
 wertet dort nichts aus.
 
 *Jede Zeile ist verlinkt* (link:{adr}/0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[ADR
-0041]): Die Nummer führt zum Eintrag des Protokolls, die Spalte „Commit" zur Zeile der
-Git-Historie – beide in <<aenderungen>>. Damit hängt die Sicht, in der man *sucht*, an den
+0041]): Die Nummer führt zum Eintrag des Protokolls in <<session-protokoll>>, die Spalte
+„Commit" zur Zeile in <<git-historie>>. Damit hängt die Sicht, in der man *sucht*, an den
 beiden, in denen man *nachliest*. Die Commit-Spalte ist wie alles hier abgeleitet: Gelesen wird
 allein die Zeile `+_Commit:_+` des Eintrags, dieselbe Quelle, aus der die Git-Historie ihre
 Spalte „Prompt" füllt (link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR
@@ -43,7 +43,7 @@ Spalte „Prompt" füllt (link:{adr}/0038-querverweise-zwischen-prompt-und-commi
 | Spalte | Bedeutung
 
 | Nr.
-| Nummer des Log-Eintrags, zugleich *Verweis auf ihn* im Anhang <<aenderungen>>. Sie zählt über
+| Nummer des Log-Eintrags, zugleich *Verweis auf ihn* im Anhang <<session-protokoll>>. Sie zählt über
   alle Sessions hinweg und ist bis `-4` negativ – die ältesten Einträge sind nachgetragene
   Commits ohne Prompt.
 
@@ -84,7 +84,7 @@ NOTE: Die Werte sind eine *Untergrenze*. Gemessen wird bis zum Schreiben des Log
 die abschließende Antwort des Turns fehlt darin zwangsläufig.
 
 IMPORTANT: Für die `Summe`-Spalten gilt das doppelt. Ein `–` zählt darin als *null*, damit die
-Summe durchläuft statt abzureißen – und 64 der 146 Einträge tragen keine Kennzahlen. Die
+Summe durchläuft statt abzureißen – und 64 der 154 Einträge tragen keine Kennzahlen. Die
 Gesamtsumme ist deshalb der belegte Teil des Aufwands, nicht der tatsächliche.
 
 include::../log/kennzahlen.adoc[]

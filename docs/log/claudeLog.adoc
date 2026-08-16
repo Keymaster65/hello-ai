@@ -1,11 +1,64 @@
 // Session-Protokoll; das Format regelt der Skill docs/prompt/butterfly.adoc.
-// Diese Datei ist als Anhang „Änderungen" in die Systemdokumentation eingebunden und wird
-// mitgerendert – siehe ADR 0033.
+// Diese Datei ist als Anhang „Session-Protokoll" in die Systemdokumentation eingebunden und
+// wird mitgerendert – siehe ADR 0033 und ADR 0044.
 = Claude Log
 
 Chronologischer Verlauf der Session (Prompts des Nutzers + Zusammenfassung meiner Aktionen).
 *Sortierung: absteigend — neuester Eintrag oben.* Neue Prompts werden immer vorne eingefügt.
 Datum: 2026-07-19
+
+'''
+
+[[prompt-149]]
+== 149. Prompt: „Order die Anhänge neu: Git-Historie und Session-Protokoll sollen eigene Anhänge bilden. Die Reihenfolge soll sein: Session-Protokoll, Kennzahlen der Sessions, Git-Historie, Quelldateien und Backlog." (aus dem Backlog, `next`)
+
+_Delta: 11:36 min · 67.149 Token out · 296.736 Token in (neu) · 8.415.040 Token gesamt_
+_Stand (Session, 3 Prompts): 11:36 min · 67.149 Token out · 8.415.040 Token gesamt_
+
+*Aktionen:*
+
+* *Pull vor `next`* (ADR 0030): `+git pull --ff-only+` auf `main` meldete „Already up to date";
+  geholt wurde nur der neue Stand von `origin/po`, für `main` nichts. Kein Eintrag stand auf
+  aktiv, keiner war an einen Branch gebunden – gezogen wurde der erste ungebundene
+  ready-Eintrag, nach Rückfrage im Wortlaut bestätigt und der Marker *vor* der Arbeit auf `+*+`
+  gesetzt.
+* *Der Hook hat wieder nicht gefeuert* – kein Gerüst `+prompt-149+`; dieser Eintrag ist von
+  Hand geschrieben.
+* *Der Sammelanhang „Änderungen" ist aufgelöst.* `+docs/system/anhang-aenderungen.adoc+` mit
+  dem Anker `+[[aenderungen]]+` entfällt; an seine Stelle treten
+  `+docs/system/anhang-session-protokoll.adoc+` (`+[[session-protokoll]]+`) und
+  `+docs/system/anhang-git-historie.adoc+` (`+[[git-historie]]+`), jeder mit einer eigenen
+  Einleitung statt der bisher gemeinsamen.
+* *Neue Reihenfolge in `+system.adoc+`:* Session-Protokoll, Kennzahlen der Sessions,
+  Git-Historie, Quelldateien, Backlog. Am Ergebnis nachgezählt: „Anhang A: Session-Protokoll",
+  „B: Kennzahlen der Sessions", „C: Git-Historie", „D: Quelldateien", „E: Backlog".
+* *Gemessener Fund:* Die Trennung erzeugte zunächst eine Lücke in der Gliederung – das
+  Protokoll steht mit `+leveloffset=+2+` auf Ebene 3 und hing damit direkt unter der
+  Anhangs-Überschrift auf Ebene 1. Asciidoctor meldete „section title out of sequence:
+  expected level 2, got level 3". Behoben durch den Abschnitt `+== Die Einträge+`, der die
+  Ebene 2 trägt; `+leveloffset=+2+` bleibt damit unangetastet (Grund aus ADR 0033: sonst
+  stünden über hundert Prompt-Überschriften im Inhaltsverzeichnis).
+* *ADR 0044 „Session-Protokoll und Git-Historie als eigene Anhänge, nach der Entstehung
+  geordnet"* geschrieben – es löst den *Ort* aus ADR 0033 und die Unterbringung als Kapitel aus
+  ADR 0036 ab, beide sonst unverändert. Im ADR-Index als erste Zeile ergänzt.
+* *Verweise umgestellt statt umbenannt:* `+<<aenderungen>>+` zeigt jetzt je nach Aussage auf
+  `+<<session-protokoll>>+` oder `+<<git-historie>>+` – in `+system.adoc+`,
+  `+anhang-kennzahlen.adoc+`, `+ueberblick.adoc+`, `+betrieb.adoc+` und
+  `+arbeitsgrundlage.adoc+`. Nachgezogen: `+build.gradle.kts+` (zwei Kommentare), der
+  Kopfkommentar des Protokolls, der Systemdoku-Skill (Dateitabelle in neuer Reihenfolge, Regel
+  zum Einfügen neuer Anhänge, Ankerliste), der Butterfly-Skill und der ADR-Skill. In den ADRs
+  0033/0036/0038/0041 und in älteren Log-Einträgen bleibt „Änderungen" stehen: ADRs werden
+  nicht umgeschrieben, der Log ist Protokoll.
+* *Prüfung:* `+./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr+` läuft mit *denselben*
+  zwei Meldungen durch wie vor der Änderung (`+prompt-minus2+` doppelt vergeben, fehlendes
+  Attribut `+id+`) – keine neue, insbesondere keine Ebenen-Lücke mehr. Kein Verweis ins Leere,
+  sonst wäre der Build rot.
+* *Backlog:* Eintrag entfernt (PO-Skill), Kennzahlen-Tabelle mit
+  `+python3 docs/log/kennzahlen.py+` neu erzeugt.
+* *Definition of Done vollständig belegt:* `+./gradlew clean build+` grün (3:11 min),
+  `+./gradlew systemtest e2eTest+` grün (1:22 min, 9 Playwright-Tests). Der Rückgriff auf den
+  letzten grünen Lauf, den der Butterfly-Skill bei reinen Doku-Änderungen erlaubt, war damit
+  nicht nötig – angefasst wurde ohnehin kein Code, an `+build.gradle.kts+` nur zwei Kommentare.
 
 '''
 

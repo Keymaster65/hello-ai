@@ -1,0 +1,39 @@
+// Kapitel der Systemdokumentation; siehe system.adoc.
+ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
+[appendix]
+[[git-historie]]
+= Git-Historie
+
+Die zweite Sicht auf dieselbe Arbeit, die <<session-protokoll>> aus der Richtung des Prompts
+zeigt: *was* das Repository verändert hat, ein Eintrag je Commit
+(link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036]).
+
+Die Tabelle unten wird bei jedem Build aus der git-Historie *erzeugt* – vom Gradle-Task
+`gitChangelog`. Sie liegt deshalb nicht im Repository, sondern entsteht unter `build/` und wird
+von dort eingebunden: Ein Commit kann sich selbst nicht enthalten, eine eingecheckte Fassung
+wäre ab ihrem Entstehen um genau einen Commit alt.
+
+Neuester Commit oben – dieselbe Richtung wie im Protokoll, im ADR-Index und in der
+Kennzahlen-Tabelle. Der Kurz-Hash benennt den Commit, der Betreff ist die *erste Zeile* seiner
+Message; der Rumpf samt `Co-Authored-By`-Zeile bleibt draußen.
+
+Die Spalte *„Prompt"* nennt die Einträge des Protokolls, aus denen der Commit hervorgegangen
+ist (link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038]). Sie ist
+*abgeleitet*: Gelesen wird allein die Zeile `+_Commit:_+` des jeweiligen Eintrags, nicht dessen
+Fließtext. Ein `–` heißt deshalb nicht „kein Prompt", sondern *„kein Eintrag schreibt sich
+diesen Commit zu"* – bei den Commits, die vor dieser Entscheidung entstanden sind, ist das die
+Regel. In die Gegenrichtung zeigt der Anker `+commit-<kurzhash>+` jeder Zeile, auf den das
+Protokoll und die Kennzahlen-Tabelle in <<kennzahlen>> verweisen
+(link:{adr}/0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[ADR 0041]).
+
+Zwei Auslassungen gehören dazugesagt, damit die Tabelle nicht als lückenlose Liste gelesen wird:
+
+* *Von git erzeugte Zusammenführungen* (`Merge branch …`) fehlen. Sie tragen keine eigene
+  Änderung, sondern nur die Naht zwischen zwei Branches
+  (link:{adr}/0032-branches-nach-jedem-commit-mergen{adrext}[ADR 0032]).
+* *Aufgehobene Commits* fehlen samt ihrem `Revert`. Das Werkzeug erkennt die Zeile
+  `This reverts commit …` und lässt beide Seiten weg. Die Tabelle zeigt damit, was *geblieben*
+  ist – nicht jeden Schritt, der einmal getan wurde. Vollständig ist allein `git log`.
+
+include::../../build/docs/changelog/gitchangelog.adoc[]

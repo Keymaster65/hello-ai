@@ -28,9 +28,11 @@ mit.
 == Format
 
 * Datei: `docs/log/claudeLog.adoc` – AsciiDoc wie der Rest von `docs/`
-  (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]). Sie ist als Anhang „Änderungen"
-  in die Systemdokumentation eingebunden und wird von `+./gradlew asciidoctor+` mitgerendert
-  (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]).
+  (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]). Sie ist als *erster* Anhang
+  „Session-Protokoll" in die Systemdokumentation eingebunden und wird von
+  `+./gradlew asciidoctor+` mitgerendert
+  (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033],
+  link:{adr}/0044-anhaenge-nach-entstehung-geordnet{adrext}[ADR 0044]).
 
 IMPORTANT: Der Log steht damit *im Build*. Eine kaputte Auszeichnung bricht die Auslieferung –
 und zwar in einem Protokoll, das wörtliche Prompts zitiert. Die drei Fallstricke unten sind

@@ -1,0 +1,51 @@
+// Kapitel der Systemdokumentation; siehe system.adoc.
+ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
+[appendix]
+[[session-protokoll]]
+= Session-Protokoll
+
+Die Kapitel beschreiben den *Ist-Zustand*, die ADRs die *Entscheidungen* dahinter. Keine von
+beiden sagt, wie dieser Zustand entstanden ist: in welcher Reihenfolge die Bausteine kamen,
+welcher Prompt eine Änderung ausgelöst hat, was ein Schritt gekostet hat.
+
+Dieser Anhang sagt es aus der Richtung des *Prompts*: Das Session-Protokoll
+`docs/log/claudeLog.adoc` führt einen Eintrag je Prompt, neuester oben. Es wird hier eingebunden
+und ausschließlich an seinem Ort gepflegt, nach dem Skill `docs/prompt/butterfly.adoc`; eine
+zweite Fassung, die veralten könnte, gibt es nicht
+(link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]).
+
+Zwei weitere Sichten auf dieselbe Arbeit stehen als eigene Anhänge daneben – in der Reihenfolge,
+in der man sie liest:
+
+* die *Kennzahlen* dieser Einträge als Tabelle in <<kennzahlen>>: dieselbe Quelle, andere Sicht
+  (link:{adr}/0027-kennzahlen-des-claudelog-als-tabelle{adrext}[ADR 0027]);
+* die *Git-Historie* in <<git-historie>> – *was* das Repository verändert hat, ein Eintrag je
+  Commit (link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036]).
+
+Protokoll und Historie sind *untereinander verlinkt*
+(link:{adr}/0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038]): Die Zeile
+`+_Commit:_+` eines Eintrags führt auf die Zeile des Commits, die Spalte „Prompt" der Tabelle
+dort zurück auf den auslösenden Eintrag. Die Kennzahlen-Tabelle zeigt in *beide* Richtungen –
+die Nummer auf den Eintrag hier, ihre Spalte „Commit" auf die Zeile der Historie
+(link:{adr}/0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[ADR 0041]).
+
+*Eingebunden, nicht kopiert* – wie die Git-Historie in <<git-historie>>, die Kennzahlen-Tabelle
+in <<kennzahlen>> und die Quelldateien in <<quelldateien>>. Damit steht die Entstehung neben dem
+Ergebnis, in *einem* Dokument, das auch die laufende Anwendung unter `/recipes/docs/` ausliefert
+(link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]).
+
+== Die Einträge
+
+Zwei Folgen der Einbindung sind zu kennen:
+
+* *Das Protokoll steht damit im Build.* Ein `+{+`, ein `+<<+` oder ein Zeilenanfang, der wie
+  ein Listenmarker aussieht, ist ab jetzt ein Fehler in der Auslieferung und nicht mehr nur
+  eine Unschönheit im Text. Der Butterfly-Skill nennt den Schutz, der das verhindert
+  (Passthrough `+…+` um Code-Spans mit Sonderzeichen).
+* *Die Einträge stehen tief.* Sie liegen zwei Ebenen unter diesem Abschnitt und damit unterhalb
+  von `+:toclevels:+` – sonst trüge das Inhaltsverzeichnis über hundert Prompt-Überschriften.
+  Dieser Abschnitt trägt sie: Ohne ihn spränge das Dokument von der Überschrift des Anhangs
+  direkt auf Ebene 3, und Asciidoctor meldete eine Lücke in der Gliederung.
+
+include::../log/claudeLog.adoc[leveloffset=+2]

@@ -41,7 +41,7 @@ Gebaut wird ausschließlich über den Gradle-Wrapper
   (link:{adr}/0026-adrs-als-asciidoc{adrext}[ADR 0026]).
 | `./gradlew gitChangelog`
 | Schreibt die git-Historie als Tabelle nach `build/docs/changelog/gitchangelog.adoc`, die der
-  Anhang <<aenderungen>> einbindet. Hängt am `asciidoctor`-Task darüber und läuft *immer*, nie
+  Anhang <<git-historie>> einbindet. Hängt am `asciidoctor`-Task darüber und läuft *immer*, nie
   „up-to-date" (link:{adr}/0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036]).
 | `./gradlew asciidoctorPrompt`
 | Rendert `docs/prompt/prompt.adoc` – Master-Prompt und Skills – nach

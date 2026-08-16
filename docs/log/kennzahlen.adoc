@@ -20,6 +20,20 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-149,149>>
+|„Order die Anhänge neu: Git-Historie und Session-Protokoll sollen eigene Anhänge bilden. Die Reihenfolge soll sein: Session-Protokoll, Kennzahlen der Sessions, Git-Historie, Quelldateien und Backlog." (aus dem Backlog, `next`)
+| –
+| 11:36 min
+| 14:26:00 h
+| 67.149
+| 3.562.690
+| 296.736
+| 21.556.416
+| 8.415.040
+| 11:36 min
+| 67.149
+| 8.415.040
+
 | <<prompt-148,148>>
 |„Erzeuge in der Systemdokumentation einen "Table of Contents", der zu und aufgeklappt werden kann." (aus dem Backlog, `next`)
 | <<commit-90c6001,90c6001>>

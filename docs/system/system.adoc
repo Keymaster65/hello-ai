@@ -58,9 +58,10 @@ wählt danach den Ort:
 | `docs/log/claudeLog.adoc`
 | Wie ist es entstanden?
 | Ein Eintrag je Prompt, neuester oben – Protokoll statt Beschreibung
-  (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]). Eingebunden als Anhang
-  <<aenderungen>> (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033]), die
-  Kennzahlen daraus als <<kennzahlen>>
+  (link:{adr}/0025-claudelog-als-asciidoc{adrext}[ADR 0025]). Eingebunden als erster Anhang
+  <<session-protokoll>> (link:{adr}/0033-claudelog-als-anhang-aenderungen{adrext}[ADR 0033],
+  link:{adr}/0044-anhaenge-nach-entstehung-geordnet{adrext}[ADR 0044]), die Kennzahlen daraus
+  als <<kennzahlen>>, die Commits als <<git-historie>>
 
 | `docs/backlog.adoc`
 | Was kommt als Nächstes?
@@ -127,6 +128,7 @@ erste Zeile.
 |===
 | ADR | Thema
 
+| link:{adr}/0044-anhaenge-nach-entstehung-geordnet{adrext}[0044] | Session-Protokoll und Git-Historie als eigene Anhänge, nach der Entstehung geordnet (löst eine Festlegung aus 0033 und eine aus 0036 ab)
 | link:{adr}/0043-inhaltsverzeichnis-klappbar-per-docinfo{adrext}[0043] | Klappbares Inhaltsverzeichnis per Docinfo-Fußzeile
 | link:{adr}/0042-plantuml-fuer-diagramme{adrext}[0042] | PlantUML als Werkzeug für Diagramme, gerendert beim Bauen
 | link:{adr}/0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[0041] | Die Kennzahlen-Tabelle verweist auf Protokoll und Git-Historie (löst eine Festlegung aus 0038 ab)
@@ -199,10 +201,12 @@ unbekannte Attribut-Referenz oder eine defekte Tabelle fällt damit im Build auf
 erst beim Lesen. Seit dem Anhang <<quelldateien>> gilt das auch für die *Pfade der
 Quelldateien*: Sie sind eingebunden, ein Umzug bricht den Build.
 
-include::anhang-aenderungen.adoc[leveloffset=+1]
-
-include::anhang-quellen.adoc[leveloffset=+1]
+include::anhang-session-protokoll.adoc[leveloffset=+1]
 
 include::anhang-kennzahlen.adoc[leveloffset=+1]
+
+include::anhang-git-historie.adoc[leveloffset=+1]
+
+include::anhang-quellen.adoc[leveloffset=+1]
 
 include::../backlog.adoc[leveloffset=+1]
