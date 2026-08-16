@@ -14,6 +14,7 @@ Datum: 2026-07-19
 
 _Delta: 25 s · 3.552 Token out · 2.398 Token in (neu) · 276.160 Token gesamt_
 _Stand (Session, 4 Prompts): 14:08 min · 114.286 Token out · 9.802.448 Token gesamt_
+_Commit: <<commit-ea0e0c0,ea0e0c0>>_
 
 *Aktionen:*
 
@@ -32,6 +33,11 @@ _Stand (Session, 4 Prompts): 14:08 min · 114.286 Token out · 9.802.448 Token g
 * *Nicht mitcommittet:* `docs/backlog.adoc` – die Datei trägt eine Änderung des Nutzers aus
   diesem Turn (Retro nach „Historie" verschoben, MR-Zeilen ergänzt). Fremde Arbeit wandert nicht
   ungefragt in einen Commit, der etwas anderes begründet.
+* *Branches zusammengeführt:* `+git fetch origin+` holte nichts Neues; `+origin/main+`,
+  `+origin/sm+` und `+origin/doc+` sind bereits Vorfahren von `HEAD` – kein Merge-Commit nötig.
+  `dev` gibt es weder als Remote- noch als lokalen Ref und wird übergangen (Develop-Skill).
+* *Commit `+94b5022+`* mit Author `Claude`; die Zeile oben ist danach nachgetragen und reist mit
+  dem nächsten Commit mit (ADR 0038).
 
 '''
 
