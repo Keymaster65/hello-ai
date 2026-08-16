@@ -301,6 +301,26 @@ include::../../modules/backend/bootstrap/src/main/java/io/github/keymaster65/hel
 ----
 ====
 
+[[src-application-services-config]]
+[%collapsible]
+.`modules/backend/bootstrap/src/main/java/io/github/keymaster65/helloai/bootstrap/ApplicationServicesConfig.java`
+====
+[source,java]
+----
+include::../../modules/backend/bootstrap/src/main/java/io/github/keymaster65/helloai/bootstrap/ApplicationServicesConfig.java[]
+----
+====
+
+[[src-transactional-recipe-service]]
+[%collapsible]
+.`modules/backend/bootstrap/src/main/java/io/github/keymaster65/helloai/bootstrap/TransactionalRecipeService.java`
+====
+[source,java]
+----
+include::../../modules/backend/bootstrap/src/main/java/io/github/keymaster65/helloai/bootstrap/TransactionalRecipeService.java[]
+----
+====
+
 [[src-openapi-config]]
 [%collapsible]
 .`modules/backend/bootstrap/src/main/java/io/github/keymaster65/helloai/bootstrap/OpenApiConfig.java`
@@ -577,6 +597,16 @@ include::../../modules/backend/bootstrap/src/test/java/io/github/keymaster65/hel
 [source,java]
 ----
 include::../../modules/backend/bootstrap/src/test/java/io/github/keymaster65/helloai/adapter/out/persistence/RecipeIntegrationTest.java[]
+----
+====
+
+[[src-transactional-recipe-service-test]]
+[%collapsible]
+.`modules/backend/bootstrap/src/test/java/io/github/keymaster65/helloai/bootstrap/TransactionalRecipeServiceTest.java`
+====
+[source,java]
+----
+include::../../modules/backend/bootstrap/src/test/java/io/github/keymaster65/helloai/bootstrap/TransactionalRecipeServiceTest.java[]
 ----
 ====
 

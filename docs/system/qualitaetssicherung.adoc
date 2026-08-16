@@ -58,10 +58,11 @@ Klassenpfad liegt.
 | Test | Regeln
 
 | <<src-layered-architecture-test,`LayeredArchitectureTest`>>
-| `bootstrap → adapter → application → domain`; Framework-Freiheit des Domänenmodells;
-  Teilung der Domäne in `model` und `services`; „Ports sind Interfaces"
+| `bootstrap → adapter → application → domain`; Framework-Freiheit des Domänenmodells *und*
+  der Anwendungsschicht; Teilung der Domäne in `model` und `services`; „Ports sind Interfaces"
   (link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012],
-  link:{adr}/0020-domain-in-model-und-services-teilen{adrext}[ADR 0020])
+  link:{adr}/0020-domain-in-model-und-services-teilen{adrext}[ADR 0020],
+  link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045])
 
 | <<src-onion-architecture-test,`OnionArchitectureTest`>>
 | Dieselbe Struktur als Ringe – und die Aussage, die der Schichtenstapel nicht ausdrücken
@@ -91,7 +92,14 @@ link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019].
 
 | <<src-recipe-service-impl-test,`RecipeServiceImplTest`>>
 | Die Use Cases mit Mockito und AssertJ – insbesondere, dass ein leeres `Optional` aus dem
-  Repository zur `RecipeNotFoundException` wird.
+  Repository zur `RecipeNotFoundException` wird. Kommt ohne Spring-Kontext aus, weil die
+  Schicht keinen braucht.
+
+| <<src-transactional-recipe-service-test,`TransactionalRecipeServiceTest`>>
+| Die Transaktionsgrenze, die seit
+  link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045] im Composition Root
+  liegt: jeder Use Case wird delegiert, Lesen fordert eine `readOnly`-Transaktion an, Schreiben
+  nicht – und eine Ausnahme rollt zurück.
 
 | `CurriedFactoryTest` (in <<src-curried-factory-test-domain,`:domain`>> und
   <<src-curried-factory-test-adapter,`:adapter`>>)

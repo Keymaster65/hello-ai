@@ -20,6 +20,20 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-150,150>>
+|„Ändere den architektur Skill so, dass die "application" frei noch Framework Abhängigkeiten ist. Ein entsprechender archunit Test soll das absichern." (aus dem Backlog, `next`)
+| –
+| 16:28 min
+| 14:42:28 h
+| 81.424
+| 3.644.114
+| 307.248
+| 21.863.664
+| 13.121.010
+| 16:28 min
+| 81.424
+| 13.121.010
+
 | <<prompt-149,149>>
 |„Order die Anhänge neu: Git-Historie und Session-Protokoll sollen eigene Anhänge bilden. Die Reihenfolge soll sein: Session-Protokoll, Kennzahlen der Sessions, Git-Historie, Quelldateien und Backlog." (aus dem Backlog, `next`)
 | <<commit-b78e5c6,b78e5c6>>

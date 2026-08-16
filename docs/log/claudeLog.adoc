@@ -9,6 +9,60 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-150]]
+== 150. Prompt: „Ändere den architektur Skill so, dass die "application" frei noch Framework Abhängigkeiten ist. Ein entsprechender archunit Test soll das absichern." (aus dem Backlog, `next`)
+
+_Delta: 16:28 min · 81.424 Token out · 307.248 Token in (neu) · 13.121.010 Token gesamt_
+_Stand (Session, 3 Prompts): 16:28 min · 81.424 Token out · 13.121.010 Token gesamt_
+
+*Aktionen:*
+
+* *Pull vor `next`* (ADR 0030): `+git pull --ff-only+` auf `main` meldete „Already up to date".
+  Kein Eintrag stand auf aktiv, keiner war an einen Branch gebunden – gezogen wurde der erste
+  ungebundene ready-Eintrag, nach Rückfrage im Wortlaut bestätigt und der Marker *vor* der
+  Arbeit auf `+*+` gesetzt.
+* *Der Hook hat wieder nicht gefeuert* – kein Gerüst `+prompt-150+`; dieser Eintrag ist von
+  Hand geschrieben.
+* *Die Anwendungsschicht ist jetzt framework-frei.* `+:modules:backend:application+` hat außer
+  `+:domain+` keine Produktionsabhängigkeit mehr; `+spring-context+` und `+spring-tx+` sind aus
+  dem Buildskript entfernt. `RecipeServiceImpl` ist eine gewöhnliche Java-Klasse ohne
+  `+@Service+` und ohne `+@Transactional+`.
+* *Zwei Klassen im Composition Root* nehmen auf, was dafür weichen musste:
+  `ApplicationServicesConfig` (`+@Bean+` statt Komponenten-Scan) und `TransactionalRecipeService`
+  – ein Dekorator auf dem eingehenden Port, der jeden Use Case mit `TransactionTemplate`
+  umschließt, lesend `readOnly`, schreibend nicht. Die Transaktionsgrenze bleibt damit *der Use
+  Case*; nur ihre Formulierung steht außerhalb der Schicht. `+spring-tx+` ist nach `+:bootstrap+`
+  gewandert.
+* *Sechste ArchUnit-Regel* `+application_is_free_of_frameworks+` in `LayeredArchitectureTest`,
+  Schwester von `+domain_is_free_of_frameworks+`; die Liste der verbotenen Framework-Pakete
+  steht jetzt einmal als Konstante und wird von beiden Regeln benutzt.
+* *Nachweis, dass die Regel greift* (Maßstab aus ADR 0012): `+spring-context+` versuchsweise
+  wieder eingetragen und `+@Service+` gesetzt – genau diese eine Regel schlug fehl („is
+  annotated with `+org.springframework.stereotype.Service+`"), die übrigen fünf blieben grün.
+  Probe zurückgenommen. Ohne den Eintrag im Buildskript compiliert die Annotation ohnehin nicht.
+* *Neuer Test* `TransactionalRecipeServiceTest`: Delegation aller fünf Use Cases, `readOnly` für
+  Lesen und nicht für Schreiben, Rollback bei einer Ausnahme – ohne Spring-Kontext, mit Mockito.
+* *ADR 0045 „Die Anwendungsschicht bleibt frei von Framework-Abhängigkeiten"* geschrieben. Es
+  führt ADR 0012 fort und löst nichts ab; verworfene Optionen sind unter anderem
+  `+@Transactional+` am jOOQ-Repository (verschöbe die Grenze still nach innen) und ein
+  ausgehender Port `TransactionRunner`. Als erste Zeile im ADR-Index ergänzt.
+* *Arbeitsgrundlage nachgezogen:* Der Architektur-Skill bekommt den Abschnitt „Die inneren
+  Schichten sind framework-frei" samt Tabelle „Was stattdessen wohin gehört"; die beiden
+  Beispiele zeigen nun Anwendungsdienst *ohne* Annotation und die Verdrahtung im Composition
+  Root. Nebenbefund dabei behoben: Das alte Beispiel benutzte Lombok, was ADR 0003 ausschließt.
+  Im ADR-Skill sind Wegweiser-Tabelle und die Liste „Was der Build erzwingt" ergänzt.
+* *Systemdokumentation:* Kapitel Schichten (Regel, Modultabelle, Abschnitt Anwendungsschicht,
+  beide Sequenzdiagramme um den Dekorator ergänzt), Kapitel Qualitätssicherung (ArchUnit-Zeile
+  und der neue fachliche Test), zwei neue Einträge im Quellen-Anhang plus einer für den Test.
+* *Definition of Done vollständig belegt:* `+./gradlew clean build+` grün (3:13 min),
+  `+./gradlew systemtest+` grün (1:09 min), `+./gradlew e2eTest+` grün (9 Playwright-Tests,
+  17,3 s). `+./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr+` läuft mit *denselben* zwei
+  Meldungen wie zuvor (`+prompt-minus2+` doppelt, fehlendes Attribut `+id+`) – keine neue.
+* *Backlog:* Eintrag entfernt (PO-Skill), Kennzahlen-Tabelle mit
+  `+python3 docs/log/kennzahlen.py+` neu erzeugt.
+
+'''
+
 [[prompt-149]]
 == 149. Prompt: „Order die Anhänge neu: Git-Historie und Session-Protokoll sollen eigene Anhänge bilden. Die Reihenfolge soll sein: Session-Protokoll, Kennzahlen der Sessions, Git-Historie, Quelldateien und Backlog." (aus dem Backlog, `next`)
 

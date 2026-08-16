@@ -10,7 +10,7 @@ import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
 import com.tngtech.archunit.library.Architectures.LayeredArchitecture;
 
 /**
- * Enforces the layering rule documented in {@code .claude/skills/architecture.md}:
+ * Enforces the layering rule documented in {@code docs/prompt/architektur.adoc}:
  *
  * <pre>
  * bootstrap → adapter → application → domain
@@ -33,6 +33,20 @@ class LayeredArchitectureTest {
     private static final String APPLICATION = "..application..";
     private static final String ADAPTER = "..adapter..";
     private static final String BOOTSTRAP = "..bootstrap..";
+
+    /**
+     * The frameworks the inner layers stay away from. Listed once because two rules use it: the
+     * domain and, since ADR 0045, the application layer.
+     */
+    private static final String[] FRAMEWORKS = {
+        "org.springframework..",
+        "org.jooq..",
+        "jakarta..",
+        "io.swagger..",
+        "com.fasterxml.jackson..",
+        "tools.jackson..",
+        "liquibase..",
+    };
 
     @ArchTest
     static final ArchRule layers_are_respected = layeredArchitecture()
@@ -68,15 +82,22 @@ class LayeredArchitectureTest {
     @ArchTest
     static final ArchRule domain_is_free_of_frameworks = ArchRuleDefinition.noClasses()
             .that().resideInAPackage(DOMAIN)
-            .should().dependOnClassesThat().resideInAnyPackage(
-                    "org.springframework..",
-                    "org.jooq..",
-                    "jakarta..",
-                    "io.swagger..",
-                    "com.fasterxml.jackson..",
-                    "tools.jackson..",
-                    "liquibase..")
+            .should().dependOnClassesThat().resideInAnyPackage(FRAMEWORKS)
             .as("Das Domänenmodell bleibt frei von Framework-Abhängigkeiten");
+
+    /**
+     * The use cases are plain Java too (ADR 0045). A {@code @Service} or {@code @Transactional}
+     * here would tie the business rules to the runtime that happens to host them today and make
+     * the layer testable only with a container.
+     *
+     * <p>The build already keeps the frameworks off this module's compile classpath; the rule is
+     * the second net, and it states the intent where the other layer rules are read.
+     */
+    @ArchTest
+    static final ArchRule application_is_free_of_frameworks = ArchRuleDefinition.noClasses()
+            .that().resideInAPackage(APPLICATION)
+            .should().dependOnClassesThat().resideInAnyPackage(FRAMEWORKS)
+            .as("Die Anwendungsschicht bleibt frei von Framework-Abhängigkeiten");
 
     /**
      * The domain is split into model and services (ADR 0020). A class directly in {@code ..domain}

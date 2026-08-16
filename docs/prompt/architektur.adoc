@@ -46,8 +46,9 @@ Diese Regel ist *doppelt abgesichert*:
   link:{adr}/0014-schichtmodule-unter-backend{adrext}[ADR 0014] sowie
   link:{adr}/0015-alle-bausteine-unter-modules{adrext}[ADR 0015].
 . *Von ArchUnit geprüft* – `LayeredArchitectureTest` sichert zusätzlich ab, was Modulgrenzen
-  nicht sehen: Framework-Freiheit des Domänenmodells und „Ports sind Interfaces"; siehe
-  link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012].
+  nicht sehen: Framework-Freiheit von Domäne *und* Anwendungsschicht und „Ports sind
+  Interfaces"; siehe link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012] und
+  link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045].
   `OnionArchitectureTest` beschreibt dieselbe Struktur als Zwiebelschalen und schließt die
   Lücke der Schichtensicht: *Adapter kennen einander nicht* – der REST-Adapter greift nicht
   am Port vorbei auf die Persistenz zu. Siehe
@@ -55,6 +56,52 @@ Diese Regel ist *doppelt abgesichert*:
 
 Fehlt einer Klasse eine Abhängigkeit, ist das ein Hinweis auf einen Schichtverstoß – nicht
 die Aufforderung, sie im Buildskript zu ergänzen.
+
+== Die inneren Schichten sind framework-frei
+
+`domain` und `application` enthalten *keinen* Framework-Typ – kein Spring, kein jOOQ, kein
+Jakarta, kein Jackson, kein Liquibase
+(link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045]). Das ist keine
+Stilfrage: Geschäftsregeln, die an einer Laufzeit hängen, sind nur mit dieser Laufzeit prüfbar.
+
+Das gilt *auch für Annotationen*. `+@Service+` und `+@Transactional+` sind Abhängigkeiten wie
+jeder Import; `+@Transactional+` obendrein eine, deren Wirkung außerhalb eines Spring-Kontexts
+schlicht ausbleibt – die Zusicherung stünde in der Schicht, einlösbar wäre sie nur außerhalb.
+
+Beides ist doppelt abgesichert, und die stärkere Sicherung ist die *strukturelle*:
+
+* *Der Build.* `+:modules:backend:application+` deklariert außer `+:domain+` keine
+  Produktionsabhängigkeit. Eine Framework-Annotation dort *compiliert nicht*.
+* *ArchUnit.* `application_is_free_of_frameworks` in `LayeredArchitectureTest` – die
+  Schwesterregel zu `domain_is_free_of_frameworks`. Sie greift, sobald jemand die Abhängigkeit
+  wieder ins Buildskript einträgt.
+
+IMPORTANT: Eine fehlende Abhängigkeit in `+:application+` ist deshalb *nie* der Anlass, sie zu
+ergänzen – sondern die Aufforderung, den Framework-Bedarf nach außen zu verlegen.
+
+=== Was stattdessen wohin gehört
+
+[cols="1,2", options="header"]
+|===
+| Bedarf | Ort
+
+| Bean-Erzeugung („wer instanziiert den Dienst?")
+| `+@Bean+`-Methode im Composition Root `+:bootstrap+` (`ApplicationServicesConfig`) – nicht
+  `+@Service+` an der Klasse. Der Anwendungsdienst ist mit `+new+` instanziierbar.
+
+| Transaktionsgrenze
+| Ein Dekorator im Composition Root, der den *eingehenden Port* implementiert und mit
+  `TransactionTemplate` umschließt (`TransactionalRecipeService`). Die Grenze bleibt der Use
+  Case; nur ihre Formulierung steht außerhalb.
+
+| Web, Serialisierung, SQL
+| Adapter. Sie *sind* die Schicht, die das Rahmenwerk kennt – dort bleiben
+  `+@RestController+`, `+@Repository+` und `+@RestControllerAdvice+`.
+|===
+
+WARNING: Wächst ein eingehender Port um einen Use Case, wächst der Dekorator mit. Wird er
+vergessen, läuft der neue Use Case *ohne Transaktion* – still, denn ArchUnit sieht im Bytecode
+nicht, ob eine Delegation in einem `TransactionTemplate` steckt (ADR 0045, „Nachteile").
 
 == Records: Currying ab drei Komponenten
 
@@ -92,26 +139,58 @@ link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[ADR 
 == Checkliste vor Implementierung
 
 . Welche Schicht ist betroffen?
+. Trifft es `domain` oder `application`: Kommt der Entwurf *ohne* Framework-Typ aus? Wenn
+  nicht – welcher Teil davon gehört in den Composition Root oder in einen Adapter?
 . Gibt es ein Interface für den Service/Repository?
-. Ist die Komponente per Mock testbar?
+. Ist die Komponente per Mock testbar – *ohne* Spring-Kontext?
 . Werden Entities über DTOs von der API entkoppelt?
 . Ist Exception-Handling zentral (`@ControllerAdvice`)?
 
-== Beispiel: sauberer Service
+== Beispiel: sauberer Anwendungsdienst
+
+Gewöhnliches Java: keine Annotation, kein Lombok
+(link:{adr}/0003-kein-lombok-records-und-konstruktor-injektion{adrext}[ADR 0003]),
+Konstruktor-Injektion von Hand.
 
 [source,java]
 ----
-@Service
-@RequiredArgsConstructor   // Lombok: Konstruktor-Injektion
-public class UserService {
+public class UserService implements UserUseCases {   // der eingehende Port
 
-    private final UserRepository userRepository;
+    private final UserRepository userRepository;     // der ausgehende Port
     private final UserMapper userMapper;
 
+    public UserService(UserRepository userRepository, UserMapper userMapper) {
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+    }
+
+    @Override
     public UserDto findById(Long id) {
         return userRepository.findById(id)
                 .map(userMapper::toDto)
                 .orElseThrow(() -> new UserNotFoundException(id));
+    }
+}
+----
+
+== Beispiel: Verdrahtung im Composition Root
+
+Hier – und nur hier – wird das Rahmenwerk sichtbar: Bean-Erzeugung und Transaktionsgrenze
+(link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045]).
+
+[source,java]
+----
+@Configuration
+class ApplicationServicesConfig {
+
+    /** Die einzige Bean des Ports: die Use Cases, umschlossen von der Transaktionsgrenze. */
+    @Bean
+    UserUseCases userUseCases(
+            UserRepository repository,
+            UserMapper mapper,
+            PlatformTransactionManager transactionManager) {
+        return new TransactionalUserUseCases(
+                new UserService(repository, mapper), transactionManager);
     }
 }
 ----
@@ -122,10 +201,13 @@ public class UserService {
 ----
 @RestController
 @RequestMapping("/api/users")
-@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> getUser(@PathVariable Long id) {
@@ -161,6 +243,9 @@ public class GlobalExceptionHandler {
 == Anti-Patterns vermeiden
 
 * Business-Logik im Controller
+* Framework-Annotation in `domain` oder `application` – auch `@Service` und `@Transactional`
+  sind Abhängigkeiten (ADR 0045)
+* Eine fehlende Abhängigkeit in einer inneren Schicht im Buildskript nachtragen
 * `@Autowired` auf Feldern (nutze Konstruktor-Injektion)
 * Entities direkt als API-Response zurückgeben
 * Fat Services / God-Classes

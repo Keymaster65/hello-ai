@@ -46,12 +46,14 @@ Rendern aus seiner Quelle in dieser Datei
 Entscheidend ist, dass die Regel nicht nur dokumentiert, sondern *dreifach* abgesichert ist:
 
 . *Vom Build erzwungen.* Ein Modul sieht nur, was es deklariert. Ein Import aus einer
-  äußeren Schicht compiliert nicht. `:domain` hat dabei überhaupt keine
-  Produktionsabhängigkeit – Framework-Freiheit ist dort strukturell garantiert, nicht bloß
-  geprüft.
+  äußeren Schicht compiliert nicht. `:domain` und `:application` haben dabei überhaupt keine
+  Framework-Abhängigkeit – Framework-Freiheit ist in beiden inneren Schichten strukturell
+  garantiert, nicht bloß geprüft
+  (link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045]).
 . *Von ArchUnit als Schichtenstapel geprüft* (<<src-layered-architecture-test,`LayeredArchitectureTest`>>): zusätzlich
-  Framework-Freiheit der Domäne, die Teilung in `model`/`services` und „Ports sind
-  Interfaces" (link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012]).
+  Framework-Freiheit von Domäne und Anwendungsschicht, die Teilung in `model`/`services` und
+  „Ports sind Interfaces" (link:{adr}/0012-archunit-fuer-die-schichtenregel{adrext}[ADR 0012],
+  link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045]).
 . *Von ArchUnit als Zwiebelschalen geprüft* (<<src-onion-architecture-test,`OnionArchitectureTest`>>): Adapter kennen
   einander nicht – der REST-Adapter greift nicht am Port vorbei auf die Persistenz zu. Diese
   Lücke kann die Schichtensicht nicht schließen, weil beide Adapter im selben Modul liegen
@@ -90,7 +92,7 @@ Basispaket ist `io.github.keymaster65.helloai`.
 
 | `:modules:backend:application`
 | `application.service`
-| <<src-recipe-service-impl,`RecipeServiceImpl`>> (Geschäftslogik, Transaktionsgrenzen) und
+| <<src-recipe-service-impl,`RecipeServiceImpl`>> (Geschäftslogik, ohne Framework-Typ) und
   <<src-recipe-not-found-exception,`RecipeNotFoundException`>>.
 
 | `:modules:backend:adapter`
@@ -110,7 +112,11 @@ Basispaket ist `io.github.keymaster65.helloai`.
 | `:modules:backend:bootstrap`
 | `bootstrap`
 | <<src-recipe-application,`RecipeApplication`>> (Composition Root, `@SpringBootApplication`
-  mit `scanBasePackages`), <<src-openapi-config,`OpenApiConfig`>> und
+  mit `scanBasePackages`), <<src-application-services-config,`ApplicationServicesConfig`>> und
+  <<src-transactional-recipe-service,`TransactionalRecipeService`>> (Bean und
+  Transaktionsgrenze der Anwendungsschicht,
+  link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045]),
+  <<src-openapi-config,`OpenApiConfig`>> und
   <<src-documentation-routing-config,`DocumentationRoutingConfig`>> (Adresse der
   mitgelieferten Systemdokumentation,
   link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]). Hier entsteht das Deployable.
@@ -151,10 +157,16 @@ Der kanonische Konstruktor bleibt der einzige Ort der Validierung.
 
 == Anwendungsschicht
 
-`RecipeServiceImpl` implementiert den eingehenden Port und ist die *Transaktionsgrenze*:
-lesende Use Cases sind `@Transactional(readOnly = true)`, schreibende `@Transactional`. Die
-Schicht kennt weder Web noch Persistenztechnik – im Buildskript stehen nur
-`spring-context` und `spring-tx`.
+`RecipeServiceImpl` implementiert den eingehenden Port – als *gewöhnliche Java-Klasse*, ohne
+eine einzige Annotation. Die Schicht kennt weder Web noch Persistenztechnik noch Spring: Im
+Buildskript steht außer `:domain` keine Produktionsabhängigkeit
+(link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045]).
+
+Beides, was dafür nötig ist, liegt im Composition Root `:bootstrap`:
+`ApplicationServicesConfig` erzeugt die Bean, `TransactionalRecipeService` umschließt jeden
+Use Case mit einer Transaktion – lesende read-only, schreibende schreibend. Die
+*Transaktionsgrenze ist damit weiterhin der Use Case*, nur ihre Formulierung steht außerhalb
+der Schicht.
 
 Die Übersetzung „nicht gefunden" → Fehlerbild geschieht hier durch
 `RecipeNotFoundException`; welchen HTTP-Status daraus wird, entscheidet erst der Adapter.
@@ -250,24 +262,28 @@ skinparam shadowing false
 
 actor Browser
 participant "RecipeController" as controller
+participant "TransactionalRecipeService" as tx
 participant "RecipeServiceImpl" as service
 participant "RecipeJooqRepository" as repository
 database "PostgreSQL" as db
 participant "GlobalExceptionHandler" as handler
 
 Browser -> controller : GET /recipes/api/recipes/1
-controller -> service : getById(id)
-note right of service : readOnly-Transaktion
+controller -> tx : getById(id)
+note right of tx : öffnet die readOnly-Transaktion
+tx -> service : getById(id)
 service -> repository : findById(id)
 repository -> db : SELECT recipe, ingredient, preparation_step
 db --> repository
 repository --> service : Optional
 alt Optional ist leer
-  service --> controller : RecipeNotFoundException
+  service --> tx : RecipeNotFoundException
+  tx --> controller : RecipeNotFoundException
   controller -> handler : Exception
   handler --> Browser : 404 + ErrorResponse
 else Rezept vorhanden
-  service --> controller : Recipe
+  service --> tx : Recipe
+  tx --> controller : Recipe
   note left of controller : RecipeRestMapper.toResponse(...)
   controller --> Browser : 200 + RecipeResponse
 end
@@ -285,6 +301,7 @@ actor Browser
 participant "Bean Validation" as validation
 participant "RecipeController" as controller
 participant "RecipeRestMapper" as mapper
+participant "TransactionalRecipeService" as tx
 participant "RecipeServiceImpl" as service
 participant "RecipeJooqRepository" as repository
 participant "GlobalExceptionHandler" as handler
@@ -298,12 +315,14 @@ else Request gültig
   controller -> mapper : toDomain(request)
   note right of mapper : Positionen aus der Listenordnung;\nder Recipe-Konstruktor prüft\ndie Domäneninvarianten
   mapper --> controller : Recipe
-  controller -> service : create(recipe)
-  note right of service : schreibende Transaktion
+  controller -> tx : create(recipe)
+  note right of tx : öffnet die schreibende Transaktion
+  tx -> service : create(recipe)
   service -> repository : save(recipe)
   repository -> repository : INSERT recipe,\ndann INSERT je Zutat und Schritt
   repository --> service : Recipe mit id
-  service --> controller : Recipe mit id
+  service --> tx : Recipe mit id
+  tx --> controller : Recipe mit id
   controller --> Browser : 201 + Location + RecipeResponse
 end
 @enduml

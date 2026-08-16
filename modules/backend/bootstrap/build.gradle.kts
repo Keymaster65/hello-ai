@@ -21,6 +21,8 @@ dependencies {
     implementation(project(":modules:backend:adapter"))
 
     implementation(libs.spring.boot.starter.web)
+    // The transaction boundary of the use cases sits here, not in :application (ADR 0045).
+    implementation(libs.spring.tx)
     // Spring Boot 4 provides Liquibase auto-configuration in a dedicated module.
     implementation(libs.spring.boot.liquibase)
     implementation(libs.liquibase.core)

@@ -27,7 +27,7 @@ wenn diese Bindung nicht mehr passt.
 
 == Vor der Arbeit: welche ADRs gelten
 
-Nicht alle 44 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
+Nicht alle 45 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
 Zusammenfassung: *Was* gilt, steht im ADR selbst.
 
 [cols="2,3", options="header"]
@@ -40,12 +40,14 @@ Zusammenfassung: *Was* gilt, steht im ADR selbst.
   link:{adr}/0014-schichtmodule-unter-backend{adrext}[0014],
   link:{adr}/0015-alle-bausteine-unter-modules{adrext}[0015],
   link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[0019],
-  link:{adr}/0020-domain-in-model-und-services-teilen{adrext}[0020]
+  link:{adr}/0020-domain-in-model-und-services-teilen{adrext}[0020],
+  link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[0045]
 
 | Klasse in der Domäne, DTO, Spring-Bean
 | link:{adr}/0003-kein-lombok-records-und-konstruktor-injektion{adrext}[0003],
   link:{adr}/0020-domain-in-model-und-services-teilen{adrext}[0020],
-  link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[0021]
+  link:{adr}/0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[0021],
+  link:{adr}/0045-anwendungsschicht-frei-von-frameworks{adrext}[0045]
 
 | Persistenz, Migration, Schemaänderung
 | link:{adr}/0004-liquibase-statt-flyway{adrext}[0004],
@@ -122,6 +124,9 @@ Teil ist der gefährlichere.
 
 * *Schichtgrenzen* – ein Import aus einer äußeren Schicht compiliert nicht (0013/0014/0015);
   zusätzlich prüfen `LayeredArchitectureTest` (0012) und `OnionArchitectureTest` (0019).
+* *Framework-Freiheit von `domain` und `application`* – beide Module deklarieren keine
+  Framework-Abhängigkeit, eine Annotation dort compiliert nicht; zusätzlich zwei
+  ArchUnit-Regeln (0012/0045).
 * *Currying ab drei Record-Komponenten* – `RecordCurryingTest` (0021).
 * *Dokumentation* – fehlender `include` und Querverweis ins Leere brechen den Build; das gilt
   für alle drei Asciidoctor-Tasks (0022/0023/0026).
