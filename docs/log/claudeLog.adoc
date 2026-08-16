@@ -14,6 +14,7 @@ Datum: 2026-07-19
 
 _Delta: 12:05 min · 63.084 Token out · 362.480 Token in (neu) · 9.080.508 Token gesamt_
 _Stand (Session, 3 Prompts): 12:05 min · 63.084 Token out · 9.080.508 Token gesamt_
+_Commit: <<commit-a0c250f,a0c250f>>_
 
 *Aktionen:*
 
@@ -66,6 +67,17 @@ _Stand (Session, 3 Prompts): 12:05 min · 63.084 Token out · 9.080.508 Token ge
   nicht darin. Die zwei bekannten Asciidoctor-Meldungen sind unverändert, neue kommen nicht
   dazu.
 * *Backlog:* Eintrag nach Erledigung entfernt.
+* *Commit und Merge:* Commit `+a0c250f+` als Author Claude; danach `+git fetch origin+` und die
+  Arbeitsbranches gemergt (ADR 0032/0034). `+main+`, `+sm+`, `+doc+` waren „Already up to date",
+  `+dev+` existiert nicht und wurde übergangen, `+origin/po+` war neu (`+22058f7+`) und mergte
+  *konfliktfrei*: `+po+` hat mehrere Einträge auf ready gesetzt, umsortiert und ergänzt, mein
+  Commit hatte nur den erledigten Eintrag entfernt. Merge-Commit `+5ae98b3+`;
+  `+./gradlew asciidoctor+` danach grün, weiterhin nur die zwei bekannten Meldungen.
+* *Trailer abweichend gesetzt:* Der Develop-Skill schreibt „Claude Opus 4.8 (1M context)"
+  wörtlich vor; gearbeitet hat Opus 5, und der Trailer soll das *tatsächlich* arbeitende Modell
+  benennen. Genau dafür steht der `+KI+`-Eintrag „Halte den Co-Authored-By-Trailer im
+  Develop-Skill modellunabhängig" im Backlog – bis zu seiner Freigabe bleibt das eine bewusste
+  Abweichung, keine stille.
 
 '''
 

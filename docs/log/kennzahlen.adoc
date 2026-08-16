@@ -22,7 +22,7 @@
 
 | <<prompt-147,147>>
 |„Verwende plantuml in der Asciidoc Systemdocumentation wo es sinnvoll ist. Ergänze das im systemdokumentation Skill." (aus dem Backlog, `next`)
-| –
+| <<commit-a0c250f,a0c250f>>
 | 12:05 min
 | 13:55:37 h
 | 63.084
