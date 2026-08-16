@@ -44,31 +44,31 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 
 == : Order die Anhänge neu: Git-Historie und Session-Protokoll sollen eigene Anhänge bilden. Die Reihenfolge soll sein: Session-Protokoll, Kennzahlen der Sessions, Git-Historie, Quelldateien und Backlog.
 
-== : Benenne den Skill systemdoku um in systemdokumentation
-
 == : Ändere den architektur Skill so, dass die "application" frei noch Framework Abhängigkeiten ist. Ein entsprechender archunit Test soll das absichern.
 
 == : Realisiere "RFC 9457 Problem Details for HTTP API" für die Anwendung.
 
-== : Ergänze out-port Adapter, die die Daten in einem neuen leeren Branch data sichern. Der Aufbau dort soll sein /database/entities/recipes, /database/entities/ingredients usw. Gespeichert und gelesen werden jeweils Json-Dateien, die einen Datensatz enthalten.
+== : Benenne den Skill systemdoku um in systemdokumentation
+
+== : Bennene den Skill security um in security-backend
+
+== : Erstelle den security Skill für das frontend.
 
 == : Konsolidiere alle Skills und ADR so, dass keine ADR mehr notwendig sind, alle die Inhalte auf die Skills verteilt werden. Wenn sinnvoll erzeuge neue Skills.
 
-== : Bennene den Skill seccurity um in security-backend
+== : Ergänze einen MCP Service für den Zugriff auf Rezepte und die Systemdokumentation.
 
-== : Erstelle security Skills für frontend.
-
-== : Ergänze einen MCP Service für den Zugriff auf Rezepte.
+== : Ergänze out-port Adapter, die die Daten in einem neuen leeren Branch data sichern. Der Aufbau dort soll sein /database/entities/recipes, /database/entities/ingredients usw. Gespeichert und gelesen werden jeweils Json-Dateien, die einen Datensatz enthalten.
 
 == architecture
     Multi Brower Support
 
 == business
+    Händler
+    Rezeptliste für Einkaufswagen beim Händler
+    Bestand
     Barrierefrei
     en+de
-    Händler
-    Rezeptliste für Einkaufswage
-    Bestand
 
 
 == butterfly timelines
@@ -95,7 +95,8 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 
 === Backlog
 Support Stories incl. Conditions of Satisfaction (CoS) and Deviation
-Daily: Review + Planning
+Ergänze Schätzung in Token
+Daily/Kanban: Review + Planning
 github integration
   Arbeit im Branch, z. B. dev
   Push mit MR
