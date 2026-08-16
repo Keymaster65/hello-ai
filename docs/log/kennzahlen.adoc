@@ -20,6 +20,20 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-157,157>>
+|„Erstelle den security Skill für das frontend." (aus dem Backlog, `next`)
+| –
+| 6:30 min
+| 15:54:09 h
+| 67.361
+| 3.993.328
+| 290.625
+| 23.390.435
+| 7.381.172
+| 6:30 min
+| 67.361
+| 7.381.172
+
 | <<prompt-156,156>>
 |„Bennene den Skill security um in security-backend" (aus dem Backlog, `next`)
 | <<commit-b40fa3a,b40fa3a>>

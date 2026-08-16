@@ -9,6 +9,54 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-157]]
+== 157. Prompt: „Erstelle den security Skill für das frontend." (aus dem Backlog, `next`)
+
+_Delta: 6:30 min · 67.361 Token out · 290.625 Token in (neu) · 7.381.172 Token gesamt_
+_Stand (Session, 3 Prompts): 6:30 min · 67.361 Token out · 7.381.172 Token gesamt_
+
+*Aktionen:*
+
+* *`+next+` nach PO-Skill:* `+git pull --ff-only+` auf `main` meldete „Already up to date", kein
+  Eintrag war aktiv, keine branchgebundenen Einträge – gezogen wurde der oberste ready-Eintrag,
+  im Wortlaut vorgelegt und bestätigt; Marker `+*+` vor der Arbeit gesetzt, Eintrag danach
+  entfernt.
+* *Gerüst fehlte erneut:* Der `+UserPromptSubmit+`-Hook hat für diesen Prompt keinen Eintrag
+  angelegt – dieser Abschnitt ist von Hand vorne eingefügt.
+* *Neuer Skill `+docs/prompt/security-frontend.adoc+`* – der zehnte. Aufbau wie der
+  Backend-Skill: Zweck, sechs Grundsätze, Tabelle „Auslöser → Pflicht", Prüfen, Hinweise. Die
+  Regeln sind am vorhandenen Code belegt (`+src/api/recipes.ts+` mit Pfaden relativ zu
+  `+import.meta.env.BASE_URL+`, `+RecipeDetailPage+` mit geprüfter ID, `+RecipeForm+` mit
+  Feldmeldungen aus den `+fieldErrors+` des Problem Details).
+* *Kein neues ADR:* ADR 0048 hat die Datei bereits entschieden („je Seite eine Datei; was für
+  beide gilt, steht genau einmal und wird verlinkt") und den Skill selbst ausdrücklich als
+  eigene Arbeitseinheit geführt. Der Skill trifft keine neue Festlegung – wo eine anstünde
+  (Content Security Policy, Sanitizer, Anmeldung, Prüfwerkzeug für Abhängigkeiten), verweist er
+  auf ein künftiges ADR.
+* *Abgrenzung statt Doppelung:* Ein eigener Abschnitt „was hier *nicht* steht" nennt vier
+  Gegenstände, die im Backend-Skill bleiben – `+security.txt+`/RFC 9116, Validierung an der
+  Grenze, Antwort-Header, Zustand der Lücken.
+* *Lücke benannt:* Die Anwendung setzt keine Sicherheits-Header (CSP,
+  `+X-Content-Type-Options+`, `+Referrer-Policy+`, `+X-Frame-Options+`) – geprüft per Suche über
+  `+modules/+`. Neue Zeile in `+docs/system/betrieb.adoc+`, „Offene Punkte", dazu ein
+  `+KI+`-Eintrag im Backlog. Nicht behoben: eigene Arbeitseinheit mit eigenem ADR
+  (Security-Skill, Grundsatz „Eine Lücke wird benannt").
+* *Sechs Stellen nachgezogen*, die ein neuer Skill berührt (`+prompt.adoc+`, „Pflege dieser
+  Arbeitsgrundlage"): `+CLAUDE.md+` (Liste, neun → zehn), `+masterprompt.adoc+` (Skill-Tabelle,
+  neue Zeile „Security Frontend"), `+prompt.adoc+` (`+include+` und Pflege-Tabelle),
+  `+docs/system/arbeitsgrundlage.adoc+` (Dateitabelle, PlantUML-Diagramm „Ladeweg",
+  `+include+` im Kapitel „Wortlaut") und `+docs/system/ueberblick.adoc+` (Bausteintabelle).
+* *Geprüft:* `+./gradlew asciidoctorPrompt asciidoctor asciidoctorAdr+` – BUILD SUCCESSFUL; das
+  erzeugte `+ladeweg.svg+` angesehen, es nennt beide Security-Skills. Die zwei Meldungen des
+  Tasks `+asciidoctor+` bestehen unverändert und stammen aus dem Protokoll, nicht aus dieser
+  Änderung; sie stehen als `+KI+`-Eintrag im Backlog – dessen Beschreibung nennt allerdings
+  „section title out of sequence", gemeldet wird inzwischen ein doppelt vergebener Anker
+  `+prompt-minus2+`.
+* *Keine Testläufe:* reine Doku-Änderung, seit dem letzten grünen Lauf wurde kein Code
+  angefasst (Butterfly-Skill, „Hinweise").
+
+'''
+
 [[prompt-156]]
 == 156. Prompt: „Bennene den Skill security um in security-backend" (aus dem Backlog, `next`)
 

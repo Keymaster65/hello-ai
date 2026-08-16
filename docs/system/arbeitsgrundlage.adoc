@@ -5,7 +5,7 @@ ifndef::adrext[:adrext: .adoc]
 = Arbeitsgrundlage: Master-Prompt und Skills
 
 Das Repository enthält nicht nur die Anwendung, sondern auch die Anweisungen, unter denen an
-ihr gearbeitet wird: einen *Master-Prompt*, der in jeder Entwicklungs-Session gilt, und neun
+ihr gearbeitet wird: einen *Master-Prompt*, der in jeder Entwicklungs-Session gilt, und zehn
 *Skills*, die bei einem bestimmten Anlass hinzukommen. Beides liegt als AsciiDoc unter
 `docs/prompt` (link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023]).
 
@@ -51,7 +51,14 @@ herein, also gibt es keine zweite Fassung, die veralten kann.
 | Skill: Sicherheit im Backend – Grundsätze, Pflichten je Anlass (Endpunkt, Fehlerbild,
   Abfrage, Protokoll, Konfiguration, Abhängigkeit, offener Pfad) und die Bindung an RFC 9116
   mit `security.txt` (link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035]). Je
-  Seite gibt es einen eigenen Skill; `security-frontend.adoc` fehlt noch und steht im Backlog
+  Seite gibt es einen eigenen Skill
+  (link:{adr}/0048-security-skill-je-seite{adrext}[ADR 0048])
+
+| `docs/prompt/security-frontend.adoc`
+| Skill: Sicherheit in der SPA – Grundsätze und Pflichten je Anlass (Route, Darstellung von
+  Daten des Backends, Formularfeld, Aufruf des Backends, Browser-Speicher, Abhängigkeit in
+  `package.json`, Fehlerbild in der Oberfläche). Was den Server betrifft, steht im
+  Backend-Skill und wird von hier verlinkt, nicht wiederholt
   (link:{adr}/0048-security-skill-je-seite{adrext}[ADR 0048])
 
 | `docs/prompt/systemdokumentation.adoc`
@@ -144,7 +151,7 @@ skinparam componentStyle rectangle
 
 file "CLAUDE.md" as claude
 file "docs/prompt/masterprompt.adoc" as master
-file "docs/prompt/*.adoc\n\narchitektur · adr · tests · security-backend\nsystemdokumentation · butterfly\nmanager · po · develop" as skills
+file "docs/prompt/*.adoc\n\narchitektur · adr · tests\nsecurity-backend · security-frontend\nsystemdokumentation · butterfly\nmanager · po · develop" as skills
 
 claude --> master : @-Import\njede Session, vollständig
 claude --> skills : nennt Pfad und Anlass\nnur bei Anlass gelesen
@@ -204,7 +211,7 @@ entspricht, stellt kein Task fest – das entscheidet der Blick beim Ändern.
 [[wortlaut]]
 == Wortlaut
 
-Es folgen der Master-Prompt und die neun Skills im Original, aus `docs/prompt` eingebunden.
+Es folgen der Master-Prompt und die zehn Skills im Original, aus `docs/prompt` eingebunden.
 Der Master-Prompt gilt in jeder Session; die Skills gelten bei ihrem jeweiligen Anlass, der
 im Abschnitt „Skills" des Master-Prompts steht.
 
@@ -224,6 +231,8 @@ include::../prompt/adr.adoc[leveloffset=+2]
 include::../prompt/tests.adoc[leveloffset=+2]
 
 include::../prompt/security-backend.adoc[leveloffset=+2]
+
+include::../prompt/security-frontend.adoc[leveloffset=+2]
 
 include::../prompt/systemdokumentation.adoc[leveloffset=+2]
 

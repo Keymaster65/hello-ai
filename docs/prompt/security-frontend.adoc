@@ -1,0 +1,182 @@
+// Skill der Arbeitsgrundlage; siehe prompt.adoc.
+ifndef::adr[:adr: ../adr]
+ifndef::adrext[:adrext: .adoc]
+= Skill: Security – Frontend
+
+== Zweck
+
+Aktiviere diesen Skill, sobald eine Änderung unter `modules/frontend` die *Angriffsfläche der
+SPA* berührt: neue Route, neue Darstellung von Daten des Backends, neues Formularfeld, neuer
+Aufruf des Backends, neue Abhängigkeit in `package.json`, neue Browser-Schnittstelle
+(Speicher, Zwischenablage, `+postMessage+`), neuer Verweis nach außen, neues Fehlerbild in der
+Oberfläche.
+
+*Geltungsbereich ist das Frontend* – der Dateiname sagt es. Was den Server betrifft, steht im
+Backend-Skill `docs/prompt/security-backend.adoc`: die Regeln zu Endpunkt, Fehlerbild,
+Abfrage, Protokollausgabe, Konfiguration und die Bindung an RFC 9116 mit der `security.txt`.
+Beides steht *je einmal* und wird von hier aus verwiesen, nicht abgeschrieben
+(link:{adr}/0048-security-skill-je-seite{adrext}[ADR 0048]).
+
+Dieser Skill schreibt vor, er beschreibt nicht. *Was* die Oberfläche heute kann, steht in
+`docs/system/api.adoc`; *welche* Lücken bewusst offen sind, in `docs/system/betrieb.adoc`,
+Abschnitt „Offene Punkte"; *warum* es diese Skills gibt, in
+link:{adr}/0035-security-skill-und-security-txt{adrext}[ADR 0035].
+
+== Grundsätze
+
+. *Die Grenze ist das Backend, nicht das Formular.* Jede Prüfung im Browser ist Komfort für
+  den Nutzer – umgehen kann sie jeder. Was gelten muss, prüft der Server
+  (link:{adr}/0007-react-frontend-mit-backend-als-bff{adrext}[ADR 0007]). Eine Prüfung im
+  Backend wird *nie* gelockert, weil das Feld in der Oberfläche schon eingeschränkt ist.
+. *Alles vom Server ist Text, kein Markup.* React maskiert, was in JSX steht – diese
+  Voreinstellung ist der ganze Schutz. `+dangerouslySetInnerHTML+`, `+innerHTML+`, `+eval+`
+  und `+new Function+` kommen nicht vor; keines davon ohne ADR.
+. *Im Bundle steht nichts Geheimes.* Ausgeliefert wird an fremde Rechner: Jeder Wert im Code
+  und in `+import.meta.env+` ist öffentlich lesbar. Schlüssel, Zugangsdaten und interne
+  Adressen gehören ins Backend, nicht in die SPA.
+. *Fehler zeigen, nicht ausplaudern.* Der Nutzer bekommt einen Satz, mit dem er weiterkommt;
+  der Rohinhalt einer Antwort – `+detail+`, `+instance+`, Statuszeilen, Stacktraces – wird
+  weder gerendert noch auf die Konsole geschrieben.
+. *Keine fremde Herkunft.* Die Anwendung lädt aus ihrem eigenen Ursprung: kein Skript von
+  einem CDN, keine entfernte Schriftart, keine Messung eines Dritten. Pfade sind relativ zu
+  `+import.meta.env.BASE_URL+`, das den Context-Path spiegelt
+  (link:{adr}/0016-context-path-recipes{adrext}[ADR 0016]).
+. *Eine Lücke wird benannt, nicht im Vorbeigehen behoben.* Dieser Grundsatz steht im
+  Backend-Skill (`docs/prompt/security-backend.adoc`, „Grundsätze") und gilt hier unverändert:
+  Log-Eintrag, Zeile in „Offene Punkte", Backlog-Eintrag – die Behebung ist eine eigene
+  Arbeitseinheit.
+
+IMPORTANT: „Es ist nur die Oberfläche" ist kein Grund. Der Code läuft auf einem Rechner, den
+niemand hier kontrolliert; alles, was er sendet, kann verändert sein, und alles, was er
+enthält, ist lesbar. Sicherheit entsteht deshalb *nicht* in der SPA – sie darf hier nur nicht
+verspielt werden.
+
+== Auslöser → Pflicht
+
+[cols="2,3", options="header"]
+|===
+| Anlass | Zu tun
+
+| Neue oder geänderte Route
+| Prüfen, was der *direkte* Aufruf zeigt – jede Route ist teilbar und wird ohne die Navigation
+  davor erreicht (link:{adr}/0017-router-mit-spa-fallback{adrext}[ADR 0017]). Parameter aus
+  der Adresse werden geprüft, bevor sie in einen Aufruf gehen, wie `+RecipeDetailPage+` es mit
+  der ID tut. `docs/system/api.adoc` mitpflegen
+
+| Neue Darstellung von Daten des Backends
+| Als Text rendern, also in JSX. Ein Wert aus den Daten geht *nie* ungeprüft in `+href+` oder
+  `+src+`: Ein `+javascript:+`-Schema dort ist ausführbarer Code. Wird ein Verweis aus Daten
+  gebaut, wird sein Schema gegen eine Positivliste geprüft
+
+| Neues Formularfeld
+| Die Pflichtprüfung steht im Backend am Request-DTO (Backend-Skill). Im Browser wird
+  *angezeigt*, was der Server zurückweist – aus den `+fieldErrors+` des Problem Details
+  (link:{adr}/0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR 0046]), nicht aus
+  einem selbst gebauten Text
+
+| Neuer Aufruf des Backends
+| Über `+src/api/recipes.ts+`, mit einem Pfad relativ zu `+import.meta.env.BASE_URL+`. Kein
+  `+fetch+` auf einen absoluten Ursprung, keine Zugangsdaten an eine fremde Herkunft, kein
+  zweiter Ort, an dem HTTP gesprochen wird
+
+| Neuer Umgang mit Browser-Speicher (`+localStorage+`, `+sessionStorage+`, Cookies)
+| Heute legt die Anwendung *nichts* ab. Wer damit anfängt, entscheidet etwas: Was im
+  Speicher liegt, liest jedes Skript auf der Seite. Personenbezogenes und alles, was einen
+  Zugang belegt, braucht ein ADR
+
+| Neuer Verweis nach außen (`+target="_blank"+`)
+| `+rel="noopener noreferrer"+` setzen – sonst erhält die fremde Seite Zugriff auf das öffnende
+  Fenster und die Herkunft im `+Referer+`
+
+| Neue Abhängigkeit in `package.json`
+| Herkunft, Pflegezustand und Umfang prüfen, *bevor* sie eingetragen wird; keine Vorab- oder
+  Kandidatenversion. Festgeschrieben wird über `+package-lock.json+` – installiert wird mit
+  `+npm ci+`, nicht `+npm install+`. Versionen stehen nur hier, nie in der Dokumentation
+  (link:{adr}/0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018])
+
+| Neues Asset oder neue Zeile in `index.html`
+| Aus dem eigenen Ursprung, kein CDN. Kein Inline-Skript und kein Inline-`+style+`: Beides
+  müsste eine spätere Content Security Policy ausdrücklich erlauben und macht sie damit wertlos
+
+| Neuer Wert aus `+import.meta.env+`
+| Nur Nicht-Geheimes. Der Wert landet im Bundle und wird mit ausgeliefert
+  (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]) – ein Geheimnis dort ist
+  ein veröffentlichtes Geheimnis
+
+| Neues Fehlerbild in der Oberfläche
+| Ein Satz für den Nutzer, so wie `+RecipeDetail+` zwischen „existiert nicht (mehr)" und
+  „konnte nicht geladen werden" unterscheidet. Kein Rohinhalt, kein `+console.log+` der
+  Antwort – die Konsole ist Teil der Auslieferung
+
+| Schwachstelle entdeckt
+| Benennen statt beheben: Log-Eintrag, Zeile in „Offene Punkte", Backlog-Eintrag. Der Meldeweg
+  nach außen – `security.txt` nach RFC 9116 – steht im Backend-Skill
+|===
+
+WARNING: *Der SPA-Fallback ist keine Zugriffsprüfung.* Das Backend beantwortet jeden
+unbekannten Pfad unterhalb des Context-Path mit der `index.html`
+(link:{adr}/0017-router-mit-spa-fallback{adrext}[ADR 0017]). Eine Route, die es im Router nicht
+gibt, führt deshalb nicht zu einem `404` des Servers, sondern in die Anwendung. Was nicht jeder
+sehen soll, wird im Backend geschützt – eine Route wegzulassen schützt nichts.
+
+== Abgrenzung: was hier *nicht* steht
+
+Damit dieselbe Regel nicht an zwei Orten altert
+(link:{adr}/0048-security-skill-je-seite{adrext}[ADR 0048]):
+
+[cols="2,3", options="header"]
+|===
+| Gegenstand | Steht in
+
+| `security.txt`, RFC 9116, Meldeweg
+| `docs/prompt/security-backend.adoc` – die Datei wird vom Server ausgeliefert
+
+| Validierung an der API-Grenze, Fehlerbilder, Datenbankabfragen, Protokollausgabe, Geheimnisse
+  in der Konfiguration
+| `docs/prompt/security-backend.adoc`
+
+| Antwort-Header der Auslieferung (Content Security Policy, `+X-Content-Type-Options+`,
+  `+Referrer-Policy+`)
+| Sie schützen die SPA, gesetzt werden sie aber vom Server. Heute setzt die Anwendung *keinen*
+  davon; der Zustand steht in `docs/system/betrieb.adoc`, „Offene Punkte", die Einführung ist
+  eine Entscheidung mit ADR
+
+| Welche Lücke offen ist
+| `docs/system/betrieb.adoc`, „Offene Punkte" – dieser Skill schreibt vor, er beschreibt nicht
+|===
+
+== Prüfen
+
+[source,bash]
+----
+./gradlew frontendTest      # Vitest: Komponenten und der API-Zugriff
+./gradlew e2eTest           # Playwright: die Flows im echten Browser
+----
+
+Es gibt *keinen* Task, der Sicherheit prüft – im Frontend so wenig wie im Backend. Was hier
+steht, wird gelesen und befolgt; belegt wird es durch Tests, die die jeweilige Regel
+festhalten: einer für eine Route, die mit unbrauchbarem Parameter aufgerufen wird, einer für
+ein Fehlerbild ohne Rohinhalt, einer für ein Feld, dessen Meldung aus dem Problem Detail kommt
+(Skill Tests, `docs/prompt/tests.adoc`;
+link:{adr}/0008-playwright-fuer-e2e-tests{adrext}[ADR 0008]). Alles Übrige regelt die
+*Definition of Done* im Master-Prompt.
+
+NOTE: Auch der Stand der Abhängigkeiten hängt am Lesen: Der Build führt keine Prüfung der
+`package-lock.json` gegen bekannte Schwachstellen aus. Wer eine Abhängigkeit aufnimmt oder
+anhebt, sieht selbst nach – ein Werkzeug dafür in den Build zu holen, wäre eine Entscheidung
+mit ADR.
+
+== Hinweise
+
+* *Drei Modi, ein Sachverhalt:* Dieser Skill schreibt vor (*was zu tun ist*),
+  `docs/system/api.adoc` und `docs/system/betrieb.adoc` beschreiben (*was ist*), das ADR
+  begründet (*warum*). Wiederholt wird nichts davon.
+* *Keine Sicherheitsbibliothek ohne ADR.* Ein Sanitizer, ein Client für Anmeldung, ein
+  Werkzeug für Content Security Policy – jedes davon ist eine Entscheidung mit sichtbaren
+  Alternativen.
+* *Der Ursprung ist einer.* Anwendung und API liegen hinter demselben Ursprung
+  (link:{adr}/0007-react-frontend-mit-backend-als-bff{adrext}[ADR 0007]); es gibt deshalb keine
+  CORS-Freigabe und keinen Grund, eine einzuführen. Wer eine braucht, hat den Zuschnitt
+  verlassen – und schreibt zuerst ein ADR.
+* *Bequemlichkeit ist kein Grund.* Eine Prüfung, die „nur für den Testlauf" übersprungen wird,
+  ist der Zustand, der ausgeliefert wird.

@@ -261,6 +261,13 @@ Umgebung betreibt, ohne sie zu kennen.
 | HTTPS
 | Wird nicht von der Anwendung geleistet; TLS müsste ein vorgelagerter Proxy übernehmen.
 
+| Sicherheits-Header der Auslieferung
+| Die Anwendung setzt weder eine Content Security Policy noch `X-Content-Type-Options`,
+  `Referrer-Policy` oder `X-Frame-Options`. Die SPA bleibt damit ohne die zweite Linie, die ein
+  eingeschleustes Skript oder ein fremder Rahmen sonst fände – der Schutz hängt allein
+  daran, dass React alles maskiert, was es rendert
+  (`docs/prompt/security-frontend.adoc`).
+
 | Health- und Metrik-Endpunkte
 | Kein Actuator eingebunden. Für eine Bereitschaftsprüfung dient derzeit nur
   `GET /recipes/api/recipes` – das ist der Weg, den auch die E2E-Suite nutzt, um auf die

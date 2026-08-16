@@ -15,7 +15,7 @@
 :adrext: .adoc
 
 Dieses Dokument bündelt die Anweisungen, unter denen an *recipes* gearbeitet wird: den
-Master-Prompt, der in jeder Session gilt, und die neun Skills, die bei Bedarf hinzukommen.
+Master-Prompt, der in jeder Session gilt, und die zehn Skills, die bei Bedarf hinzukommen.
 Entscheidung und Begründung:
 link:{adr}/0023-asciidoc-fuer-masterprompt-und-skills{adrext}[ADR 0023].
 
@@ -96,6 +96,8 @@ include::tests.adoc[leveloffset=+1]
 
 include::security-backend.adoc[leveloffset=+1]
 
+include::security-frontend.adoc[leveloffset=+1]
+
 include::systemdokumentation.adoc[leveloffset=+1]
 
 include::butterfly.adoc[leveloffset=+1]
@@ -143,6 +145,11 @@ gepflegt, die sie betrifft.
   `docs/system/betrieb.adoc`, „Offene Punkte". Regeln für die SPA gehören *nicht* hierher,
   sondern in den eigenen Frontend-Skill
   (link:{adr}/0048-security-skill-je-seite{adrext}[ADR 0048])
+
+| Neue Sicherheitsregel für die SPA
+| `security-frontend.adoc`; was den Server betrifft – Validierung an der Grenze, Fehlerbilder,
+  `security.txt` –, bleibt im Backend-Skill und wird von dort verlinkt statt abgeschrieben.
+  Der *Zustand* steht auch hier in `docs/system` (`api.adoc`, `betrieb.adoc`)
 
 | Neue Regel zur Pflege der Systemdokumentation
 | `systemdokumentation.adoc`

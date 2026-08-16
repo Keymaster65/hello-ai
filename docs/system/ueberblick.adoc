@@ -130,7 +130,7 @@ Diagramm entsteht beim Rendern aus seiner Quelle in dieser Datei
 
 | Arbeitsgrundlage
 | `docs/prompt/` und `CLAUDE.md`
-| Master-Prompt und neun Skills – die Anweisungen, unter denen entwickelt wird. Kein Baustein
+| Master-Prompt und zehn Skills – die Anweisungen, unter denen entwickelt wird. Kein Baustein
   der Anwendung, aber Teil des Repositorys; siehe <<arbeitsgrundlage>>.
 |===
 
