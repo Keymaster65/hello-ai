@@ -55,14 +55,14 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 
 == ?dev Ergänze einen MCP Service für den Zugriff auf Rezepte.
 
-== sm Erstelle security Skills für frontend und backend.
+== Erstelle security Skills für frontend und backend.
 
-== dev Realisiere "RFC 9457 Problem Details for HTTP API" für die Anwendung.
+== Realisiere "RFC 9457 Problem Details for HTTP API" für die Anwendung.
 
-== dev architecture
+== architecture
     Multi Brower Support
 
-== dev business
+== business
     Barrierefrei
     en+de
     Händler
