@@ -22,7 +22,7 @@
 
 | <<prompt-141,141>>
 |„Ergänze in „kennzahlen" in den Zeilen die Links auch claudeLog und gitChangeLog." (aus dem Backlog, `next`)
-| –
+| <<commit-5841cb0,5841cb0>>
 | 13:58 min
 | 13:03:42 h
 | 79.729
