@@ -1,0 +1,188 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= ADR 0051: Git-Historie ohne aussagelose Betreffe, Zeilen von unten nummeriert
+
+== Status
+
+Akzeptiert – 2026-08-17
+
+Ergänzt link:0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036], ohne es abzulösen: Die
+dort entschiedene Tabelle bekommt eine weitere Auslassung und eine weitere Spalte. Die Verengung
+des Merge-Musters aus ADR 0036 bleibt unverändert gültig.
+
+== Kontext
+
+Der Anhang „Git-Historie" beantwortet die Frage, *was* das Repository verändert hat – eine Zeile
+je Commit. Zum Zeitpunkt dieser Entscheidung sind das 148 Zeilen, und 51 davon tragen einen
+Betreff, der die Frage nicht beantwortet:
+
+[cols="3,1", options="header"]
+|===
+| Betreff | Zeilen
+
+| `Refinement` (dazu einmal `Refinement to fix merge conflicts`)
+| 26
+
+| `Add commit hash`
+| 18
+
+| `Manueller commit`
+| 7
+
+| *Summe*
+| *51 von 148*
+|===
+
+Sie entstehen nicht bei der Arbeit des Assistenten, sondern daneben: Committet wird auch aus der
+IDE heraus, und dort ist die Message ein Pflichtfeld, das mit dem erstbesten Wort gefüllt wird.
+Die Retrospektive vom 2026-08-16 (`docs/retro/2026-08-16-zusammenarbeit.adoc`, Abschnitt „Zwei
+Prozesse arbeiten auf einer Historie") hat dieselben Zahlen schon gezählt, ohne eine Folge daraus
+zu ziehen.
+
+Was diese Zeilen mitteilen, ist der *Umstand* des Committens, nicht dessen Inhalt. Ein Drittel
+einer Tabelle, das nichts sagt, macht die anderen zwei Drittel schwerer zu finden – und wer die
+Tabelle als Chronik liest, liest 51-mal, dass etwas „verfeinert" wurde.
+
+Zweitens fehlt eine Handhabe zum Zeigen. Die Zeilen sind nur über den Kurz-Hash benennbar; ein
+Satz wie „die Umstellung auf AsciiDoc, siehe Zeile 43" ist nicht möglich, ohne von Hand zu zählen.
+
+== Optionen
+
+=== Wo ausgelassen wird
+
+. *Im Muster `ignoreCommitsIfMessageMatches`* – gewählt. Es ist die Stelle, an der ADR 0036 die
+  Merges schon auslässt; die zweite Auslassung steht damit neben der ersten und nicht an einer
+  zweiten Stelle.
+. *Im `doLast` filtern, nachdem das Plugin geschrieben hat.* Verworfen: Die Auslassung stünde dann
+  an zwei Stellen – Merges im Muster, Betreffe im Kotlin-Code –, und wer eine davon liest, hielte
+  sie für die vollständige.
+. *Die Zeilen stehen lassen und nur blass darstellen.* Verworfen: Der Anhang wird auch als HTML
+  ohne eigenes Stylesheet ausgeliefert (link:0024-systemdokumentation-im-boot-jar{adrext}[ADR
+  0024]); eine Auszeichnung, die dort nicht greift, ist keine.
+. *Die Historie umschreiben und die Commits nachträglich benennen.* Verworfen, und zwar
+  grundsätzlich: `+rebase+` vergibt neue Hashes, und jeder Verweis `+_Commit:_+` im
+  Session-Protokoll zeigte danach ins Leere – genau der Schaden, vor dem der Butterfly-Skill
+  warnt.
+
+=== Welche Betreffe fallen
+
+. *Nur die drei benannten, vollständig verankert* – gewählt: `+^Refinement\s*$+`,
+  `+^Refinement to fix merge conflicts\s*$+`, `+^Add commit hash\s*$+`,
+  `+^Manueller commit\s*$+`. Ein Betreff, der mit einem dieser Wörter *beginnt* und weitergeht,
+  sagt etwas und bleibt stehen.
+. *Als Präfix, `+^Refinement.*+`* – verworfen, obwohl kürzer: Es verschluckte auch ein künftiges
+  „Refinement der ADR-Kapitel". Es ist derselbe Einwand, an dem in ADR 0036 die Voreinstellung
+  `+^Merge.*+` verengt wurde. Der Preis ist die eigens genannte Ausnahme
+  „Refinement to fix merge conflicts".
+. *Eine Mindestlänge des Betreffs als Regel* („kürzer als 15 Zeichen fällt"). Verworfen: `Initial
+  commit` und `Planning 1` sind kurz und tragen. Die Länge ist nicht das Merkmal, die Aussage ist
+  es.
+
+=== Richtung der Nummerierung
+
+. *Von unten: der älteste Commit ist die 1* – gewählt, wie im Backlog-Eintrag verlangt. Eine
+  bereits vergebene Nummer *bleibt*: Ein neuer Commit hängt oben eine höhere Zahl an, statt alle
+  darunter zu verschieben.
+. *Von oben: der jüngste Commit ist die 1.* Verworfen: Jeder Commit verschöbe jede Nummer. Eine
+  Zahl, die sich bei jedem Build ändert, taugt nicht zum Zeigen – und genau dafür ist sie da.
+
+=== Wer die Nummer schreibt
+
+. *Das `doLast` des Tasks* – gewählt. Es liest die Datei ohnehin Zeile für Zeile, um Anker und
+  Prompt-Spalte einzusetzen; die Nummer ist dort ein Ausdruck.
+. *Die Handlebars-Vorlage.* Verworfen: Sie sieht den einzelnen Commit, nicht die Länge der Liste.
+  Von unten zu zählen setzt die Anzahl voraus, und die kennt Handlebars an dieser Stelle nicht.
+
+== Entscheidung
+
+*Das Muster `ignoreCommitsIfMessageMatches` lässt sieben Fälle aus:* die drei Merge-Formen aus
+ADR 0036 und die vier oben genannten Betreffe. Von 148 Zeilen bleiben 97.
+
+*Die Tabelle bekommt als erste Spalte „Nr".* Gezählt wird von unten – `1` ist der `Initial
+commit` vom 2026-07-18, die höchste Zahl der jüngste Commit. Geschrieben wird sie im `doLast`:
+Die Anzahl der Datenzeilen wird *vor* dem ersten Ersetzen bestimmt, dann zählt jede Zeile von
+oben herunter.
+
+*Der Task warnt, wenn ein Verweis ins Leere zeigen würde.* Ein ausgelassener Commit hat keinen
+Anker `+commit-<kurzhash>+`. Nennt ein Log-Eintrag ihn in seiner Zeile `+_Commit:_+`, bricht
+Asciidoctor zwei Tasks später mit „possible invalid reference" und nennt dabei nur den Hash. Das
+`doLast` vergleicht deshalb die Zuordnung aus dem Protokoll mit den tatsächlich geschriebenen
+Zeilen und meldet die Differenz mit Hash *und* Eintragsnummer. Im Bestand ist die Differenz leer:
+Keiner der 30 verwiesenen Commits trägt einen der ausgelassenen Betreffe.
+
+Gewarnt, nicht abgebrochen: Der Build bricht ohnehin – im Asciidoctor-Task, und dort steht die
+Meldung neben allen anderen Referenzfehlern. Eine zweite Abbruchstelle hätte den Nachteil, dass
+sie auch dann greift, wenn die Doku gerade gar nicht gerendert wird.
+
+== Konsequenzen
+
+=== Vorteile
+
+* Die Tabelle beantwortet die Frage, für die sie da ist. Von 97 Zeilen benennt jede eine Änderung.
+* Die Zeilen sind zitierbar, und die Zahl hält: Nummer 43 bleibt Nummer 43, auch nach zwanzig
+  weiteren Commits.
+* Die Auslassung steht an *einer* Stelle im Buildskript, neben der schon vorhandenen.
+* Die Warnung macht aus einem kryptischen Referenzfehler eine Meldung, die die Ursache nennt.
+
+=== Nachteile
+
+* *Die Tabelle ist noch weniger vollständig als vorher* – nach Merges und Reverts fällt nun eine
+  dritte Klasse. Wer sie als lückenlose Chronik liest, irrt sich um 51 Commits. Der Anhang sagt
+  alle drei Auslassungen im Text dazu; vollständig ist allein `git log`.
+* *Die Nummer ist keine Kennung.* Sie hängt an der Auslassung: Fällt künftig ein weiterer Betreff
+  weg, verschieben sich alle Nummern über ihm. Stabil gegen *neue* Commits ist sie, nicht gegen
+  eine geänderte Regel. Deshalb bleibt der Kurz-Hash das Bindeglied zum Protokoll – die Nummer
+  taucht dort nicht auf.
+* *Ein Verweis kann unerfüllbar werden.* Committet der Nutzer mit `Refinement` und trägt der
+  Assistent den Hash ins Protokoll, ist der Verweis nicht auflösbar. Die Warnung zeigt es, die
+  Abhilfe ist eine Commit-Message, die etwas sagt.
+* *Das Muster kennt die Vergangenheit.* „Refinement to fix merge conflicts" steht als
+  Sonderfall im Buildskript – ein Bestandsdatum, das dort auf Dauer fremd wirkt.
+* *Das abschließende `+\s*+` ist ein Werkzeugdetail.* Das Plugin prüft gegen die *ganze* Message,
+  nicht gegen die Betreffzeile; ein `+$+` allein greift dort nicht. Wer das Muster ohne diesen
+  Zusatz schreibt, bekommt keine Fehlermeldung, sondern eine Zeile, die stehen bleibt.
+
+=== Bewusst nicht getan
+
+* *Kein Commit-Message-Schema.* Ob Betreffe künftig einer Konvention folgen müssen, ist eine
+  Entscheidung über den Develop-Skill und nicht die Nebenwirkung dieser hier. ADR 0036 hat sie
+  schon einmal offengelassen.
+* *Der Develop-Skill bleibt unverändert.* Er schreibt vor, wie der *Assistent* committet, und
+  dessen Betreffe sind nicht das Problem.
+* *Keine Spalte „Autor".* Die Trennung der beiden Prozesse – Nutzer an der IDE, Assistent im
+  Terminal – ließe sich zeigen; sie ist ein eigener Gedanke und steht nicht im Backlog.
+* *Keine nachträgliche Benennung der 51 Commits.* Siehe Optionen: Das ginge nur über
+  `+rebase+`, und der bricht jeden Verweis im Protokoll.
+* *Die Nummer wird nicht ins Protokoll gespiegelt.* Dort steht der Kurz-Hash; zwei Bindeglieder
+  wären eines zu viel (link:0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038]).
+
+== Prüfung
+
+* `./gradlew gitChangelog` meldet `+gitChangelog: 97 Commits, davon 30 einem Log-Eintrag
+  zugeordnet+` – vorher 148 und ebenfalls 30. Die Auslassung hat also *keinen* Querverweis
+  gekostet.
+* `+grep -cE '\| (Refinement|Add commit hash|Manueller commit) \|'+` auf
+  `build/docs/changelog/gitchangelog.adoc`: `0`.
+* Erste Datenzeile trägt `97`, letzte trägt `1` – der `Initial commit` vom 2026-07-18. `148 - 51 =
+  97` geht auf.
+* Der Task gibt keine Warnung aus: Kein Log-Eintrag verweist auf einen ausgelassenen Commit.
+* `./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr` läuft durch – kein Verweis ins Leere,
+  auch nicht in den 30 Zeilen der Spalte „Prompt".
+* `./gradlew clean build` (3:29 min), `./gradlew test`, `./gradlew systemtest` (1:10 min) und
+  `./gradlew e2eTest` (9 Tests) sind grün – die Definition of Done ist vollständig durchlaufen.
+* Übrig bleiben die zwei *bekannten* Meldungen des Tasks `asciidoctor` – der doppelt vergebene
+  Anker `+prompt-minus2+` und das fehlende Attribut `+id+`; keine davon ist neu.
+
+== Referenzen
+
+* link:0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036] – die Tabelle, ihre Vorlage und
+  die Verengung des Merge-Musters
+* link:0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038] – Anker `+commit-<hash>+`
+  und Spalte „Prompt"; die Warnung schützt diesen Verweis
+* link:0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[ADR 0041] – zweiter Leser
+  derselben Anker
+* link:0032-branches-nach-jedem-commit-mergen{adrext}[ADR 0032] – Herkunft der Merge-Commits
+* link:0022-asciidoc-systemdokumentation-in-docs-system{adrext}[ADR 0022] – Querverweis ins Leere
+  ist ein Build-Fehler
+* `build.gradle.kts`, `docs/system/anhang-git-historie.adoc`,
+  `docs/retro/2026-08-16-zusammenarbeit.adoc`

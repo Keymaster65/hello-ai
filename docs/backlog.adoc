@@ -44,8 +44,6 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 
 == : Ergänze out-port Adapter gitdata, die die Daten in einem neuen leeren Branch data sichern. Der Aufbau dort soll sein /database/entities/recipes, /database/entities/ingredients usw. Gespeichert und gelesen werden jeweils Json-Dateien, die einen Datensatz enthalten. Ein commit entspricht in etwa einem commit in eine Datenbank. Der Postgres-Adapter soll erhalten und aktiv bleiben. Für den neuen Adapter sollen aber Tests und eine identische Anfangspopulation erstellt werden.
 
-== : Entferne aus dem gitlog die Zeilen wie "Refinement" und "Add commit hash". Nummeriere die restlichen Zeilen von unter nach oben, also unter 1 und ober die Anzahl der Zeilen.
-
 == architecture
     Multi Brower Support
 

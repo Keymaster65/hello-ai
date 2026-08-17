@@ -131,11 +131,35 @@ tasks.named<GitChangelogTask>("gitChangelog") {
 
     dateFormat.set("yyyy-MM-dd HH:mm")
     timeZone.set("Europe/Berlin")
-    // Voreinstellung des Plugins ist `^Merge.*` – das verschluckt auch Commits, die nur mit dem
-    // Wort „Merge" beginnen. Ausgelassen werden sollen die von git selbst erzeugten
-    // Zusammenführungen, sonst nichts.
+    // Ausgelassen wird zweierlei (ADR 0051):
+    //
+    // 1. Die von git selbst erzeugten *Zusammenführungen*. Die Voreinstellung des Plugins ist
+    //    `^Merge.*` – das verschluckt auch einen Commit, der bloß mit dem Wort „Merge" beginnt;
+    //    die drei Muster unten sind deshalb verengt (ADR 0036).
+    // 2. Die *aussagelosen Betreffe* aus der Arbeit an der IDE – „Refinement", „Add commit hash",
+    //    „Manueller commit". Sie benennen keine Änderung, sondern den Umstand des Committens; im
+    //    Bestand ist das ein Drittel aller Zeilen, und jede davon verdünnt die Tabelle, die
+    //    beantworten soll, *was* das Repository verändert hat.
+    //
+    // Diese vier Muster sind *vollständig verankert* (`+\s*$+`), die drei Merge-Muster nicht: Ein
+    // Betreff, der mit einem dieser Wörter *beginnt* und weitergeht, sagt etwas – „Refinement to
+    // fix merge conflicts" ist die eine Ausnahme im Bestand und deshalb eigens genannt. Das
+    // abschließende `+\s*+` ist nötig, weil das Plugin gegen die *ganze* Message prüft, nicht
+    // gegen die Betreffzeile; ein `+$+` allein greift dort nicht.
+    //
+    // Das Muster ist die *einzige* Stelle der Auslassung: Was hier fällt, hat danach auch keinen
+    // Anker `+commit-<kurzhash>+` mehr. Das `doLast` unten warnt deshalb, wenn das Protokoll auf
+    // einen ausgelassenen Commit zeigt.
     ignoreCommitsIfMessageMatches.set(
-        "^Merge branch .*|^Merge remote-tracking branch .*|^Merge pull request .*",
+        listOf(
+            "^Merge branch .*",
+            "^Merge remote-tracking branch .*",
+            "^Merge pull request .*",
+            "^Refinement\\s*$",
+            "^Refinement to fix merge conflicts\\s*$",
+            "^Add commit hash\\s*$",
+            "^Manueller commit\\s*$",
+        ).joinToString("|"),
     )
 
     // Handlebars-Vorlage. `commits` ist die flache Liste aller Commits, neuester zuerst; das
@@ -144,10 +168,11 @@ tasks.named<GitChangelogTask>("gitChangelog") {
     // (ADR 0027): In einer Commit-Message steht beliebiger Text, und der darf den Build nicht
     // brechen.
     //
-    // Die Vorlage legt die *Gestalt* der Tabelle fest, auch die vierte Spalte „Prompt" (ADR 0038).
-    // Deren Inhalt bleibt hier leer: Handlebars sieht nur die Commits, nicht das Session-Protokoll.
-    // Gefüllt wird die Spalte – zusammen mit dem Anker je Commit – im `doLast` unten. Die Spalte
-    // ist *nicht* literal, sonst blieben die Querverweise darin Text.
+    // Die Vorlage legt die *Gestalt* der Tabelle fest, auch die beiden Spalten, die Handlebars
+    // nicht füllen kann: „Nr" (ADR 0051) und „Prompt" (ADR 0038). Beide bleiben hier leer –
+    // Handlebars sieht nur den einzelnen Commit, nicht die Länge der Liste und nicht das
+    // Session-Protokoll. Gefüllt werden sie – zusammen mit dem Anker je Commit – im `doLast`
+    // unten. Keine der beiden ist literal, sonst blieben Zahl und Querverweise darin Text.
     templateContent.set(
         """
         // Erzeugt vom Gradle-Task `gitChangelog` aus der git-Historie – nicht von Hand ändern,
@@ -155,9 +180,9 @@ tasks.named<GitChangelogTask>("gitChangelog") {
 
         [[git-historie-tabelle]]
         .Commits, neuester zuerst
-        [cols="2,1m,6l,1", options="header"]
+        [cols="1,2,1m,6l,1", options="header"]
         |===
-        | Datum | Commit | Betreff | Prompt
+        | Nr | Datum | Commit | Betreff | Prompt
         {{#commits}}
         | {{commitTime}} | {{hash}} | {{{messageTitle}}} |
         {{/commits}}
@@ -209,14 +234,22 @@ tasks.named<GitChangelogTask>("gitChangelog") {
 
         // Die Kopfzeile passt nicht: „Commit" ist keine Hexadezimalzahl.
         val datenzeile = Regex("""^\| (.+?) \| ([0-9a-f]{7,40}) \| (.*) \|$""")
+        val roh = ziel.readLines()
+        // Die Nummer zählt von *unten*: der älteste Commit ist die 1, der jüngste die Anzahl
+        // (ADR 0051). Deshalb muss die Länge der Liste vor dem ersten Ersetzen bekannt sein –
+        // in der anderen Richtung ließe sich zeilenweise zählen, aber dann bekäme jeder Commit
+        // beim nächsten Lauf eine neue Nummer.
+        val anzahl = roh.count { datenzeile.matches(it) }
         var commits = 0
         var verknuepft = 0
-        val zeilen = ziel.readLines().map { zeile ->
+        val gefuehrt = mutableSetOf<String>()
+        val zeilen = roh.map { zeile ->
             val treffer = datenzeile.matchEntire(zeile) ?: return@map zeile
             val (zeit, hash, betreff) = treffer.destructured
             val kurz = hash.take(7)
             val prompts = zuordnung[kurz].orEmpty()
             commits++
+            gefuehrt += kurz
             if (prompts.isNotEmpty()) verknuepft++
             // Die vier ältesten Einträge tragen eine negative Nummer. Ihr Anker heißt
             // `+prompt-minus1+`, nicht `+prompt--1+`: Asciidoctor ersetzt `+--+` durch einen
@@ -230,9 +263,22 @@ tasks.named<GitChangelogTask>("gitChangelog") {
                         "<<prompt-${nr.replace("-", "minus")},$nr>>"
                     }
                 }
-            "| $zeit | [[commit-$kurz]]$hash | $betreff | $spalte"
+            "| ${anzahl - commits + 1} | $zeit | [[commit-$kurz]]$hash | $betreff | $spalte"
         }
         ziel.writeText(zeilen.joinToString("\n", postfix = "\n"))
+
+        // Ein Log-Eintrag, der einen ausgelassenen Commit nennt, zeigt auf einen Anker, den es
+        // nicht gibt – Asciidoctor meldet das erst zwei Tasks später als „possible invalid
+        // reference" und nennt dabei nur den Hash. Die Warnung hier nennt die Ursache.
+        val ohneZeile = zuordnung.keys - gefuehrt
+        if (ohneZeile.isNotEmpty()) {
+            logger.warn(
+                "gitChangelog: das Protokoll nennt " +
+                    ohneZeile.joinToString(", ") { "$it (Eintrag ${zuordnung[it]?.first()})" } +
+                    " – diese Commits stehen nicht in der Tabelle (Merge, Revert oder " +
+                    "aussageloser Betreff) und haben deshalb keinen Anker.",
+            )
+        }
 
         logger.lifecycle(
             "gitChangelog: $commits Commits, davon $verknuepft einem Log-Eintrag zugeordnet.",

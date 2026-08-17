@@ -9,6 +9,73 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-165]]
+== 165. Prompt: „commit"
+
+_Delta: 17 s · 1.744 Token out · 10.016 Token in (neu) · 495.238 Token gesamt_
+_Stand (Session, 4 Prompts): 16:27 min · 65.983 Token out · 9.332.258 Token gesamt_
+
+*Aktionen:*
+
+* *Definition of Done* war aus Eintrag 164 erfüllt und seither wurde nichts angefasst:
+  `+clean build+` (3:29 min), `+test+`, `+systemtest+` (1:10 min), `+e2eTest+` (9 Tests) und die
+  drei Asciidoctor-Tasks grün.
+* *Committet* mit Betreff „Lass aussagelose Betreffe aus der Git-Historie" – `+build.gradle.kts+`,
+  ADR 0051, ADR-Index, ADR-Skill, `+anhang-git-historie.adoc+`, Backlog, Protokoll und
+  Kennzahlen-Tabelle in einem Commit.
+* *Trailer:* `+Co-Authored-By: Claude Opus 5 (1M context)+`. Der Develop-Skill nennt dort noch
+  „Opus 4.8"; das laufende Modell ist Opus 5, und ein falsches Modell im Trailer wäre eine falsche
+  Zuschreibung. Der Backlog-Eintrag `+KI Halte den Co-Authored-By-Trailer im Develop-Skill
+  modellunabhängig+` ist genau dafür da und wartet auf Freigabe.
+* *Branches zusammengeführt* (ADR 0032/0034): einmal `+git fetch origin+`, danach `main`, `sm`,
+  `doc`, `dev`, `po`.
+
+'''
+
+[[prompt-164]]
+== 164. Prompt: „Entferne aus dem gitlog die Zeilen wie "Refinement" und "Add commit hash". Nummeriere die restlichen Zeilen von unter nach oben, also unter 1 und ober die Anzahl der Zeilen." (aus dem Backlog, `next+1`)
+
+_Delta: 14:30 min · 56.523 Token out · 204.436 Token in (neu) · 7.308.256 Token gesamt_
+_Stand (Session, 3 Prompts): 14:30 min · 56.523 Token out · 7.308.256 Token gesamt_
+
+*Aktionen:*
+
+* *PO-Ablauf:* `+git pull --ff-only+` auf `main` – „Already up to date"; kein Eintrag war aktiv.
+  Ziehreihenfolge waren zwei ungebundene ready-Einträge, `+next+1+` zog den zweiten. Marker
+  `+:+` → `+*+` vor der Arbeit gesetzt, Eintrag nach dem Lauf entfernt.
+* *Befund:* Von 148 Zeilen der Git-Historie trugen 51 einen Betreff ohne Aussage – `Refinement`
+  26-mal (inklusive „Refinement to fix merge conflicts"), `Add commit hash` 18-mal,
+  `Manueller commit` 7-mal. Dieselben Zahlen zählt die Retrospektive vom 2026-08-16 schon,
+  ohne eine Folge daraus zu ziehen.
+* *`+build.gradle.kts+`, Task `gitChangelog`:* `+ignoreCommitsIfMessageMatches+` um vier
+  vollständig verankerte Muster erweitert (`+^Refinement\s*$+` usw.) – neben den drei
+  Merge-Mustern aus ADR 0036, also an *einer* Stelle. Das abschließende `+\s*+` ist nötig: Das
+  Plugin prüft gegen die ganze Message, ein `+$+` allein greift dort nicht. Ohne es blieben
+  „Add commit hash" und „Manueller commit" stehen – im ersten Lauf genau so beobachtet.
+* *Spalte „Nr" ergänzt*, gezählt von *unten*: `1` ist der `Initial commit`, die höchste Zahl der
+  jüngste Commit. So bleibt eine vergebene Nummer stehen, statt bei jedem Commit zu wandern.
+  Geschrieben wird sie im `+doLast+` – die Anzahl der Datenzeilen steht *vor* dem ersten
+  Ersetzen fest; die Handlebars-Vorlage kennt sie nicht.
+* *Warnung ergänzt:* Ein ausgelassener Commit hat keinen Anker `+commit-<kurzhash>+`. Das
+  `+doLast+` vergleicht die Zuordnung aus dem Protokoll mit den geschriebenen Zeilen und meldet
+  Hash *und* Eintragsnummer – sonst käme der Fehler erst zwei Tasks später als „possible invalid
+  reference". Im Bestand bleibt die Warnung stumm.
+* *ADR 0051* geschrieben (`+docs/adr/0051-git-historie-ohne-aussagelose-betreffe.adoc+`) – vier
+  Optionsblöcke: wo ausgelassen wird, welche Betreffe fallen, Richtung der Nummerierung, wer die
+  Nummer schreibt. Ergänzt ADR 0036, löst es nicht ab. Index in `+docs/system/system.adoc+` als
+  erste Zeile, Wegweiser in `+docs/prompt/adr.adoc+` (dort auch „48" → „51").
+* *`+docs/system/anhang-git-historie.adoc+`:* Spalte „Nr" beschrieben, „Zwei Auslassungen" →
+  „Drei", Warnung zum fehlenden Anker ergänzt.
+* *Ergebnis:* `+gitChangelog: 97 Commits, davon 30 einem Log-Eintrag zugeordnet+` – vorher 148
+  und ebenfalls 30. Die Auslassung hat *keinen* Querverweis gekostet; `+grep+` auf die drei
+  Betreffe in der erzeugten Tabelle findet `0`. Erste Datenzeile `97`, letzte `1`.
+* *Definition of Done:* `+./gradlew clean build+` (3:29 min), `+test+`, `+systemtest+` (1:10 min)
+  und `+e2eTest+` (9 Tests) grün; `+asciidoctor asciidoctorPrompt asciidoctorAdr+` läuft durch.
+  Übrig bleiben die zwei bekannten Meldungen (`+prompt-minus2+` doppelt, fehlendes Attribut
+  `+id+`) – keine neue.
+
+'''
+
 [[prompt-163]]
 == 163. Prompt: „commit"
 
