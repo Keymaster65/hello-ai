@@ -33,7 +33,7 @@ describe('recipeApi', () => {
 
     const result = await recipeApi.list()
 
-    expect(fetchMock).toHaveBeenCalledWith('/api/recipes', expect.anything())
+    expect(fetchMock).toHaveBeenCalledWith('/api/gitdata/recipes', expect.anything())
     expect(result).toEqual([recipe])
   })
 
@@ -44,7 +44,7 @@ describe('recipeApi', () => {
     await recipeApi.create(request)
 
     const [path, init] = fetchMock.mock.calls[0] as [string, RequestInit]
-    expect(path).toBe('/api/recipes')
+    expect(path).toBe('/api/gitdata/recipes')
     expect(init.method).toBe('POST')
     expect(init.body).toBe(JSON.stringify(request))
     expect(new Headers(init.headers).get('Content-Type')).toBe('application/json')
@@ -56,7 +56,7 @@ describe('recipeApi', () => {
     await recipeApi.update(7, { title: 'Neu', difficulty: 'HARD' })
 
     const [path, init] = fetchMock.mock.calls[0] as [string, RequestInit]
-    expect(path).toBe('/api/recipes/7')
+    expect(path).toBe('/api/gitdata/recipes/7')
     expect(init.method).toBe('PUT')
   })
 
@@ -64,7 +64,7 @@ describe('recipeApi', () => {
     fetchMock.mockResolvedValue(new Response(null, { status: 204 }))
 
     await expect(recipeApi.remove(3)).resolves.toBeUndefined()
-    expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/recipes/3')
+    expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/gitdata/recipes/3')
   })
 
   it('should raise an ApiError carrying the backend payload on 404', async () => {

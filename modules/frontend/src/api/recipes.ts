@@ -40,10 +40,19 @@ export class ApiError extends Error {
   }
 }
 
+// Which store the app talks to. Both fronts speak the same contract (ADR 0054), so this is a
+// path and not a second client: `api/gitdata/recipes` is the git-backed store, `api/recipes` the
+// relational one. Set at build time via `VITE_RECIPES_RESOURCE`; the default is the git store.
+//
+// The address that store answers under has to be switched on in the backend
+// (`recipes.gitdata.enabled`) – a bundle built with this default against a backend without it
+// gets a 404 on every call.
+const RESOURCE_PATH = import.meta.env.VITE_RECIPES_RESOURCE ?? 'api/gitdata/recipes'
+
 // Derived from the bundle's base URL, which mirrors the backend's context path (ADR 0016):
 // `/recipes/` in production and during development, `/` in the jsdom unit tests. The app
 // therefore never carries an absolute origin – only a path relative to where it is served.
-const BASE_PATH = `${import.meta.env.BASE_URL}api/recipes`
+const BASE_PATH = `${import.meta.env.BASE_URL}${RESOURCE_PATH}`
 
 async function send<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {

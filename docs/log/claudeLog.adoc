@@ -9,6 +9,71 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-175]]
+== 175. Prompt: „commit"
+
+_Delta: 1:09 min · 6.780 Token out · 3.215.675 Token gesamt_
+_Stand (Session, 17 Prompts): 2:35:09 h · 476.527 Token out_
+
+*Aktionen:*
+
+* Freigabe im Befehl (ADR 0040): Umstellung der SPA auf den git-Store committet.
+* *Anders als bei den letzten Commits war Code betroffen*, also lief die Definition of Done
+  vollständig neu – vorher die laufende Anwendung gestoppt, damit das Jar nicht unter ihr neu
+  gebaut wird (der Fehler aus Eintrag 174).
+* Der Backlog hat wieder einen ready-Eintrag: ADR und Systemdokumentation zur Umstellung, samt der
+  offenen Frage nach der richtigen Vorgabe.
+* Danach die Arbeitsbranches geholt und in den aktuellen Branch gemergt (ADR 0032, ADR 0034), dann
+  die Anwendung wieder gestartet.
+
+'''
+
+[[prompt-174]]
+== 174. Prompt: „Restart und das React Frontend soll auf dem data Repo arbeiten."
+
+_Delta: 22:44 min · 27.650 Token out · 24.509.382 Token gesamt_
+_Stand (Session, 16 Prompts): 2:34:00 h · 469.747 Token out_
+
+NOTE: Zwischen Eintrag 173 und diesem fehlen fünf Turns – Neustarts der Anwendung, die Frage nach
+der gitdata-URL, die Umstellung des Stores auf `/workspace/.git`. Ihre Gerüst-Einträge lagen nur
+im Arbeitsverzeichnis und verschwanden, als der Branch `data` ausgecheckt wurde; committet war der
+Stand bis 173. Was dabei geschah, steht zusammengefasst in den Aktionen unten.
+
+*Aktionen:*
+
+* *Vorgeschichte, nachgetragen:* Die Anwendung wurde dreimal neu gestartet – zuerst mit dem
+  frischen Jar ohne Store, dann mit `+--recipes.gitdata.enabled=true+` gegen `/tmp/recipes-data.git`
+  (Population schrieb sechs Commits), zuletzt auf Wunsch gegen `/workspace/.git`. Dort entstand der
+  Branch `data`; `gitChangelog` blieb davon unberührt (102 Commits, keine `insert recipe`-Zeile),
+  weil das Werkzeug an `HEAD` entlangläuft und `data` wurzellos ist.
+* *Ein Zwischenfall:* Um 13:11 wurde `data` ausgecheckt. Das Arbeitsverzeichnis stand danach auf 71
+  JSON-Dateien statt auf dem Projekt; verloren war nichts (Branch `git` unversehrt, Reflog eindeutig),
+  aber die Frontend-Arbeit war blockiert, bis der Nutzer zurückwechselte. Merksatz für den Store:
+  Nicht in ein Repository schreiben, in dem jemand arbeitet.
+* *Frontend umgestellt* (Wahl des Nutzers: konfigurierbar, Vorgabe gitdata; Umfang „nur lauffähig"):
+  `+modules/frontend/src/api/recipes.ts+` bildet die Basis-Adresse jetzt aus
+  `+import.meta.env.VITE_RECIPES_RESOURCE+` mit der Vorgabe `+api/gitdata/recipes+`. Das
+  ausgelieferte Bundle spricht damit den git-Store an; über die Variable lässt sich zur Bauzeit auf
+  `+api/recipes+` zurückschalten.
+* *Mitgezogen, damit der Build nicht rot bleibt:* die Erwartungen in `recipes.test.ts` und
+  `App.test.tsx`, dazu die Playwright-Seite – die E2E-Instanz startet mit eingeschaltetem Store in
+  ein eigenes Repository unter `build/e2e/gitdata.git`, und die Specs bereiten ihre Daten über
+  dieselbe Front vor (`RESOURCE_PATH` aus der Konfiguration).
+* *Zwei eigene Fehler, beide behoben:* (1) Ich habe das Boot-Jar neu gebaut, während die Instanz
+  daraus lief – die JVM lädt Klassen verzögert aus der Datei, die Anwendung zerfiel mit
+  `ClassNotFoundException`, und Playwright hat diese kaputte Instanz wiederverwendet. Erst stoppen,
+  dann bauen. (2) Ein `+rmSync+` auf Modulebene der Playwright-Konfiguration lief bei *jedem* Import
+  – auch aus den Specs – und löschte das Repository, während die Anwendung es benutzte; jedes
+  Anlegen antwortete mit 500. Jetzt ohne Seiteneffekt.
+* *Nachweis:* Vitest 25 Tests grün, `+./gradlew e2eTest+` 9 Tests grün gegen das neue Bundle im
+  echten Browser. Neustart danach mit `/workspace/.git`: „the branch already exists, the initial
+  population is skipped" – der Bestand von sechs Rezepten blieb, die SPA zeigt ihn.
+* *Offen und als Backlog-Eintrag hinterlegt:* ADR und Systemdokumentation zur Umstellung – samt der
+  Frage, was die Vorgabe „gitdata" für eine Auslieferung ohne eingeschalteten Store bedeutet (die
+  SPA bekäme auf jeden Aufruf ein 404).
+
+'''
+
 [[prompt-173]]
 == 173. Prompt: „commit"
 

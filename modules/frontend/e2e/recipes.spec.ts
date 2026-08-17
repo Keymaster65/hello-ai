@@ -1,6 +1,6 @@
 import { expect, test, type APIRequestContext, type Page } from '@playwright/test'
 
-import { CONTEXT_PATH } from '../playwright.config'
+import { CONTEXT_PATH, RESOURCE_PATH } from '../playwright.config'
 
 /** Basis-URL der Anwendung inklusive Context-Path, mit Schrägstrich am Ende (ADR 0016). */
 const APP = `${CONTEXT_PATH}/`
@@ -21,7 +21,7 @@ function uniqueTitle(name: string): string {
 }
 
 async function createRecipe(request: APIRequestContext, title: string): Promise<number> {
-  const response = await request.post(`${APP}api/recipes`, {
+  const response = await request.post(`${APP}${RESOURCE_PATH}`, {
     data: {
       title,
       description: 'Vom E2E-Test angelegt',
@@ -37,7 +37,7 @@ async function createRecipe(request: APIRequestContext, title: string): Promise<
 }
 
 async function deleteRecipe(request: APIRequestContext, id: number): Promise<void> {
-  await request.delete(`${APP}api/recipes/${id}`)
+  await request.delete(`${APP}${RESOURCE_PATH}/${id}`)
 }
 
 /** Card of a recipe in the list, addressed via its title. */

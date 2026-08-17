@@ -21,8 +21,28 @@ const baseURL = externalBaseUrl || `http://localhost:${port}`
 /** Must match server.servlet.context-path of the backend. */
 export const CONTEXT_PATH = '/recipes'
 
+/**
+ * The store the SPA talks to – it has to be the same one the specs prepare their data in.
+ * The bundle is built against `api/gitdata/recipes` by default (see `src/api/recipes.ts`), so the
+ * application under test runs with the git store switched on, into a throw-away repository.
+ */
+export const RESOURCE_PATH = process.env.E2E_RECIPES_RESOURCE ?? 'api/gitdata/recipes'
+
+
 /** Relative to this config: the build dir of :backend:bootstrap (see ADR 0013, ADR 0014). */
 const ARTEFACT_DIR = '../backend/bootstrap/build/e2e'
+
+/**
+ * The bare repository of the git store, next to the other artefacts of the suite – and *not* the
+ * repository of the project: a test that writes commits into the checkout somebody works in is a
+ * trap.
+ *
+ * It is deliberately *not* deleted here. This file is imported by the specs as well, so anything
+ * with a side effect at module scope would run again while the application is already using the
+ * repository – which is exactly how the first attempt broke. The suite cleans up its own data
+ * instead, and an existing store is left as it is, like in production.
+ */
+const GITDATA_REPOSITORY = `${ARTEFACT_DIR}/gitdata.git`
 
 function bootJar(): string {
   const libs = '../backend/bootstrap/build/libs'
@@ -67,9 +87,12 @@ export default defineConfig({
     ? {}
     : {
         webServer: {
-          command: `java -jar ${bootJar()} --server.port=${port}`,
+          command:
+            `java -jar ${bootJar()} --server.port=${port}` +
+            ' --recipes.gitdata.enabled=true' +
+            ` --recipes.gitdata.repository=${GITDATA_REPOSITORY}`,
           // Wait for the API rather than the SPA – it is the last thing to become ready.
-          url: `${baseURL}${CONTEXT_PATH}/api/recipes`,
+          url: `${baseURL}${CONTEXT_PATH}/${RESOURCE_PATH}`,
           reuseExistingServer: !process.env.CI,
           timeout: 120_000,
         },

@@ -42,6 +42,19 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 `git`.
 
 
+== : Zieh ADR und Systemdokumentation zur Umstellung der SPA auf den gitdata-Store nach
+
+Die SPA spricht seit Protokolleintrag 174 den git-Store an: `+modules/frontend/src/api/recipes.ts+`
+bildet ihre Basis-Adresse aus `+VITE_RECIPES_RESOURCE+`, Vorgabe `+api/gitdata/recipes+`; die
+Playwright-Suite startet die Anwendung dafür mit eingeschaltetem Store. Umgesetzt wurde nur, was
+läuft – die Entscheidung ist nicht festgehalten. Nachzuziehen sind: ein ADR (Vorgabe der
+Bau-Variablen, Verhältnis zu ADR 0054), `docs/system/api.adoc` (Oberfläche), `betrieb.adoc`
+(Bau-Variable und die Folge für eine Auslieferung *ohne* eingeschalteten Store – die SPA bekäme dort
+auf jeden Aufruf ein 404), `schichten.adoc` (Frontend-Bausteine) und
+`qualitaetssicherung.adoc` (E2E-Aufbau). Zu klären ist dabei die eine offene Frage: Soll die Vorgabe
+wirklich der git-Store sein, oder gehört sie zurück auf `+api/recipes+` und der git-Store wird pro
+Auslieferung gewählt?
+
 == architecture
     Multi Brower Support
 

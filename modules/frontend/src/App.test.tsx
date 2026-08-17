@@ -41,7 +41,7 @@ describe('App', () => {
     render(<App />)
 
     expect(await screen.findByRole('link', { name: 'Pfannkuchen' })).toBeInTheDocument()
-    expect(fetchMock).toHaveBeenCalledWith('/api/recipes', expect.anything())
+    expect(fetchMock).toHaveBeenCalledWith('/api/gitdata/recipes', expect.anything())
   })
 
   it('should report a failing backend instead of rendering an empty list', async () => {
@@ -56,7 +56,7 @@ describe('App', () => {
 
   it('should load the single recipe when one is opened', async () => {
     fetchMock.mockImplementation((path: string) =>
-      Promise.resolve(jsonResponse(path === '/api/recipes' ? [pancakes] : pancakes)),
+      Promise.resolve(jsonResponse(path === '/api/gitdata/recipes' ? [pancakes] : pancakes)),
     )
 
     render(<App />)
@@ -64,7 +64,7 @@ describe('App', () => {
 
     expect(await screen.findByRole('heading', { name: 'Pfannkuchen' })).toBeInTheDocument()
     expect(screen.getByText('300 g Mehl')).toBeInTheDocument()
-    expect(fetchMock).toHaveBeenCalledWith('/api/recipes/1', expect.anything())
+    expect(fetchMock).toHaveBeenCalledWith('/api/gitdata/recipes/1', expect.anything())
   })
 
   it('should create a recipe and reload the list afterwards', async () => {
@@ -80,7 +80,7 @@ describe('App', () => {
       const post = fetchMock.mock.calls.find(
         ([, init]) => (init as RequestInit | undefined)?.method === 'POST',
       )
-      expect(post?.[0]).toBe('/api/recipes')
+      expect(post?.[0]).toBe('/api/gitdata/recipes')
       expect(JSON.parse((post?.[1] as RequestInit).body as string)).toMatchObject({
         title: 'Suppe',
         difficulty: 'MEDIUM',
