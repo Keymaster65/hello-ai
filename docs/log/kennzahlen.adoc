@@ -22,7 +22,7 @@
 
 | <<prompt-159,159>>
 |„Ergänze einen MCP Service für den Zugriff auf Rezepte und die Systemdokumentation." (aus dem Backlog, `next+1`)
-| –
+| <<commit-e685c21,e685c21>>
 | 42:19 min
 | 16:37:37 h
 | 262.094
