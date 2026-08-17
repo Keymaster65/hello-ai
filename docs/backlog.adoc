@@ -42,7 +42,7 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 `git`.
 
 
-== : Ergänze out-port Adapter gitdata, die die Daten in einem neuen leeren Branch data sichern. Der Aufbau dort soll sein /database/entities/recipes, /database/entities/ingredients usw. Gespeichert und gelesen werden jeweils Json-Dateien, die einen Datensatz enthalten. Ein commit entspricht in etwa einem commit in eine Datenbank. Der Postgres-Adapter soll erhalten und aktiv bleiben. Für den neuen Adapter sollen aber Tests und eine identische Anfangspopulation erstellt werden.
+== : Ergänze Adapter "gitdata", die die Daten in einem neuen leeren Branch "data" sichern. Es sollen keine neuen in-Ports oder out-Ports entstehen. Ein zusätzlicher Controller soll am Ende diesen neuen Adapter "gitdata" ansprechen. Der Aufbau im Branch "data" soll sein /database/entities/recipes, /database/entities/ingredients usw. Gespeichert und gelesen werden jeweils Json-Dateien, die einen Datensatz enthalten. Ein commit entspricht in etwa einem commit in eine Datenbank. Der Postgres-Adapter soll erhalten und aktiv bleiben. Für den neuen Adapter sollen Unit-Tests, System-Tests und eine identische Anfangspopulation erstellt werden.
 
 == architecture
     Multi Brower Support
