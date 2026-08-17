@@ -1,0 +1,257 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= ADR 0050: REST-Fassade des MCP-Service in der OpenAPI-Beschreibung
+
+== Status
+
+Akzeptiert – 2026-08-17. Ergänzt link:0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR
+0049] um einen zweiten Zugangsweg zu demselben Werkzeugkasten; abgelöst wird nichts. Der
+JSON-RPC-Endpunkt, seine Werkzeuge und sein Fehlerbild bleiben unverändert, ebenso die REST-API der
+Rezepte (link:0005-springdoc-openapi-und-swagger-ui{adrext}[ADR 0005]).
+
+== Kontext
+
+link:0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049] hat einen Nachteil
+ausdrücklich in Kauf genommen: „Der Endpunkt steht nicht in der OpenAPI-Beschreibung." Der
+Transport ist ein eigenes Servlet, registriert neben dem `DispatcherServlet`; springdoc sieht nur,
+was durch Spring MVC läuft. Der MCP-Server ist damit die einzige Schnittstelle der Anwendung, die
+*nicht* im Contract steht – beschrieben ist er allein von Hand in `docs/system/api.adoc`.
+
+Das kostet an zwei Stellen:
+
+* *Ausprobieren.* Wer wissen will, was `+get_recipe+` liefert, braucht einen MCP-Client oder ein
+  `+curl+` mit JSON-RPC-Rumpf, dem richtigen `Accept`-Header und ohne `Origin`. Die Swagger UI
+  daneben kann alles außer diesem Endpunkt.
+* *Beschreibung.* Werkzeugnamen, Beschreibungen und Eingabeschemata liefert der Server selbst –
+  aber nur einem Client, der das Protokoll spricht. Für alle anderen sind sie eine Tabelle in der
+  Systemdokumentation, die von Hand gepflegt wird und dabei veralten kann.
+
+Der Prompt „Ergänze einen REST API, die den MCP Service über SWAGGER ansprechbar macht" verlangt
+genau das Gegenstück: den MCP-Service über gewöhnliches HTTP, beschrieben im Contract und damit
+bedienbar in der Swagger UI.
+
+Zu entscheiden sind vier Fragen: *welche Form* die Fassade hat, *wo* sie liegt, *woher* sie ihre
+Werkzeuge nimmt und *wie* sie Fehler beantwortet.
+
+== Optionen
+
+=== Welche Form die Fassade hat
+
+. *JSON-RPC in einem Controller* – ein `+POST /api/mcp/rpc+`, das denselben Rumpf annimmt wie der
+  Transport, nur durch Spring MVC. Verworfen: Im Contract stünde eine Operation mit einem
+  Freiform-Rumpf. Swagger UI zeigte ein Textfeld, in das man JSON-RPC von Hand schreibt – das ist
+  der bisherige Zustand mit mehr Ceremonie, und die Eingabeschemata der Werkzeuge blieben unsichtbar.
+. *Ein Endpunkt je Werkzeug*, mit dem Eingabeschema als typisiertem Request-DTO – `+POST
+  /api/mcp/get_recipe+` mit `+{"id": 1}+`. Verworfen: Die Werkzeugliste wäre dann *zweimal*
+  formuliert – einmal als Werkzeug, einmal als Controller-Methode samt DTO. Ein neues Werkzeug
+  bräuchte beide, und wer eines vergisst, hat zwei Fassaden auf denselben Bestand.
+. *Die Methoden des Protokolls als Operationen* – gewählt: `+GET /api/mcp/tools+`,
+  `+POST /api/mcp/tools/{name}+`, `+GET /api/mcp/resources+`,
+  `+GET /api/mcp/resources/content+`, dazu `+GET /api/mcp/server+` für die Auskunft, die ein Client
+  aus `initialize` bekommt. Die Fassade beschreibt damit den *Zugang*, nicht den Bestand: Sie
+  wächst nicht, wenn ein Werkzeug dazukommt. Das Eingabeschema jedes Werkzeugs gibt sie
+  unverändert weiter – es ist die Beschreibung, die der Server selbst pflegt.
+. *Ein Werkzeug als `+GET+` mit Query-Parametern.* Verworfen: Die Argumente eines Werkzeugs sind
+  ein JSON-Objekt mit Schema; als Zeichenketten in der Adresse verlöre es Typen und
+  Verschachtelung. Nur die Ressourcen-URI ist ein Query-Parameter – sie *ist* eine Zeichenkette.
+
+=== Wo die Fassade liegt
+
+. *Im REST-Adapter*, neben `RecipeController`. Verworfen: Sie liest die Werkzeug- und
+  Ressourcenspezifikationen des MCP-Adapters, und Adapter kennen einander nicht
+  (link:0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019]).
+  `OnionArchitectureTest` wiese das zurück – wie schon den ersten Entwurf von ADR 0049.
+. *Im MCP-Adapter* – gewählt: `+adapter.in.mcp.McpRestController+` samt DTOs unter
+  `+adapter.in.mcp.dto+`. Der Adapter hat damit zwei Fronten auf einen Bestand, und das ist genau
+  das, was er ist: der Zugang für Maschinen, in zwei Umschlägen. Der Ring bleibt einer, die Regel
+  bleibt ganz.
+. *Ein eigener Adapterring* `+adapter.in.mcprest+`. Verworfen: Er dürfte den MCP-Adapter dann
+  nicht kennen und müsste die Werkzeuge selbst bauen – die Doppelung von Option 2 oben, nur mit
+  Paketgrenze.
+
+Der Pfad ist `+/api/mcp/…+`, also *unterhalb* des Protokollendpunkts. Das ist keine Kollision: Das
+Transport-Servlet ist auf den *exakten* Pfad `+/api/mcp+` abgebildet (Servlet-Spezifikation,
+„exact match"), sodass jeder längere Pfad zum `DispatcherServlet` fällt. Ein eigener Präfix
+(`+/api/mcp-rest+`) wäre die Alternative – verworfen, weil er zwei Namen für eine Schnittstelle
+einführt. `McpRestSystemTest` prüft die Koexistenz über HTTP; auf die Feinheit hinzuweisen ist
+nicht dasselbe wie sie zu belegen.
+
+=== Woher die Fassade ihre Werkzeuge nimmt
+
+. *Selbst zusammensetzen* – die Fassade injiziert `RecipeMcpTools` und `DocumentationMcpTools` und
+  baut ihre Liste. Verworfen: Der Katalog entstünde zweimal. Ein Werkzeug, das an einer Front
+  fehlt, sieht niemand am grünen Build.
+. *Über den Server* – `McpStatelessSyncServer` kennt `+listTools()+` und `+listResources()+`.
+  Verworfen für den *Aufruf*: Ein `+callTool+` bietet er nicht; nur die Beschreibung wäre von dort
+  zu holen, die Ausführung nicht.
+. *Ein gemeinsamer Katalog* – gewählt: `McpCatalog` hält die Spezifikationen und führt sie aus,
+  `McpServerConfig` baut den Server *daraus*, die Fassade ruft dieselben Objekte. Ein Werkzeug
+  existiert damit an beiden Fronten oder an keiner.
+
+Zur Ausführung gehört die *Prüfung der Argumente*. Der Protokollserver prüft sie gegen das
+Eingabeschema, bevor der Handler läuft; die Fassade tut es mit demselben `JsonSchemaValidator` und
+demselben `ToolInputValidator` des SDK. Beides – Validator und der Schalter `+validateToolInputs+` –
+wird in `McpServerConfig` nun *ausdrücklich* gesetzt statt als SDK-Vorgabe genutzt: Eine Vorgabe,
+auf die sich zwei Fronten getrennt verlassen, ist eine, die sich lautlos ändern kann.
+
+=== Wie die Fassade Fehler beantwortet
+
+Zwei Fälle sind zu unterscheiden, und die Trennung ist die eigentliche Entscheidung:
+
+. *Der Name existiert nicht* – kein Werkzeug heißt so, keine Ressource trägt diese URI. Antwort:
+  `404` als Problem Detail nach RFC 9457
+  (link:0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR 0046]), erzeugt aus einer
+  `ResponseStatusException`. Kein eigener `+@ExceptionHandler+`: Der `GlobalExceptionHandler` liegt
+  im REST-Adapter, und ihn von hier zu erweitern wäre derselbe Ringbruch wie oben. Springs
+  Problem-Details (`+spring.mvc.problemdetails.enabled+`) füllen den Rumpf – wie bei den übrigen
+  Fehlern des Rahmenwerks, siehe `docs/system/api.adoc`.
+. *Das Werkzeug lief und meldet einen Fehlschlag* – unbekannte Rezeptkennung, Argument gegen das
+  Schema. Antwort: `200` mit `+isError+` im Rumpf.
+
+Der zweite Fall hatte eine sichtbare Alternative: *einen Statuscode ableiten* – `404` für ein
+unbekanntes Rezept, `400` für ein Argument gegen das Schema. Verworfen aus zwei Gründen. Erstens
+ist `+isError+` ein *Ergebnis*: Das Protokoll hält fachliche Fehler bewusst im Rumpf, damit ein
+Sprachmodell sie liest und darauf reagiert; eine Fassade, die daraus einen Transportfehler macht,
+verändert die Semantik, die sie zeigen soll. Zweitens wäre die Ableitung geraten – aus
+`+isError+` und einem Satz Text ist der passende Statuscode nicht zu erkennen, und es gibt keine
+Kennung, aus der er folgte. Der Unterschied zwischen „diese Adresse gibt es nicht" (`404`) und
+„der Aufruf ist gelaufen und meldet etwas" (`200` mit `+isError+`) bleibt damit die Grenze.
+
+=== Sicherheit
+
+Die Fassade gibt *dieselben* Daten heraus wie der Protokollendpunkt und ist ebenso *nur lesend* –
+sie führt kein Werkzeug ein, das schreibt. Ein Unterschied ist trotzdem festzuhalten, und er steht
+auch als Zeile in „Offene Punkte" (`docs/system/betrieb.adoc`):
+
+* *Die Origin-Prüfung greift hier nicht.* Der Protokolltransport weist eine Anfrage mit
+  `Origin`-Header mit `403` ab – der Schutz gegen DNS-Rebinding, den die MCP-Spezifikation für
+  lokal erreichbare Server verlangt (ADR 0049). Eine Anfrage an die Fassade läuft durch Spring MVC
+  und an diesem Ventil vorbei; eine Seite im Browser kann sie also aufrufen. Neue *Daten* gibt das
+  nicht frei: Rezepte liegen unter `+/api/recipes+` bereits offen und dort sogar schreibend, die
+  Dokumentationsseiten unter `+/recipes/docs/**+`. Freigegeben wird der *Weg*, nicht der Inhalt.
+  `McpRestSystemTest` hält das Verhalten ausdrücklich fest, damit es keine Entdeckung wird.
+* *Fehlerbilder bleiben sparsam* – der Text nennt den angefragten Namen und nichts aus dem
+  Inneren der Anwendung, wie bei den Problem Details der REST-API (ADR 0046).
+* *Keine neue Abhängigkeit.* Die Fassade nutzt springdoc, das der Adapter schon hat, und das
+  MCP-SDK, das er schon hat.
+
+== Entscheidung
+
+Eine *lesende REST-Fassade des MCP-Servers* im MCP-Adapter, unter `+/recipes/api/mcp/…+`, mit einer
+Operation je Methode des Protokolls, beschrieben im OpenAPI-Contract und damit bedienbar in der
+Swagger UI. Beide Fronten laufen auf demselben Katalog.
+
+=== Die fünf Operationen
+
+[cols="2,1,3", options="header"]
+|===
+| Operation | Entspricht | Ergebnis
+
+| `+GET /api/mcp/server+`
+| `initialize`
+| Name, Version und die Anleitung, die ein Protokollclient bekommt
+
+| `+GET /api/mcp/tools+`
+| `tools/list`
+| Alle Werkzeuge mit Titel, Beschreibung und Eingabeschema
+
+| `+POST /api/mcp/tools/{name}+`
+| `tools/call`
+| Das Werkzeugergebnis: die Textblöcke und `+isError+`. Der Rumpf der Anfrage *sind* die
+  Argumente; ein Werkzeug ohne Argumente braucht keinen
+
+| `+GET /api/mcp/resources+`
+| `resources/list`
+| Alle Ressourcen mit URI, Kennung, Titel und Medientyp
+
+| `+GET /api/mcp/resources/content?uri=…+`
+| `resources/read`
+| Die Inhaltsblöcke der Ressource
+|===
+
+Die Antworten sind *DTOs dieses Projekts*, keine SDK-Typen: Sie lassen weg, was nur das Protokoll
+braucht (`+_meta+`, Annotationen, Icons), und halten den veröffentlichten Contract von der
+Versionsfolge des SDK fern.
+
+== Konsequenzen
+
+=== Vorteile
+
+* *Die Lücke aus ADR 0049 ist geschlossen.* Der MCP-Service steht im Contract, in der Swagger UI
+  und in den daraus erzeugten Clients.
+* *Ausprobieren ohne MCP-Client.* Ein Aufruf ist ein `+POST+` mit einem JSON-Objekt – kein
+  JSON-RPC-Rumpf, kein `Accept` mit zwei Medientypen.
+* *Ein Katalog, zwei Fronten.* `McpCatalog` macht die Doppelung unmöglich, die eine zweite Fassade
+  sonst mitbringt.
+* *Die Beschreibung bleibt beim Server.* Das Eingabeschema wird weitergegeben, nicht abgeschrieben;
+  die Tabelle in `docs/system/api.adoc` bleibt damit die einzige handgepflegte Stelle – und sie
+  beschreibt jetzt beide Fronten auf einmal.
+
+=== Nachteile
+
+* *Zwei Wege zu denselben Werkzeugen.* Wie schon bei Ressourcen und Werkzeugen der Dokumentation
+  (ADR 0049) gibt es eine gewollte Doppelung. Sie kostet an einer Stelle Aufmerksamkeit: Wer das
+  Fehlerbild eines Werkzeugs ändert, ändert es für beide.
+* *Die Origin-Prüfung gilt nur an einer Front.* Siehe „Sicherheit"; die Zeile steht in „Offene
+  Punkte".
+* *`+isError+` mit `200`* ist für einen REST-Leser ungewohnt. Der Contract sagt es an der
+  Operation, aber ein Client, der nur auf den Statuscode schaut, hält einen gemeldeten Fehlschlag
+  für einen Erfolg.
+* *Der Pfad hängt an einer Feinheit der Servlet-Abbildung.* Dass `+/api/mcp/tools+` das
+  Transport-Servlet *nicht* trifft, folgt aus „exact match" – richtig, aber nicht offensichtlich.
+  Deshalb der Systemtest.
+* *Fünf DTOs mehr*, vier davon mit curried Factory
+  (link:0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[ADR 0021]). Der Preis der
+  Konvention, hier für Records, die nichts als Felder tragen.
+
+=== Bewusst nicht getan
+
+* *Keine schreibenden Werkzeuge.* Die Fassade zeigt, was der Server hat; er liest (ADR 0049).
+* *Keine Authentifizierung.* Sie fehlt der ganzen Anwendung und steht in „Offene Punkte" – nicht
+  hier.
+* *Keine Origin-Prüfung für die Fassade.* Sie wäre ein Filter oder eine CORS-Festlegung für einen
+  Pfad, während `+/api/recipes+` daneben offen bleibt – also eine Entscheidung über die
+  *Anwendung*, nicht über diesen Endpunkt. Als Zeile in „Offene Punkte" ist sie richtig
+  aufgehoben, als Sonderfall an einem Controller nicht.
+* *Kein typisiertes Request-DTO je Werkzeug.* Siehe „Optionen": Es wäre die zweite Formulierung
+  der Werkzeugliste.
+* *Keine Paginierung.* `+list_recipes+` liefert alle Rezepte, hier wie dort – dieselbe offene
+  Stelle wie bei `+GET /api/recipes+`.
+* *Kein Weg über `prompts` oder `completions`.* Der Server hat sie nicht; eine Fassade darauf wäre
+  eine leere Operation.
+* *Keine Änderung an `McpSystemTest`.* Der Protokollendpunkt ist unverändert; seine Tests bleiben,
+  wie sie sind. Die Fassade bekommt eigene.
+
+== Prüfung
+
+* `+./gradlew test+` – `McpCatalogTest` (die vier Werkzeuge aus beiden Quellen, der einmal gebaute
+  Ressourcenkatalog, die Schemaprüfung *vor* dem Handler, unbekannter Name als Fehlschlag ohne
+  Ausnahme) und `McpRestControllerTest` (die DTOs, `+isError+` als Ergebnis, `404` für einen Namen,
+  den niemand trägt). `OpenApiDocumentationTest` prüft, dass die fünf Operationen und die fünf
+  Schemata im Contract stehen. `OnionArchitectureTest` bleibt grün – die Fassade liegt im
+  MCP-Ring – und `RecordCurryingTest` deckt die neuen DTOs mit ab.
+* `+./gradlew systemtest+` – `McpRestSystemTest` spricht die Fassade über HTTP: die fünf
+  Operationen, der Werkzeugfehler mit `200`, das `404` für unbekannte Namen samt
+  `+application/problem+json+`, die Koexistenz mit dem JSON-RPC-Endpunkt (`+POST /api/mcp+`
+  antwortet weiter, `+GET /api/mcp/tools+` auch) und die Gegenprobe zur Origin-Prüfung: Mit
+  `+Origin:+` antwortet die Fassade `200`, wo der Protokollendpunkt `403` antwortet.
+* `+./gradlew clean build+` – Contract und Swagger UI liegen im Boot-Jar wie bisher.
+
+== Referenzen
+
+* link:0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049] – der MCP-Server, dessen
+  Katalog diese Fassade zeigt, und der Nachteil, den sie behebt
+* link:0005-springdoc-openapi-und-swagger-ui{adrext}[ADR 0005] – der Contract, in dem die Fassade
+  erscheint, und die Regel, dass ein neuer Endpunkt im selben Commit annotiert wird
+* link:0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019] – warum die Fassade im
+  MCP-Adapter liegt und nicht neben dem `RecipeController`
+* link:0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR 0046] – das Fehlerformat des
+  `404` und die Sparsamkeit der Meldungen
+* link:0016-context-path-recipes{adrext}[ADR 0016] – der Context-Path, unter dem die Pfade liegen
+* link:0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[ADR 0021] – die curried
+  Factories der neuen DTOs
+* link:0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024] – die Dokumentationsseiten, die die
+  Ressourcen-Operationen ausliefern
+* link:0035-security-skill-und-security-txt{adrext}[ADR 0035],
+  link:0048-security-skill-je-seite{adrext}[ADR 0048] – der Security-Skill, dessen Auslöser „neuer
+  offen erreichbarer Pfad" hier greift

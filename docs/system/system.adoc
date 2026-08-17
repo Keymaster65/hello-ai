@@ -128,6 +128,7 @@ erste Zeile.
 |===
 | ADR | Thema
 
+| link:{adr}/0050-rest-facade-des-mcp-service-in-openapi{adrext}[0050] | REST-Fassade des MCP-Service unter `+/recipes/api/mcp/…+`: eine Operation je Protokollmethode, im OpenAPI-Contract und damit in der Swagger UI; beide Fronten laufen auf einem gemeinsamen Katalog (ergänzt 0049)
 | link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[0049] | MCP-Service für Rezepte und Systemdokumentation: offizielles Java-SDK, zustandsloses Streamable HTTP unter `+/recipes/api/mcp+`, vier lesende Werkzeuge und die Dokumentationsseiten als Ressourcen
 | link:{adr}/0048-security-skill-je-seite{adrext}[0048] | Je Seite ein eigener Security-Skill: `docs/prompt/security-backend.adoc`, das Frontend bekommt eine eigene Datei (löst den Zuschnitt „eine Datei mit Abschnitten je Seite" aus 0035 ab)
 | link:{adr}/0047-testabdeckung-als-eingecheckte-tabelle{adrext}[0047] | Die Testabdeckung steht als erzeugte, aber eingecheckte Tabelle im Kapitel „Abdeckung"; erzeugter jOOQ-Code fällt aus der Messung (folgt 0027, gegen die Ablage in `build/` aus 0036)

@@ -20,6 +20,34 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-161,161>>
+|„commit"
+| –
+| 35 s
+| 17:13:14 h
+| 3.850
+| 4.476.147
+| 5.460
+| 24.948.611
+| 2.448.038
+| 37:49 min
+| 225.017
+| 58.038.980
+
+| <<prompt-160,160>>
+|„Ergänze einen REST API, die den MCP Service über SWAGGER ansprechbar macht."
+| –
+| 35:02 min
+| 17:12:39 h
+| 209.445
+| 4.472.297
+| 743.165
+| 24.943.151
+| 50.190.209
+| 35:02 min
+| 209.445
+| 50.190.209
+
 | <<prompt-159,159>>
 |„Ergänze einen MCP Service für den Zugriff auf Rezepte und die Systemdokumentation." (aus dem Backlog, `next+1`)
 | <<commit-e685c21,e685c21>>

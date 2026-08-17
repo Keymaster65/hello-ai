@@ -121,9 +121,13 @@ Basispaket ist `io.github.keymaster65.helloai`.
   <<src-recipe-mcp-tools,`RecipeMcpTools`>>,
   <<src-documentation-mcp-tools,`DocumentationMcpTools`>>,
   <<src-documentation-mcp-resources,`DocumentationMcpResources`>>,
-  <<src-mcp-tool-results,`McpToolResults`>> und
-  <<src-mcp-server-config,`McpServerConfig`>>, das Server und Transport zusammensetzt
-  (<<src-gruppe-mcp,alle Quellen im Anhang>>).
+  <<src-mcp-tool-results,`McpToolResults`>>,
+  <<src-mcp-catalog,`McpCatalog`>> und
+  <<src-mcp-server-config,`McpServerConfig`>>, das Server und Transport zusammensetzt; dazu die
+  REST-Fassade <<src-mcp-rest-controller,`McpRestController`>> samt
+  <<src-mcp-rest-mapper,`McpRestMapper`>> und den DTOs unter `adapter.in.mcp.dto`
+  (link:{adr}/0050-rest-facade-des-mcp-service-in-openapi{adrext}[ADR 0050],
+  <<src-gruppe-mcp,alle Quellen im Anhang>>).
 
 | `:modules:backend:adapter`
 | `adapter.out.documentation`
@@ -277,6 +281,12 @@ Neben dem REST-Adapter steht ein zweiter eingehender Adapter für Sprachmodelle:
 (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]). Welche Werkzeuge
 und Ressourcen er anbietet, steht im Kapitel API; hier steht, wie er gebaut ist.
 
+Der Adapter hat *zwei Fronten*: den JSON-RPC-Endpunkt und eine REST-Fassade, die im
+OpenAPI-Contract steht (link:{adr}/0050-rest-facade-des-mcp-service-in-openapi{adrext}[ADR 0050]).
+Beide liegen in *demselben* Ring, weil beide dieselben Werkzeuge lesen; ein eigener Ring dürfte sie
+nach der Zwiebelregel nicht kennen und müsste sie nachbauen
+(link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019]).
+
 [cols="1,3", options="header"]
 |===
 | Baustein | Aufgabe
@@ -286,6 +296,10 @@ und Ressourcen er anbietet, steht im Kapitel API; hier steht, wie er gebaut ist.
   nicht im Composition Root: `:bootstrap` ist selbst der äußerste Adapterring und darf die
   Klassen eines anderen Adapters nach der Zwiebelregel nicht kennen
   (link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019]).
+
+| <<src-mcp-catalog,`McpCatalog`>>
+| Der Katalog, auf dem *beide* Fronten laufen: die Spezifikationen der Werkzeuge und Ressourcen,
+  die Prüfung der Argumente gegen das Eingabeschema und deren Ausführung. Einmal gebaut, beim Start.
 
 | <<src-recipe-mcp-tools,`RecipeMcpTools`>>
 | Die Rezepte als Werkzeuge; liest über `RecipeService` und erbt damit dessen Transaktionsgrenze.
@@ -299,17 +313,29 @@ und Ressourcen er anbietet, steht im Kapitel API; hier steht, wie er gebaut ist.
 
 | <<src-mcp-tool-results,`McpToolResults`>>
 | Das Wiederkehrende: Schema für ein Werkzeug ohne Argumente, Ergebnis mit JSON, Fehlerergebnis.
+
+| <<src-mcp-rest-controller,`McpRestController`>>
+| Die REST-Fassade: eine Operation je Methode des Protokolls, annotiert für springdoc. Liegt
+  *unterhalb* von `+/api/mcp+`, das dem Transport-Servlet exakt zugeordnet ist – jeder längere Pfad
+  erreicht deshalb Spring MVC.
+
+| <<src-mcp-rest-mapper,`McpRestMapper`>>
+| Übersetzt die SDK-Typen in die DTOs der Fassade. Kein SDK-Typ erscheint im veröffentlichten
+  Contract.
 |===
 
-Drei Eigenschaften unterscheiden diesen Weg vom REST-Weg:
+Vier Eigenschaften unterscheiden diesen Adapter vom REST-Adapter:
 
 * *Der Transport ist ein eigenes Servlet*, neben dem `DispatcherServlet` registriert. Eine
   Anfrage an `+/api/mcp+` läuft damit *nicht* durch Spring MVC – weder durch die Bean Validation
   noch durch den `GlobalExceptionHandler`, und springdoc sieht den Endpunkt nicht
-  (link:{adr}/0005-springdoc-openapi-und-swagger-ui{adrext}[ADR 0005]).
+  (link:{adr}/0005-springdoc-openapi-und-swagger-ui{adrext}[ADR 0005]). Die REST-Fassade daneben
+  läuft durch beides und steht deshalb im Contract.
 * *Zustandslos.* Jede Anfrage ist für sich vollständig; es gibt keine Sitzung, weil der Server
   von sich aus nichts sendet.
-* *Nur lesend.* Anlegen, Ändern und Löschen bleiben der REST-API.
+* *Nur lesend.* Anlegen, Ändern und Löschen bleiben der REST-API – an beiden Fronten.
+* *Ein Katalog.* Werkzeuge und Ressourcen entstehen in `McpCatalog`, nicht je Front. Was an einer
+  Front fehlte, fehlte sonst still.
 
 .Werkzeugaufruf: POST /recipes/api/mcp mit `tools/call`
 [plantuml,ablauf-mcp,svg]
@@ -349,6 +375,45 @@ else Anfrage zulässig
   end
   server --> transport : JSON-RPC-Response
   transport --> client : 200
+end
+@enduml
+....
+
+Derselbe Aufruf über die Fassade nimmt einen anderen Weg zum selben Handler. Sichtbar wird darin,
+wo die beiden Fronten auseinandergehen: Die Origin-Prüfung des Transports fehlt, und ein Name, den
+kein Werkzeug trägt, ist hier ein `404` statt eines JSON-RPC-Fehlers.
+
+.Werkzeugaufruf über die Fassade: POST /recipes/api/mcp/tools/get_recipe
+[plantuml,ablauf-mcp-rest,svg]
+....
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+
+participant "HTTP-Client\n(Swagger UI, curl)" as client
+participant "DispatcherServlet" as mvc
+participant "McpRestController" as controller
+participant "McpCatalog" as catalog
+participant "RecipeMcpTools" as tools
+participant "TransactionalRecipeService" as tx
+
+client -> mvc : POST /recipes/api/mcp/tools/get_recipe\n{"id": 1}
+mvc -> controller : callTool(name, arguments)
+controller -> catalog : callTool(name, arguments)
+alt kein Werkzeug dieses Namens
+  catalog --> controller : Optional.empty
+  controller --> client : 404 als Problem Detail
+else Werkzeug vorhanden
+  note right of catalog : prüft die Argumente gegen dasselbe\nEingabeschema wie der Protokollserver
+  alt Argumente verletzen das Schema
+    catalog --> controller : CallToolResult mit isError
+  else Argumente zulässig
+    catalog -> tools : callHandler(id)
+    tools -> tx : getById(id)
+    tx --> tools : Recipe oder RecipeNotFoundException
+    tools --> catalog : CallToolResult
+  end
+  controller --> client : 200 mit content und isError
 end
 @enduml
 ....
@@ -424,8 +489,8 @@ Bemerkenswerte Eigenschaften der Implementierung:
 == Laufzeitsicht
 
 Zwei Abläufe genügen, um das Zusammenspiel zu zeigen; die übrigen Use Cases folgen
-demselben Muster. Der Weg einer MCP-Anfrage weicht davor ab und steht deshalb bei seinem
-Adapter, im Diagramm `ablauf-mcp`.
+demselben Muster. Die Wege einer MCP-Anfrage weichen davor ab und stehen deshalb bei ihrem
+Adapter, in den Diagrammen `ablauf-mcp` und `ablauf-mcp-rest`.
 
 .Lesen: GET /recipes/api/recipes/\{id}
 [plantuml,ablauf-lesen,svg]

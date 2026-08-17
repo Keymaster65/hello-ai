@@ -9,6 +9,72 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-161]]
+== 161. Prompt: „commit"
+
+_Delta: 35 s · 3.850 Token out · 5.460 Token in (neu) · 2.448.038 Token gesamt_
+_Stand (Session, 4 Prompts): 37:49 min · 225.017 Token out · 58.038.980 Token gesamt_
+
+*Aktionen:*
+
+* *Definition of Done aus Prompt 160:* `+./gradlew clean build+` grün, `+systemtest+` 45/45,
+  `+e2eTest+` 9/9, alle drei Asciidoctor-Tasks grün, Abdeckungstabelle nachgezogen. Seither wurde
+  kein Code angefasst.
+* *`+.tmp/1.json+` aus dem Index genommen:* Der Schnipsel – eine per Hand gedumpte
+  `+tools/list+`-Antwort aus einem früheren Turn – war versehentlich vorgemerkt. Er bleibt als
+  unversionierte Datei liegen, statt in den Commit zu geraten.
+* *Trailer auf das arbeitende Modell gesetzt* – Opus 5 statt des im Develop-Skill wörtlich
+  vorgeschriebenen Opus 4.8, wie in den Prompts 154 und 158. Der `+KI+`-Eintrag dazu steht
+  weiter im Backlog.
+
+'''
+
+[[prompt-160]]
+== 160. Prompt: „Ergänze einen REST API, die den MCP Service über SWAGGER ansprechbar macht."
+
+_Delta: 35:02 min · 209.445 Token out · 743.165 Token in (neu) · 50.190.209 Token gesamt_
+_Stand (Session, 3 Prompts): 35:02 min · 209.445 Token out · 50.190.209 Token gesamt_
+
+*Aktionen:*
+
+* *link:../adr/0050-rest-facade-des-mcp-service-in-openapi.adoc[ADR 0050] geschrieben*: vier
+  Entscheidungen mit Optionen – die Methoden des Protokolls als Operationen statt JSON-RPC im
+  Controller oder ein Endpunkt je Werkzeug; die Fassade *im* MCP-Adapter statt neben dem
+  `+RecipeController+` (Zwiebelregel, ADR 0019); ein gemeinsamer Katalog statt zweifachem
+  Zusammenbau; `+404+` nur für einen Namen, den niemand trägt, `+200+` mit `+isError+` für ein
+  gelaufenes Werkzeug. Index in `+docs/system/system.adoc+` als erste Zeile ergänzt.
+* *Fünf Operationen unter `+/recipes/api/mcp/…+`* – je eine zu `initialize`, `tools/list`,
+  `tools/call`, `resources/list` und `resources/read`. Neu:
+  `+McpCatalog+` (der Katalog, auf dem *beide* Fronten laufen, samt Argumentprüfung mit dem
+  `+ToolInputValidator+` des SDK), `+McpRestController+`, `+McpRestMapper+` und fünf DTOs unter
+  `+adapter.in.mcp.dto+` (vier davon curried, ADR 0021).
+* *`+McpServerConfig+` angepasst:* Der Server wird aus dem Katalog gebaut; `+JsonSchemaValidator+`
+  ist jetzt eine Bean, und `+validateToolInputs+` wird ausdrücklich gesetzt – eine SDK-Vorgabe, auf
+  die sich zwei Fronten getrennt verlassen, könnte sich lautlos ändern.
+* *Der Pfad kollidiert nicht:* Das Transport-Servlet hängt am *exakten* Pfad `+/api/mcp+`, jeder
+  längere fällt zum `+DispatcherServlet+`. Belegt über HTTP, nicht nur behauptet.
+* *Tests:* `+McpCatalogTest+` (9) und `+McpRestControllerTest+` (9) als Unit-Tests, zwei
+  Contract-Prüfungen in `+OpenApiDocumentationTest+`, `+McpRestSystemTest+` (11) über HTTP –
+  darunter die Koexistenz beider Fronten und die Gegenprobe zur Origin-Prüfung.
+* *Sicherheit benannt statt übergangen* (Security-Skill Backend): Die Origin-Prüfung des
+  Transports greift an der Fassade *nicht*. Neue Daten gibt das nicht frei; die Zeile steht in
+  „Offene Punkte" (`+docs/system/betrieb.adoc+`) und wird von einem Systemtest festgehalten.
+* *Dokumentation nachgezogen:* `+api.adoc+` (Adressraum, neuer Abschnitt „Dieselben Werkzeuge über
+  REST"), `+schichten.adoc+` (Bausteine, vierte Eigenschaft, neues Diagramm `+ablauf-mcp-rest+`),
+  `+betrieb.adoc+`, `+qualitaetssicherung.adoc+`, `+anhang-quellen.adoc+` (11 neue Quellen),
+  `+README.md+`.
+* *`+schema.d.ts+` neu erzeugt* (`+npm run generate:api+` gegen das laufende Boot-Jar): +317
+  Zeilen, nur Ergänzungen. Dazu `+./gradlew coverageTable+` – `+:adapter+` steigt von 58,5 % auf
+  66,2 %, Summe von 64,5 % auf 69,5 %.
+* *Nebenbefund:* Ein `+bootRun+` aus einem früheren Turn hielt Port 8080 mit *altem* Stand; ohne
+  Beenden hätte Playwright ihn wiederverwendet (`+reuseExistingServer+`) und gegen ein veraltetes
+  Artefakt getestet. Beendet, Boot-Jar neu gestartet.
+* *Definition of Done:* `+./gradlew clean build+` grün (ohne neue Asciidoctor-Meldungen; die zwei
+  bleibenden sind vorbestehend und in `+claudeLog.adoc+` verursacht), `+systemtest+` 45/45,
+  `+e2eTest+` 9/9, alle drei Asciidoctor-Tasks grün.
+
+'''
+
 [[prompt-159]]
 == 159. Prompt: „Ergänze einen MCP Service für den Zugriff auf Rezepte und die Systemdokumentation." (aus dem Backlog, `next+1`)
 

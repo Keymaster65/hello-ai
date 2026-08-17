@@ -18,6 +18,9 @@ Origin. Genau das macht CORS überflüssig
 | REST-API | `/recipes/api/recipes` | JSON
 | MCP-Server | `/recipes/api/mcp` | JSON-RPC 2.0, zustandslos, nur `POST`, nur lesend
   (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049])
+| MCP über REST | `/recipes/api/mcp/…` | dieselben Werkzeuge und Ressourcen als gewöhnliche
+  Operationen, im OpenAPI-Contract
+  (link:{adr}/0050-rest-facade-des-mcp-service-in-openapi{adrext}[ADR 0050])
 | OpenAPI 3.1, JSON | `/recipes/v3/api-docs` | zur Laufzeit erzeugt
 | OpenAPI 3.1, YAML | `/recipes/v3/api-docs.yaml` | dasselbe Dokument
 | Swagger UI | `/recipes/swagger-ui.html` | Operationen nach Methode, Tags alphabetisch
@@ -206,7 +209,9 @@ handgepflegte Spezifikationsdatei, die veralten könnte.
 
 Dokumentweite Angaben (Titel, Beschreibung, Version, Kontakt, Lizenz) stehen in
 <<src-openapi-config,`OpenApiConfig`>> im Modul `:bootstrap`; alles Operations- und Schemaspezifische steht als
-Annotation am REST-Adapter.
+Annotation an dem Adapter, der die Operation anbietet – am REST-Adapter für die Rezepte, am
+MCP-Adapter für die Fassade aus <<mcp-ueber-rest>>
+(link:{adr}/0050-rest-facade-des-mcp-service-in-openapi{adrext}[ADR 0050]).
 
 `OpenApiDocumentationTest` prüft, dass das Dokument alle Operationen und Schemata
 beschreibt und die Swagger UI ausgeliefert wird – der Contract ist damit nicht nur
@@ -235,6 +240,12 @@ Unter `+/recipes/api/mcp+` antwortet ein Server des *Model Context Protocol* –
 wie die REST-API, aber in der Form, in der ein Sprachmodell sie ohne Vorwissen findet
 (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]). Die Bausteine
 dahinter stehen im Kapitel Bausteine und Schichten, Abschnitt „Eingehender Adapter: MCP".
+
+Der Server hat *zwei Fronten* auf einen Bestand: den Protokollendpunkt und – unterhalb desselben
+Pfades – eine REST-Fassade, die im OpenAPI-Contract steht
+(link:{adr}/0050-rest-facade-des-mcp-service-in-openapi{adrext}[ADR 0050], siehe
+<<mcp-ueber-rest>>). Werkzeuge, Ressourcen und Fehlerbilder unten gelten für beide; was sich
+unterscheidet, steht dort.
 
 === Transport
 
@@ -316,6 +327,70 @@ curl -X POST http://localhost:8080/recipes/api/mcp \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
 ----
 
+[[mcp-ueber-rest]]
+=== Dieselben Werkzeuge über REST
+
+Unterhalb des Protokollendpunkts liegt eine *REST-Fassade*: eine Operation je Methode des
+Protokolls, beschrieben im OpenAPI-Contract und damit in der Swagger UI bedienbar
+(link:{adr}/0050-rest-facade-des-mcp-service-in-openapi{adrext}[ADR 0050]). Sie zeigt den
+*Zugang*, nicht den Bestand – ein neues Werkzeug erscheint in ihr, ohne dass sie wächst.
+
+[cols="2,1,3", options="header"]
+|===
+| Methode und Pfad | Entspricht | Erfolg / Fehler
+
+| `GET /api/mcp/server`
+| `initialize`
+| `200`: Name, Version und die Anleitung, die ein Protokollclient bekommt
+
+| `GET /api/mcp/tools`
+| `tools/list`
+| `200`: alle Werkzeuge mit `name`, `title`, `description` und `inputSchema`
+
+| `POST /api/mcp/tools/\{name}`
+| `tools/call`
+| `200`: das Werkzeugergebnis mit `content` und `isError` · `404`: kein Werkzeug dieses Namens
+
+| `GET /api/mcp/resources`
+| `resources/list`
+| `200`: alle Ressourcen mit `uri`, `name`, `title`, `description` und `mimeType`
+
+| `GET /api/mcp/resources/content?uri=…`
+| `resources/read`
+| `200`: die Inhaltsblöcke mit `uri`, `mimeType` und `text` · `404`: keine Ressource dieser URI
+|===
+
+Der *Rumpf einer Werkzeuganfrage sind die Argumente* – das JSON-Objekt, das das `inputSchema` des
+Werkzeugs beschreibt. Ein Werkzeug ohne Argumente braucht keinen Rumpf. Geprüft wird gegen dasselbe
+Schema wie am Protokollendpunkt, *vor* dem Aufruf.
+
+Die Antworten sind DTOs dieses Projekts, keine Typen des MCP-SDK:
+<<src-mcp-server-info-dto,`McpServerInfoDto`>>, <<src-mcp-tool-dto,`McpToolDto`>>,
+<<src-mcp-tool-result-dto,`McpToolResultDto`>>, <<src-mcp-resource-dto,`McpResourceDto`>> und
+<<src-mcp-resource-content-dto,`McpResourceContentDto`>>. Sie lassen weg, was nur das Protokoll
+braucht, und halten den veröffentlichten Contract von der Versionsfolge des SDK fern.
+
+Drei Punkte unterscheiden die Fassade vom Protokollendpunkt:
+
+* *Der Statuscode trennt anders.* Ein Name, den niemand trägt, ist `404` als Problem Detail nach
+  https://www.rfc-editor.org/rfc/rfc9457.html[RFC 9457] – mit dem Rumpf des Rahmenwerks, nicht dem
+  des <<src-global-exception-handler,`GlobalExceptionHandler`>> (siehe „Fehler des Frameworks").
+  Ein *gelaufenes* Werkzeug, das einen Fehlschlag meldet, antwortet `200` mit `+isError+`: Das
+  Ergebnis ist die Antwort, wie im Protokoll.
+* *Kein `Accept` mit zwei Medientypen, keine Sitzungsregeln.* Es ist gewöhnliches HTTP.
+* *Keine Origin-Prüfung.* Eine Anfrage mit `Origin`-Header wird hier *nicht* abgewiesen; sie läuft
+  durch Spring MVC und damit am Ventil des Transports vorbei. Neue Daten gibt das nicht frei –
+  Rezepte und Dokumentation liegen ohnehin offen –, es steht aber als Zeile im Kapitel Betrieb,
+  Abschnitt <<offene-punkte>>.
+
+.Aufruf von Hand
+[source,bash]
+----
+curl http://localhost:8080/recipes/api/mcp/tools
+curl -X POST http://localhost:8080/recipes/api/mcp/tools/get_recipe \
+  -H 'Content-Type: application/json' -d '{"id":1}'
+----
+
 == Oberfläche
 
 [cols="1,2,3", options="header"]
@@ -339,5 +414,5 @@ sind serverseitig auf Ziffern eingeschränkt (`{id:\\d+}`).
 
 Das System bietet *keine* Authentifizierung, keine Autorisierung, kein Rate Limiting, keine
 Ereignis- oder Messaging-Schnittstelle und keine Actuator-Endpunkte. Wer die Anwendung
-erreicht, darf alles – auch der MCP-Endpunkt ist offen, dort allerdings nur lesend. Siehe
-Kapitel Betrieb, Abschnitt <<offene-punkte>>.
+erreicht, darf alles – auch der MCP-Endpunkt und seine REST-Fassade sind offen, dort allerdings nur
+lesend. Siehe Kapitel Betrieb, Abschnitt <<offene-punkte>>.

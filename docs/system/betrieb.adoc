@@ -261,11 +261,23 @@ Umgebung betreibt, ohne sie zu kennen.
 | Jeder, der den Port erreicht, kann alle Rezepte lesen, ändern und löschen – und unter
   `/recipes/docs/` diese Dokumentation samt der Liste hier lesen
   (link:{adr}/0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]). Dasselbe gilt für den
-  MCP-Endpunkt `+/recipes/api/mcp+`: Er ist offen erreichbar, dort allerdings *nur lesend*, und
-  gibt dieselben Rezepte und dieselbe Dokumentation heraus
-  (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]). Die Anwendung
+  MCP-Endpunkt `+/recipes/api/mcp+` und seine REST-Fassade unter `+/recipes/api/mcp/…+`: Sie sind
+  offen erreichbar, dort allerdings *nur lesend*, und geben dieselben Rezepte und dieselbe
+  Dokumentation heraus
+  (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049],
+  link:{adr}/0050-rest-facade-des-mcp-service-in-openapi{adrext}[ADR 0050]). Die Anwendung
   gehört daher hinter einen kontrollierten Zugang oder in ein privates Netz; kommt eine
-  Authentifizierung, sind `/recipes/docs/**` und `+/recipes/api/mcp+` mit abzusichern.
+  Authentifizierung, sind `/recipes/docs/**` und `+/recipes/api/mcp+` samt Fassade mit abzusichern.
+
+| Origin-Prüfung an der REST-Fassade des MCP-Servers
+| Der Protokollendpunkt weist eine Anfrage mit `Origin`-Header mit `403` ab – der Schutz gegen
+  DNS-Rebinding, den die MCP-Spezifikation verlangt
+  (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]). Die Fassade läuft
+  durch Spring MVC und an diesem Ventil vorbei; eine Seite im Browser kann sie also aufrufen
+  (link:{adr}/0050-rest-facade-des-mcp-service-in-openapi{adrext}[ADR 0050]). Neue Daten gibt das
+  nicht frei – `+/recipes/api/recipes+` liegt offen und sogar schreibend, `/recipes/docs/**`
+  ebenso –, freigegeben wird der Weg. Ein Schutz wäre eine Festlegung für die *Anwendung*, nicht
+  für diesen Pfad.
 
 | HTTPS
 | Wird nicht von der Anwendung geleistet; TLS müsste ein vorgelagerter Proxy übernehmen.

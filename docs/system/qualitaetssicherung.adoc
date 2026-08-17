@@ -110,6 +110,14 @@ link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019].
   lesend gekennzeichneten Werkzeuge, das JSON je Werkzeug – und die Fehlerfälle als
   `+isError+`-Ergebnis, das nur die angefragte Kennung nennt.
 
+| <<src-mcp-catalog-test,`McpCatalogTest`>>,
+  <<src-mcp-rest-controller-test,`McpRestControllerTest`>>
+| Der gemeinsame Katalog beider Fronten und die REST-Fassade darauf
+  (link:{adr}/0050-rest-facade-des-mcp-service-in-openapi{adrext}[ADR 0050]): dieselben vier
+  Werkzeuge aus beiden Quellen, der einmal gebaute Ressourcenkatalog, die Prüfung der Argumente
+  gegen das Eingabeschema *vor* dem Aufruf – und die Trennung der Fehlerbilder, `+isError+` für ein
+  gelaufenes Werkzeug gegen `404` für einen Namen, den niemand trägt.
+
 | <<src-classpath-documentation-repository-test,`ClasspathDocumentationRepositoryTest`>>
 | Das Verzeichnis vom Klassenpfad: gefundene Seiten und ihre Reihenfolge, die Titel aus dem
   HTML-Kopf und die Zurückweisung einer Kennung, die nicht darin steht – auch der mit `+../+`.
@@ -135,7 +143,9 @@ link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019].
   Fehlerbilder des `GlobalExceptionHandler`.
 
 | <<src-openapi-documentation-test,`OpenApiDocumentationTest`>>
-| Der Contract unter `/v3/api-docs` beschreibt alle Operationen und Schemata; die Swagger UI
+| Der Contract unter `/v3/api-docs` beschreibt alle Operationen und Schemata – die der Rezepte und
+  die der REST-Fassade des MCP-Servers
+  (link:{adr}/0050-rest-facade-des-mcp-service-in-openapi{adrext}[ADR 0050]); die Swagger UI
   wird ausgeliefert.
 
 | <<src-recipe-integration-test,`RecipeIntegrationTest`>>
@@ -171,8 +181,9 @@ embedded PostgreSQL (<<src-running-application,`RunningApplication`>>); mit der 
 Instanz und startet nichts. Derselbe Testcode prüft damit beide Fälle. Geprüft werden
 Statuscodes und Contract-Details (<<src-swagger-system-test,`SwaggerSystemTest`>>), die Auslieferung der
 SPA inklusive der weitergeleiteten Routen (<<src-frontend-system-test,`FrontendSystemTest`>>),
-die der Systemdokumentation (<<src-documentation-system-test,`DocumentationSystemTest`>>), der
-MCP-Endpunkt (<<src-mcp-system-test,`McpSystemTest`>>) und
+die der Systemdokumentation (<<src-documentation-system-test,`DocumentationSystemTest`>>), die
+beiden Fronten des MCP-Servers (<<src-mcp-system-test,`McpSystemTest`>>,
+<<src-mcp-rest-system-test,`McpRestSystemTest`>>) und
 die des Meldewegs am Ursprung (<<src-security-txt-system-test,`SecurityTxtSystemTest`>>).
 
 `McpSystemTest` spricht das Protokoll, wie ein Client es spricht: `initialize`, `tools/list`,
@@ -180,6 +191,14 @@ die des Meldewegs am Ursprung (<<src-security-txt-system-test,`SecurityTxtSystem
 Transports, die man von außen nicht sieht – `403` bei gesetztem `Origin`, `400` ohne beide
 Medientypen im `Accept`, `405` auf ein `GET`
 (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]).
+
+`McpRestSystemTest` prüft dieselben Werkzeuge über die REST-Fassade
+(link:{adr}/0050-rest-facade-des-mcp-service-in-openapi{adrext}[ADR 0050]) und dazu drei Dinge, die
+nur von außen sichtbar sind: dass die Operationen im Contract stehen, dass Fassade und
+JSON-RPC-Endpunkt *gleichzeitig* antworten – der Transport hängt am exakten Pfad, die Fassade
+darunter – und dass eine Anfrage mit `Origin` hier `200` bekommt, wo der Protokollendpunkt `403`
+antwortet. Der letzte Test hält eine bewusste Lücke fest, damit sie keine Entdeckung wird
+(Kapitel Betrieb, Abschnitt <<offene-punkte>>).
 
 Der Meldeweg ist der einzige Pfad *außerhalb* des Context-Path
 (link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037]); geprüft wird

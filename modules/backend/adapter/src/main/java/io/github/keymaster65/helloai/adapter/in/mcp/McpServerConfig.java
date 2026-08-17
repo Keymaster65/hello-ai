@@ -2,11 +2,11 @@ package io.github.keymaster65.helloai.adapter.in.mcp;
 
 import io.modelcontextprotocol.json.McpJsonDefaults;
 import io.modelcontextprotocol.json.McpJsonMapper;
+import io.modelcontextprotocol.json.schema.JsonSchemaValidator;
 import io.modelcontextprotocol.server.McpServer;
 import io.modelcontextprotocol.server.McpStatelessSyncServer;
 import io.modelcontextprotocol.server.transport.DefaultServerTransportSecurityValidator;
 import io.modelcontextprotocol.server.transport.HttpServletStatelessServerTransport;
-import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -23,7 +23,8 @@ import org.springframework.context.annotation.Configuration;
  *
  * <p>The transport is a servlet of its own, registered next to the {@code DispatcherServlet}, so
  * requests to the endpoint bypass Spring MVC entirely. That also means springdoc cannot see it
- * (ADR 0005); {@code docs/system/api.adoc} describes it instead.
+ * (ADR 0005); {@code docs/system/api.adoc} describes it, and {@link McpRestController} offers the
+ * same catalogue as operations that springdoc <em>can</em> see (ADR 0050).
  *
  * <p>Stateless streamable HTTP: one request, one response, no session. This server never sends a
  * message of its own, so there is nothing a session would be needed for.
@@ -41,7 +42,7 @@ class McpServerConfig {
      * What a client is told about this server before it lists anything. Kept short on purpose: it
      * says where to start, not what the tools do &ndash; that is the tools' own description.
      */
-    private static final String INSTRUCTIONS = """
+    static final String INSTRUCTIONS = """
             Read-only access to the recipes of this application and to its system documentation. \
             Start with list_recipes or list_documentation; both return identifiers that get_recipe \
             and read_documentation take. The documentation pages are additionally offered as \
@@ -65,6 +66,16 @@ class McpServerConfig {
     @Bean
     McpJsonMapper mcpJsonMapper() {
         return McpJsonDefaults.getMapper();
+    }
+
+    /**
+     * The schema validator of the MCP runtime, resolved through the SDK's service loader like the
+     * mapper above. It is a bean because the REST facade validates with it too (ADR 0050) &ndash;
+     * an argument the protocol endpoint rejects is rejected there as well.
+     */
+    @Bean
+    JsonSchemaValidator mcpSchemaValidator() {
+        return McpJsonDefaults.getSchemaValidator();
     }
 
     /**
@@ -104,24 +115,28 @@ class McpServerConfig {
      * <p>{@code immediateExecution(true)} keeps the handlers on the request thread of the servlet
      * instead of moving them to a scheduler. The work is blocking anyway &ndash; a database query,
      * a classpath read &ndash; and the transaction boundary of the use cases stays where it began.
+     *
+     * <p>Tools and resources come from {@link McpCatalog}, the one place they are assembled: the
+     * REST facade reads the same lists, and a catalogue built twice would drift (ADR 0050). Mapper,
+     * validator and {@code validateToolInputs} are passed explicitly for the same reason &ndash;
+     * both fronts must judge an argument alike, so the setting cannot stay an SDK default that only
+     * one of them relies on.
      */
     @Bean
     McpStatelessSyncServer mcpServer(
             HttpServletStatelessServerTransport mcpTransport,
             McpJsonMapper mcpJsonMapper,
-            RecipeMcpTools recipeMcpTools,
-            DocumentationMcpTools documentationMcpTools,
-            DocumentationMcpResources documentationMcpResources) {
+            JsonSchemaValidator mcpSchemaValidator,
+            McpCatalog mcpCatalog) {
         return McpServer.sync(mcpTransport)
                 .jsonMapper(mcpJsonMapper)
+                .jsonSchemaValidator(mcpSchemaValidator)
+                .validateToolInputs(McpCatalog.VALIDATE_TOOL_INPUTS)
                 .serverInfo(applicationName, applicationVersion)
                 .instructions(INSTRUCTIONS)
                 .immediateExecution(true)
-                .tools(Stream.concat(
-                                recipeMcpTools.specifications().stream(),
-                                documentationMcpTools.specifications().stream())
-                        .toList())
-                .resources(documentationMcpResources.specifications())
+                .tools(mcpCatalog.tools())
+                .resources(mcpCatalog.resources())
                 .build();
     }
 }

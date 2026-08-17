@@ -47,6 +47,106 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/mcp/tools/{name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Call a tool
+         * @description Runs the tool and returns its result. The request body carries the arguments as a JSON object, exactly as the tool's inputSchema describes them; a tool without arguments takes an empty object. A failure the caller can act on – an unknown identifier, an argument the schema rejects – is answered with 200 and isError set, because the tool ran and reported it. That is how the protocol answers as well.
+         */
+        post: operations["callTool"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mcp/tools": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the tools of the MCP server
+         * @description The same list a protocol client gets from tools/list, including the JSON Schema each tool validates its arguments against.
+         */
+        get: operations["tools"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mcp/server": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * What the MCP server says about itself
+         * @description Name, version and the starting hint a protocol client receives from initialize. Read this first: the instructions name the tools to begin with.
+         */
+        get: operations["server"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mcp/resources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List the resources of the MCP server
+         * @description The pages of the delivered system documentation, one resource each. The list is built when the application starts and is empty in a deployable built without documentation.
+         */
+        get: operations["resources"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/mcp/resources/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read a resource
+         * @description Returns the content blocks of one resource. Takes the URI from the resource list.
+         */
+        get: operations["resourceContent"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -210,6 +310,87 @@ export interface components {
             ingredients: components["schemas"]["Ingredient"][];
             /** @description Preparation steps in ascending order */
             steps: components["schemas"]["PreparationStepResponse"][];
+        };
+        /** @description The answer of a tool call */
+        McpToolResult: {
+            /** @description Text blocks of the result */
+            content: string[];
+            /**
+             * @description Whether the tool reported a failure instead of a result
+             * @example false
+             */
+            isError: boolean;
+        };
+        /** @description A tool offered by the MCP server */
+        McpTool: {
+            /**
+             * @description Identifier of the tool
+             * @example get_recipe
+             */
+            name: string;
+            /**
+             * @description Short human-readable title
+             * @example Get a recipe
+             */
+            title?: string;
+            /** @description What the tool does */
+            description?: string;
+            /** @description JSON Schema of the arguments the tool accepts */
+            inputSchema: {
+                [key: string]: unknown;
+            };
+        };
+        /** @description Name, version and starting hint of the MCP server */
+        McpServerInfo: {
+            /**
+             * @description Name the server reports
+             * @example recipes
+             */
+            name: string;
+            /**
+             * @description Version the server reports
+             * @example 0.0.1-SNAPSHOT
+             */
+            version: string;
+            /** @description Where a caller should start, as sent to a protocol client */
+            instructions: string;
+        };
+        /** @description A resource offered by the MCP server */
+        McpResource: {
+            /**
+             * @description Address of the resource
+             * @example recipes://docs/system
+             */
+            uri: string;
+            /**
+             * @description Identifier of the page
+             * @example system
+             */
+            name: string;
+            /** @description Title of the page */
+            title?: string;
+            /** @description One sentence about the page */
+            description?: string;
+            /**
+             * @description Media type of the content
+             * @example text/html
+             */
+            mimeType?: string;
+        };
+        /** @description The content of one resource */
+        McpResourceContent: {
+            /**
+             * @description Address the content was read from
+             * @example recipes://docs/system
+             */
+            uri: string;
+            /**
+             * @description Media type of the content
+             * @example text/html
+             */
+            mimeType?: string;
+            /** @description The content itself, absent if it is not text */
+            text?: string;
         };
     };
     responses: never;
@@ -385,6 +566,142 @@ export interface operations {
                 };
                 content: {
                     "application/problem+json": components["schemas"]["ProblemDetail"];
+                };
+            };
+        };
+    };
+    callTool: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description Name of the tool, as returned by the tool list
+                 * @example list_recipes
+                 */
+                name: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    [key: string]: unknown;
+                };
+            };
+        };
+        responses: {
+            /** @description The result of the tool, possibly marked as an error */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["McpToolResult"];
+                };
+            };
+            /** @description No tool carries this name */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": unknown;
+                };
+            };
+        };
+    };
+    tools: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description All tools, in the order a client should discover them */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["McpTool"][];
+                };
+            };
+        };
+    };
+    server: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Name, version and instructions */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["McpServerInfo"];
+                };
+            };
+        };
+    };
+    resources: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description All resources, possibly an empty list */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["McpResource"][];
+                };
+            };
+        };
+    };
+    resourceContent: {
+        parameters: {
+            query: {
+                /**
+                 * @description URI of the resource, as returned by the resource list
+                 * @example recipes://docs/system
+                 */
+                uri: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The content of the resource */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["McpResourceContent"][];
+                };
+            };
+            /** @description No resource carries this URI */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": unknown;
                 };
             };
         };

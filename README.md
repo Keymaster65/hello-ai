@@ -75,7 +75,7 @@ Hexagonal / Clean Architecture (`io.github.keymaster65.helloai`, ein Modul je Sc
 | Modul                          | Package                   | Verantwortung                                   |
 |--------------------------------|---------------------------|-------------------------------------------------|
 | `:modules:backend:adapter`     | `adapter.in.rest`         | REST-Controller, DTOs, Mapper, Fehlerbehandlung |
-| `:modules:backend:adapter`     | `adapter.in.mcp`          | MCP-Server: lesende Werkzeuge und Ressourcen    |
+| `:modules:backend:adapter`     | `adapter.in.mcp`          | MCP-Server: lesende Werkzeuge und Ressourcen, dazu die REST-Fassade darauf |
 | `:modules:backend:adapter`     | `adapter.out.persistence` | jOOQ-Repository (+ generierter jOOQ-Code)       |
 | `:modules:backend:adapter`     | `adapter.out.documentation` | Ausgelieferte Systemdokumentation vom Klassenpfad |
 | `:modules:backend:application` | `application.port.in/out` | Use-Case- und Repository-Interfaces (Ports)     |
@@ -184,6 +184,30 @@ curl -X POST http://localhost:8080/recipes/api/mcp \
 Zwei Regeln des Transports: Der `Accept`-Header muss **beide** Medientypen nennen, und eine
 Anfrage mit `Origin`-Header wird mit `403` abgewiesen (Schutz gegen DNS-Rebinding).
 
+### Dieselben Werkzeuge über REST (Swagger)
+
+Unterhalb desselben Pfades liegt eine **REST-Fassade**: eine Operation je Methode des
+Protokolls, im OpenAPI-Contract und damit in der Swagger UI bedienbar
+([ADR 0050](docs/adr/0050-rest-facade-des-mcp-service-in-openapi.adoc)).
+
+| Methode und Pfad                         | Entspricht        |
+|------------------------------------------|-------------------|
+| `GET /api/mcp/server`                    | `initialize`      |
+| `GET /api/mcp/tools`                     | `tools/list`      |
+| `POST /api/mcp/tools/{name}`             | `tools/call`      |
+| `GET /api/mcp/resources`                 | `resources/list`  |
+| `GET /api/mcp/resources/content?uri=…`   | `resources/read`  |
+
+```bash
+curl http://localhost:8080/recipes/api/mcp/tools
+curl -X POST http://localhost:8080/recipes/api/mcp/tools/get_recipe \
+  -H 'Content-Type: application/json' -d '{"id":1}'
+```
+
+Der Rumpf einer Werkzeuganfrage **sind** die Argumente. Ein gelaufenes Werkzeug, das einen
+Fehlschlag meldet, antwortet `200` mit `isError` – wie im Protokoll; nur ein Name, den niemand
+trägt, ist ein `404`. Die Origin-Prüfung des Transports greift hier **nicht**.
+
 ### Beispiel-Request (POST)
 ```json
 {
@@ -274,9 +298,10 @@ cd modules/frontend && npm run dev
 - **Contract** (`OpenApiDocumentationTest`): prüft, dass `/v3/api-docs` alle
   Operationen und Schemata beschreibt und die Swagger UI ausgeliefert wird.
 - **MCP** (`RecipeMcpToolsTest`, `DocumentationMcpToolsTest`,
-  `DocumentationMcpResourcesTest`, `ClasspathDocumentationRepositoryTest`,
-  `DocumentationServiceImplTest`): Werkzeuge, Ressourcen und der Zugriff auf die
-  ausgelieferte Dokumentation; der Endpunkt selbst in `McpSystemTest` über HTTP.
+  `DocumentationMcpResourcesTest`, `McpCatalogTest`, `McpRestControllerTest`,
+  `ClasspathDocumentationRepositoryTest`, `DocumentationServiceImplTest`): Werkzeuge,
+  Ressourcen, der gemeinsame Katalog beider Fronten und der Zugriff auf die ausgelieferte
+  Dokumentation; die Endpunkte selbst in `McpSystemTest` und `McpRestSystemTest` über HTTP.
 - **Frontend** (`modules/frontend/src/**/*.test.tsx`, Task `frontendTest`): Vitest +
   Testing Library für API-Client, Komponenten und die Zusammenschaltung in `App`.
 - **E2E** (`modules/frontend/e2e`, Task `e2eTest`): Playwright treibt einen echten Chromium

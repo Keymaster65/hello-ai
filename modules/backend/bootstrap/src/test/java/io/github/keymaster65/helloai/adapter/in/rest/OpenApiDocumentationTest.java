@@ -14,8 +14,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 /**
  * Verifies that the OpenAPI contract is generated and served, and that it actually describes the
- * recipe endpoints. Liquibase is switched off so the test needs no database; the DataSource itself
- * is only connected lazily and therefore never used here.
+ * recipe endpoints and the REST facade of the MCP server (ADR 0050). Liquibase is switched off so
+ * the test needs no database; the DataSource itself is only connected lazily and therefore never
+ * used here.
  */
 @SpringBootTest(classes = RecipeApplication.class, properties = "spring.liquibase.enabled=false")
 @AutoConfigureMockMvc
@@ -55,6 +56,31 @@ class OpenApiDocumentationTest {
                 .andExpect(jsonPath("$.components.schemas.ProblemDetail").exists())
                 .andExpect(jsonPath("$.components.schemas.RecipeRequest.required").value(
                         org.hamcrest.Matchers.hasItems("title", "difficulty")));
+    }
+
+    @Test
+    void shouldDocumentTheMcpOperations() throws Exception {
+        // The JSON-RPC endpoint is a servlet of its own and invisible to springdoc (ADR 0049); its
+        // REST facade is not, and that is the whole point of ADR 0050.
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.paths['/api/mcp/server'].get").exists())
+                .andExpect(jsonPath("$.paths['/api/mcp/tools'].get").exists())
+                .andExpect(jsonPath("$.paths['/api/mcp/tools/{name}'].post").exists())
+                .andExpect(jsonPath("$.paths['/api/mcp/tools/{name}'].post.responses.404").exists())
+                .andExpect(jsonPath("$.paths['/api/mcp/resources'].get").exists())
+                .andExpect(jsonPath("$.paths['/api/mcp/resources/content'].get").exists());
+    }
+
+    @Test
+    void shouldDocumentTheMcpSchemas() throws Exception {
+        mockMvc.perform(get("/v3/api-docs"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.components.schemas.McpServerInfo").exists())
+                .andExpect(jsonPath("$.components.schemas.McpTool").exists())
+                .andExpect(jsonPath("$.components.schemas.McpToolResult").exists())
+                .andExpect(jsonPath("$.components.schemas.McpResource").exists())
+                .andExpect(jsonPath("$.components.schemas.McpResourceContent").exists());
     }
 
     @Test
