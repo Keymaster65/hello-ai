@@ -57,6 +57,20 @@ final class GitDataBranch {
     }
 
     /**
+     * Whether the branch exists at all &ndash; it does from its first commit on.
+     *
+     * @return {@code true} if the ref is there, {@code false} before the first write
+     * @throws GitDataException if the repository cannot be read
+     */
+    boolean exists() {
+        try {
+            return repository.resolve(reference()) != null;
+        } catch (IOException cause) {
+            throw new GitDataException("cannot read branch " + branch, cause);
+        }
+    }
+
+    /**
      * Reads every file of the branch tip.
      *
      * @return path to content, sorted by path; empty if the branch does not exist yet

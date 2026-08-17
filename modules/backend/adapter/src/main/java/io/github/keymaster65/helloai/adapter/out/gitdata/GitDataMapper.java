@@ -4,6 +4,7 @@ import io.github.keymaster65.helloai.domain.model.Difficulty;
 import io.github.keymaster65.helloai.domain.model.Ingredient;
 import io.github.keymaster65.helloai.domain.model.PreparationStep;
 import io.github.keymaster65.helloai.domain.model.Recipe;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -17,18 +18,22 @@ import java.util.List;
 final class GitDataMapper {
 
     /**
-     * @param id     identifier to store with the recipe
-     * @param recipe the recipe to store; its own {@code id} is ignored
+     * @param id        identifier to store with the recipe
+     * @param recipe    the recipe to store; its own {@code id} is ignored
+     * @param createdAt when the row was first written &ndash; kept across a replacement
+     * @param updatedAt when it was written now
      * @return the document to write
      */
-    RecipeDocument toDocument(long id, Recipe recipe) {
+    RecipeDocument toDocument(long id, Recipe recipe, Instant createdAt, Instant updatedAt) {
         return RecipeDocument.curried()
                 .id(id)
                 .title(recipe.title())
                 .description(recipe.description())
                 .servings(recipe.servings())
                 .prepTimeMinutes(recipe.prepTimeMinutes())
-                .difficulty(recipe.difficulty().name());
+                .difficulty(recipe.difficulty().name())
+                .createdAt(createdAt)
+                .updatedAt(updatedAt);
     }
 
     /**

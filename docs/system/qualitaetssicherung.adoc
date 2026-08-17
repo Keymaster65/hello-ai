@@ -149,6 +149,14 @@ link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019].
 | Property-based: Ein Rezept übersteht den Weg Domäne → Dokument → JSON → Dokument → Domäne
   unverändert, und jedes Kind trägt Fremdschlüssel und 1-basierte Position.
 
+| <<src-seed-changelog-test,`SeedChangelogTest`>>,
+  <<src-gitdata-initial-population-test,`GitDataInitialPopulationTest`>>
+| Die Anfangspopulation
+  (link:{adr}/0055-anfangspopulation-des-gitdata-stores-aus-dem-seed-changeset{adrext}[ADR 0055]):
+  dass das Seed-Changeset als sechs Rezepte mit 38 Zutaten und 27 Schritten gelesen wird – Spalten,
+  Positionen und die Bindung der Kinder über den Titel –, und dass sie in einen unbeschriebenen
+  Store wandern, in einen *vorhandenen* Branch dagegen nicht, auch nicht in einen leeren.
+
 | <<src-gitdata-recipe-controller-test,`GitDataRecipeControllerTest`>>
 | Die *Verdrahtung* der zweiten Front
   (link:{adr}/0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[ADR 0054]): Eingeschaltet gibt es
@@ -220,8 +228,12 @@ antwortet. Der letzte Test hält eine bewusste Lücke fest, damit sie keine Entd
 (Kapitel Betrieb, Abschnitt <<offene-punkte>>).
 
 `GitDataSystemTest` prüft die zweite Rezept-Front über HTTP
-(link:{adr}/0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[ADR 0054]) – und dabei vor allem
-das, was nur von außen sichtbar ist: dass die *Bestände getrennt* sind. Was über
+(link:{adr}/0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[ADR 0054]) – und dabei zwei Dinge,
+die nur von außen sichtbar sind. Erstens, dass beide Ablagen mit *demselben* Anfangsbestand starten:
+Der Test vergleicht `GET /api/recipes` mit `GET /api/gitdata/recipes`, Titel für Titel und für das
+erste Rezept auch Beschreibung, Portionen, Schwierigkeit, Zutaten und Schritte
+(link:{adr}/0055-anfangspopulation-des-gitdata-stores-aus-dem-seed-changeset{adrext}[ADR 0055]).
+Damit ist „identisch" belegt statt behauptet. Zweitens, dass die *Bestände getrennt* sind. Was über
 `+/api/gitdata/recipes+` angelegt wurde, taucht unter `/api/recipes` nicht auf; täte es das, wären
 beide Adressen dieselbe Ablage. Die selbst gestartete Instanz schaltet den Store dafür in ein
 Wegwerf-Verzeichnis ein; gegen eine deployte Instanz, die ihn nicht führt, *überspringt* sich der

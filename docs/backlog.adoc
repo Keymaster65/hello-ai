@@ -42,21 +42,6 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 `git`.
 
 
-== : Lege für den Adapter gitdata eine Anfangspopulation an, die der Liquibase-Seed entspricht
-
-Teil 3 von 3 (Teile 1 und 2 sind erledigt, siehe ADR 0053, ADR 0054 und die Protokolleinträge 168
-und 170). Dieselben sechs Rezepte des Buchinger-Zyklus wie in `0002-seed-fasting-recipes.xml`, mit
-einem Test, der beide Fassungen gegeneinander vergleicht, damit „identisch" nachgewiesen ist und
-nicht behauptet. Zu klären ist dabei, wann sie entsteht – beim Start in einen leeren Branch, wie
-das Seed-Changeset in eine leere Datenbank – und was mit den zwei Spalten geschieht, die der
-git-Store nicht führt (`created_at`, `updated_at`).
-
-Wenn ein Branch bei Start existiert, soll er zunächst unverändert bleiben. Im Systemtest kann er
-dann vor der Population geleert werden.
-
-Die fehlenden Spalten created_at und updated_at sollen von der Anwendung aus der aktuellen Zeit
-befüllt werden.
-
 == architecture
     Multi Brower Support
 

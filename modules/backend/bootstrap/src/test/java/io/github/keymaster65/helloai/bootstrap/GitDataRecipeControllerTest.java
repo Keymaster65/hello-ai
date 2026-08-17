@@ -43,6 +43,9 @@ class GitDataRecipeControllerTest {
 
     private static final String PATH = "/api/gitdata/recipes";
 
+    /** The six recipes the store is populated with at startup (ADR 0055). */
+    private static final int SEEDED = 6;
+
     private static final String SOUP = """
             {
               "title": "Fastensuppe",
@@ -66,11 +69,14 @@ class GitDataRecipeControllerTest {
 
     @Test
     @Order(1)
-    void shouldStartWithAnEmptyStore() throws Exception {
+    void shouldStartWithTheSeededRecipes() throws Exception {
+        // Not empty: the initial population runs before the first request (ADR 0055), out of the
+        // same changeset Liquibase reads – here into a fresh, throw-away repository.
         mockMvc.perform(get(PATH))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.length()").value(SEEDED))
+                .andExpect(jsonPath("$[0].title").value("Entlastungstag: Reis mit gedünstetem Gemüse"));
     }
 
     @Test
@@ -79,8 +85,9 @@ class GitDataRecipeControllerTest {
         mockMvc.perform(post(PATH).contentType(MediaType.APPLICATION_JSON).content(SOUP))
                 .andExpect(status().isCreated())
                 // The Location header names *this* front, not the relational one.
-                .andExpect(header().string("Location", org.hamcrest.Matchers.endsWith(PATH + "/1")))
-                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(header().string(
+                        "Location", org.hamcrest.Matchers.endsWith(PATH + "/" + (SEEDED + 1))))
+                .andExpect(jsonPath("$.id").value(SEEDED + 1))
                 .andExpect(jsonPath("$.title").value("Fastensuppe"))
                 .andExpect(jsonPath("$.ingredients[0].name").value("Karotten"))
                 .andExpect(jsonPath("$.steps[1].position").value(2));
@@ -89,7 +96,7 @@ class GitDataRecipeControllerTest {
     @Test
     @Order(3)
     void shouldReadBackWhatTheStoreCommitted() throws Exception {
-        mockMvc.perform(get(PATH + "/1"))
+        mockMvc.perform(get(PATH + "/" + (SEEDED + 1)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Fastensuppe"))
                 .andExpect(jsonPath("$.difficulty").value("EASY"));
@@ -108,9 +115,9 @@ class GitDataRecipeControllerTest {
 
     @Test
     @Order(5)
-    void shouldDeleteAndLeaveTheStoreEmpty() throws Exception {
-        mockMvc.perform(delete(PATH + "/1")).andExpect(status().isNoContent());
-        mockMvc.perform(get(PATH)).andExpect(jsonPath("$.length()").value(0));
+    void shouldDeleteAndLeaveTheSeededRecipesBehind() throws Exception {
+        mockMvc.perform(delete(PATH + "/" + (SEEDED + 1))).andExpect(status().isNoContent());
+        mockMvc.perform(get(PATH)).andExpect(jsonPath("$.length()").value(SEEDED));
     }
 
     @Test

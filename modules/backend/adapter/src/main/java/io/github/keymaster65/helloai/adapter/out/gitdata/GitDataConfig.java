@@ -51,9 +51,21 @@ class GitDataConfig {
      * @return the git-backed store, as the port
      */
     @Bean(name = REPOSITORY_BEAN, destroyMethod = "close")
-    RecipeRepository gitDataRecipeRepository(GitDataProperties properties, ObjectMapper json) {
+    GitDataRecipeRepository gitDataRecipeRepository(GitDataProperties properties, ObjectMapper json) {
         return GitDataRecipeRepository.openBare(
                 Path.of(properties.repository()), properties.branch(), Clock.systemUTC(), json);
+    }
+
+    /**
+     * The initial population: the recipes of the seed changeset, written when the branch does not
+     * exist yet (ADR 0055). An existing branch is left alone, whatever stands on it.
+     *
+     * @param store the git-backed store
+     * @return the population, which runs before the first request
+     */
+    @Bean
+    GitDataInitialPopulation gitDataInitialPopulation(GitDataRecipeRepository store) {
+        return new GitDataInitialPopulation(store);
     }
 
     /**

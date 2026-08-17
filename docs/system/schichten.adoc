@@ -151,8 +151,11 @@ Basispaket ist `io.github.keymaster65.helloai`.
   <<src-gitdata-exception,`GitDataException`>> und die drei Dokument-Records
   <<src-recipe-document,`RecipeDocument`>>,
   <<src-ingredient-document,`IngredientDocument`>> und
-  <<src-preparation-step-document,`PreparationStepDocument`>>: derselbe ausgehende Port, auf einen
-  git-Branch geschrieben (link:{adr}/0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[ADR
+  <<src-preparation-step-document,`PreparationStepDocument`>>, dazu
+  <<src-seed-changelog,`SeedChangelog`>> und
+  <<src-gitdata-initial-population,`GitDataInitialPopulation`>> für den Anfangsbestand
+  (link:{adr}/0055-anfangspopulation-des-gitdata-stores-aus-dem-seed-changeset{adrext}[ADR 0055]):
+  derselbe ausgehende Port, auf einen git-Branch geschrieben (link:{adr}/0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[ADR
   0053]). Dazu <<src-gitdata-config,`GitDataConfig`>> und
   <<src-gitdata-properties,`GitDataProperties`>>, die den Store und seinen Anwendungsfall
   zusammensetzen – im Adapter, nicht im Composition Root
@@ -558,6 +561,17 @@ der Commit die Transaktion.
 | Sortierung
 | Kinder nach `position`, Rezepte nach Kennung: dieselbe Zusicherung wie beim jOOQ-Adapter. Ein
   Verzeichnis hat keine Ordnung, deshalb trägt jedes Kind Position und Fremdschlüssel selbst.
+
+| Zeitstempel
+| `created_at` und `updated_at` stehen im Dokument und kommen aus der Uhr des Stores
+  (link:{adr}/0055-anfangspopulation-des-gitdata-stores-aus-dem-seed-changeset{adrext}[ADR 0055]);
+  beim Ersetzen bleibt `created_at` stehen.
+
+| Anfangspopulation
+| Beim Start, *nur* wenn der Branch noch nicht existiert: die sechs Rezepte des Seed-Changesets,
+  gelesen vom Klassenpfad (<<src-seed-changelog,`SeedChangelog`>>,
+  <<src-gitdata-initial-population,`GitDataInitialPopulation`>>), ein Commit je Rezept. Ein
+  vorhandener Branch bleibt unangetastet, auch ein leerer.
 
 | Fehlerbild
 | `GitDataException` – der Port kennt keine geprüfte Ausnahme. Die Meldung nennt Operation und

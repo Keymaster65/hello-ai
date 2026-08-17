@@ -218,8 +218,11 @@ nicht verdrahtet.
 
 | `recipe`
 | `+database/entities/recipes/<id>.json+`
-| Ohne `created_at` und `updated_at`: Die Zeit trägt der Commit. `difficulty` steht als Text da wie
-  in der Spalte – ohne Prüfbedingung hier wie dort.
+| Auch `created_at` und `updated_at` stehen darin – gesetzt aus der Uhr der Anwendung, nicht von
+  einem Datenbank-Default
+  (link:{adr}/0055-anfangspopulation-des-gitdata-stores-aus-dem-seed-changeset{adrext}[ADR 0055]);
+  beim Anlegen gleich, beim Ersetzen wandert nur `updated_at`. `difficulty` steht als Text da wie in
+  der Spalte – ohne Prüfbedingung hier wie dort.
 
 | `ingredient`
 | `+database/entities/ingredients/<id>.json+`
@@ -235,3 +238,19 @@ Was die Datenbank zusichert und diese Ablage nicht: `FOREIGN KEY`, `ON DELETE CA
 Eindeutigkeit der Kennung. Das Löschen der Kinder tut hier Code, und eine von Hand eingefügte Zeile
 mit unbekanntem `recipe_id` fällt niemandem auf. Umgekehrt hält diese Ablage etwas fest, was die
 Datenbank nicht hat: *wer wann was* geändert hat, in der Historie des Branches.
+
+=== Dieselbe Anfangspopulation
+
+Beide Ablagen starten mit *denselben sechs Rezepten*, und zwar aus *einer* Quelle: Der git-Store
+liest beim Start dasselbe Changeset <<beispieldaten,`0002-seed-fasting-recipes`>> vom Klassenpfad,
+das Liquibase in die Datenbank einspielt, und schreibt daraus einen Commit je Rezept
+(link:{adr}/0055-anfangspopulation-des-gitdata-stores-aus-dem-seed-changeset{adrext}[ADR 0055]). Ein
+geändertes Seed-Rezept wirkt damit auf beide; es gibt keine zweite Liste, die veralten könnte.
+
+Die Zurückhaltung ist dieselbe wie dort, nur anders ausgedrückt: Wo das Changeset über
+`preConditions` nur in eine *leere* Datenbank einfügt, füllt der Store nur einen Branch, den es
+*noch nicht gibt*. Ein vorhandener Branch bleibt unangetastet – auch ein absichtlich geleerter.
+
+Nicht gleich sind zwei Dinge, und das ist unvermeidlich: die Identifikatoren (jede Ablage vergibt
+sie selbst) und die Zeitstempel. Der Systemtest vergleicht deshalb Inhalte über beide REST-Fronten,
+nicht Zeilen.

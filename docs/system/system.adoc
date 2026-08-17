@@ -128,6 +128,7 @@ erste Zeile.
 |===
 | ADR | Thema
 
+| link:{adr}/0055-anfangspopulation-des-gitdata-stores-aus-dem-seed-changeset{adrext}[0055] | Der git-Store bekommt beim Start dieselben sechs Rezepte wie die Datenbank – gelesen aus *einem* Seed-Changeset, ein Commit je Rezept, nur in einen noch nicht existierenden Branch; dazu `created_at` und `updated_at` im Dokument, gesetzt aus der Uhr der Anwendung (ergänzt 0053)
 | link:{adr}/0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[0054] | Der git-Store bekommt eine Adresse: `+/api/gitdata/recipes+` mit denselben fünf Operationen, aus einer gemeinsamen Basisklasse; zwei Beans je Port, der relationale Weg bleibt `+@Primary+`, und alles ist über `recipes.gitdata.enabled` abschaltbar – Vorgabe aus (ergänzt 0053)
 | link:{adr}/0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[0053] | Zweiter Adapter am ausgehenden Port `RecipeRepository`: `gitdata` legt jede Zeile als eigene JSON-Datei unter `+database/entities/…+` in den wurzellosen Branch `data` und macht aus jeder Schreiboperation einen Commit – über JGit, ohne Arbeitsverzeichnis. Der jOOQ-Weg bleibt der aktive (ergänzt 0001, 0004)
 | link:{adr}/0052-commit-hashes-als-links-auf-github{adrext}[0052] | Die Spalte „Commit" der Git-Historie verlinkt jeden Hash auf das Diff bei GitHub; die Basis-URL ist eine Konstante des Buildskripts, der Anker `+commit-<kurzhash>+` bleibt daneben stehen (ergänzt 0036)

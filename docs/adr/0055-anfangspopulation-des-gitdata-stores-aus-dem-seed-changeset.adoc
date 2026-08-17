@@ -1,0 +1,204 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= ADR 0055: Anfangspopulation des gitdata-Stores aus dem Seed-Changeset, mit Zeitstempeln aus der Anwendung
+
+== Status
+
+Akzeptiert – 2026-08-17
+
+Ergänzt link:0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[ADR 0053] an *einem*
+Punkt, den dieses ADR ausdrücklich offengelassen hatte: „Zeitstempel fehlen im Dokument … Teil 3
+muss das beim Vergleich der Anfangspopulation wissen." Sie fehlen nicht mehr. Die übrigen
+Festlegungen von ADR 0053 und
+link:0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[ADR 0054] bleiben unverändert gültig.
+
+Damit ist der geteilte Backlog-Eintrag „Ergänze Adapter gitdata …" vollständig abgearbeitet.
+
+== Kontext
+
+Der git-Store ist gebaut (ADR 0053) und erreichbar (ADR 0054), aber leer. Verlangt war eine
+*identische Anfangspopulation* – dieselben sechs Rezepte des Buchinger-Zyklus, die das
+Seed-Changeset `0002-seed-fasting-recipes.xml` in die Datenbank einfügt – und ein Test, der
+„identisch" *nachweist* statt es zu behaupten.
+
+Drei Fragen waren dabei offen; zwei hat der Nutzer im Backlog-Eintrag beantwortet, die dritte
+zusammen mit der Freigabe:
+
+* *Was mit einem vorhandenen Branch geschieht:* „Wenn ein Branch bei Start existiert, soll er
+  zunächst unverändert bleiben. Im Systemtest kann er dann vor der Population geleert werden."
+* *Was mit den zwei Spalten geschieht, die der Store nicht führte:* „Die fehlenden Spalten
+  created_at und updated_at sollen von der Anwendung aus der aktuellen Zeit befüllt werden."
+* *Woher die Rezepte kommen:* aus dem Liquibase-Changeset, gelesen zur Laufzeit.
+
+Der letzte Punkt ist der entscheidende: Solange es *eine* Quelle gibt, ist „identisch" eine
+Eigenschaft der Bauart und nicht das Ergebnis von Sorgfalt.
+
+== Optionen
+
+=== Woher die Rezepte kommen
+
+. *Das Seed-Changeset vom Klassenpfad lesen* – gewählt, vom Nutzer entschieden. Eine Quelle für
+  beide Ablagen; ein geändertes Rezept ändert beide, ohne dass jemand daran denken muss.
+. *Eine eigene JSON-Ressource neben dem Adapter.* Verworfen: sauber getrennt, aber zwei Fassungen
+  derselben Daten – und die zweite veraltet still. Der Test müsste dann bewachen, was die Bauart
+  hier von selbst hält.
+. *Die Rezepte aus der laufenden Datenbank kopieren.* Verworfen: Der Store hinge beim Start an der
+  Datenbank, deren Alternative er sein soll. Und in einer Installation ohne Seed-Kontext stünde
+  dort nichts.
+. *Die Population als Java-Code im Adapter.* Verworfen aus demselben Grund wie die JSON-Ressource,
+  nur unhandlicher.
+
+=== Wann die Population läuft
+
+. *Beim Start, wenn der Branch noch nicht existiert* – gewählt, vom Nutzer entschieden. Es ist die
+  Regel des Seed-Changesets, übersetzt: Dort verhindert `+preConditions … COUNT(*) = 0+` das
+  Einfügen in eine befüllte Datenbank, hier verhindert die Existenz des Branches das Einfügen in
+  einen bespielten Store.
+. *Bedingung „keine Rezepte vorhanden" statt „kein Branch".* Verworfen, und zwar auf Wunsch des
+  Nutzers: Ein Branch, den jemand absichtlich geleert hat, würde beim nächsten Start wieder
+  befüllt. Ein leerer Bestand ist ein Zustand, keine Einladung.
+. *Bei jedem Start abgleichen.* Verworfen: Das wäre eine Synchronisation und damit eine ganz andere
+  Entscheidung – sie überschriebe, was ein Aufrufer geändert hat.
+. *Über einen Endpunkt anstoßen.* Verworfen: eine dritte schreibende Adresse, und die Frage „wer
+  darf das" ohne Authentifizierung nicht zu beantworten.
+
+=== Wo im Lebenszyklus
+
+. *`InitializingBean`, also vor dem Öffnen des Ports* – gewählt. Ein Aufruf trifft nie auf einen
+  halb befüllten Bestand.
+. *`ApplicationRunner`.* Verworfen: läuft *nach* dem Start des Webservers; zwischen Port und
+  Population liegt dann ein Fenster, in dem `GET` eine leere Liste liefert.
+. *Beim ersten Lesezugriff (lazy).* Verworfen: Der erste Aufruf zahlte die Population, und zwei
+  gleichzeitige erste Aufrufe zahlten sie doppelt.
+
+=== Wie viele Commits
+
+. *Ein Commit je Rezept* – gewählt: dieselbe Regel wie für jeden anderen Schreibvorgang (ADR 0053),
+  und die Historie zeigt die Population als die sechs Schritte, die sie ist.
+. *Ein Commit für die ganze Population.* Verworfen: Es wäre die einzige Stelle, an der ein Commit
+  *nicht* einer Operation entspricht – eine Ausnahme, die man später erklären müsste.
+
+=== Woher die Zeitstempel kommen
+
+. *Aus der Uhr der Anwendung* – gewählt, vom Nutzer entschieden. `createdAt` und `updatedAt`
+  stehen im Dokument; beim Anlegen sind sie gleich, ein `update` lässt `createdAt` stehen und setzt
+  `updatedAt` neu – genau das tut das `UPDATE` des anderen Adapters.
+. *Weiter weglassen und die Commit-Zeit als Ersatz lesen.* Verworfen: Die Commit-Zeit steht in der
+  Historie, nicht im Datensatz; wer eine Zeile liest, müsste den Baum durchsuchen. Und beim
+  Ersetzen ginge das ursprüngliche Anlegedatum verloren.
+. *Die Zeitstempel in die Domäne heben.* Verworfen: Die Systemdokumentation sagt ausdrücklich, dass
+  sie *nicht* Teil des Modells sind (Kapitel Datenmodell); dies ist eine Eigenschaft der Ablage.
+
+=== Wie das Changeset gelesen wird
+
+. *DOM ohne externe Entitäten* – gewählt. Das Changelog nennt ein XSD; ohne die Sperre lüde der
+  Parser es über das Netz, und der *Start* der Anwendung hinge an der Erreichbarkeit von
+  liquibase.org. Es ist dieselbe Vorkehrung, die der Build für die JaCoCo-Berichte trifft.
+. *Liquibase als Bibliothek benutzen.* Verworfen: Der Adapter bräuchte Liquibase auf dem
+  Klassenpfad, um sechs Rezepte zu lesen – und würde ein Migrationswerkzeug für etwas benutzen, das
+  keine Migration ist.
+. *Die Datei mit regulären Ausdrücken lesen.* Verworfen: XML ist keine Zeilenstruktur.
+
+== Entscheidung
+
+*Das Dokumentformat bekommt `createdAt` und `updatedAt`* (`Instant`, ISO-8601 im JSON). Gesetzt
+werden sie aus der `Clock` des Stores: beim Anlegen beide gleich, beim Ersetzen bleibt `createdAt`
+und `updatedAt` wandert. Die Domäne sieht sie weiterhin nicht.
+
+*`SeedChangelog` liest `+db/changelog/changes/0002-seed-fasting-recipes.xml+` vom Klassenpfad* und
+liefert die sechs Rezepte in der Reihenfolge des Changesets. Die Kinder finden ihr Rezept so, wie
+das Changeset sie bindet: über den Titel im Unterausdruck von `recipe_id` – die einzige Verbindung,
+die in der Datei steht, weil die Identifikatoren `GENERATED ALWAYS` sind.
+
+*`GitDataInitialPopulation` schreibt sie beim Start*, wenn der Branch nicht existiert; sonst
+protokolliert es eine Zeile und tut nichts. Es läuft als `InitializingBean`, also bevor der Port
+offen ist, und schreibt einen Commit je Rezept.
+
+*Die Store-Bean ist jetzt mit ihrem eigenen (paketprivaten) Typ deklariert* statt mit dem Port:
+Die Population braucht `isUnwritten()`, das kein Port-Begriff ist. Außerhalb des Pakets ändert das
+nichts – der Typ ist dort nicht sichtbar, und injizierbar bleibt der Port (ADR 0054).
+
+*Der Nachweis führt über beide Fronten*: Der Systemtest vergleicht `GET /api/recipes` mit
+`GET /api/gitdata/recipes` – Titel in gleicher Reihenfolge, dazu Beschreibung, Portionen,
+Schwierigkeit, Zutaten und Schritte des ersten Rezepts.
+
+== Konsequenzen
+
+=== Vorteile
+
+* „Identisch" ist prüfbar und geprüft – über HTTP, gegen beide Ablagen, aus *einer* Quelle.
+* Ein geändertes Seed-Rezept wirkt auf beide Ablagen; es gibt keine zweite Liste, die man
+  nachziehen müsste.
+* Die zwei Ablagen unterscheiden sich jetzt in *keiner* Spalte mehr, nur noch in dem, was ihre
+  Technik ausmacht.
+* Die Population ist so zurückhaltend wie das Seed-Changeset: Sie fasst nichts an, was schon da
+  ist.
+* Der Store ist ohne Datenbank befüllbar – wer nur den git-Weg betreibt, bekommt denselben
+  Anfangsbestand.
+
+=== Nachteile
+
+* *Der Adapter liest eine Ressource des anderen.* Kein Klassenverweis und damit kein Verstoß gegen
+  die Zwiebelregel – beide liegen ohnehin im selben Modul –, aber eine Kopplung an ein
+  *Dateiformat*: Wer das Changeset umbaut (andere Tabellennamen, andere Bindung der Kinder), bricht
+  die Population. Der Test `SeedChangelogTest` schlägt dann fehl, und zwar an der Stelle, wo die
+  Ursache steht.
+* *Der Titel bindet die Kinder.* Zwei Rezepte mit demselben Titel führen im Changeset schon heute
+  zu falschen Zuordnungen – hier ebenso. Die Datei nutzt den Titel als Schlüssel, dieser Leser
+  nimmt sie beim Wort.
+* *Ein vor dieser Entscheidung geschriebener Branch hat keine Zeitstempel.* Beim Lesen sind sie
+  `null`; migriert wird nichts, weil noch keine Installation existiert. Wer einen alten Branch
+  weiterbenutzt, sieht die beiden Felder erst nach dem nächsten Schreiben.
+* *„Identisch" gilt ohne Identifikatoren und Zeitstempel.* Die Nummern vergibt jede Ablage selbst
+  (hier 1–6, in der Datenbank ebenso, aber ohne Zusicherung), und die Zeitstempel unterscheiden
+  sich naturgemäß. Der Test vergleicht deshalb Inhalte, nicht Zeilen.
+* *Der Start dauert länger*, wenn der Store leer ist: sechs Commits, also sechs Bäume. Bei diesem
+  Umfang sind das Sekundenbruchteile, aber es ist Arbeit im Startpfad.
+
+=== Bewusst nicht getan
+
+* *Keine Synchronisation zwischen den Ablagen.* Nach der Population laufen sie auseinander, und das
+  ist so gewollt (ADR 0054).
+* *Keine Migration alter Dokumente* auf das erweiterte Format – siehe „Nachteile".
+* *Kein Kontext-Schalter wie `SPRING_LIQUIBASE_CONTEXTS`.* Wer die Population nicht will, schaltet
+  den Store nicht ein oder legt den Branch vorher an. Ein zweiter Schalter für einen Sonderfall,
+  den es noch nicht gibt, wäre eine Zeile mehr in der Konfigurationstabelle.
+* *Keine Zeitstempel in Zutaten und Schritten.* Die Tabellen haben dort auch keine.
+* *`created_at`/`updated_at` bleiben aus API und Domäne heraus.* Sie sind eine Eigenschaft der
+  Ablage; sie in die Antwort zu heben wäre eine Erweiterung des Contracts und damit eine eigene
+  Entscheidung.
+
+== Prüfung
+
+* `./gradlew :modules:backend:adapter:test` – grün, darunter zehn neue Fälle: `SeedChangelogTest`
+  liest *sechs* Rezepte in der Reihenfolge des Changesets, dazu 38 Zutaten und 27 Schritte, prüft
+  Spalten und Positionen des ersten Rezepts; `GitDataInitialPopulationTest` schreibt sie in einen
+  unbeschriebenen Store (sechs Commits, Kennungen 1–6), lässt einen *vorhandenen* Branch in Ruhe –
+  auch den absichtlich geleerten – und populiert nicht zweimal.
+* Die Zeitstempel überstehen den Weg durch die Datei: `GitDataMapperPropertyTest` prüft sie im
+  Rundlauf Domäne → Dokument → JSON → Dokument.
+* `./gradlew systemtest` – der neue Fall `shouldStartWithTheSameSixRecipesAsTheDatabase` vergleicht
+  beide Fronten der laufenden Anwendung: gleiche Titel in gleicher Reihenfolge, gleiche
+  Beschreibung, Portionen, Schwierigkeit, Zutaten und Schritte. Die übrigen Fälle aus ADR 0054
+  bleiben grün, insbesondere die Trennung der Bestände.
+* `GitDataRecipeControllerTest` hat die neue Lage *bemerkt*: Vier Fälle gingen von einem leeren
+  Store aus und wurden rot. Sie erwarten jetzt die sechs Rezepte und die Kennung 7 für das erste
+  selbst angelegte – der Beleg, dass die Population wirklich vor dem ersten Aufruf läuft.
+* `./gradlew clean build` (4:19 min), `./gradlew test` (24 s), `./gradlew systemtest` (1:25 min)
+  und `./gradlew e2eTest` (9 Tests) sind grün; die Definition of Done ist vollständig durchlaufen,
+  es bleiben die zwei bekannten Asciidoctor-Meldungen.
+* `./gradlew coverageTable`: `:adapter` steigt von 72,4 % auf 74,0 %, die Summe von 73,8 % auf
+  75,0 % – der neue Code ist gemessen.
+
+== Referenzen
+
+* link:0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[ADR 0053] – der Store und der
+  dort offengelassene Punkt der Zeitstempel
+* link:0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[ADR 0054] – die Adresse, über die der
+  Vergleich läuft
+* link:0004-liquibase-statt-flyway{adrext}[ADR 0004] – das Changeset, das hier zur zweiten Quelle
+  wird, ohne eine zweite Fassung zu sein
+* link:0002-embedded-postgres-statt-testcontainers{adrext}[ADR 0002] – warum der Vergleich im
+  Systemtest ohne Docker läuft
+* `modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/out/gitdata/`,
+  `docs/system/datenmodell.adoc`, `docs/system/betrieb.adoc`

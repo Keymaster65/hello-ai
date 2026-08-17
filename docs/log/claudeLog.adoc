@@ -9,6 +9,69 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-173]]
+== 173. Prompt: „commit"
+
+_Delta: 8 s · 127 Token out · 165 Token in (neu) · 475.050 Token gesamt_
+_Stand (Session, 10 Prompts): 2:00:36 h · 395.069 Token out · 120.038.768 Token gesamt_
+
+*Aktionen:*
+
+* Freigabe im Befehl (ADR 0040): Teil 3 des gitdata-Eintrags committet – Anfangspopulation aus dem
+  Seed-Changeset, Zeitstempel im Dokument, ADR 0055, Doku. Weiterhin auf dem Branch `git`; die
+  Zwischencommits des Nutzers (`ffdc18e`, `b6aee1b`) liegen darunter.
+* Die Definition of Done lief vollständig in Eintrag 172; seither wurde *kein Code* angefasst, nur
+  Dokumentation (Butterfly-Skill). Die drei Asciidoctor-Tasks liefen danach erneut durch – nur die
+  zwei bekannten Meldungen.
+* Danach die Arbeitsbranches geholt und in den aktuellen Branch gemergt (ADR 0032, ADR 0034).
+* Mit diesem Commit ist der dreiteilige gitdata-Eintrag abgeschlossen; das Backlog führt keinen
+  ready-Eintrag mehr.
+
+'''
+
+[[prompt-172]]
+== 172. Prompt: „Lege für den Adapter gitdata eine Anfangspopulation an, die der Liquibase-Seed entspricht" (aus dem Backlog, `next`, Teil 3 von 3)
+
+_Delta: 31:06 min · 64.405 Token out · 1.742.791 Token in (neu) · 30.491.609 Token gesamt_
+_Stand (Session, 9 Prompts): 1:59:04 h · 391.216 Token out · 117.679.110 Token gesamt_
+
+*Aktionen:*
+
+* `next` nach PO-Skill auf Branch `git`: Pull „Already up to date", kein Eintrag aktiv. Zwei der
+  drei offenen Fragen hatte der Nutzer im Rumpf des Eintrags beantwortet (vorhandener Branch bleibt
+  unangetastet; `created_at`/`updated_at` füllt die Anwendung aus der aktuellen Zeit), die dritte
+  mit der Freigabe: Die Rezepte kommen aus dem Liquibase-Changeset.
+* *Entscheidung:* `docs/adr/0055-anfangspopulation-des-gitdata-stores-aus-dem-seed-changeset.adoc` –
+  ergänzt ADR 0053 an dem Punkt, den es selbst offengelassen hatte („Zeitstempel fehlen im
+  Dokument"). Abgewogen: Changeset lesen gegen eigene JSON-Ressource, Kopie aus der Datenbank und
+  Java-Code; Population beim Start gegen Abgleich bei jedem Start und Endpunkt; Bedingung „Branch
+  existiert nicht" gegen „keine Rezepte"; `InitializingBean` gegen `ApplicationRunner` und lazy;
+  ein Commit je Rezept gegen einen für alles; Zeitstempel aus der Uhr gegen Commit-Zeit und
+  Domänenmodell; DOM gegen Liquibase-API und Regex.
+* *Code:* `RecipeDocument` trägt jetzt `createdAt`/`updatedAt` (beim Ersetzen bleibt `createdAt`
+  stehen – wie das `UPDATE` des anderen Adapters). `SeedChangelog` liest
+  `0002-seed-fasting-recipes.xml` vom Klassenpfad – externe Entitäten gesperrt, sonst hinge der
+  *Start* an liquibase.org –, `GitDataInitialPopulation` schreibt die sechs Rezepte, wenn der
+  Branch noch nicht existiert, mit einem Commit je Rezept.
+* *Nachweis, dass „identisch" stimmt:* Der Systemtest vergleicht die beiden laufenden Fronten –
+  `GET /api/recipes` gegen `GET /api/gitdata/recipes`: gleiche Titel in gleicher Reihenfolge, dazu
+  Beschreibung, Portionen, Schwierigkeit, Zutaten und Schritte des ersten Rezepts. Dazu 10 neue
+  Unit-Tests (`SeedChangelogTest`: 6 Rezepte, 38 Zutaten, 27 Schritte; `GitDataInitialPopulationTest`:
+  sechs Commits, Kennungen 1–6, vorhandener Branch bleibt unangetastet – auch der geleerte).
+* *Vier Tests aus Teil 2 wurden rot* und haben damit ihre Arbeit getan: Sie gingen von einem leeren
+  Store aus. Sie erwarten jetzt die sechs Rezepte und die 7 für das erste selbst angelegte – der
+  Beleg, dass die Population vor dem ersten Aufruf läuft.
+* *Doku nachgezogen:* ADR-Index, Startablauf in `betrieb.adoc`, Abschnitt „Dieselbe
+  Anfangspopulation" in `datenmodell.adoc`, `schichten.adoc`, `qualitaetssicherung.adoc`, vier
+  Einträge in `anhang-quellen.adoc`, Wegweiser im ADR-Skill.
+* *Definition of Done vollständig grün:* `+clean build+` (4:19 min), `+test+` (24 s),
+  `+systemtest+` (1:25 min), `+e2eTest+` (9 Tests); nur die zwei bekannten Asciidoctor-Meldungen.
+  `+coverageTable+`: `:adapter` 72,4 % → 74,0 %, Summe 73,8 % → 75,0 %.
+* Damit ist der geteilte Eintrag „Ergänze Adapter gitdata …" *vollständig* abgearbeitet; das
+  Backlog führt keinen ready-Eintrag mehr. Nicht committet: Es fehlt der Befehl.
+
+'''
+
 [[prompt-171]]
 == 171. Prompt: „commit"
 

@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -52,6 +53,7 @@ class GitDataRecipeRepository implements RecipeRepository, AutoCloseable {
 
     private final GitDataBranch branch;
     private final GitDataMapper mapper = new GitDataMapper();
+    private final Clock clock;
     private final ObjectMapper json;
     private final Repository owned;
 
@@ -69,6 +71,7 @@ class GitDataRecipeRepository implements RecipeRepository, AutoCloseable {
     private GitDataRecipeRepository(
             Repository repository, String branch, Clock clock, ObjectMapper json, Repository owned) {
         this.branch = new GitDataBranch(repository, branch, clock);
+        this.clock = clock;
         this.json = json;
         this.owned = owned;
     }
@@ -104,6 +107,16 @@ class GitDataRecipeRepository implements RecipeRepository, AutoCloseable {
         }
     }
 
+    /**
+     * Whether this store has ever been written to. Asked before the initial population: an
+     * existing branch stays untouched, however few rows are on it (ADR 0055).
+     *
+     * @return {@code true} if the branch does not exist yet
+     */
+    boolean isUnwritten() {
+        return !branch.exists();
+    }
+
     /** Closes the repository if this instance opened it; otherwise nothing is ours to close. */
     @Override
     public void close() {
@@ -116,7 +129,9 @@ class GitDataRecipeRepository implements RecipeRepository, AutoCloseable {
     public Recipe save(Recipe recipe) {
         Map<String, byte[]> files = new TreeMap<>(branch.readAll());
         long id = nextId(files, RECIPES);
-        files.put(path(RECIPES, id), toJson(mapper.toDocument(id, recipe)));
+        // Both timestamps are the same on the first write, as the two column defaults are (ADR 0055).
+        Instant now = clock.instant();
+        files.put(path(RECIPES, id), toJson(mapper.toDocument(id, recipe, now, now)));
         writeChildren(files, id, recipe, nextId(files, INGREDIENTS), nextId(files, PREPARATION_STEPS));
         branch.write(files, "insert recipe " + id);
         return read(branch.readAll(), id).orElseThrow(
@@ -137,10 +152,14 @@ class GitDataRecipeRepository implements RecipeRepository, AutoCloseable {
     @Override
     public Optional<Recipe> update(long id, Recipe recipe) {
         Map<String, byte[]> files = new TreeMap<>(branch.readAll());
-        if (!files.containsKey(path(RECIPES, id))) {
+        byte[] stored = files.get(path(RECIPES, id));
+        if (stored == null) {
             return Optional.empty();
         }
-        files.put(path(RECIPES, id), toJson(mapper.toDocument(id, recipe)));
+        // `createdAt` survives a replacement, `updatedAt` does not – as the `UPDATE` of the other
+        // adapter does it, which touches only the second column (ADR 0055).
+        Instant createdAt = fromJson(stored, RecipeDocument.class).createdAt();
+        files.put(path(RECIPES, id), toJson(mapper.toDocument(id, recipe, createdAt, clock.instant())));
         // Children are replaced wholesale, as in the relational adapter: their positions follow the
         // incoming order, and a surviving old row would contradict it. The identifiers of the new
         // rows are taken *before* the old ones go, so they climb like a sequence instead of

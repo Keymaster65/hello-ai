@@ -20,6 +20,34 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-173,173>>
+|„commit"
+| –
+| 8 s
+| 19:22:57 h
+| 127
+| 4.911.591
+| 165
+| 31.173.250
+| 475.050
+| 2:00:36 h
+| 395.069
+| 120.038.768
+
+| <<prompt-172,172>>
+|„Lege für den Adapter gitdata eine Anfangspopulation an, die der Liquibase-Seed entspricht" (aus dem Backlog, `next`, Teil 3 von 3)
+| –
+| 31:06 min
+| 19:22:49 h
+| 64.405
+| 4.911.464
+| 1.742.791
+| 31.173.085
+| 30.491.609
+| 1:59:04 h
+| 391.216
+| 117.679.110
+
 | <<prompt-171,171>>
 |„commit"
 | <<commit-a43bda8,a43bda8>>

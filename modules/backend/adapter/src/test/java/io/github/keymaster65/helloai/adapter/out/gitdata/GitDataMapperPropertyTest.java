@@ -7,6 +7,7 @@ import io.github.keymaster65.helloai.domain.model.Ingredient;
 import io.github.keymaster65.helloai.domain.model.PreparationStep;
 import io.github.keymaster65.helloai.domain.model.Recipe;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.IntStream;
 import net.jqwik.api.ForAll;
@@ -49,7 +50,12 @@ class GitDataMapperPropertyTest {
                         .toList())
                 .steps(List.of(new PreparationStep(1, "Kochen")));
 
-        RecipeDocument recipe = throughJson(mapper.toDocument(7L, original), RecipeDocument.class);
+        Instant written = Instant.parse("2026-08-17T12:00:00Z");
+        RecipeDocument recipe =
+                throughJson(mapper.toDocument(7L, original, written, written), RecipeDocument.class);
+        // The timestamps are part of the format since ADR 0055 and have to survive the file, too.
+        assertThat(recipe.createdAt()).isEqualTo(written);
+        assertThat(recipe.updatedAt()).isEqualTo(written);
         List<IngredientDocument> ingredients = IntStream.range(0, names.size())
                 .mapToObj(index -> mapper.toDocument(
                         index + 1L, 7L, index + 1, original.ingredients().get(index)))

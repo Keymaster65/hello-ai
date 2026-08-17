@@ -3,6 +3,7 @@ package io.github.keymaster65.helloai.systemtest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.http.HttpResponse;
+import java.util.List;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
@@ -100,6 +101,50 @@ class GitDataSystemTest {
         assertThat(HttpProbe.parse(response.body()).path("detail").asString())
                 .contains("999999")
                 .doesNotContain("git", "database/entities");
+    }
+
+    @Test
+    void shouldStartWithTheSameSixRecipesAsTheDatabase() {
+        requireStore();
+
+        JsonNode relational = HttpProbe.getJson(RELATIONAL);
+        JsonNode gitBacked = HttpProbe.getJson(GITDATA);
+
+        // Both populations come from the same changeset (ADR 0055) – the database through
+        // Liquibase, the git store through the initial population. „Identical" is checked here,
+        // over HTTP, and not claimed anywhere.
+        assertThat(titlesOf(gitBacked))
+                .as("dieselben sechs Rezepte, in derselben Reihenfolge")
+                .containsExactlyElementsOf(titlesOf(relational));
+
+        JsonNode fromDatabase = firstSeeded(relational);
+        JsonNode fromGit = firstSeeded(gitBacked);
+        assertThat(fromGit.path("description").asString())
+                .isEqualTo(fromDatabase.path("description").asString());
+        assertThat(fromGit.path("servings").asInt()).isEqualTo(fromDatabase.path("servings").asInt());
+        assertThat(fromGit.path("difficulty").asString())
+                .isEqualTo(fromDatabase.path("difficulty").asString());
+        assertThat(namesOf(fromGit.path("ingredients")))
+                .containsExactlyElementsOf(namesOf(fromDatabase.path("ingredients")));
+        assertThat(instructionsOf(fromGit.path("steps")))
+                .containsExactlyElementsOf(instructionsOf(fromDatabase.path("steps")));
+    }
+
+    private static List<String> titlesOf(JsonNode recipes) {
+        return recipes.valueStream().map(recipe -> recipe.path("title").asString()).toList();
+    }
+
+    private static List<String> namesOf(JsonNode ingredients) {
+        return ingredients.valueStream().map(entry -> entry.path("name").asString()).toList();
+    }
+
+    private static List<String> instructionsOf(JsonNode steps) {
+        return steps.valueStream().map(entry -> entry.path("instruction").asString()).toList();
+    }
+
+    /** The first recipe of the seed – it carries ingredients and steps, so it is worth comparing. */
+    private static JsonNode firstSeeded(JsonNode recipes) {
+        return recipes.path(0);
     }
 
     @Test

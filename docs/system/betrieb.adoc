@@ -255,6 +255,12 @@ Der Anwendungscode ist in beiden Modi identisch, weil er nur relative Pfade kenn
 . Der Katalog der Dokumentationsseiten wird vom Klassenpfad gelesen – einmalig, weil die
   ausgelieferte Dokumentation sich zur Laufzeit nicht ändert
   (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049]).
+. *Nur mit `RECIPES_GITDATA_ENABLED`:* Das Repository wird geöffnet – als bare Repository
+  angelegt, wenn dort keines liegt – und, falls der Branch *noch nicht existiert*, mit denselben
+  sechs Rezepten befüllt, die auch das Seed-Changeset einfügt: ein Commit je Rezept
+  (link:{adr}/0055-anfangspopulation-des-gitdata-stores-aus-dem-seed-changeset{adrext}[ADR 0055]).
+  Ein vorhandener Branch bleibt unangetastet, auch ein leerer. Das geschieht *vor* dem nächsten
+  Schritt: Kein Aufruf trifft auf einen halb befüllten Bestand.
 . Der HTTP-Port wird geöffnet; SPA, API, MCP-Endpunkt, Swagger UI und Systemdokumentation sind
   erreichbar –
   dazu, als einziger Pfad *neben* dem Context-Path, `+/.well-known/security.txt+`
