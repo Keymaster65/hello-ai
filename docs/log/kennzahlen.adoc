@@ -20,6 +20,34 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-171,171>>
+|„commit"
+| –
+| 21 s
+| 18:51:43 h
+| 476
+| 4.847.059
+| 764.460
+| 29.430.294
+| 800.340
+| 1:25:11 h
+| 323.689
+| 84.368.464
+
+| <<prompt-170,170>>
+|„Sprich den Adapter gitdata über einen zusätzlichen Controller an und verdrahte ihn in der Anwendung, mit System-Tests" (aus dem Backlog, `next`, Teil 2 von 3)
+| –
+| 32:29 min
+| 18:51:22 h
+| 111.334
+| 4.846.583
+| 1.075.037
+| 28.665.834
+| 36.148.225
+| 1:23:31 h
+| 319.503
+| 81.978.927
+
 | <<prompt-169,169>>
 |„commit"
 | <<commit-1e9ef65,1e9ef65>>

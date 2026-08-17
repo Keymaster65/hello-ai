@@ -146,6 +146,23 @@ lokale Entwicklung. Es gibt bewusst keine Profil-Dateien je Umgebung.
 | HTTP-Port. Der Default aus `application.yml` ist `80`; Entwicklung und E2E-Tests nutzen
   üblicherweise `8080` (`--server.port=8080`).
 
+| `RECIPES_GITDATA_ENABLED`
+| `false`
+| Schaltet die zweite Ablage ein: den git-Store *und* seine Adresse
+  `+/api/gitdata/recipes+` (link:{adr}/0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[ADR
+  0054]). Ohne sie gibt es beides nicht.
+
+| `RECIPES_GITDATA_REPOSITORY`
+| _(nicht gesetzt)_
+| Verzeichnis des Repositories, in das der Store schreibt; beim Start als *bare* Repository
+  angelegt, wenn dort keines liegt. Zwingend, sobald eingeschaltet – ein Vorgabewert wäre ein
+  Verzeichnis, in dem jemand anders arbeitet.
+
+| `RECIPES_GITDATA_BRANCH`
+| `data`
+| Branch, auf dem die Zeilen liegen. Er entsteht mit dem ersten Commit und ist wurzellos
+  (link:{adr}/0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[ADR 0053]).
+
 | `SECURITY_TXT_CONTACT`
 | `https://github.com/Keymaster65/hello-ai/issues`
 | Meldeweg für Schwachstellen, ausgeliefert unter `+/.well-known/security.txt+` (RFC 9116).
@@ -278,6 +295,16 @@ Umgebung betreibt, ohne sie zu kennen.
   nicht frei – `+/recipes/api/recipes+` liegt offen und sogar schreibend, `/recipes/docs/**`
   ebenso –, freigegeben wird der Weg. Ein Schutz wäre eine Festlegung für die *Anwendung*, nicht
   für diesen Pfad.
+
+| Schutz des git-Stores, wenn er eingeschaltet ist
+| Mit `RECIPES_GITDATA_ENABLED` entsteht eine *zweite schreibende* Adresse,
+  `+/recipes/api/gitdata/recipes+`, und hinter ihr schreibt die Anwendung Commits in ein
+  Repository auf der Platte
+  (link:{adr}/0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[ADR 0054]). Ohne
+  Authentifizierung kann sie jeder auslösen, der den Port erreicht; wer das Repository liest,
+  sieht die ganze Historie der Daten. Das Verzeichnis gehört deshalb dorthin, wo nur die
+  Anwendung schreibt – *nicht* in ein Repository, in dem jemand arbeitet. Ausgeschaltet
+  (Vorgabe) gibt es weder Adresse noch Repository.
 
 | HTTPS
 | Wird nicht von der Anwendung geleistet; TLS müsste ein vorgelagerter Proxy übernehmen.

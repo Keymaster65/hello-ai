@@ -27,7 +27,7 @@ wenn diese Bindung nicht mehr passt.
 
 == Vor der Arbeit: welche ADRs gelten
 
-Nicht alle 53 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
+Nicht alle 54 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
 Zusammenfassung: *Was* gilt, steht im ADR selbst.
 
 [cols="2,3", options="header"]
@@ -53,12 +53,14 @@ Zusammenfassung: *Was* gilt, steht im ADR selbst.
 | link:{adr}/0004-liquibase-statt-flyway{adrext}[0004],
   link:{adr}/0001-jooq-codegen-aus-flyway-skripten{adrext}[0001],
   link:{adr}/0002-embedded-postgres-statt-testcontainers{adrext}[0002],
-  link:{adr}/0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[0053]
+  link:{adr}/0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[0053],
+  link:{adr}/0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[0054]
 
 | REST-Endpunkt, Fehlerbild, OpenAPI
 | link:{adr}/0005-springdoc-openapi-und-swagger-ui{adrext}[0005],
   link:{adr}/0016-context-path-recipes{adrext}[0016],
-  link:{adr}/0046-rfc-9457-problem-details-als-fehlerformat{adrext}[0046]
+  link:{adr}/0046-rfc-9457-problem-details-als-fehlerformat{adrext}[0046],
+  link:{adr}/0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[0054]
 
 | Frontend, neue Route
 | link:{adr}/0007-react-frontend-mit-backend-als-bff{adrext}[0007],

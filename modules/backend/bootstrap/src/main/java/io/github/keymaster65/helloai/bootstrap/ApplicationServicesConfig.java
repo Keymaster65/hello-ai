@@ -8,6 +8,7 @@ import io.github.keymaster65.helloai.application.service.DocumentationServiceImp
 import io.github.keymaster65.helloai.application.service.RecipeServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /**
@@ -19,10 +20,15 @@ import org.springframework.transaction.PlatformTransactionManager;
 class ApplicationServicesConfig {
 
     /**
-     * The only {@link RecipeService} bean: the plain use cases, wrapped in the transaction
-     * boundary. Callers see the port, not which of the two objects they are talking to.
+     * The {@link RecipeService} of the relational store: the plain use cases, wrapped in the
+     * transaction boundary. Callers see the port, not which of the two objects they are talking to.
+     *
+     * <p>{@code @Primary} since ADR 0054: with the git-backed store switched on there is a second
+     * bean of this type, and the way of the application stays this one. The other front asks for
+     * its bean by name.
      */
     @Bean
+    @Primary
     RecipeService recipeService(
             RecipeRepository recipeRepository, PlatformTransactionManager transactionManager) {
         return new TransactionalRecipeService(

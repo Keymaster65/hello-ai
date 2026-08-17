@@ -9,6 +9,72 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-171]]
+== 171. Prompt: „commit"
+
+_Delta: 21 s · 476 Token out · 764.460 Token in (neu) · 800.340 Token gesamt_
+_Stand (Session, 8 Prompts): 1:25:11 h · 323.689 Token out · 84.368.464 Token gesamt_
+
+*Aktionen:*
+
+* Freigabe im Befehl (ADR 0040): Teil 2 des gitdata-Eintrags committet – zweite REST-Front unter
+  `+/api/gitdata/recipes+`, gemeinsame Controller-Basis, Verdrahtung im Adapter, ADR 0054, Doku.
+  Committet wird weiterhin auf dem Branch `git`, nicht auf `main`.
+* Die Definition of Done lief vollständig in Eintrag 170; seither wurde *kein Code* angefasst, nur
+  Dokumentation (Butterfly-Skill). Die drei Asciidoctor-Tasks liefen danach erneut durch – nur die
+  zwei bekannten Meldungen.
+* Danach die Arbeitsbranches geholt und in den aktuellen Branch gemergt (ADR 0032, ADR 0034).
+
+'''
+
+[[prompt-170]]
+== 170. Prompt: „Sprich den Adapter gitdata über einen zusätzlichen Controller an und verdrahte ihn in der Anwendung, mit System-Tests" (aus dem Backlog, `next`, Teil 2 von 3)
+
+_Delta: 32:29 min · 111.334 Token out · 1.075.037 Token in (neu) · 36.148.225 Token gesamt_
+_Stand (Session, 7 Prompts): 1:23:31 h · 319.503 Token out · 81.978.927 Token gesamt_
+
+*Aktionen:*
+
+* `next` nach PO-Skill auf Branch `git` (nicht mehr `main`): `git pull --ff-only` → „Already up to
+  date", kein Eintrag aktiv. Die Adresse der zweiten Front hat der Nutzer mit der Freigabe
+  entschieden: `+/api/gitdata/recipes+`.
+* *Entscheidung:* `docs/adr/0054-zweite-rest-front-auf-dem-gitdata-store.adoc` – ergänzt ADR 0053.
+  Abgewogen: eigener Pfad gegen Header-Schalter und eigenen Port; gemeinsame Basisklasse gegen Kopie
+  und gegen einen Controller mit Store im Pfad; `+@Primary+` plus Bean-Name gegen „alles per
+  Qualifier" und gegen zwei Ports; Verdrahtung im Adapter gegen Composition Root und
+  Komponentensuche; Vorgabe „aus" gegen „an mit Vorgabeverzeichnis"; eigenes bare Repository gegen
+  das Repository der Installation.
+* *Ein Fund, den der Build erzwungen hat:* Der erste Entwurf legte die Verdrahtung in
+  `:bootstrap` – `OnionArchitectureTest` wies ihn mit drei Verstößen zurück, weil `:bootstrap`
+  selbst ein Adapter-Ring ist und die Klassen eines anderen Adapters nicht kennen darf (ADR 0019).
+  Jetzt steht `GitDataConfig` *im* Adapter, wie `McpServerConfig` seit ADR 0049; nach außen gehen
+  nur zwei Beans mit Port-Typen. Der Store ist seither vollständig paketprivat.
+* *Code:* `RecipeControllerBase` trägt die fünf Operationen samt Contract einmal;
+  `RecipeController` und der neue `GitDataRecipeController` sind dünne Unterklassen mit Adresse,
+  Tag und ihrem `RecipeService`. `GitDataConfig` und `GitDataProperties`
+  (`recipes.gitdata.enabled|repository|branch`), `+@Primary+` an `RecipeJooqRepository` und am
+  `recipeService`-Bean, `openBare(...)` legt ein *bare* Repository an – kein Arbeitsverzeichnis,
+  keine Kollision mit einem Checkout. Der Anwendungsfall auf dem git-Store bekommt bewusst *keine*
+  Transaktionsgrenze.
+* *Tests:* `GitDataRecipeControllerTest` (7 Fälle, temporäres Repository über
+  `+@DynamicPropertySource+`, ohne Datenbank) und `GitDataSystemTest` (4 Fälle über HTTP, darunter
+  die Trennung der Bestände: Was über die git-Front angelegt wird, taucht unter `/api/recipes`
+  nicht auf). `RunningApplication` schaltet den Store für die Systemtests in ein
+  Wegwerf-Verzeichnis; `HttpProbe` hat jetzt ein `delete`.
+* *Doku nachgezogen:* ADR-Index, `api.adoc` (Adressraum und ein Abschnitt zur zweiten Front),
+  `betrieb.adoc` (drei Konfigurationszeilen *und* eine Zeile in „Offene Punkte": eine zweite
+  schreibende Adresse, sobald eingeschaltet), `schichten.adoc`, `qualitaetssicherung.adoc`, sechs
+  Einträge in `anhang-quellen.adoc`, Wegweiser im ADR-Skill.
+* *Definition of Done vollständig grün:* `+clean build+` (3:47 min), `+test+` (20 s),
+  `+systemtest+` (1:12 min), `+e2eTest+` (9 Tests); nur die zwei bekannten Asciidoctor-Meldungen.
+* *Nebenbefund:* `+coverageTable+` zeigt `:adapter` mit 72,4 % statt 75,0 %. Nicht weniger geprüft,
+  sondern anderswo: Die neuen Klassen des Adapters prüfen Tests in `:bootstrap`, und gemessen wird
+  je Modul (ADR 0047). Der `KI`-Backlog-Eintrag zur modulübergreifenden Messung wird damit teurer.
+* Teil 2 entfernt; Teil 3 (Anfangspopulation) steht als ready bereit, mit den zwei offenen Fragen
+  im Rumpf. Nicht committet: Es fehlt der Befehl.
+
+'''
+
 [[prompt-169]]
 == 169. Prompt: „commit"
 

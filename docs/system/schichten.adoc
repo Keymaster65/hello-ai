@@ -108,7 +108,10 @@ Basispaket ist `io.github.keymaster65.helloai`.
 
 | `:modules:backend:adapter`
 | `adapter.in.rest`
-| <<src-recipe-controller,`RecipeController`>>,
+| <<src-recipe-controller,`RecipeController`>> und
+  <<src-gitdata-recipe-controller,`GitDataRecipeController`>> – zwei Adressen auf derselben
+  <<src-recipe-controller-base,`RecipeControllerBase`>>
+  (link:{adr}/0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[ADR 0054]) –,
   <<src-spa-forwarding-controller,`SpaForwardingController`>>,
   <<src-global-exception-handler,`GlobalExceptionHandler`>>,
   <<src-recipe-rest-mapper,`RecipeRestMapper`>>, <<src-problem-detail,`ProblemDetail`>> samt
@@ -150,7 +153,10 @@ Basispaket ist `io.github.keymaster65.helloai`.
   <<src-ingredient-document,`IngredientDocument`>> und
   <<src-preparation-step-document,`PreparationStepDocument`>>: derselbe ausgehende Port, auf einen
   git-Branch geschrieben (link:{adr}/0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[ADR
-  0053]). *Noch nicht verdrahtet* – keine der Klassen ist eine Bean.
+  0053]). Dazu <<src-gitdata-config,`GitDataConfig`>> und
+  <<src-gitdata-properties,`GitDataProperties`>>, die den Store und seinen Anwendungsfall
+  zusammensetzen – im Adapter, nicht im Composition Root
+  (link:{adr}/0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[ADR 0054]).
 
 | `:modules:backend:bootstrap`
 | `bootstrap`
@@ -259,6 +265,13 @@ Der zweite eingehende Port trägt den lesenden Zugriff auf die Systemdokumentati
 Geschäftslogik enthält er nicht. Die OpenAPI-Annotationen sitzen direkt an dieser Schicht,
 damit der Contract neben dem Code steht, den er beschreibt
 (link:{adr}/0005-springdoc-openapi-und-swagger-ui{adrext}[ADR 0005]).
+
+Die fünf Operationen stehen *einmal*, in `RecipeControllerBase`. Die beiden Unterklassen tragen nur
+ihre Adresse, ihren Tag und den `RecipeService`, der sie bedient: `RecipeController` den primären
+auf der Datenbank, `GitDataRecipeController` den auf dem git-Store
+(link:{adr}/0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[ADR 0054]). Welcher Store antwortet,
+ist in dieser Schicht *nicht* sichtbar – die Controller sehen den Port, nicht den Adapter dahinter;
+die zweite Front nennt ihre Bean nur beim Namen.
 
 `RecipeRestMapper` trennt API und Domäne. Zwei Festlegungen stecken darin:
 
@@ -505,10 +518,16 @@ aus jeder Schreiboperation einen Commit
 (link:{adr}/0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[ADR 0053]). Die beiden
 Adapter kennen einander nicht; `OnionArchitectureTest` führt `gitdata` als eigenen Ring.
 
-IMPORTANT: Der Adapter ist *gebaut, aber nicht verdrahtet*. Keine seiner Klassen trägt eine
-Spring-Annotation, es gibt keine Bean und keinen Konfigurationsschlüssel: Der aktive Weg der
-Anwendung ist unverändert der relationale. Was von außen erreichbar wird und unter welcher Adresse,
-entscheidet der zweite Teil der Aufgabe (Backlog).
+IMPORTANT: Der Adapter ist *abschaltbar und abgeschaltet*, solange `recipes.gitdata.enabled` nicht
+gesetzt ist – dann gibt es weder Store noch Adresse (ADR 0054, Konfiguration siehe Kapitel Build und
+Betrieb). Der aktive Weg der Anwendung bleibt in jedem Fall der relationale: Sein Repository und
+sein `RecipeService` sind `+@Primary+`, der git-Store wird über den Bean-*Namen* angesprochen.
+
+Zusammengesetzt wird er in `GitDataConfig` – *im Adapter*, aus demselben Grund wie beim MCP-Server:
+`:bootstrap` ist selbst ein Adapter-Ring und darf die Klassen hier nicht kennen (ADR 0019). Nach
+außen gehen deshalb zwei Beans, beide als *Port* typisiert; dass git dahintersteckt, erfährt
+niemand. Der `RecipeService` auf diesem Store trägt bewusst *keine* Transaktionsgrenze – hier ist
+der Commit die Transaktion.
 
 [cols="1,3", options="header"]
 |===
@@ -545,8 +564,8 @@ entscheidet der zweite Teil der Aufgabe (Backlog).
   Branch, *keinen* Dateipfad.
 
 | Sichtbarkeit
-| Nur `GitDataRecipeRepository` ist öffentlich; Plumbing, Mapper und Dokumente sind paketprivat
-  (<<src-gruppe-gitdata,alle Quellen im Anhang>>).
+| *Alles* paketprivat, wie beim jOOQ-Adapter: Was das Paket verlässt, sind die beiden Beans – und
+  die tragen Port-Typen (<<src-gruppe-gitdata,alle Quellen im Anhang>>).
 |===
 
 == Laufzeitsicht

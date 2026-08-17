@@ -215,6 +215,26 @@ include::../../modules/backend/application/src/main/java/io/github/keymaster65/h
 [[src-gruppe-rest]]
 == Eingehender Adapter: REST
 
+[[src-recipe-controller-base]]
+[%collapsible]
+.`modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/in/rest/RecipeControllerBase.java`
+====
+[source,java]
+----
+include::../../modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/in/rest/RecipeControllerBase.java[]
+----
+====
+
+[[src-gitdata-recipe-controller]]
+[%collapsible]
+.`modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/in/rest/GitDataRecipeController.java`
+====
+[source,java]
+----
+include::../../modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/in/rest/GitDataRecipeController.java[]
+----
+====
+
 [[src-recipe-controller]]
 [%collapsible]
 .`modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/in/rest/RecipeController.java`
@@ -483,6 +503,26 @@ include::../../modules/backend/adapter/src/main/java/io/github/keymaster65/hello
 
 [[src-gruppe-gitdata]]
 == Ausgehender Adapter: gitdata
+
+[[src-gitdata-config]]
+[%collapsible]
+.`modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/out/gitdata/GitDataConfig.java`
+====
+[source,java]
+----
+include::../../modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/out/gitdata/GitDataConfig.java[]
+----
+====
+
+[[src-gitdata-properties]]
+[%collapsible]
+.`modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/out/gitdata/GitDataProperties.java`
+====
+[source,java]
+----
+include::../../modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/out/gitdata/GitDataProperties.java[]
+----
+====
 
 [[src-gitdata-recipe-repository]]
 [%collapsible]
@@ -989,6 +1029,16 @@ include::../../modules/backend/bootstrap/src/test/java/io/github/keymaster65/hel
 ----
 ====
 
+[[src-gitdata-recipe-controller-test]]
+[%collapsible]
+.`modules/backend/bootstrap/src/test/java/io/github/keymaster65/helloai/bootstrap/GitDataRecipeControllerTest.java`
+====
+[source,java]
+----
+include::../../modules/backend/bootstrap/src/test/java/io/github/keymaster65/helloai/bootstrap/GitDataRecipeControllerTest.java[]
+----
+====
+
 [[src-transactional-recipe-service-test]]
 [%collapsible]
 .`modules/backend/bootstrap/src/test/java/io/github/keymaster65/helloai/bootstrap/TransactionalRecipeServiceTest.java`
@@ -1069,6 +1119,16 @@ include::../../modules/backend/bootstrap/src/systemtest/java/io/github/keymaster
 [source,java]
 ----
 include::../../modules/backend/bootstrap/src/systemtest/java/io/github/keymaster65/helloai/systemtest/HttpProbe.java[]
+----
+====
+
+[[src-gitdata-system-test]]
+[%collapsible]
+.`modules/backend/bootstrap/src/systemtest/java/io/github/keymaster65/helloai/systemtest/GitDataSystemTest.java`
+====
+[source,java]
+----
+include::../../modules/backend/bootstrap/src/systemtest/java/io/github/keymaster65/helloai/systemtest/GitDataSystemTest.java[]
 ----
 ====
 

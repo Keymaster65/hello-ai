@@ -149,6 +149,13 @@ link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019].
 | Property-based: Ein Rezept übersteht den Weg Domäne → Dokument → JSON → Dokument → Domäne
   unverändert, und jedes Kind trägt Fremdschlüssel und 1-basierte Position.
 
+| <<src-gitdata-recipe-controller-test,`GitDataRecipeControllerTest`>>
+| Die *Verdrahtung* der zweiten Front
+  (link:{adr}/0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[ADR 0054]): Eingeschaltet gibt es
+  die Adresse, sie wird vom zweiten Anwendungsfall bedient, der `Location`-Header zeigt auf sie
+  selbst, die primäre Front bleibt abgebildet – und beide stehen im Contract. Das Repository ist ein
+  temporäres Verzeichnis, eine Datenbank braucht der Test nicht.
+
 | <<src-recipe-controller-test,`RecipeControllerTest`>>
 | Web-Slice mit `@WebMvcTest`: Statuscodes, `Location`-Header, Serialisierung und die
   Fehlerbilder des `GlobalExceptionHandler`.
@@ -194,7 +201,8 @@ Statuscodes und Contract-Details (<<src-swagger-system-test,`SwaggerSystemTest`>
 SPA inklusive der weitergeleiteten Routen (<<src-frontend-system-test,`FrontendSystemTest`>>),
 die der Systemdokumentation (<<src-documentation-system-test,`DocumentationSystemTest`>>), die
 beiden Fronten des MCP-Servers (<<src-mcp-system-test,`McpSystemTest`>>,
-<<src-mcp-rest-system-test,`McpRestSystemTest`>>) und
+<<src-mcp-rest-system-test,`McpRestSystemTest`>>), die zweite Rezept-Front auf dem git-Store
+(<<src-gitdata-system-test,`GitDataSystemTest`>>) und
 die des Meldewegs am Ursprung (<<src-security-txt-system-test,`SecurityTxtSystemTest`>>).
 
 `McpSystemTest` spricht das Protokoll, wie ein Client es spricht: `initialize`, `tools/list`,
@@ -210,6 +218,14 @@ JSON-RPC-Endpunkt *gleichzeitig* antworten – der Transport hängt am exakten P
 darunter – und dass eine Anfrage mit `Origin` hier `200` bekommt, wo der Protokollendpunkt `403`
 antwortet. Der letzte Test hält eine bewusste Lücke fest, damit sie keine Entdeckung wird
 (Kapitel Betrieb, Abschnitt <<offene-punkte>>).
+
+`GitDataSystemTest` prüft die zweite Rezept-Front über HTTP
+(link:{adr}/0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[ADR 0054]) – und dabei vor allem
+das, was nur von außen sichtbar ist: dass die *Bestände getrennt* sind. Was über
+`+/api/gitdata/recipes+` angelegt wurde, taucht unter `/api/recipes` nicht auf; täte es das, wären
+beide Adressen dieselbe Ablage. Die selbst gestartete Instanz schaltet den Store dafür in ein
+Wegwerf-Verzeichnis ein; gegen eine deployte Instanz, die ihn nicht führt, *überspringt* sich der
+Test, statt rot zu werden – die Vorgabe ist „aus".
 
 Der Meldeweg ist der einzige Pfad *außerhalb* des Context-Path
 (link:{adr}/0037-security-txt-am-ursprung-per-engine-valve{adrext}[ADR 0037]); geprüft wird

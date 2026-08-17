@@ -16,6 +16,9 @@ Origin. Genau das macht CORS überflüssig
 
 | Oberfläche (SPA) | `/recipes/` | Bundle aus dem Klassenpfad (`static/`)
 | REST-API | `/recipes/api/recipes` | JSON
+| REST-API auf dem git-Store | `/recipes/api/gitdata/recipes` | dieselben Operationen auf der
+  zweiten Ablage; *nur vorhanden*, wenn `recipes.gitdata.enabled` gesetzt ist
+  (link:{adr}/0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[ADR 0054])
 | MCP-Server | `/recipes/api/mcp` | JSON-RPC 2.0, zustandslos, nur `POST`, nur lesend
   (link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049])
 | MCP über REST | `/recipes/api/mcp/…` | dieselben Werkzeuge und Ressourcen als gewöhnliche
@@ -60,6 +63,26 @@ ein, weil Spring Boot eine Verzeichnis-Startseite nur für die Wurzel der Anwend
 `PUT` *ersetzt* das Rezept vollständig, einschließlich Zutaten und Schritte; es gibt keine
 teilweise Änderung (kein `PATCH`). Ein im Request mitgeschickter Identifikator wird
 ignoriert – maßgeblich ist der Pfad.
+
+[[recipes-auf-dem-gitdata-store]]
+=== Dieselben Operationen auf dem git-Store
+
+Unter `+/api/gitdata/recipes+` stehen *dieselben fünf Operationen* mit denselben Anfragen,
+Antworten und Fehlerbildern – bedient aber von der zweiten Ablage, die jede Zeile als JSON-Datei in
+einen git-Branch schreibt (link:{adr}/0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[ADR
+0053], link:{adr}/0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[ADR 0054]). Beschrieben ist
+das hier deshalb nicht zweimal; es gilt Wort für Wort, was oben steht, mit drei Unterschieden:
+
+* *Die Adresse muss eingeschaltet sein.* Ohne `recipes.gitdata.enabled=true` gibt es sie nicht –
+  keine leere Antwort, sondern `404` wie für jeden unbekannten Pfad. Die Konfiguration steht im
+  Kapitel Build und Betrieb.
+* *Die beiden Ablagen sind getrennt.* Ein Rezept, das hier entsteht, ist unter `/api/recipes` nicht
+  zu sehen und umgekehrt; auch die Identifikatoren werden unabhängig vergeben. Es gibt keine
+  Synchronisation zwischen ihnen.
+* *Der `Location`-Header zeigt auf diese Front*, also auf `+/api/gitdata/recipes/{id}+`.
+
+Im OpenAPI-Contract erscheinen beide Fronten – die zweite unter dem Tag „Recipes (gitdata)", und
+auch sie nur, wenn sie eingeschaltet ist.
 
 === Anfrage
 

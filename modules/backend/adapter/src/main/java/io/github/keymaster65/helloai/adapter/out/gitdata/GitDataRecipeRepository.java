@@ -4,7 +4,9 @@ import io.github.keymaster65.helloai.application.port.out.RecipeRepository;
 import io.github.keymaster65.helloai.domain.model.Ingredient;
 import io.github.keymaster65.helloai.domain.model.PreparationStep;
 import io.github.keymaster65.helloai.domain.model.Recipe;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -13,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 import org.eclipse.jgit.lib.Repository;
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder;
 import tools.jackson.databind.ObjectMapper;
 
 /**
@@ -34,8 +37,13 @@ import tools.jackson.databind.ObjectMapper;
  *
  * <p>Identifiers are assigned like a sequence: the highest one stored plus one, per entity. They are
  * never reused &ndash; a deleted recipe does not hand its number to the next one.
+ *
+ * <p>Two ways in: {@link #openBare(Path, String, Clock, ObjectMapper)} opens (or creates) a
+ * repository this instance then owns and closes, and the constructor takes a repository somebody
+ * else opened and keeps owning. Both are package-private, like the jOOQ repository next door: what
+ * leaves this package is the port, not the store (ADR 0054).
  */
-public class GitDataRecipeRepository implements RecipeRepository {
+class GitDataRecipeRepository implements RecipeRepository, AutoCloseable {
 
     private static final String RECIPES = "database/entities/recipes";
     private static final String INGREDIENTS = "database/entities/ingredients";
@@ -45,6 +53,7 @@ public class GitDataRecipeRepository implements RecipeRepository {
     private final GitDataBranch branch;
     private final GitDataMapper mapper = new GitDataMapper();
     private final ObjectMapper json;
+    private final Repository owned;
 
     /**
      * @param repository the repository holding the branch; stays open and is not closed here
@@ -52,10 +61,55 @@ public class GitDataRecipeRepository implements RecipeRepository {
      * @param clock      source of the commit timestamps
      * @param json       the JSON mapper; its configuration does not decide the file format
      */
-    public GitDataRecipeRepository(
+    GitDataRecipeRepository(
             Repository repository, String branch, Clock clock, ObjectMapper json) {
+        this(repository, branch, clock, json, null);
+    }
+
+    private GitDataRecipeRepository(
+            Repository repository, String branch, Clock clock, ObjectMapper json, Repository owned) {
         this.branch = new GitDataBranch(repository, branch, clock);
         this.json = json;
+        this.owned = owned;
+    }
+
+    /**
+     * Opens the store in a <em>bare</em> repository, creating it if the directory holds none yet.
+     *
+     * <p>Bare on purpose: this adapter never uses a working tree, and a repository without one
+     * cannot collide with anybody's checkout. The returned instance owns the repository and closes
+     * it in {@link #close()}.
+     *
+     * @param directory directory of the repository, e.g. {@code /var/lib/recipes/data.git}
+     * @param branch    short name of the branch to store in, e.g. {@code data}
+     * @param clock     source of the commit timestamps
+     * @param json      the JSON mapper
+     * @return the store, ready to read and write
+     * @throws GitDataException if the repository can neither be opened nor created
+     */
+    static GitDataRecipeRepository openBare(
+            Path directory, String branch, Clock clock, ObjectMapper json) {
+        try {
+            Repository repository = new FileRepositoryBuilder()
+                    .setGitDir(directory.toFile())
+                    .setMustExist(false)
+                    .build();
+            if (!repository.getObjectDatabase().exists()) {
+                repository.create(true);
+            }
+            return new GitDataRecipeRepository(repository, branch, clock, json, repository);
+        } catch (IOException cause) {
+            // The message names what failed, not the directory: it ends up in a log line.
+            throw new GitDataException("cannot open the repository of the gitdata store", cause);
+        }
+    }
+
+    /** Closes the repository if this instance opened it; otherwise nothing is ours to close. */
+    @Override
+    public void close() {
+        if (owned != null) {
+            owned.close();
+        }
     }
 
     @Override

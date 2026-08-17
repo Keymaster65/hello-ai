@@ -5,6 +5,8 @@ import io.zonky.test.db.postgres.embedded.EmbeddedPostgres;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.ServerSocket;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -85,11 +87,17 @@ final class RunningApplication {
         int port = freePort();
         // Passed as command-line arguments on purpose: they outrank application.yml, which pins
         // server.port to 80 and the datasource to a local PostgreSQL.
+        //
+        // The git-backed store is off by default (ADR 0054) and is switched on here, into a
+        // throw-away directory: the system tests are the only place that proves the second front
+        // answers over HTTP, and no test may write into the repository somebody is working in.
         ConfigurableApplicationContext context = new SpringApplicationBuilder(RecipeApplication.class)
                 .run("--server.port=" + port,
                         "--spring.datasource.url=" + postgres.getJdbcUrl("postgres", "postgres"),
                         "--spring.datasource.username=postgres",
-                        "--spring.datasource.password=postgres");
+                        "--spring.datasource.password=postgres",
+                        "--recipes.gitdata.enabled=true",
+                        "--recipes.gitdata.repository=" + gitDataDirectory());
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             context.close();
@@ -101,6 +109,20 @@ final class RunningApplication {
         }));
 
         return "http://localhost:" + port;
+    }
+
+    /**
+     * A fresh directory for the bare repository of the git-backed store, deleted when the JVM ends.
+     * Fresh per run, because rows of the last run would make the assertions of this one wrong.
+     */
+    private static String gitDataDirectory() {
+        try {
+            Path directory = Files.createTempDirectory("recipes-gitdata").resolve("data.git");
+            directory.toFile().deleteOnExit();
+            return directory.toString();
+        } catch (IOException e) {
+            throw new UncheckedIOException("Could not create a directory for the gitdata store", e);
+        }
     }
 
     private static int freePort() {

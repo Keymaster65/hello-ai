@@ -17,13 +17,18 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.jooq.DSLContext;
 import org.jooq.impl.DSL;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 /**
  * jOOQ-based implementation of the {@link RecipeRepository} outbound port. Persists a
  * recipe together with its ordered ingredients and preparation steps.
+ *
+ * <p>{@code @Primary} since ADR 0054: the git-backed store implements the same port, and this one
+ * stays the way of the application. Whoever wants the other asks for it by name.
  */
 @Repository
+@Primary
 class RecipeJooqRepository implements RecipeRepository {
 
     private final DSLContext dsl;

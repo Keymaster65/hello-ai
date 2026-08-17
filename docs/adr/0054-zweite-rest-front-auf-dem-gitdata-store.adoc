@@ -1,0 +1,218 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= ADR 0054: Zweite REST-Front auf dem gitdata-Store, abschaltbar und ohne neue Ports
+
+== Status
+
+Akzeptiert – 2026-08-17
+
+Ergänzt link:0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[ADR 0053], ohne es
+abzulösen: Der dort gebaute, aber nicht verdrahtete Store bekommt eine Adresse. Der relationale
+Weg bleibt der primäre.
+
+Umgesetzt ist damit Teil 2 des geteilten Backlog-Eintrags. Die Anfangspopulation (Teil 3) folgt.
+
+== Kontext
+
+Nach ADR 0053 gibt es einen zweiten Adapter am ausgehenden Port `RecipeRepository`, den niemand
+erreichen kann: keine Bean, keine Adresse. Gefragt war „ein zusätzlicher Controller, der diesen
+Adapter anspricht" – *ohne* neue eingehende oder ausgehende Ports, und der PostgreSQL-Weg bleibt
+aktiv.
+
+Damit stehen drei Fragen zugleich an, und jede hat eine sichtbare Alternative:
+
+. *Wo antwortet die zweite Front?* Der Nutzer hat sie zusammen mit der Freigabe entschieden:
+  `+/api/gitdata/recipes+`.
+. *Wie können zwei Beans denselben Port erfüllen*, ohne dass der Start an einer Mehrdeutigkeit
+  scheitert?
+. *Wer darf schreiben?* Ab dieser Stufe kann ein Aufruf von außen einen Commit auf der Platte
+  auslösen – ADR 0053 hat das unter „Nachteile" schon benannt.
+
+Dazu kommt eine Grenze, die in dieser Aufgabe leicht zu übersehen ist: `:bootstrap` ist nach
+link:0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019] selbst ein *Adapter-Ring* und darf
+die Klassen eines anderen Adapters nicht kennen. Ein erster Entwurf hat die Verdrahtung in den
+Composition Root gelegt; `OnionArchitectureTest` hat ihn zurückgewiesen. Der MCP-Server löst
+dasselbe Problem seit link:0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049] mit
+einer Konfiguration *im Adapter*.
+
+== Optionen
+
+=== Wo die zweite Front antwortet
+
+. *Eigener Pfad `+/api/gitdata/recipes+`* – gewählt, vom Nutzer entschieden. Der Speicherweg steht
+  in der Adresse; beide Fronten stehen nebeneinander im Contract und in der Swagger UI, jede unter
+  eigenem Tag.
+. *Dieselbe Adresse, Ablage per Header oder Parameter.* Verworfen: Der Contract würde mehrdeutig –
+  dieselbe Operation, zwei Datenbestände, unterschieden durch etwas, das in keiner
+  OpenAPI-Beschreibung sichtbar ist. Und die SPA könnte still umschalten.
+. *Eigener Port oder eigener Prozess.* Verworfen: Der Eintrag verlangt ausdrücklich keine neuen
+  Ports, und ein zweiter Prozess wäre eine Betriebsentscheidung ohne Not.
+
+=== Wie die Operationen aussehen
+
+. *Eine gemeinsame Basisklasse, zwei dünne Unterklassen* – gewählt. `RecipeControllerBase` trägt
+  die fünf Handler-Methoden samt ihrer OpenAPI-Beschreibung; die Unterklasse trägt
+  `+@RestController+`, `+@RequestMapping+`, den Tag und den `RecipeService`, der sie bedient. Die
+  Beschreibung des Contracts steht damit an *einer* Stelle.
+. *Den Controller kopieren.* Verworfen: 110 Zeilen Annotationen zweimal, die beim ersten Zusatzfeld
+  auseinanderlaufen. Genau das, was die Systemdokumentation an anderer Stelle „zwei Fassungen, von
+  denen eine veraltet" nennt.
+. *Ein Controller, der den Store aus dem Pfad ableitet* (`+/api/{store}/recipes+`). Verworfen: Dann
+  entscheidet eine Zeichenkette aus der Anfrage, welche Bean antwortet – ein Nachschlagewerk zur
+  Laufzeit statt einer Verdrahtung, und ein unbekannter Wert wäre ein Fehlerbild, das es sonst nicht
+  gibt.
+
+=== Wie zwei Beans an einem Port koexistieren
+
+. *Der relationale Weg wird `+@Primary+`, der zweite über den Bean-Namen angesprochen* – gewählt.
+  „Primär" heißt hier genau das, was der Eintrag verlangt: Der PostgreSQL-Adapter bleibt der aktive.
+  Wer den anderen will, nennt ihn – `+@Qualifier("gitDataRecipeService")+`.
+. *Beide über Qualifier, keiner primär.* Verworfen: Dann müsste *jede* Einspritzstelle im System
+  eine Entscheidung treffen, auch die, die es nichts angeht.
+. *Zwei Ports, `RecipeRepository` und `GitDataRecipeRepository`.* Verworfen – und ausdrücklich vom
+  Eintrag ausgeschlossen. Es wäre auch falsch: Beide erfüllen denselben Anwendungsfall.
+
+=== Wo die Verdrahtung steht
+
+. *Im Adapter, `+adapter.out.gitdata.GitDataConfig+`* – gewählt, wie `McpServerConfig` (ADR 0049).
+  Nach außen gehen zwei Beans, beide als *Port* typisiert; kein JGit-Typ und kein Klassenname des
+  Adapters erscheint außerhalb des Pakets.
+. *Im Composition Root `:bootstrap`.* Verworfen, weil es die Zwiebelregel bricht – nicht als
+  Geschmacksfrage: `OnionArchitectureTest` hat den Entwurf mit drei Verstößen abgelehnt.
+. *Über `+@Repository+` und Komponentensuche wie beim jOOQ-Adapter.* Verworfen: Der Store braucht
+  Verzeichnis, Branch, Uhr und Jackson; das über `+@Value+` in den Konstruktor zu ziehen verteilt
+  die Konfiguration auf die Klasse, die sie benutzt, statt sie an einer Stelle zu binden.
+
+=== Ob der Store beim Start läuft
+
+. *Aus, bis er eingeschaltet wird* (`recipes.gitdata.enabled`) – gewählt. Ohne den Schalter gibt es
+  weder Store noch Adresse; die Bedingung steht an der Konfiguration *und* am Controller.
+. *An, mit einem Vorgabeverzeichnis.* Verworfen: Eine Anwendung, die beim Start ein Repository
+  anlegt und beim ersten Aufruf hineinschreibt, überrascht den Betreiber – und das Verzeichnis wäre
+  geraten. Der Security-Skill nennt einen neuen offen erreichbaren Pfad ausdrücklich als Anlass,
+  genau hinzusehen; ein *schreibender* ist der schwerere Fall.
+. *An, aber nur lesend.* Verworfen: Ein Store, in den nichts kommt, ist keiner.
+
+=== Welches Repository
+
+. *Ein eigenes, bare Repository unter einem konfigurierten Verzeichnis* – gewählt. Bare, weil
+  dieser Adapter nie ein Arbeitsverzeichnis benutzt (ADR 0053): Ein Repository ohne Arbeitsbaum
+  kann mit niemandes Checkout kollidieren. Es wird beim Start angelegt, wenn dort keines liegt.
+. *Das Repository der Installation selbst*, wie der Backlog-Eintrag es nahelegt. Verworfen als
+  *Vorgabe*, nicht als Möglichkeit: Wer das will, trägt den Pfad ein. Als Default wäre es eine
+  Anwendung, die in das Verzeichnis schreibt, in dem jemand arbeitet.
+. *Ein Remote.* Verworfen: Zugangsdaten im Betrieb, eigene Entscheidung, eigenes ADR (schon in
+  ADR 0053 offengelassen).
+
+== Entscheidung
+
+*Die zweite Front liegt unter `+/api/gitdata/recipes+`* und bietet dieselben fünf Operationen mit
+denselben Anfragen, Antworten und Fehlerbildern. Der `Location`-Header zeigt auf sie selbst, nicht
+auf die relationale Front.
+
+*Die Operationen stehen einmal.* `RecipeControllerBase` trägt sie samt Contract-Beschreibung;
+`RecipeController` und `GitDataRecipeController` sind je ein Dutzend Zeilen: Adresse, Tag,
+Konstruktor, `basePath()`.
+
+*Zwei Beans je Port, einer primär.* `RecipeJooqRepository` und der `RecipeService` des Composition
+Root tragen `+@Primary+`; der git-Store und sein Anwendungsfall werden über die Bean-Namen
+`gitDataRecipeRepository` und `gitDataRecipeService` angesprochen. Der Name ist das *einzige*, was
+die beiden Adapter teilen – der Controller importiert nichts aus dem Store-Paket, sondern schreibt
+den Namen als Zeichenkette, so wie zwei Systeme eine URL teilen.
+
+*Der Anwendungsfall auf dem git-Store trägt keine Transaktionsgrenze.* Der `TransactionTemplate`
+des Composition Root gehört zur Datenbank; um einen git-Commit gelegt würde er eine
+Datenbanktransaktion öffnen, die mit dem Schreiben nichts zu tun hat, und eine Atomarität
+versprechen, die er nicht herstellt. Hier ist der Commit die Transaktion (ADR 0053).
+
+*Die Verdrahtung steht im Adapter* (`GitDataConfig`, `GitDataProperties`), aus dem Grund, den
+ADR 0019 nennt und `OnionArchitectureTest` erzwingt.
+
+*Alles ist abschaltbar und abgeschaltet:* `recipes.gitdata.enabled` (Vorgabe `false`),
+`recipes.gitdata.repository` (Pflicht, sobald eingeschaltet – kein geratener Vorgabewert) und
+`recipes.gitdata.branch` (Vorgabe `data`). Die Bedingung sitzt an der Konfiguration *und* am
+Controller: Ohne Schalter ist die Adresse nicht bloß leer, sondern nicht vorhanden.
+
+== Konsequenzen
+
+=== Vorteile
+
+* Beide Ablagen sind über dieselbe Schnittstelle bedienbar und im selben Contract beschrieben –
+  vergleichbar, ohne dass die Anwendungsschicht davon weiß.
+* Die Beschreibung der Operationen steht an einer Stelle; eine neue Antwortmöglichkeit gilt sofort
+  für beide Fronten.
+* Der laufende Betrieb ändert sich nicht: Ohne Schalter ist alles wie vorher, mit Schalter bleibt
+  der relationale Weg der primäre.
+* Der Composition Root kennt weiterhin keinen Adapter beim Namen. Die Zwiebelregel ist nicht nur
+  eingehalten, sondern maschinell geprüft.
+
+=== Nachteile
+
+* *Zwei Bestände ohne Abgleich.* Ein Rezept unter `/api/recipes` ist unter `/api/gitdata/recipes`
+  nicht zu sehen und umgekehrt; auch die Identifikatoren werden unabhängig vergeben. Wer beide
+  benutzt, hat zwei Wahrheiten.
+* *Eine zweite schreibende Adresse*, sobald eingeschaltet – ohne Authentifizierung von jedem
+  erreichbar, der den Port erreicht, und jeder Aufruf ein Commit auf der Platte. Steht in „Offene
+  Punkte".
+* *Bean-Namen als Kopplung.* `+"gitDataRecipeService"+` steht an zwei Stellen; ein Tippfehler fällt
+  erst beim Start auf. Der Preis dafür, dass die Adapter einander nicht kennen.
+* *Vererbung in Controllern.* Wer `RecipeController` liest, sieht keine Handler-Methode mehr; sie
+  stehen eine Ebene höher. Das ist die Kehrseite davon, sie nur einmal zu haben.
+* *`+@Primary+` ist eine stille Wahl.* Eine neue Einspritzstelle bekommt die relationale Fassung,
+  ohne dass jemand sie benennt. Genau so gewollt – aber es ist eine Voreinstellung, keine Aussage
+  am Aufrufort.
+* *Springdoc vergibt Operationskennungen doppelt* und hängt an die zweite ein `+_1+`. Der Contract
+  bleibt gültig, die Kennungen sind aber nicht sprechend.
+
+=== Bewusst nicht getan
+
+* *Keine Migration und kein Abgleich zwischen den Ablagen.* Wer Daten von einer in die andere will,
+  braucht einen eigenen Schritt.
+* *Keine Anfangspopulation* – Teil 3 des Eintrags.
+* *Die SPA bleibt unverändert.* Sie spricht weiter `/api/recipes`; eine Umschaltung in der
+  Oberfläche wäre eine Entscheidung über die Nutzerführung.
+* *Kein Actuator-Indikator für den Store.* Es gibt keinen Actuator (siehe „Offene Punkte").
+* *Kein Schreibschutz und keine Begrenzung der Commit-Rate.* Beides gehört zur fehlenden
+  Authentifizierung und nicht in diese Entscheidung.
+* *Kein zweiter MCP-Katalog.* Die MCP-Werkzeuge lesen weiter den primären Store; eine zweite Quelle
+  dort wäre eine eigene Festlegung (ADR 0049, ADR 0050).
+
+== Prüfung
+
+* `./gradlew test` – grün, darunter sieben neue Fälle in `GitDataRecipeControllerTest`: leerer Store
+  am Anfang, `201` mit `Location` auf `+/api/gitdata/recipes/1+`, Lesen des committeten Rezepts,
+  `404` als `+application/problem+json+`, Löschen, die weiterhin abgebildete primäre Front und
+  beide Fronten im Contract. Das Repository ist ein temporäres Verzeichnis über
+  `+@DynamicPropertySource+`; eine Datenbank braucht der Test nicht.
+* `OnionArchitectureTest` und `LayeredArchitectureTest` sind grün – *nachdem* die Verdrahtung aus
+  `:bootstrap` in den Adapter gewandert ist. Der erste Entwurf scheiterte dort mit drei Verstößen;
+  das ist der Beleg, dass die Regel greift und nicht bloß dokumentiert ist.
+* `./gradlew systemtest` – vier neue Fälle in `GitDataSystemTest` über HTTP: anlegen, lesen,
+  löschen, `404` mit Problem Detail, beide Fronten im Contract – und die Trennung der Bestände: Was
+  über die git-Front angelegt wurde, taucht unter `/api/recipes` *nicht* auf. Die Testinstanz
+  schaltet den Store in ein Wegwerf-Verzeichnis ein.
+* `./gradlew clean build` (3:47 min), `./gradlew e2eTest` (9 Tests) und die drei
+  Asciidoctor-Tasks sind grün; die Definition of Done ist vollständig durchlaufen, es bleiben die
+  zwei bekannten Meldungen.
+* `./gradlew coverageTable`: Die Abdeckung von `:adapter` *fällt* von 75,0 % auf 72,4 % – nicht,
+  weil weniger geprüft wird, sondern weil die neuen Klassen dieses Moduls von den Tests eines
+  *anderen* geprüft werden (`:bootstrap`) und heute jedes Modul für sich misst
+  (link:0047-testabdeckung-als-eingecheckte-tabelle{adrext}[ADR 0047], „Bewusst nicht getan"). Der
+  Backlog-Eintrag zur modulübergreifenden Messung wird damit sichtbar teurer, nicht die Prüfung
+  dünner.
+
+== Referenzen
+
+* link:0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[ADR 0053] – der Store, den
+  diese Entscheidung erreichbar macht
+* link:0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019] – warum die Verdrahtung im
+  Adapter steht und nicht im Composition Root
+* link:0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[ADR 0049] – dasselbe Muster:
+  ein Adapter, der sich selbst zusammensetzt
+* link:0045-anwendungsschicht-frei-von-frameworks{adrext}[ADR 0045] – warum der Anwendungsfall von
+  außen gebaut wird
+* link:0005-springdoc-openapi-und-swagger-ui{adrext}[ADR 0005] – der Contract, in dem nun zwei
+  Fronten stehen
+* link:0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR 0046] – das Fehlerbild, das beide
+  Fronten teilen
+* `docs/system/api.adoc`, `docs/system/betrieb.adoc`, `docs/system/schichten.adoc`

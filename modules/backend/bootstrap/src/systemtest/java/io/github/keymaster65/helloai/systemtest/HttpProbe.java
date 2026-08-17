@@ -58,6 +58,11 @@ final class HttpProbe {
         return send(builder.POST(HttpRequest.BodyPublishers.ofString(jsonBody)).build());
     }
 
+    /** Performs a DELETE – the recipe endpoints answer it with 204 or 404. */
+    static HttpResponse<String> delete(String path) {
+        return send(request(path).DELETE().build());
+    }
+
     /** Performs a GET and parses the body as JSON. */
     static JsonNode getJson(String path) {
         return JSON.readTree(get(path).body());
