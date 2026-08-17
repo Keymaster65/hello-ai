@@ -9,6 +9,62 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-163]]
+== 163. Prompt: „commit"
+
+_Delta: 3:22 min · 1.160 Token out · 733.104 Token in (neu) · 769.668 Token gesamt_
+_Stand (Session, 6 Prompts): 47:10 min · 250.813 Token out · 75.651.251 Token gesamt_
+
+*Aktionen:*
+
+* *Definition of Done:* reine Doku-Änderung – seit dem letzten grünen Lauf wurde *kein Code*
+  angefasst, deshalb zählen `+test+`, `+systemtest+` und `+e2eTest+` aus Prompt 160 weiter
+  (Butterfly-Skill, „Hinweise"). Belegt ist diese Änderung durch `+./gradlew asciidoctor+`
+  (BUILD SUCCESSFUL) – Protokoll *und* Backlog stehen im Build.
+* *Zwei Commits des Nutzers lagen dazwischen*, beide nach `+3746b7c+`: `+fde8cc0+` „Add commit
+  hash" hat die Zeilen `+_Commit: 3746b7c_+` aus den Prompts 160 und 161 mitgenommen, die hier noch
+  unversioniert lagen, und `+6731e43+` hat `+.tmp+` in die `+.gitignore+` aufgenommen. Der Befund
+  aus Prompt 161 ist damit an der Wurzel behoben, nicht nur umgangen.
+* *Inhalt dieses Commits* sind deshalb nur die Einträge 162 und 163, der `+KI+`-Eintrag zum
+  Beispielrumpf von `+POST /api/mcp/tools/\{name}+` und die daraus erzeugte Kennzahlen-Tabelle.
+
+'''
+
+[[prompt-162]]
+== 162. Prompt: „run app"
+
+_Delta: 3:15 min · 15.507 Token out · 37.339 Token in (neu) · 10.688.331 Token gesamt_
+_Stand (Session, 5 Prompts): 42:43 min · 246.523 Token out · 73.352.460 Token gesamt_
+
+*Aktionen:*
+
+* *Kein Projekt-Skill für den Start vorhanden* (`+.claude/skills+` gibt es nicht), deshalb nach
+  dem Server-Muster des `+run+`-Skills gearbeitet: Boot-Jar im Hintergrund, Bereitschaft
+  abgefragt, dann getrieben.
+* *Gestartet:* `+java -jar modules/backend/bootstrap/build/libs/recipes-0.0.1-SNAPSHOT.jar
+  --server.port=8080+` (Port 80 der Vorgabe braucht Root), Log unter `+/tmp/run-app.log+`, PID in
+  `+/tmp/run-app.pid+`. Bereit nach 8 s gegen `+GET /recipes/api/recipes+`. Das Jar ist der Stand
+  von `+HEAD+` – keine Quelldatei ist neuer.
+* *REST-Fassade getrieben* (12 Aufrufe): `+/server+` nennt Name, Version und Anleitung;
+  `+/tools+` die vier Werkzeuge samt `+inputSchema+`; `+/tools/get_recipe+` mit `+{"id":1}+`
+  liefert 7 Zutaten und 5 Schritte; ein unbekanntes Rezept und ein Argument gegen das Schema
+  antworten `+200+` mit `+isError+`, ein unbekannter Werkzeugname `+404+` als
+  `+application/problem+json+`; `+/resources+` zeigt 51 Seiten, `+/resources/content+` liest das
+  eben entstandene ADR 0050 (22.016 Zeichen). Gegenprobe der Koexistenz: `+POST /api/mcp+` liefert
+  weiter vier Werkzeuge über JSON-RPC, mit `+Origin+` weiter `+403+` – die Fassade `+200+`.
+* *Swagger UI im echten Chromium angesehen* (Playwright, Screenshots `+/tmp/swagger-overview.png+`
+  und `+/tmp/swagger-calltool.png+`): Die Gruppe „MCP" steht mit allen fünf Operationen über
+  „Recipes"; „Call a tool" zeigt den Pfadparameter mit Beispiel `+list_recipes+`, den Rumpf und
+  beide Antworten (`+200+` mit `+content+`/`+isError+`, `+404+` als `+problem+json+`).
+* *SPA gegengeprüft:* `+/recipes/+` rendert die sechs Rezepte, keine Konsolenfehler
+  (`+/tmp/spa-list.png+`).
+* *Befund → Backlog:* Der Rumpf von `+POST /api/mcp/tools/\{name}+` ist ein Freiform-Objekt, die
+  UI zeigt darum `+additionalProp1..3: "string"+` statt `+{"id": 1}+`. Als `+KI+`-Eintrag ins
+  Backlog gelegt (PO-Skill) statt im Vorbeigehen geändert.
+* *Kein Code angefasst*, kein Commit; die Anwendung läuft weiter auf Port 8080.
+
+'''
+
 [[prompt-161]]
 == 161. Prompt: „commit"
 

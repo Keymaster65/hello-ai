@@ -191,3 +191,13 @@ Die 19 älteren ADRs sind auf Kapitel umgestellt worden, ohne dass eine Entschei
 festgehalten wäre. ADR 0026 hatte „Keine Umbenennung der Überschriften" ausdrücklich unter
 „Bewusst nicht getan" geführt – der Schritt darüber hinaus gehört begründet, samt der Grenze:
 Struktur ja, Text nein.
+
+== KI Zeig im Beispielrumpf von POST /api/mcp/tools/\{name} echte Werkzeugargumente
+
+Die Swagger UI rendert den Rumpf der Operation als Freiform-Objekt und zeigt deshalb
+`+additionalProp1..3: "string"+`. Wer die Operation zum ersten Mal öffnet, sieht damit *nicht*,
+dass dort etwa `+{"id": 1}+` hingehört – die Argumente stehen je Werkzeug in `+inputSchema+` unter
+`+GET /api/mcp/tools+`. Eine `+@RequestBody+`-Annotation mit `+example+` würde das ohne ein
+typisiertes DTO je Werkzeug beheben; die Doppelung der Werkzeugliste, die
+link:{adr}/0050-rest-facade-des-mcp-service-in-openapi{adrext}[ADR 0050] verworfen hat, entstünde
+dabei nicht.
