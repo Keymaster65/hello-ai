@@ -26,6 +26,7 @@ import com.tngtech.archunit.lang.ArchRule;
  * adapter "rest"      ..adapter.in.rest..
  * adapter "mcp"       ..adapter.in.mcp..            (tools and resources, see ADR 0049)
  * adapter "persist"   ..adapter.out.persistence..   (incl. generated jOOQ code)
+ * adapter "gitdata"   ..adapter.out.gitdata..       (rows as JSON on a git branch, ADR 0053)
  * adapter "docs"      ..adapter.out.documentation.. (the delivered documentation, ADR 0049)
  * adapter "bootstrap" ..bootstrap..                 (composition root, outermost ring)
  * </pre>
@@ -58,6 +59,9 @@ class OnionArchitectureTest {
             .adapter("rest", "..adapter.in.rest..")
             .adapter("mcp", "..adapter.in.mcp..")
             .adapter("persistence", "..adapter.out.persistence..")
+            // Zweiter Adapter am selben Out-Port (ADR 0053) – und damit der Fall, für den diese
+            // Sicht gemacht ist: Er darf den jOOQ-Adapter so wenig kennen wie der ihn.
+            .adapter("gitdata", "..adapter.out.gitdata..")
             .adapter("documentation", "..adapter.out.documentation..")
             .adapter("bootstrap", "..bootstrap..")
             .withOptionalLayers(true)

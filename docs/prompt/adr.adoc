@@ -27,7 +27,7 @@ wenn diese Bindung nicht mehr passt.
 
 == Vor der Arbeit: welche ADRs gelten
 
-Nicht alle 52 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
+Nicht alle 53 lesen – die zur Aufgabe. Diese Tabelle ist ein Wegweiser, keine
 Zusammenfassung: *Was* gilt, steht im ADR selbst.
 
 [cols="2,3", options="header"]
@@ -52,7 +52,8 @@ Zusammenfassung: *Was* gilt, steht im ADR selbst.
 | Persistenz, Migration, Schemaänderung
 | link:{adr}/0004-liquibase-statt-flyway{adrext}[0004],
   link:{adr}/0001-jooq-codegen-aus-flyway-skripten{adrext}[0001],
-  link:{adr}/0002-embedded-postgres-statt-testcontainers{adrext}[0002]
+  link:{adr}/0002-embedded-postgres-statt-testcontainers{adrext}[0002],
+  link:{adr}/0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[0053]
 
 | REST-Endpunkt, Fehlerbild, OpenAPI
 | link:{adr}/0005-springdoc-openapi-und-swagger-ui{adrext}[0005],

@@ -12,6 +12,9 @@ asciidoctor = "4.0.5"
 # dem AsciidoctorJ 2.5.x, das das Gradle-Plugin oben mitbringt.
 asciidoctorjDiagram = "2.3.2"
 gitChangelog = "3.1.2"
+# JGit der Eclipse Foundation: der Adapter gitdata schreibt und liest den Branch `data` ohne ein
+# `git` im PATH und ohne Arbeitsverzeichnis (ADR 0053). Release-Version, kein Snapshot, kein RC.
+jgit = "7.7.1.202607240634-r"
 jooq = "3.21.6"
 jooqPlugin = "10.2.1"
 jqwik = "1.9.3"
@@ -42,9 +45,13 @@ spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-star
 spring-boot-starter-validation = { module = "org.springframework.boot:spring-boot-starter-validation" }
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web" }
 spring-boot-webmvc-test = { module = "org.springframework.boot:spring-boot-webmvc-test" }
+# Jackson 3 – die Fassung, die Spring Boot 4 mitbringt und auto-konfiguriert. Bisher kam sie nur
+# transitiv mit; der Adapter gitdata schreibt seine JSON-Dateien damit (ADR 0053).
+tools-jackson-databind = { module = "tools.jackson.core:jackson-databind" }
 
 # --- Versions this project pins itself --------------------------------------------------
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
+jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit" }
 jooq-meta-extensions-liquibase = { module = "org.jooq:jooq-meta-extensions-liquibase", version.ref = "jooq" }
 jqwik = { module = "net.jqwik:jqwik", version.ref = "jqwik" }
 mcp-sdk = { module = "io.modelcontextprotocol.sdk:mcp", version.ref = "mcpSdk" }

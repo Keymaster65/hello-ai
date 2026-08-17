@@ -1,0 +1,257 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= ADR 0053: Zweiter Persistenz-Adapter gitdata – Zeilen als JSON-Dateien im Branch data
+
+== Status
+
+Akzeptiert – 2026-08-17
+
+Ergänzt link:0001-jooq-codegen-aus-flyway-skripten{adrext}[ADR 0001] und
+link:0004-liquibase-statt-flyway{adrext}[ADR 0004], ohne sie abzulösen: Der relationale Adapter
+bleibt der aktive Weg der Anwendung. Diese Entscheidung stellt einen *zweiten* Adapter *neben*
+ihn.
+
+Umgesetzt ist damit Teil 1 des Backlog-Eintrags „Ergänze Adapter gitdata …": Format, Branch,
+Abhängigkeit und die Implementierung samt Unit-Tests. Die Verdrahtung in die laufende Anwendung
+samt Controller (Teil 2) und die Anfangspopulation (Teil 3) folgen; sie sind hier mitentschieden,
+aber nicht gebaut.
+
+== Kontext
+
+Gefragt war ein Adapter, der die Daten *als git-Historie* hält: eine JSON-Datei je Datensatz,
+abgelegt in einem eigenen Branch `data`, ein Commit je Schreibvorgang – „ein Commit entspricht in
+etwa einem Commit in eine Datenbank". Der PostgreSQL-Weg soll dabei erhalten und aktiv bleiben.
+
+Zwei Vorgaben aus dem Eintrag schneiden die Lösung zu:
+
+* *Keine neuen Ports.* Der Adapter erfüllt den bestehenden ausgehenden Port
+  `RecipeRepository` – dieselbe Schnittstelle, die der jOOQ-Adapter erfüllt. Damit ist er kein
+  neuer Anwendungsfall, sondern eine zweite Antwort auf denselben.
+* *Der Aufbau ist vorgegeben:* `+/database/entities/recipes+`, `+…/ingredients+` und so weiter –
+  also die *Zeilen* der Tabellen, nicht das Aggregat. Ein Rezept liegt damit nicht in einer Datei,
+  sondern verteilt über drei Verzeichnisse, so wie es in der Datenbank über drei Tabellen liegt.
+
+Der Anhang „Git-Historie" zeigt schon, dass dieses Projekt git als *Datenquelle* liest
+(link:0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036]). Neu ist das Schreiben.
+
+== Optionen
+
+=== Wie das Repository angesprochen wird
+
+. *JGit, ohne Arbeitsverzeichnis* – gewählt. Gelesen wird der Baum des Branch-Kopfes, geschrieben
+  wird über `ObjectInserter`, `DirCache` und `RefUpdate`. Das Arbeitsverzeichnis wird *nie*
+  angefasst: Der Prozess läuft in einem Repository, das auf einem anderen Branch ausgecheckt ist,
+  und ein Checkout hier wäre ein Eingriff in die Arbeit des Menschen davor.
+. *`git` als Unterprozess.* Verworfen: Der Betrieb hinge an einem `git` im `PATH` und an dessen
+  Ausgabeformat – derselbe Einwand, an dem in ADR 0036 die `Exec`-Variante gescheitert ist. Dazu
+  käme das Zitieren von Argumenten als eigene Fehlerquelle.
+. *JGit mit einem zweiten Arbeitsverzeichnis* (`worktree add`) und normalem `add`/`commit`.
+  Verworfen: Es entstünde ein zweiter Ort mit Dateien auf der Platte, der aufgeräumt werden muss;
+  und ein halb geschriebenes Arbeitsverzeichnis wäre ein Zustand, den es bei der Objektdatenbank
+  gar nicht gibt.
+. *Ein eigenes, bare Repository neben der Anwendung.* Verworfen für diesen Teil: Der Eintrag nennt
+  „einen neuen leeren Branch data", nicht ein zweites Repository. Als Ablageort bleibt es offen –
+  welches Repository benutzt wird, entscheidet Teil 2 in der Konfiguration.
+
+=== Wie der Branch beschaffen ist
+
+. *Wurzellos, mit einem Commit je Schreiboperation* – gewählt. Der erste Commit hat *keinen*
+  Eltern-Commit; der Branch teilt keine Historie mit dem Code. Daten und Code stehen damit im
+  selben Repository, aber nicht in derselben Geschichte.
+. *Branch aus `main` abgezweigt.* Verworfen: Jeder Datensatz hinge dann an einem Stand des Codes,
+  und ein `git log data` zeigte die Entwicklung beider vermischt.
+. *Ein Commit je Feld oder je Datei.* Verworfen: Eine Operation, die ein Rezept mit fünf Zutaten
+  anlegt, wäre sechs Commits – und zwischen ihnen wäre der Bestand halb geschrieben. Der Commit
+  ist hier die Transaktionsgrenze, und die umfasst die ganze Operation.
+
+=== Wie der Baum entsteht
+
+. *Der ganze Zustand je Commit* (`DirCache` aus allen Dateien, dann `writeTree`) – gewählt. Was in
+  der Karte fehlt, fehlt im Commit: Genau das macht ein Löschen zu einem Löschen. git speichert
+  gleiche Blobs ohnehin nur einmal, der Preis ist also der Baum, nicht der Inhalt.
+. *Differenz zum Vorgänger.* Verworfen: schneller, aber die Löschung müsste eigens ausgedrückt
+  werden. Bei diesem Datenumfang wäre das Komplexität ohne Gegenwert.
+
+=== Wie Kennungen entstehen
+
+. *Höchste gespeicherte Kennung plus eins, je Entität* – gewählt: Der Dateiname *ist* die Kennung,
+  also braucht es keinen zweiten Ort, an dem ein Zähler stünde und veralten könnte.
+. *Eine Zählerdatei je Entität* (`+…/recipes/_sequence+`). Verworfen: ein Datensatz, der keiner
+  ist, mitten in einem Verzeichnis von Datensätzen – und eine zweite Wahrheit über die Kennungen.
+. *UUIDs.* Verworfen: Der Port arbeitet mit `long`, und die REST-Adresse eines Rezepts ist eine
+  Zahl (link:0046-rfc-9457-problem-details-als-fehlerformat{adrext}[ADR 0046] ändert daran
+  nichts). Eine UUID hier hieße, den Port zu ändern – und der soll gleich bleiben.
+
+=== Wie das JSON aussieht
+
+. *Eigene Dokument-Records je Entität, eingerückt geschrieben, mit Zeilenumbruch am Ende* –
+  gewählt. Die Records spiegeln die *Spalten* der Tabellen, nicht das Domänenmodell: Das Format
+  ändert sich nicht, wenn die Domäne umgebaut wird, und es ändert sich nicht, wenn das Enum
+  `Difficulty` eine Konstante bekommt (deshalb steht dort ein `String`, wie in der Spalte ein
+  `VARCHAR`). Eingerückt, weil der Zweck dieses Adapters der lesbare Diff ist.
+. *Die Domänen-Records direkt serialisieren.* Verworfen: Das Aggregat `Recipe` trägt seine Kinder
+  in sich; die verlangte Ablage trennt sie in eigene Verzeichnisse. Außerdem wäre das Dateiformat
+  danach an die Domäne gekettet – jede Umbenennung dort wäre eine Migration hier.
+. *Kompaktes JSON in einer Zeile.* Verworfen: Der Diff eines geänderten Feldes wäre die ganze
+  Datei.
+
+=== Womit serialisiert wird
+
+. *Jackson 3 (`tools.jackson`)* – gewählt: die Fassung, die Spring Boot 4 mitbringt und
+  auto-konfiguriert; die Systemtests lesen ihre Antworten schon damit. Records versteht sie ohne
+  Annotation, ihre Fehler sind ungeprüft.
+. *Jackson 2 (`com.fasterxml`).* Verworfen, obwohl transitiv vorhanden: Zwei Jackson-Fassungen im
+  Einsatz zu haben ist ein Zustand, den niemand absichtlich pflegt.
+. *JSON von Hand schreiben.* Verworfen: Escaping ist eine gelöste Aufgabe.
+
+== Entscheidung
+
+*Der Adapter liegt in `+adapter.out.gitdata+`* und ist damit ein eigener Ring der Zwiebel –
+`OnionArchitectureTest` führt ihn als Adapter `gitdata`. Er kennt den jOOQ-Adapter nicht und
+umgekehrt; beide kennen nur den Port. Das ist der Fall, für den die Zwiebelsicht in
+link:0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019] überhaupt eingeführt wurde.
+
+*Vier Klassen, je eine Aufgabe:*
+
+[cols="1,3", options="header"]
+|===
+| Klasse | Aufgabe
+
+| `GitDataBranch`
+| git und nichts sonst: Baum des Branch-Kopfes lesen, neuen Baum samt Commit schreiben, Ref
+  bewegen. Paketprivat.
+
+| `RecipeDocument`, `IngredientDocument`, `PreparationStepDocument`
+| Das gespeicherte Format – je ein Record, dessen Komponenten die Spalten der Tabelle spiegeln.
+  Paketprivat, mit `curried()`-Factory (link:0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[ADR 0021]).
+
+| `GitDataMapper`
+| Domäne ↔ Dokumente. Kennungen und Positionen bekommt er *übergeben*; sie zu vergeben ist Sache
+  des Repositories, weil nur dieses den Bestand sieht.
+
+| `GitDataRecipeRepository`
+| Der Port: welche Datei zu welcher Zeile, welche Kennung als nächste, welche Reihenfolge – und
+  ein Commit je Schreiboperation. Die einzige öffentliche Klasse des Pakets.
+|===
+
+*Der Aufbau im Branch* ist der des Eintrags:
+
+----
+database/entities/recipes/<id>.json
+database/entities/ingredients/<id>.json
+database/entities/preparation_steps/<id>.json
+----
+
+*Die Kinder tragen ihren Fremdschlüssel und ihre Position selbst* – ein Verzeichnis hat keine
+Ordnung. Gelesen wird `+ORDER BY position+` nachgebildet, Rezepte in der Reihenfolge ihrer
+Kennung: dieselbe Zusicherung, die der jOOQ-Adapter gibt.
+
+*Die Kennungen der Kinder werden vor dem Löschen gezogen.* Ein `update` ersetzt Zutaten und
+Schritte vollständig; die neuen Zeilen bekommen die *nächsten* Nummern, nicht die eben
+freigewordenen. Damit verhält sich der Adapter wie die Sequenz der Datenbank, und ein Diff zeigt
+eine ersetzte Zutat als neue Datei statt als geänderte.
+
+*Der Commit ist die Transaktion.* Entweder die Ref bewegt sich, oder nichts ist geschehen. Die Ref
+wird mit dem erwarteten alten Stand bewegt (`setExpectedOldObjectId`); ein Schreiber, der auf einem
+veralteten Stand aufsetzt, verliert – er überschreibt nicht.
+
+*Committer ist der Adapter*, mit fester Kennung `+recipes gitdata adapter
+<gitdata@recipes.invalid>+`. Der Zeitpunkt kommt aus einer injizierten `Clock`, damit ein Test
+reproduzierbare Commits erzeugt.
+
+*Nichts davon ist in dieser Stufe verdrahtet.* Keine der Klassen trägt eine Spring-Annotation:
+Zwei Beans an einem Port wären ohne Vorkehrung ein `NoUniqueBeanDefinitionException` beim Start.
+Wer den Adapter zum aktiven Weg macht und unter welcher Adresse, entscheidet Teil 2.
+
+== Konsequenzen
+
+=== Vorteile
+
+* Der Bestand ist *lesbar und nachvollziehbar*: Jede Änderung ist ein Commit mit Botschaft, jeder
+  Datensatz eine Datei, jeder Unterschied ein Diff. Eine Datenbank braucht dafür ein Audit-Log.
+* Der bestehende Port hält. Weder Anwendungsschicht noch Domäne wissen von diesem Adapter – der
+  Beweis, dass die Grenze aus ADR 0019 trägt.
+* Das Arbeitsverzeichnis bleibt unberührt; die Anwendung kann in einem Repository schreiben, in dem
+  gerade jemand arbeitet.
+* Der Adapter ist ohne Datenbank testbar: ein temporäres Repository, kein PostgreSQL, kein
+  Container – anders als der jOOQ-Weg, der Zonky braucht
+  (link:0002-embedded-postgres-statt-testcontainers{adrext}[ADR 0002]).
+
+=== Nachteile
+
+* *Jede Operation liest den ganzen Branch.* Bei diesem Umfang ist das ein Baumdurchlauf; mit
+  zehntausend Rezepten wäre es der falsche Entwurf. Der Adapter ist keine Datenbank und wird keine.
+* *Kein gleichzeitiges Schreiben.* Zwei Schreiber auf demselben Branch enden damit, dass einer
+  scheitert – bewusst, aber es ist kein Ersatz für Transaktionsisolation.
+* *Die höchste gelöschte Kennung kommt zurück.* Wird das Rezept mit der größten Nummer gelöscht,
+  vergibt der nächste `save` genau diese wieder. Wer über eine gelöschte Kennung Bescheid wissen
+  muss, findet sie nur in der Historie – ein Test hält dieses Verhalten ausdrücklich fest.
+* *Keine referenzielle Integrität.* Was `+FOREIGN KEY … ON DELETE CASCADE+` zusichert, tut hier
+  Code. Eine von Hand eingefügte Zutat mit unbekanntem `recipeId` fällt niemandem auf.
+* *Zeitstempel fehlen im Dokument.* `created_at` und `updated_at` der Tabelle haben hier kein
+  Gegenstück: Der Commit trägt die Zeit. Zwei Adapter, deren Zeilen sich in zwei Spalten
+  unterscheiden – Teil 3 muss das beim Vergleich der Anfangspopulation wissen.
+* *Eine neue Abhängigkeit im Betrieb*, JGit samt JavaEWAH und SLF4J. Sie kommt über den
+  Versionskatalog (link:0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018]), ist eine
+  Release-Version der Eclipse Foundation und aktiv gepflegt (7.7.1 vom Juli 2026).
+* *Die Anwendung schreibt in ihr eigenes Repository.* Sobald Teil 2 das verdrahtet, kann ein
+  Aufruf von außen einen Commit auslösen. Das ist eine Angriffsfläche und gehört dann in „Offene
+  Punkte" (`docs/system/betrieb.adoc`) – zusammen mit der Frage, welches Repository das sein darf.
+
+=== Bewusst nicht getan
+
+* *Kein Wiring, kein Controller, keine Konfiguration* – Teil 2. Deshalb steht hier auch noch keine
+  Zeile in der Konfigurationstabelle und keine in „Offene Punkte": Erreichbar ist nichts.
+* *Keine Anfangspopulation* – Teil 3, mit dem Vergleich gegen die Liquibase-Seed.
+* *Kein zweiter In-Port und kein zweiter Out-Port*, wie im Eintrag verlangt.
+* *Keine Migration zwischen den beiden Adaptern.* Wer die Daten der Datenbank in den Branch
+  überführen will, braucht einen eigenen Schritt; er steht nicht im Backlog.
+* *Kein `push`.* Der Branch bleibt lokal. Ein Remote wäre eine Entscheidung über Zugangsdaten im
+  Betrieb und damit ein eigenes ADR.
+* *Keine Zeitstempel-Spalten und keine Prüfung des Fremdschlüssels* – siehe „Nachteile". Beides
+  wäre Nachbau einer Datenbank in Dateiform.
+* *Die Kennung des Committers ist nicht konfigurierbar.* Sie benennt den Adapter, nicht einen
+  Menschen; ein Konfigurationsschlüssel dafür hätte heute keinen Leser.
+
+== Prüfung
+
+* `./gradlew :modules:backend:adapter:test` – 62 Tests grün, darunter 16 neue (14 am Repository,
+  2 Properties am Format): `save` vergibt
+  Kennungen und schreibt fünf Dateien für ein Rezept mit zwei Zutaten und zwei Schritten,
+  `findAll` liefert nach Kennung sortiert, `update` ersetzt die Kinder (Zutat `1.json` und
+  `2.json` weichen `3.json`), `delete` nimmt die Kinder mit, unbekannte Kennungen erzeugen *keinen*
+  Commit.
+* Drei Schreibvorgänge ergeben *drei* Commits – `+insert recipe 1+`, `+insert recipe 2+`,
+  `+delete recipe 1+`, neuester zuerst –, und der älteste hat *keinen* Eltern-Commit: Der Branch
+  ist wurzellos.
+* Nach dem Schreiben existiert kein Verzeichnis `database` im Arbeitsverzeichnis, und
+  `+repository.getBranch()+` ist weiterhin `main`: Der Baum wurde nicht ausgecheckt.
+* Die gespeicherte Datei beginnt mit `+{+` und Zeilenumbruch, endet mit `+}+` und Zeilenumbruch –
+  eingerücktes JSON, wie entschieden.
+* Zwei jqwik-Properties: Ein Rezept übersteht den Weg Domäne → Dokument → JSON → Dokument →
+  Domäne unverändert (bis auf die vergebene Kennung), und jedes Kind trägt Fremdschlüssel und
+  1-basierte Position.
+* `./gradlew test` – alle Module grün, inklusive `OnionArchitectureTest` mit dem neuen Ring und
+  `RecordCurryingTest` über die drei neuen Records.
+* `./gradlew clean build` (3:51 min), `./gradlew test` (25 s), `./gradlew systemtest` (1:16 min)
+  und `./gradlew e2eTest` (9 Tests) sind grün; die Definition of Done ist vollständig durchlaufen.
+  Asciidoctor meldet nur die zwei *bekannten* Punkte, keinen neuen.
+* `./gradlew coverageTable` – die Abdeckung von `:adapter` steigt von 66,2 % auf 75,0 % der
+  Anweisungen, die Summe von 69,5 % auf 76,0 %: Der neue Code ist gemessen, nicht bloß vorhanden.
+
+== Referenzen
+
+* link:0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019] – Adapter kennen einander
+  nicht; dieser Adapter ist der zweite am selben Port
+* link:0021-currying-fuer-records-mit-mehr-als-zwei-komponenten{adrext}[ADR 0021] – die
+  `curried()`-Factory der drei Dokument-Records
+* link:0001-jooq-codegen-aus-flyway-skripten{adrext}[ADR 0001],
+  link:0004-liquibase-statt-flyway{adrext}[ADR 0004] – der relationale Weg, der bleibt
+* link:0002-embedded-postgres-statt-testcontainers{adrext}[ADR 0002] – wie der andere Adapter
+  getestet wird; dieser braucht davon nichts
+* link:0018-versionskatalog-libs-versions-toml{adrext}[ADR 0018] – JGit und Jackson 3 im
+  Versionskatalog
+* link:0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036] – git als *Quelle* der
+  Dokumentation; hier wird git zum *Ziel* von Daten
+* `modules/backend/adapter/src/main/java/io/github/keymaster65/helloai/adapter/out/gitdata/`,
+  `docs/system/schichten.adoc`, `docs/system/datenmodell.adoc`

@@ -42,7 +42,19 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 `git`.
 
 
-== : Ergänze Adapter "gitdata", die die Daten in einem neuen leeren Branch "data" sichern. Es sollen keine neuen in-Ports oder out-Ports entstehen. Ein zusätzlicher Controller soll am Ende diesen neuen Adapter "gitdata" ansprechen. Der Aufbau im Branch "data" soll sein /database/entities/recipes, /database/entities/ingredients usw. Gespeichert und gelesen werden jeweils Json-Dateien, die einen Datensatz enthalten. Ein commit entspricht in etwa einem commit in eine Datenbank. Der Postgres-Adapter soll erhalten und aktiv bleiben. Für den neuen Adapter sollen Unit-Tests, System-Tests und eine identische Anfangspopulation erstellt werden.
+== : Sprich den Adapter gitdata über einen zusätzlichen Controller an und verdrahte ihn in der Anwendung, mit System-Tests
+
+Teil 2 von 3 (Teil 1 ist erledigt, siehe ADR 0053 und Protokolleintrag 168). Der Postgres-Adapter
+bleibt der primäre; der neue Controller spricht über den bestehenden In-Port `RecipeService` eine
+zweite Instanz an, die auf dem Adapter gitdata sitzt. Dazu die Konfiguration (welches Repository,
+welcher Branch), OpenAPI-Beschreibung, Systemtests, die Kapitel `api.adoc` und `schichten.adoc` –
+und eine Zeile in „Offene Punkte": Ab dieser Stufe kann ein Aufruf von außen einen Commit auslösen.
+
+== : Lege für den Adapter gitdata eine Anfangspopulation an, die der Liquibase-Seed entspricht
+
+Teil 3 von 3. Dieselben sechs Rezepte des Buchinger-Zyklus wie in
+`0002-seed-fasting-recipes.xml`, mit einem Test, der beide Fassungen gegeneinander vergleicht,
+damit „identisch" nachgewiesen ist und nicht behauptet.
 
 == architecture
     Multi Brower Support

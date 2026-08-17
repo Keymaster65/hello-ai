@@ -201,3 +201,37 @@ generierte Code, die Migration und die Repository-Abfragen folgen daraus. Passt 
 Abfrage nach der Änderung nicht mehr, ist das ein *Compilerfehler* – nicht ein Fehler zur
 Laufzeit.
 ====
+
+[[zweite-ablage-gitdata]]
+== Zweite Ablage: dieselben Zeilen als JSON im Branch data
+
+Neben der Datenbank gibt es eine *zweite* Fassung derselben Daten: Der Adapter `gitdata` legt jede
+Zeile als eigene JSON-Datei in einen git-Branch und macht aus jeder Schreiboperation einen Commit
+(link:{adr}/0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[ADR 0053], Aufbau und
+Verhalten siehe Kapitel Bausteine und Schichten). Beschrieben ist hier, wie sich die *Ablage*
+zum Schema oben verhält – der aktive Weg der Anwendung bleibt die Datenbank, der Adapter ist noch
+nicht verdrahtet.
+
+[cols="2,2,3", options="header"]
+|===
+| Tabelle | Verzeichnis | Unterschied zur Spalte
+
+| `recipe`
+| `+database/entities/recipes/<id>.json+`
+| Ohne `created_at` und `updated_at`: Die Zeit trägt der Commit. `difficulty` steht als Text da wie
+  in der Spalte – ohne Prüfbedingung hier wie dort.
+
+| `ingredient`
+| `+database/entities/ingredients/<id>.json+`
+| Wie die Zeile, samt `recipe_id` und `position`. Ein Verzeichnis hat keine Ordnung, deshalb ist die
+  Position *immer* explizit – anders als in der Domäne (siehe die Asymmetrie oben).
+
+| `preparation_step`
+| `+database/entities/preparation_steps/<id>.json+`
+| Wie die Zeile.
+|===
+
+Was die Datenbank zusichert und diese Ablage nicht: `FOREIGN KEY`, `ON DELETE CASCADE` und die
+Eindeutigkeit der Kennung. Das Löschen der Kinder tut hier Code, und eine von Hand eingefügte Zeile
+mit unbekanntem `recipe_id` fällt niemandem auf. Umgekehrt hält diese Ablage etwas fest, was die
+Datenbank nicht hat: *wer wann was* geändert hat, in der Historie des Branches.

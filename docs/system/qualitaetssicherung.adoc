@@ -138,6 +138,17 @@ link:{adr}/0019-onion-architecture-regel-in-archunit{adrext}[ADR 0019].
 | Property-based: Invarianten des Mappings zwischen DTO und Domäne, darunter die Ableitung
   der Schrittpositionen aus der Listenordnung.
 
+| <<src-gitdata-recipe-repository-test,`GitDataRecipeRepositoryTest`>>
+| Der Adapter gitdata gegen ein *echtes* Repository in einem temporären Verzeichnis
+  (link:{adr}/0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[ADR 0053]): welche
+  Dateien im Baum landen, ein Commit je Schreiboperation, der wurzellose erste Commit, das
+  unberührte Arbeitsverzeichnis – und dass eine unbekannte Kennung *keinen* Commit erzeugt. Ein
+  Mock für git wäre hier wertlos: Zu prüfen ist genau das, was git daraus macht.
+
+| <<src-gitdata-mapper-property-test,`GitDataMapperPropertyTest`>>
+| Property-based: Ein Rezept übersteht den Weg Domäne → Dokument → JSON → Dokument → Domäne
+  unverändert, und jedes Kind trägt Fremdschlüssel und 1-basierte Position.
+
 | <<src-recipe-controller-test,`RecipeControllerTest`>>
 | Web-Slice mit `@WebMvcTest`: Statuscodes, `Location`-Header, Serialisierung und die
   Fehlerbilder des `GlobalExceptionHandler`.

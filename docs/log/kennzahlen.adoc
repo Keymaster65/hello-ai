@@ -20,6 +20,34 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-169,169>>
+|„commit"
+| –
+| 8 s
+| 18:18:53 h
+| 638
+| 4.735.249
+| 537.332
+| 27.590.797
+| 573.374
+| 49:11 min
+| 201.674
+| 42.350.993
+
+| <<prompt-168,168>>
+|„Ergänze den Out-Adapter gitdata, der Rezepte als JSON-Dateien in den Branch data schreibt und daraus liest, mit ADR und Unit-Tests" (aus dem Backlog, `next`, Teil 1 von 3)
+| –
+| 31:58 min
+| 18:18:45 h
+| 137.877
+| 4.734.611
+| 529.203
+| 27.053.465
+| 31.480.372
+| 47:39 min
+| 197.276
+| 40.639.927
+
 | <<prompt-167,167>>
 |„commit"
 | <<commit-2fa74dc,2fa74dc>>

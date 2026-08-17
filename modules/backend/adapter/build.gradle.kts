@@ -28,6 +28,14 @@ dependencies {
     // (ADR 0019).
     implementation(libs.mcp.sdk)
 
+    // Der Adapter gitdata (ADR 0053): JGit liest und schreibt den Branch `data` über die
+    // Objektdatenbank – ohne `git` im PATH und ohne Arbeitsverzeichnis. Jackson 3 ist die Fassung,
+    // die Spring Boot 4 mitbringt; hier steht sie ausdrücklich, weil dieses Modul sie selbst
+    // benutzt und nicht mehr nur transitiv erbt. Beides `implementation`: Keiner dieser Typen
+    // verlässt das Modul (ADR 0019).
+    implementation(libs.jgit)
+    implementation(libs.tools.jackson.databind)
+
     // Code generation: LiquibaseDatabase interprets the changelog in-memory, so no live DB is
     // required at build time. The changelog lives in this module because it describes the
     // schema this adapter talks to.
