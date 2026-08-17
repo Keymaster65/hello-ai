@@ -51,6 +51,12 @@ nicht behauptet. Zu klären ist dabei, wann sie entsteht – beim Start in einen
 das Seed-Changeset in eine leere Datenbank – und was mit den zwei Spalten geschieht, die der
 git-Store nicht führt (`created_at`, `updated_at`).
 
+Wenn ein Branch bei Start existiert, soll er zunächst unverändert bleiben. Im Systemtest kann er
+dann vor der Population geleert werden.
+
+Die fehlenden Spalten created_at und updated_at sollen von der Anwendung aus der aktuellen Zeit
+befüllt werden.
+
 == architecture
     Multi Brower Support
 
