@@ -22,7 +22,7 @@
 
 | <<prompt-161,161>>
 |„commit"
-| –
+| <<commit-3746b7c,3746b7c>>
 | 35 s
 | 17:13:14 h
 | 3.850
@@ -36,7 +36,7 @@
 
 | <<prompt-160,160>>
 |„Ergänze einen REST API, die den MCP Service über SWAGGER ansprechbar macht."
-| –
+| <<commit-3746b7c,3746b7c>>
 | 35:02 min
 | 17:12:39 h
 | 209.445
