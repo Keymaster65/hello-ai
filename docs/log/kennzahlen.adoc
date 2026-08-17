@@ -22,7 +22,7 @@
 
 | <<prompt-165,165>>
 |„commit"
-| –
+| <<commit-522f6da,522f6da>>
 | 17 s
 | 17:34:38 h
 | 1.744
@@ -36,7 +36,7 @@
 
 | <<prompt-164,164>>
 |„Entferne aus dem gitlog die Zeilen wie "Refinement" und "Add commit hash". Nummeriere die restlichen Zeilen von unter nach oben, also unter 1 und ober die Anzahl der Zeilen." (aus dem Backlog, `next+1`)
-| –
+| <<commit-522f6da,522f6da>>
 | 14:30 min
 | 17:34:21 h
 | 56.523
