@@ -18,6 +18,11 @@ Neuester Commit oben – dieselbe Richtung wie im Protokoll, im ADR-Index und in
 Kennzahlen-Tabelle. Der Kurz-Hash benennt den Commit, der Betreff ist die *erste Zeile* seiner
 Message; der Rumpf samt `Co-Authored-By`-Zeile bleibt draußen.
 
+Der Hash in der Spalte *„Commit"* ist ein *Link auf das Diff bei GitHub*
+(link:{adr}/0052-commit-hashes-als-links-auf-github{adrext}[ADR 0052]) – die eine Angabe, die
+diese Tabelle nach außen führt. Die Basis-URL steht als Konstante in `build.gradle.kts`; geprüft
+wird der Link nicht, ein Umzug des Repositories fällt also erst beim Klicken auf.
+
 Die Spalte *„Nr"* zählt die Zeilen – aber *von unten*: Der `Initial commit` ist die `1`, der
 jüngste Commit trägt die Anzahl der Zeilen
 (link:{adr}/0051-git-historie-ohne-aussagelose-betreffe{adrext}[ADR 0051]). In dieser Richtung

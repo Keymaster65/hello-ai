@@ -20,6 +20,34 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-167,167>>
+|„commit"
+| –
+| 15 s
+| 17:46:47 h
+| 1.934
+| 4.596.734
+| 222.520
+| 26.524.262
+| 259.858
+| 14:01 min
+| 53.383
+| 7.565.446
+
+| <<prompt-166,166>>
+|„Ergänze im gitChangeLog die Commit-Hashes auf entsprechende Links mit der Basis-URL `+https://github.com/Keymaster65/hello-ai/commit/+`." (aus dem Backlog, `next`)
+| –
+| 11:54 min
+| 17:46:32 h
+| 43.719
+| 4.594.800
+| 368.236
+| 26.301.742
+| 5.595.462
+| 11:54 min
+| 43.719
+| 5.595.462
+
 | <<prompt-165,165>>
 |„commit"
 | <<commit-522f6da,522f6da>>

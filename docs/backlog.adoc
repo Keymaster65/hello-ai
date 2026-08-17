@@ -42,8 +42,6 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 `git`.
 
 
-== : Ergänze im gitChangeLog die Commit-Hashes auf entsprechende Links mit der Basis-URL "https://github.com/Keymaster65/hello-ai/commit/".
-
 == : Ergänze out-port Adapter gitdata, die die Daten in einem neuen leeren Branch data sichern. Der Aufbau dort soll sein /database/entities/recipes, /database/entities/ingredients usw. Gespeichert und gelesen werden jeweils Json-Dateien, die einen Datensatz enthalten. Ein commit entspricht in etwa einem commit in eine Datenbank. Der Postgres-Adapter soll erhalten und aktiv bleiben. Für den neuen Adapter sollen aber Tests und eine identische Anfangspopulation erstellt werden.
 
 == architecture

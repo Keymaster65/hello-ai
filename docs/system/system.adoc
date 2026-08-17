@@ -128,6 +128,7 @@ erste Zeile.
 |===
 | ADR | Thema
 
+| link:{adr}/0052-commit-hashes-als-links-auf-github{adrext}[0052] | Die Spalte „Commit" der Git-Historie verlinkt jeden Hash auf das Diff bei GitHub; die Basis-URL ist eine Konstante des Buildskripts, der Anker `+commit-<kurzhash>+` bleibt daneben stehen (ergänzt 0036)
 | link:{adr}/0051-git-historie-ohne-aussagelose-betreffe{adrext}[0051] | Die Git-Historie lässt die aussagelosen Betreffe `Refinement`, `Add commit hash` und `Manueller commit` aus – ein Drittel der Zeilen – und nummeriert die übrigen von unten, damit eine Nummer nicht bei jedem Commit wandert (ergänzt 0036)
 | link:{adr}/0050-rest-facade-des-mcp-service-in-openapi{adrext}[0050] | REST-Fassade des MCP-Service unter `+/recipes/api/mcp/…+`: eine Operation je Protokollmethode, im OpenAPI-Contract und damit in der Swagger UI; beide Fronten laufen auf einem gemeinsamen Katalog (ergänzt 0049)
 | link:{adr}/0049-mcp-service-fuer-rezepte-und-dokumentation{adrext}[0049] | MCP-Service für Rezepte und Systemdokumentation: offizielles Java-SDK, zustandsloses Streamable HTTP unter `+/recipes/api/mcp+`, vier lesende Werkzeuge und die Dokumentationsseiten als Ressourcen

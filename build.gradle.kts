@@ -117,6 +117,11 @@ val asciidoctorAdr by tasks.registering(AsciidoctorTask::class) {
 // nicht enthalten, eine eingecheckte Fassung wäre ab ihrem Entstehen um genau einen Commit alt.
 val gitChangelogAdoc = layout.buildDirectory.file("docs/changelog/gitchangelog.adoc")
 
+// Basis-URL für den Link je Commit (ADR 0052). Der Ort des Repositories steht damit an *einer*
+// Stelle im Build – abgeleitet wird er nicht: Ein `git remote get-url` bräuchte `git` im `PATH`,
+// und genau darauf verzichtet ADR 0036 mit der Wahl eines Plugins, das JGit benutzt.
+val commitBasisUrl = "https://github.com/Keymaster65/hello-ai/commit/"
+
 tasks.named<GitChangelogTask>("gitChangelog") {
     group = "documentation"
     description = "Schreibt die git-Historie als AsciiDoc-Tabelle für den Anhang „Änderungen\"."
@@ -171,8 +176,13 @@ tasks.named<GitChangelogTask>("gitChangelog") {
     // Die Vorlage legt die *Gestalt* der Tabelle fest, auch die beiden Spalten, die Handlebars
     // nicht füllen kann: „Nr" (ADR 0051) und „Prompt" (ADR 0038). Beide bleiben hier leer –
     // Handlebars sieht nur den einzelnen Commit, nicht die Länge der Liste und nicht das
-    // Session-Protokoll. Gefüllt werden sie – zusammen mit dem Anker je Commit – im `doLast`
-    // unten. Keine der beiden ist literal, sonst blieben Zahl und Querverweise darin Text.
+    // Session-Protokoll. Gefüllt werden sie – zusammen mit dem Anker und dem Link je Commit
+    // (ADR 0052) – im `doLast` unten. Keine der beiden ist literal, sonst blieben Zahl und
+    // Querverweise darin Text.
+    //
+    // Der Hash steht hier deshalb *nackt* in der Spalte „Commit": Das `doLast` liest die Zeile
+    // mit einem Muster wieder ein, und ein bereits in der Vorlage gesetzter Link stünde diesem
+    // Muster im Weg. Die Spalte entsteht damit an einer Stelle, nicht an zwei.
     templateContent.set(
         """
         // Erzeugt vom Gradle-Task `gitChangelog` aus der git-Historie – nicht von Hand ändern,
@@ -263,7 +273,12 @@ tasks.named<GitChangelogTask>("gitChangelog") {
                         "<<prompt-${nr.replace("-", "minus")},$nr>>"
                     }
                 }
-            "| ${anzahl - commits + 1} | $zeit | [[commit-$kurz]]$hash | $betreff | $spalte"
+            // Der Hash zeigt auf den Commit im Forge-Portal (ADR 0052): Anker für den Verweis
+            // *aus* der Doku, Link *heraus* zu GitHub. Verlinkt wird der geschriebene Hash und
+            // nicht der Kurz-Hash – GitHub löst jedes Präfix ab sieben Zeichen auf, und der
+            // längere ist eindeutiger.
+            "| ${anzahl - commits + 1} | $zeit | [[commit-$kurz]]$commitBasisUrl$hash[$hash] " +
+                "| $betreff | $spalte"
         }
         ziel.writeText(zeilen.joinToString("\n", postfix = "\n"))
 

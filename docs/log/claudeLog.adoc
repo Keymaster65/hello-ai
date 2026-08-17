@@ -9,6 +9,59 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-167]]
+== 167. Prompt: „commit"
+
+_Delta: 15 s · 1.934 Token out · 222.520 Token in (neu) · 259.858 Token gesamt_
+_Stand (Session, 4 Prompts): 14:01 min · 53.383 Token out · 7.565.446 Token gesamt_
+
+*Aktionen:*
+
+* Freigabe im Befehl (ADR 0040): Arbeit aus Eintrag 166 committet – Links auf GitHub in der
+  Spalte „Commit" der Git-Historie, ADR 0052, nachgezogene Doku, geleerter Backlog-Eintrag.
+* Seit dem grünen Lauf in Eintrag 166 wurde *kein Code* angefasst, nur Dokumentation; der letzte
+  Lauf der Definition of Done zählt weiter (Butterfly-Skill). `+./gradlew asciidoctor
+  asciidoctorPrompt asciidoctorAdr+` lief nach den Doku-Änderungen erneut durch – nur die zwei
+  bekannten Meldungen.
+* Danach die Arbeitsbranches geholt und in `main` gemergt (ADR 0032, ADR 0034).
+
+'''
+
+[[prompt-166]]
+== 166. Prompt: „Ergänze im gitChangeLog die Commit-Hashes auf entsprechende Links mit der Basis-URL `+https://github.com/Keymaster65/hello-ai/commit/+`." (aus dem Backlog, `next`)
+
+_Delta: 11:54 min · 43.719 Token out · 368.236 Token in (neu) · 5.595.462 Token gesamt_
+_Stand (Session, 3 Prompts): 11:54 min · 43.719 Token out · 5.595.462 Token gesamt_
+
+*Aktionen:*
+
+* `next` nach PO-Skill: `git pull --ff-only` auf `main` → „Already up to date", kein Eintrag
+  aktiv, keine Branch-Bindung. Gezogen wurde der oberste ready-Eintrag; nach Rückfrage
+  ausgeführt, Marker `+:+` → `+*+` vor der Arbeit gesetzt und der Eintrag danach entfernt.
+* *Entscheidung festgehalten:* `docs/adr/0052-commit-hashes-als-links-auf-github.adoc` – ergänzt
+  ADR 0036 und erledigt dessen offenen Punkt „Kein Link auf ein Forge-Portal"; der damalige
+  Grund („kein fester Ort") ist mit `+git remote+` weg. Optionen zu Ort des Links (`doLast` vs.
+  Handlebars-Vorlage vs. GitHub-API des Plugins), Herkunft der URL (Konstante vs. `git remote`
+  vs. Property) und Umfang des Ziels sind dort mit Gründen abgewogen.
+* `build.gradle.kts`: Konstante `+commitBasisUrl+` neben dem Pfad der erzeugten Datei; das
+  `doLast` des Tasks `gitChangelog` schreibt die Spalte „Commit" jetzt als
+  `+[[commit-<kurz>]]<url><hash>[<hash>]+` – Anker hinein, Link hinaus, an *einer* Stelle. Die
+  Handlebars-Vorlage bleibt unverändert (nackter Hash), damit das Muster des `doLast` greift.
+* Doku nachgezogen: `docs/system/anhang-git-historie.adoc` (Absatz zur Spalte „Commit"),
+  ADR-Index in `docs/system/system.adoc` (neue erste Zeile) und der Wegweiser in
+  `docs/prompt/adr.adoc` (Zeile „Dokumentation …", Zahl 51 → 52).
+* *Nachweis:* `+./gradlew gitChangelog+` unverändert „98 Commits, davon 31 einem Log-Eintrag
+  zugeordnet"; alle 98 Datenzeilen tragen die Basis-URL, `system.html` enthält 98 `href` auf
+  `+/commit/+`. Gerendert wird
+  `+<code><a id="commit-522f6da"></a><a href="…/commit/522f6dae0f3bac9">522f6dae0f3bac9</a></code>+`
+  – Anker *und* Link in der monospace-Zelle.
+* *Definition of Done vollständig grün:* `+./gradlew clean build+` (3:22 min), `+test+` (20 s,
+  25 Vitest-Tests), `+systemtest+` (1:08 min), `+e2eTest+` (9 Tests, 28 s). Asciidoctor meldet
+  nur die zwei *bekannten* Punkte (doppelter Anker `+prompt-minus2+`, fehlendes Attribut
+  `+id+`).
+
+'''
+
 [[prompt-165]]
 == 165. Prompt: „commit"
 

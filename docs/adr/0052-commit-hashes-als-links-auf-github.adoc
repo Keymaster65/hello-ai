@@ -1,0 +1,167 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= ADR 0052: Commit-Hashes der Git-Historie als Links auf GitHub
+
+== Status
+
+Akzeptiert – 2026-08-17
+
+Ergänzt link:0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036], ohne es abzulösen: Die
+dort entschiedene Tabelle bekommt in der Spalte „Commit" einen Link nach außen. Der Punkt „Kein
+Link auf ein Forge-Portal" aus deren Abschnitt „Bewusst nicht getan" ist damit erledigt – der
+Grund dafür war, dass das Repository keinen festen Ort hatte; es hat ihn.
+
+== Kontext
+
+Der Anhang „Git-Historie" nennt je Zeile den Hash des Commits – 15 Zeichen, monospace, sonst
+nichts (link:0051-git-historie-ohne-aussagelose-betreffe{adrext}[ADR 0051]). Wer von einer Zeile
+zum *Inhalt* des Commits will, hat damit zwei Wege: `git show` im geklonten Repository oder den
+Hash von Hand in eine GitHub-URL setzen. Beides steht dem im Weg, wofür die Tabelle da ist – sie
+beantwortet, *was* das Repository verändert hat, und die Antwort im Einzelnen ist das Diff.
+
+Der Anhang wird auch von der laufenden Anwendung unter `/recipes/docs/` ausgeliefert
+(link:0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024]). Dort ist der erste Weg gar keiner:
+Wer das HTML liest, hat kein Arbeitsverzeichnis.
+
+ADR 0036 hatte den Link ausdrücklich offengelassen, mit einem Grund, der inzwischen weg ist: „Das
+Repository hat keinen festen Ort, auf den zu verlinken wäre." Es liegt unter
+`https://github.com/Keymaster65/hello-ai` – `git remote` nennt genau diese eine Adresse.
+
+Die Anker in die *andere* Richtung gibt es schon: Jede Zeile trägt `+commit-<kurzhash>+`, auf den
+Session-Protokoll und Kennzahlen-Tabelle verweisen
+(link:0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038],
+link:0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[ADR 0041]). Was fehlt, ist
+der Weg *hinaus*.
+
+== Optionen
+
+=== Wo der Link entsteht
+
+. *Im `doLast` des Tasks `gitChangelog`* – gewählt. Dort entsteht die Spalte „Commit" ohnehin:
+  Das `doLast` liest jede Datenzeile mit einem Muster wieder ein und schreibt den Anker davor. Der
+  Link ist an dieser Stelle ein Ausdruck mehr, und die Spalte entsteht weiterhin an *einer* Stelle.
+. *In der Handlebars-Vorlage*, also `+…/commit/{{hash}}[{{hash}}]+`. Verworfen: Das Muster des
+  `doLast` erkennt die Zeile am nackten Hash zwischen zwei Zellentrennern. Ein Link in der Vorlage
+  müsste dort mitgelesen werden – die Spalte hinge dann an zwei Stellen, die zueinander passen
+  müssen, ohne dass etwas es prüft.
+. *Die GitHub-Anbindung des Plugins* (`gitHubApi`, `gitHubToken`). Verworfen: Sie holt *Issues*
+  über die API, nicht Links auf Commits. Der Build hinge danach an einem Token und an der
+  Erreichbarkeit von GitHub – für eine Zeichenkette, die aus dem Hash zusammengesetzt werden kann.
+
+=== Woher die Basis-URL kommt
+
+. *Als Konstante im Buildskript*, neben dem Pfad der erzeugten Datei – gewählt. Der Ort des
+  Repositories steht damit an einer Stelle im Build und ändert sich nur, wenn das Repository
+  umzieht.
+. *Abgeleitet aus `git remote get-url origin`.* Verworfen aus zwei Gründen: Der Build bräuchte
+  `git` im `PATH`, und genau darauf verzichtet ADR 0036 mit der Wahl eines Plugins, das JGit
+  benutzt. Zudem ist die Remote-URL nicht die des Portals – sie kann in SSH-Form vorliegen und
+  endet auf `.git`; aus ihr eine Web-URL zu bauen wäre selbstgeschriebene Zeichenkettenarbeit
+  genau der Art, die ADR 0036 vermeiden wollte.
+. *Als Gradle-Property oder Umgebungsvariable*, damit ein Fork sie überschreiben kann. Verworfen:
+  ein Konfigurationsschlüssel mehr in `betrieb.adoc` für einen Wert, der sich einmal im Leben des
+  Repositories ändert. Wer forkt, ändert eine Zeile im Buildskript – dieselbe Zeile, die er sonst
+  in der Konfiguration setzen müsste.
+
+=== Was verlinkt wird
+
+. *Der Hash, wie er in der Spalte steht* – gewählt: 15 Zeichen als Linktext, dieselben 15 Zeichen
+  im Ziel. GitHub löst jedes Präfix ab sieben Zeichen auf.
+. *Der vollständige 40-Zeichen-Hash als Ziel, die 15 Zeichen als Text.* Verworfen: Die Vorlage
+  liefert nur die 15; den Rest müsste das `doLast` über JGit nachschlagen – Aufwand für eine
+  Eindeutigkeit, die bei 15 Zeichen längst gegeben ist.
+. *Der Betreff als Linktext statt des Hashes.* Verworfen: Die Spalte „Betreff" ist *literal*
+  (ADR 0036), damit beliebiger Text aus einer Commit-Message den Build nicht brechen kann. Ein
+  Makro darin bliebe sichtbarer Text – der Link gehört deshalb in die Spalte „Commit".
+
+== Entscheidung
+
+*Die Spalte „Commit" trägt Anker und Link:* `+[[commit-<kurz>]]<basis-url><hash>[<hash>]+`. Der
+Anker ist der Verweis *in* die Tabelle hinein, der Link führt *aus* ihr hinaus zum Diff auf
+GitHub. Beide entstehen im `doLast` des Tasks `gitChangelog`, in derselben Zeile Kotlin, die schon
+die Nummer und die Prompt-Spalte setzt.
+
+*Die Basis-URL ist eine Konstante des Buildskripts:*
+`+https://github.com/Keymaster65/hello-ai/commit/+`.
+
+*Die Spalte bleibt monospace* (`m` im `cols`-Attribut). Anders als bei einer literalen Spalte
+greift dort die Makro-Substitution – der Anker beweist das seit ADR 0038 –, und der Hash bleibt
+als Hash lesbar.
+
+*Die Vorlage bleibt unverändert.* Sie schreibt den Hash weiter nackt in die Zelle; dass das
+`doLast` ihn danach umschließt, ist der Preis dafür, die Spalte an einer Stelle zu bilden.
+
+== Konsequenzen
+
+=== Vorteile
+
+* Von jeder Zeile der Tabelle führt ein Klick zum Diff. Der Anhang beantwortet damit nicht nur,
+  *was* geändert wurde, sondern öffnet auch das *Wie*.
+* Das gilt auch für die ausgelieferte Fassung unter `/recipes/docs/` (ADR 0024) – dort, wo kein
+  `git show` möglich ist.
+* Die Kette ist geschlossen: Prompt → Commit-Zeile → Diff. Die beiden ersten Glieder gab es schon
+  (ADR 0038), das dritte fehlte.
+* Kein neues Werkzeug, keine neue Abhängigkeit, kein Netzzugriff im Build – die URL wird
+  zusammengesetzt, nicht erfragt.
+
+=== Nachteile
+
+* *Der Link ist ungeprüft.* `+link:+` und Makro-URLs prüft der Build nicht
+  (link:0026-adrs-als-asciidoc{adrext}[ADR 0026], „Nachteile"). Zieht das Repository um, zeigen
+  alle Zeilen ins Leere, ohne dass etwas rot wird.
+* *Die Tabelle verweist nach außen.* Bisher war der Anhang in sich geschlossen; nun braucht die
+  volle Auskunft eine Netzverbindung und ein erreichbares GitHub.
+* *Der Ort des Repositories steht im Buildskript.* Ein Fork zeigt auf das Original, bis die Zeile
+  geändert ist – still, denn ein falscher Link sieht aus wie ein richtiger.
+* *Die Zelle ist voll.* Statt 15 Zeichen steht dort nun die ganze URL; wer die erzeugte Datei
+  liest, sieht den Hash zweimal. Im gerenderten HTML fällt das nicht auf, in `build/` schon.
+
+=== Bewusst nicht getan
+
+* *Keine Links im Session-Protokoll und in der Kennzahlen-Tabelle.* Dort steht der Kurz-Hash als
+  Verweis *auf die Tabelle*; der Weg nach außen führt über sie. Ein zweiter Ort mit derselben URL
+  wäre die zweite Pflegestelle (ADR 0038, ADR 0041).
+* *Kein Link auf Branches, Tags oder Vergleiche* (`+/compare/+`). Das Projekt führt keine Tags
+  (ADR 0036); ein Vergleich zweier Zeilen ist ein eigener Gedanke.
+* *Keine Prüfung der Erreichbarkeit.* Ein Build, der 98 URLs abfragt, hängt am Netz und an einem
+  Rate-Limit – für eine Zusicherung, die nur zum Zeitpunkt des Builds gilt.
+* *Kein anderes Portal.* Dass die URL zu GitHub gehört, ist Tatsache, nicht Festlegung; ein
+  Umzug ändert eine Zeile.
+* *Die Auslassungen bleiben, wie sie sind* (ADR 0051). Ein Commit ohne Zeile bekommt auch keinen
+  Link – wer ihn sucht, liest `git log`.
+
+== Prüfung
+
+* `./gradlew gitChangelog` meldet unverändert `+gitChangelog: 98 Commits, davon 31 einem
+  Log-Eintrag zugeordnet+`; in `build/docs/changelog/gitchangelog.adoc` tragen *alle 98*
+  Datenzeilen die Basis-URL – neun Zeilen ohne sie sind Kommentar, Titel, `cols`, Kopfzeile und
+  Tabellenrahmen.
+* Die jüngste Zeile lautet
+  `+| 98 | 2026-08-17 09:58 | [[commit-522f6da]]https://github.com/Keymaster65/hello-ai/commit/522f6dae0f3bac9[522f6dae0f3bac9] | …+`;
+  `+git rev-parse 522f6da+` bestätigt, dass die 15 Zeichen ein Präfix von
+  `522f6dae0f3bac9aa87842841640de78361749b0` sind.
+* `./gradlew asciidoctor` erzeugt daraus
+  `+<code><a id="commit-522f6da"></a><a href="https://github.com/Keymaster65/hello-ai/commit/522f6dae0f3bac9">522f6dae0f3bac9</a></code>+`
+  – Anker *und* Link stehen in der monospace-Zelle, keiner verdrängt den anderen.
+* Kein „possible invalid reference": Die Verweise aus Protokoll und Kennzahlen-Tabelle finden ihren
+  Anker weiterhin. Übrig bleiben die zwei *bekannten* Meldungen (doppelter Anker `+prompt-minus2+`,
+  fehlendes Attribut `+id+`), keine davon neu.
+* `./gradlew clean build` (3:22 min), `./gradlew test` (20 s), `./gradlew systemtest` (1:08 min)
+  und `./gradlew e2eTest` (9 Tests, 28 s) sind grün – die Definition of Done ist vollständig
+  durchlaufen, nicht nur der Doku-Teil. Nach dem `clean` enthält `system.html` 98 `href` auf
+  `+/commit/+`: Der Link entsteht auch dann, wenn `build/` vorher leer war.
+
+== Referenzen
+
+* link:0036-git-historie-als-erzeugtes-kapitel{adrext}[ADR 0036] – die Tabelle, ihre Vorlage und
+  der offengelassene Punkt „Kein Link auf ein Forge-Portal"
+* link:0051-git-historie-ohne-aussagelose-betreffe{adrext}[ADR 0051] – Spalte „Nr" und die
+  Auslassungen; dasselbe `doLast`
+* link:0038-querverweise-zwischen-prompt-und-commit{adrext}[ADR 0038] – der Anker
+  `+commit-<hash>+`, der Weg in die Tabelle hinein
+* link:0041-kennzahlen-tabelle-verlinkt-protokoll-und-historie{adrext}[ADR 0041] – zweiter Leser
+  derselben Anker
+* link:0024-systemdokumentation-im-boot-jar{adrext}[ADR 0024] – Auslieferung unter
+  `/recipes/docs/`, wo `git show` nicht zur Verfügung steht
+* link:0026-adrs-als-asciidoc{adrext}[ADR 0026] – Links prüft der Build nicht
+* `build.gradle.kts`, `docs/system/anhang-git-historie.adoc`
