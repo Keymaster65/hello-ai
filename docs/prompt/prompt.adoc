@@ -43,8 +43,9 @@ wählt danach den Ort:
 
 | `docs/backlog.adoc`
 | Was kommt als Nächstes?
-| Ein Prompt je Überschrift; der Status steht im Anfang der Überschrift. Gezogen wird mit
-  `next` (Skill `po.adoc`,
+| Ein Prompt je Eintrag – Überschrift *und* Rumpf
+  (link:{adr}/0056-rumpftext-des-backlog-eintrags-als-teil-des-prompts{adrext}[ADR 0056]); der
+  Status steht im Anfang der Überschrift. Gezogen wird mit `next` (Skill `po.adoc`,
   link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028])
 
 | `docs/prompt/` (hier)
@@ -161,7 +162,8 @@ gepflegt, die sie betrifft.
 | Andere Spalten, andere Sortierung oder anderer Erzeugungsweg der Kennzahlen-Tabelle
 | `manager.adoc`; die Deutung der Spalten steht in `docs/system/anhang-kennzahlen.adoc`
 
-| Geänderte Regel für das Backlog (Statuszeichen, Ablauf von `next`, Umgang mit Erledigtem)
+| Geänderte Regel für das Backlog (Statuszeichen, Umfang des Prompts, Ablauf von `next`, Umgang
+  mit Erledigtem)
 | `po.adoc`; die Liste selbst bleibt `docs/backlog.adoc`, die Legende dort kommt mit
 
 | Geänderte Commit-Regel (Vorbedingung, Message, Zusammenführen der Branches, `/clear`)

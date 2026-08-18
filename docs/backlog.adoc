@@ -6,10 +6,13 @@ ifndef::adrext[:adrext: .adoc]
 [[backlog]]
 = Backlog
 
-Was als Nächstes zu tun ist – *ein Prompt je Überschrift*, von oben nach unten abzuarbeiten.
-Die Überschrift *ist* der Prompt: Sie wird wörtlich als Aufgabe genommen, ein Rumpftext
-darunter ist nur Notiz. Gezogen wird mit dem Befehl `next`, den der Skill
-`docs/prompt/po.adoc` beschreibt
+Was als Nächstes zu tun ist – *ein Prompt je Eintrag*, von oben nach unten abzuarbeiten.
+*Überschrift und Rumpf sind zusammen der Prompt*: Beides wird wörtlich als Aufgabe genommen –
+die Überschrift sagt, was zu tun ist, der Rumpf verengt sie um Dateien, Randbedingungen und
+offene Fragen
+(link:{adr}/0056-rumpftext-des-backlog-eintrags-als-teil-des-prompts{adrext}[ADR 0056]; bis
+dahin war der Rumpf bloße Notiz). Was *nicht* ausgeführt werden soll, wird AsciiDoc-Kommentar
+(`+// …+`). Gezogen wird mit dem Befehl `next`, den der Skill `docs/prompt/po.adoc` beschreibt
 (link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028]). Welcher Eintrag der
 nächste ist, hängt auch vom ausgecheckten Branch ab
 (link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031]).
@@ -41,8 +44,6 @@ Ein *erledigter* Eintrag wird *entfernt*, nicht abgehakt. Das Backlog beschreibt
 was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der Historie von
 `git`.
 
-
-== : Aktuell ist die Überschrift im backlog ist der Prompt; ein Rumpftext darunter ist Notiz. Das soll geändert werden. Der Rumpftext soll teil des Promptes sein
 
 == : Zieh ADR und Systemdokumentation zur Umstellung der SPA auf den gitdata-Store nach
 

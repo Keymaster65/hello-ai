@@ -9,6 +9,69 @@ Datum: 2026-07-19
 
 '''
 
+[[prompt-177]]
+== 177. Prompt: „commit"
+
+_Delta: 15 s · 1.614 Token out · 10.254 Token in (neu) · 402.890 Token gesamt_
+_Stand (Session, 4 Prompts): 9:26 min · 57.641 Token out · 5.372.436 Token gesamt_
+
+*Aktionen:*
+
+* Definition of Done geprüft: reine Doku-Änderung aus Prompt 176 (ADR 0056 und die nachgezogenen
+  Dateien), kein Code angefasst – die drei Asciidoctor-Tasks liefen grün, für `test`,
+  `systemtest` und `e2eTest` zählt der letzte grüne Lauf weiter (Butterfly-Skill).
+* Commit mit Author `Claude` gesetzt; Betreff „Rumpf des Backlog-Eintrags wird Teil des Prompts".
+* Trailer `+Co-Authored-By: Claude Opus 5 (1M context)+` – der Develop-Skill nennt wörtlich
+  „Opus 4.8"; eingetragen ist das *tatsächlich* arbeitende Modell. Der offene `+KI+`-Eintrag im
+  Backlog, den Trailer modellunabhängig zu formulieren, bleibt damit gültig.
+* Arbeitsbranches nach dem Commit zusammengeführt (Develop-Skill, ADR 0032/0034) – Ergebnis
+  unten.
+
+'''
+
+[[prompt-176]]
+== 176. Prompt: „Aktuell ist die Überschrift im backlog ist der Prompt; ein Rumpftext darunter ist Notiz. Das soll geändert werden. Der Rumpftext soll teil des Promptes sein" (aus dem Backlog, `next`)
+
+_Delta: 7:42 min · 50.428 Token out · 170.372 Token in (neu) · 4.205.619 Token gesamt_
+_Stand (Session, 3 Prompts): 7:42 min · 50.428 Token out · 4.205.619 Token gesamt_
+
+*Aktionen:*
+
+* `next` auf `poChapter`: `+git pull --ff-only+` ohne Wirkung – der Branch hat *kein* Tracking,
+  also nach PO-Skill kein Abbruch, sondern lokaler Stand. Kein Eintrag war aktiv; gezogen wurde
+  der oberste ungebundene ready-Eintrag, vom Nutzer bestätigt.
+* *Entscheidung festgehalten:* neues
+  `+docs/adr/0056-rumpftext-des-backlog-eintrags-als-teil-des-prompts.adoc+` – Überschrift *und*
+  Rumpf sind zusammen der Prompt; die Überschrift bleibt die allein verständliche Kurzform mit
+  Statuszeichen; ein Widerspruch zwischen beiden wird nachgefragt, nicht ausgelegt; was nicht
+  ausgeführt werden soll, wird AsciiDoc-Kommentar (`+// …+`). Ändert *einen* Punkt aus ADR 0028,
+  das wortgleich bleibt.
+* ADR 0031 bleibt gültig: Seine verworfene Option „Branch im Rumpftext" verliert ihre Begründung
+  („Rumpf ist Notiz"), nicht ihr Ergebnis – der Branch steuert das *Ziehen* und muss vor dem
+  Auftrag lesbar sein. Im ADR 0056 unter „Bewusst nicht getan" benannt.
+* *Arbeitsgrundlage nachgezogen:* `docs/prompt/po.adoc` (Aufbau des Backlogs, Rückfrage mit
+  Rumpf, Log-Aufteilung Überschrift/Rumpf, zwei Zeilen in „Auslöser → Pflicht", Hinweis „kein
+  Zitat" jetzt für den ganzen Eintrag), `docs/prompt/butterfly.adoc` (Rumpf gehört in den
+  `+*Aktionen:*+`-Block), `docs/prompt/adr.adoc` (Wegweiser + Anzahl 56),
+  `docs/prompt/prompt.adoc` (Dateitabelle, Pflege-Tabelle).
+* *Ist-Zustand nachgezogen:* `docs/system/system.adoc` (Zeile zu `docs/backlog.adoc`, ADR-Index
+  um 0056 an *erster* Stelle), `docs/system/arbeitsgrundlage.adoc` (Zeile zum PO-Skill),
+  `docs/backlog.adoc` (Legende im Kopf).
+* Erledigten Eintrag aus `docs/backlog.adoc` *entfernt* (kein Abhaken); der zweite ready-Eintrag
+  („Zieh ADR und Systemdokumentation … nach") ist damit ohne Umschreiben ausführbar – sein Rumpf
+  nennt fünf Dateien und eine offene Frage und ist jetzt Teil des Auftrags.
+* Bestehende `+KI+`-Rümpfe der Form „Nicht ready: erst ist zu klären …" *nicht* umgeschrieben:
+  Der Rumpf wird mit der Freigabe durch den Nutzer geradegezogen (im ADR unter „Bewusst nicht
+  getan" und „Nachteile" festgehalten).
+* *Nachweis:* `+./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr --rerun-tasks+`
+  BUILD SUCCESSFUL; nur die bereits bekannte Meldung „skipping reference to missing attribute:
+  id" (eigener Backlog-Eintrag), keine neue. `+build/docs/adr/0056-….html+` gerendert, die
+  Verweise darauf in `system.html` (9×) und `prompt.html` (6×) vorhanden.
+* Reine Doku-Änderung – kein Code angefasst, deshalb zählt der letzte grüne Lauf von `test`,
+  `systemtest` und `e2eTest` weiter (Butterfly-Skill).
+
+'''
+
 [[prompt-175]]
 == 175. Prompt: „commit"
 

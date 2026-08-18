@@ -239,7 +239,11 @@ _Stand (Session, <k> Prompts): <h:mm:ss> h · <out> Token out · <gesamt> Token 
 
 * Prompt-Text möglichst *wörtlich* übernehmen (in Anführungszeichen). Eine Ausnahme regelt der
   PO-Skill (`docs/prompt/po.adoc`, Ablauf von `next`): Bei einem aus dem Backlog gezogenen
-  Prompt steht der *gezogene Eintrag* in der Überschrift, nicht der getippte Befehl `next`.
+  Prompt steht der *gezogene Eintrag* in der Überschrift, nicht der getippte Befehl `next`. In
+  die Überschrift geht dabei die *Überschrift* des Eintrags; was sein *Rumpf* zur Arbeit
+  beigetragen hat – er ist seit
+  link:{adr}/0056-rumpftext-des-backlog-eintrags-als-teil-des-prompts{adrext}[ADR 0056] Teil des
+  Prompts –, gehört in den `*Aktionen:*`-Block.
 * Zusammenfassungen kurz und faktenbasiert halten; keine Roh-Tool-Ausgaben.
 * Reihenfolge beachten, wenn ein Prompt „erst aktualisieren, dann committen" verlangt:
   *zuerst* das Log ergänzen, *dann* committen.

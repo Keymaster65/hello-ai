@@ -1,0 +1,158 @@
+// Architekturentscheidung; Index siehe docs/system/system.adoc.
+ifndef::adrext[:adrext: .adoc]
+= ADR 0056: Rumpftext eines Backlog-Eintrags als Teil des Prompts
+
+== Status
+
+Akzeptiert – 2026-08-18. Ändert einen Punkt aus
+link:0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028]: Der Rumpf unter der
+Überschrift ist nicht mehr Notiz, sondern Teil des Prompts. Alles Übrige aus ADR 0028 bleibt in
+Kraft; link:0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031] gilt weiter,
+verliert aber die Grundlage einer seiner Begründungen (siehe „Bewusst nicht getan").
+
+== Kontext
+
+Seit ADR 0028 gilt: Die Überschrift *ist* der Prompt, ein Rumpftext darunter ist Notiz für den
+Menschen und geht nicht in die Aufgabe ein. Das trägt, solange eine Aufgabe in eine Zeile
+passt.
+
+Es passt nicht mehr, sobald zur Aufgabe Randbedingungen gehören – die Dateien, die zu pflegen
+sind, das Attribut, um das es geht, die eine Frage, die vorher zu klären ist. Für diesen Fall
+gab es bisher zwei Wege, und beide sind schlecht:
+
+* *Alles in die Überschrift.* Sie wird zur halben Seite, taugt nicht mehr als Gliederung und
+  nicht mehr als Log-Überschrift (der Hook kürzt ab 300 Zeichen,
+  link:0025-claudelog-als-asciidoc{adrext}[ADR 0025] und der Butterfly-Skill).
+* *Der Kontext in den Rumpf.* Dann steht er in der Datei, ist für jeden Menschen sichtbar –
+  und ist als Auftrag *unwirksam*. Der Assistent liest ihn und darf ihn nicht als Aufgabe
+  nehmen.
+
+Der zweite Weg wurde in der Praxis genommen: Mehrere Einträge des Backlogs tragen einen Rumpf,
+der die Arbeit erkennbar meint, nicht kommentiert. Damit klafft zwischen dem, was in der Datei
+steht, und dem, was ausgeführt wird, eine Lücke, die nur beim Lesen auffällt – der Rumpf ist
+sichtbar und folgenlos. Das ist der teuerste Zustand für einen Text: geschrieben, gelesen,
+wirkungslos.
+
+== Optionen
+
+*Was ist der Prompt?*
+
+. *Nur die Überschrift* (bisher). Verworfen: Genau der Zustand, der die Lücke erzeugt. Wer
+  Kontext braucht, muss ihn entweder in die Überschrift pressen oder darauf hoffen, dass der
+  Assistent den Rumpf entgegen der Regel mitliest.
+. *Überschrift plus ein eigens ausgezeichneter Block* des Rumpfes, etwa ein `[prompt]`-Block.
+  Verworfen: eine zweite Auszeichnung, die man vergessen kann – und wer sie vergisst, verliert
+  Arbeitsauftrag *still*. Der Build prüft sie nicht.
+. *Überschrift als Titel, Rumpf als eigentlicher Prompt.* Verworfen: Ein Eintrag ohne Rumpf
+  hätte dann keinen Prompt. Die kurze Aufgabe ist der häufige Fall und darf nicht die
+  Ausnahme werden.
+. *Überschrift und vollständiger Rumpf zusammen* – gewählt. Ein Eintrag ist der Prompt, nicht
+  eine Zeile davon.
+
+*Wo bleibt eine Notiz, die niemand ausführen soll?*
+
+. *Nirgends – es gibt sie nicht mehr.* Verworfen: Es gibt sie, etwa ein Verweis auf ein
+  Gespräch oder eine Erinnerung, die der Nutzer sich selbst schreibt.
+. *Ein Stichwort im Fließtext* (`Notiz: …`). Verworfen: Prosa als Schalter. Dann entscheidet
+  ein Doppelpunkt darüber, was Auftrag ist, und die Regel steht wieder im Ermessen des Lesers.
+. *AsciiDoc-Kommentar* `+// …+` – gewählt: Er ist schon da (der Kopf des Backlogs benutzt
+  ihn), erscheint nicht im gerenderten Anhang und ist beim Lesen der Datei nicht mit Text zu
+  verwechseln. Was nicht sichtbar ausgeliefert wird, wird auch nicht beauftragt – die Grenze
+  ist dieselbe für Mensch und Assistent.
+
+== Entscheidung
+
+*Ein Eintrag ist ein Prompt – Überschrift und Rumpf zusammen.* Beides wird als Aufgabe gelesen
+wie ein getippter Prompt des Nutzers. Die Überschrift sagt, *was* zu tun ist; der Rumpf verengt
+sie: betroffene Dateien, Randbedingungen, die Frage, die vorher zu klären ist.
+
+*Die Überschrift bleibt die Kurzform* und trägt weiter den Status im ersten Zeichen (ADR 0028)
+samt möglicher Branch-Bindung (ADR 0031). Sie muss *allein* verständlich bleiben, denn sie tritt
+an drei Stellen ohne ihren Rumpf auf: in der Gliederung des Anhangs, in der Rückfrage von `next`
+und als Überschrift des Log-Eintrags. Ein Eintrag ohne Rumpf bleibt ein vollständiger Eintrag.
+
+*Widerspricht der Rumpf der Überschrift*, wird nachgefragt statt ausgelegt (Grundregel 5 des
+Master-Prompts). Es gilt weder „der spätere Text" noch „die Überschrift zuerst" – ein
+Widerspruch im Auftrag ist keine Rangfrage, sondern ein Fehler im Eintrag.
+
+*Was nicht Auftrag ist, wird AsciiDoc-Kommentar* (`+// …+`). Sichtbarer Text unter der
+Überschrift ist Teil des Prompts, ohne Ausnahme.
+
+Für den Ablauf von `next` folgt daraus dreierlei:
+
+* *Die Rückfrage* legt Überschrift *und* Rumpf im Wortlaut vor. Bestätigt wird der ganze
+  Eintrag.
+* *Im Log* steht die Überschrift als Überschrift des Eintrags, wie bisher gefolgt von
+  `+(aus dem Backlog, `next`)+`; was der Rumpf zur Arbeit beigetragen hat, steht im
+  `+*Aktionen:*+`-Block (Butterfly-Skill).
+* *Eine halb erledigte Aufgabe* bekommt ihre Notiz weiter in den Rumpf – die ist beim nächsten
+  Ziehen jetzt aber Teil des Auftrags. Das ist erwünscht und deshalb als Aufgabe zu
+  formulieren („Noch offen: …"), nicht als Rückblick.
+
+Unberührt bleibt alles andere aus ADR 0028: Ort der Datei, die vier Statuszeichen, Reihenfolge
+als Priorität, Entfernen statt Abhaken, Einbindung als letzter Anhang der Systemdokumentation.
+
+== Konsequenzen
+
+=== Vorteile
+
+* *Kein wirkungsloser Text mehr.* Was im Eintrag steht, wirkt – die Lücke zwischen Gelesenem
+  und Ausgeführtem ist geschlossen.
+* *Überschriften bleiben kurz.* Der Kontext hat einen Ort, also muss er nicht in die Zeile, die
+  Gliederung und Log-Überschrift trägt.
+* *Ein Eintrag kann präzise werden*, ohne unlesbar zu werden: Dateien, Grenzen und offene Fragen
+  gehören jetzt hinein, statt beim Ziehen mündlich nachgeschoben zu werden.
+* *Nichts Neues zu lernen.* Die Auszeichnung bleibt AsciiDoc, das Statuszeichen bleibt vorn, der
+  Ablauf von `next` bleibt derselbe.
+
+=== Nachteile
+
+* *Sichtbar heißt beauftragt.* Für „nur zur Information" gibt es im sichtbaren Text keinen Platz
+  mehr; wer eine Bemerkung ablegen will, muss sie kommentieren (`+// …+`) – sonst wird sie
+  irgendwann ausgeführt.
+* *Der Rumpf trägt jetzt Verantwortung.* Ein hingeschriebener Halbsatz, der als Notiz harmlos
+  war, ist als Auftrag falsch. Rümpfe sind ab hier so zu schreiben wie Überschriften: als
+  Aufgabe, selbst formuliert, kein Zitat (ADR 0028, „Nachteile").
+* *Bestehende Einträge sind unter der alten Regel geschrieben.* Mehrere `+KI+`-Einträge tragen
+  im Rumpf eine Begründung der Art „Nicht ready: erst ist zu klären …" – als Prompt gelesen ist
+  das keine Aufgabe. Sie werden hier nicht vorsorglich umgeschrieben (siehe unten); wer einen
+  Eintrag freigibt, formuliert seinen Rumpf mit.
+* *Die Größe eines Prompts ist der Gliederung nicht mehr anzusehen.* Zwei Einträge mit gleich
+  kurzer Überschrift können sich um mehrere Absätze unterscheiden.
+
+=== Bewusst nicht getan
+
+* *Keine maschinelle Prüfung.* Der Build prüft die Auszeichnung des Backlogs, nicht, ob ein
+  Rumpf als Aufgabe taugt – wie er auch die Statuszeichen nicht prüft (ADR 0028).
+* *Kein Umschreiben der vorhandenen Rumpftexte.* Das wäre ein Eingriff in fremde Einträge, und
+  die Freigabe liegt beim Nutzer (ADR 0028: vorschlagen ja, freigeben nein). Der Rumpf wird mit
+  der Freigabe gerade gezogen, nicht vorher auf Verdacht.
+* *Keine Längenbegrenzung des Rumpfes.* Ein zu großer Eintrag wird geteilt – diese Regel steht
+  schon im PO-Skill und braucht keine Zahl daneben.
+* *ADR 0028 und ADR 0031 bleiben wortgleich* (ADR-Skill, Grundsatz 3). ADR 0031 hatte die Option
+  „Angabe im Rumpftext (`Branch: ai1`)" mit dem Satz verworfen, der Rumpf sei laut ADR 0028
+  Notiz für den Menschen. Diese Grundlage entfällt hier, die Entscheidung bleibt: Ein Branch
+  steuert, *ob* gezogen wird, und muss deshalb erkennbar sein, *bevor* der Auftrag gelesen wird
+  – er gehört in den Marker, nicht in den Text.
+
+== Prüfung
+
+* `./gradlew asciidoctor asciidoctorPrompt asciidoctorAdr` läuft durch; das Backlog steht als
+  letzter Anhang im Build, die geänderte Legende und dieses ADR sind mitgerendert.
+* *Der Nachweis steht im Backlog selbst:* Der Eintrag „Zieh ADR und Systemdokumentation zur
+  Umstellung der SPA auf den gitdata-Store nach" nennt in seinem Rumpf fünf zu pflegende Dateien
+  und eine zu klärende Frage. Unter dieser Entscheidung ist er ohne Umschreiben ausführbar;
+  unter der alten wäre davon nichts Auftrag gewesen.
+* Kommentarzeilen sind der bestehende Beleg für den Notiz-Weg: Der Kopf von `docs/backlog.adoc`
+  besteht aus `+//+`-Zeilen und erscheint im gerenderten Anhang nicht.
+
+== Referenzen
+
+* link:0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028] – Backlog als Anhang,
+  Status im Anfang der Überschrift; von hier in einem Punkt geändert
+* link:0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031] – Branch-Bindung im
+  Marker, gilt weiter
+* link:0029-next-mit-versatz{adrext}[ADR 0029] – der Versatz `next+N`, unberührt
+* `docs/prompt/po.adoc` – der Ablauf von `next`, hier nachgezogen
+* `docs/backlog.adoc` – die Liste selbst samt Legende
+* `docs/prompt/butterfly.adoc` – Log-Überschrift und `+*Aktionen:*+`-Block

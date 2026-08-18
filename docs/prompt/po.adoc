@@ -11,16 +11,30 @@ geführt und wie daraus der nächste Prompt gezogen wird
 (link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028],
 link:{adr}/0029-next-mit-versatz{adrext}[ADR 0029],
 link:{adr}/0030-pull-vor-next{adrext}[ADR 0030],
-link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031]).
+link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031],
+link:{adr}/0056-rumpftext-des-backlog-eintrags-als-teil-des-prompts{adrext}[ADR 0056]).
 
 Das Backlog ist die *Zukunft*, das Session-Protokoll die *Vergangenheit*. Was erledigt ist,
 verschwindet hier und steht dort (Butterfly-Skill, `docs/prompt/butterfly.adoc`).
 
 == Aufbau des Backlogs
 
-Ein Prompt je Überschrift, von oben nach unten abzuarbeiten. Die *Überschrift ist der Prompt*
-– sie wird wörtlich als Aufgabe genommen; ein Rumpftext darunter ist Notiz für den Menschen
-und geht nicht in die Aufgabe ein.
+Ein Prompt je Eintrag, von oben nach unten abzuarbeiten. *Überschrift und Rumpf sind zusammen
+der Prompt* – beides wird wörtlich als Aufgabe genommen
+(link:{adr}/0056-rumpftext-des-backlog-eintrags-als-teil-des-prompts{adrext}[ADR 0056]):
+
+* *Die Überschrift* sagt, *was* zu tun ist. Sie trägt den Status und muss *allein* verständlich
+  bleiben – sie tritt dreimal ohne ihren Rumpf auf: in der Gliederung des Anhangs, in der
+  Rückfrage von `next` und als Überschrift des Log-Eintrags.
+* *Der Rumpf* verengt sie: betroffene Dateien, Randbedingungen, die Frage, die vorher zu klären
+  ist. Er ist *nicht* mehr bloße Notiz – bis ADR 0056 war er es (ADR 0028).
+* *Ein Eintrag ohne Rumpf* ist vollständig. Der kurze Auftrag bleibt der Normalfall.
+* *Widerspricht der Rumpf der Überschrift*, wird *nachgefragt* (Grundregel 5) – nicht ausgelegt.
+  Weder gilt „der spätere Text" noch „die Überschrift zuerst".
+
+IMPORTANT: Sichtbarer Text unter der Überschrift ist Teil des Auftrags, ohne Ausnahme. Was
+*niemand ausführen* soll, wird AsciiDoc-Kommentar: `+// nur zur Erinnerung …+`. Solche Zeilen
+erscheinen im gerenderten Anhang nicht – dieselbe Grenze für Mensch und Assistent.
 
 Der *Anfang der Überschrift* trägt den Status:
 
@@ -84,8 +98,9 @@ Historie mitschleppt, ist nach zwanzig Prompts keine Arbeitsliste mehr.
   *erste* dieser Liste wird gezogen, bei `next+N` der *(N+1)-te*. Ist die Liste leer, wird das
   gesagt – zusammen mit den Einträgen, die in Frage kämen: nicht-ready-Einträge und solche, die
   an einen anderen Branch gebunden sind. Nichts wird ersatzweise ausgeführt.
-. *Rückfrage (Pflicht):* Den Eintrag im *Wortlaut* vorlegen und fragen, ob er jetzt
-  ausgeführt wird. Ohne Bestätigung passiert nichts: *Was* gearbeitet wird, entscheidet der
+. *Rückfrage (Pflicht):* Den Eintrag im *Wortlaut* vorlegen – Überschrift *und* Rumpf, denn
+  beides ist der Prompt (ADR 0056) – und fragen, ob er jetzt ausgeführt wird. Bestätigt wird der
+  ganze Eintrag. Ohne Bestätigung passiert nichts: *Was* gearbeitet wird, entscheidet der
   Nutzer. Diese Rückfrage bleibt – anders als die Bestätigung der Commit-Message, die
   link:{adr}/0040-commit-freigabe-in-einem-schritt{adrext}[ADR 0040] abgelöst hat. Der
   Unterschied ist der Gegenstand: hier eine Aufgabe, dort eine Formulierung.
@@ -105,6 +120,11 @@ Historie mitschleppt, ist nach zwanzig Prompts keine Arbeitsliste mehr.
 == 104. Prompt: „Strukturiere die Inhalte in den ADR in Kapitel …" (aus dem Backlog, `next`)
 ----
 +
+In die Log-Überschrift geht die *Überschrift* des Eintrags – sie ist eine Zeile und dafür
+gemacht. Was der *Rumpf* zur Arbeit beigetragen hat, steht im `+*Aktionen:*+`-Block
+(Butterfly-Skill); der Log bleibt damit auch dann vollständig, wenn der Eintrag längst entfernt
+ist.
+
 `next` ist der Befehl, mit dem der Prompt gezogen wurde – nicht der Prompt. Stünde er in der
 Überschrift, wäre nach dem Entfernen des Eintrags nirgends mehr nachlesbar, *was* gearbeitet
 wurde; die Kennzahlen-Tabelle (Manager-Skill) trüge eine Zeile ohne Aussage. In der Klammer
@@ -194,7 +214,8 @@ oder der Nutzer will erst den darunter erledigen. Dafür trägt der Befehl einen
 
 | Wunsch *des Nutzers*, der jetzt nicht umgesetzt wird
 | Als Eintrag *ohne* Marker ans Ende des Backlogs – auch wenn er im Gespräch nur nebenbei
-  fiel. Was nur im Verlauf steht, ist nach `/clear` weg (Develop-Skill)
+  fiel. Was nur im Verlauf steht, ist nach `/clear` weg (Develop-Skill). Randbedingungen aus dem
+  Gespräch gehören in den Rumpf: Sie sind Teil des Auftrags (ADR 0056)
 
 | Vorschlag *des Assistenten*
 | Als Eintrag mit `+KI+` ans Ende. Er wartet dort auf die Freigabe durch den Nutzer
@@ -212,7 +233,12 @@ oder der Nutzer will erst den darunter erledigen. Dafür trägt der Befehl einen
 | Entfernen. Kein Abhaken, kein „(done)" – der Nachweis steht im `claudeLog`
 
 | Aufgabe abgebrochen oder nur halb erledigt
-| Marker bleibt `+*+`, der Rumpf bekommt eine Notiz, was noch fehlt
+| Marker bleibt `+*+`, der Rumpf bekommt, was noch fehlt – *als Aufgabe* formuliert („Noch
+  offen: …"), nicht als Rückblick: Beim nächsten Ziehen ist dieser Text Teil des Prompts
+  (link:{adr}/0056-rumpftext-des-backlog-eintrags-als-teil-des-prompts{adrext}[ADR 0056])
+
+| Eine Bemerkung soll im Eintrag stehen, aber *nicht* ausgeführt werden
+| Als AsciiDoc-Kommentar `+// …+` in den Rumpf. Sichtbarer Text ist Auftrag (ADR 0056)
 
 | Ein Eintrag ist zu groß für einen Prompt
 | Teilen statt halb erledigen: mehrere Überschriften, jede für sich ausführbar
@@ -235,9 +261,11 @@ Anfang von `next`, gleich hinter dem Pull.
 
 == Hinweise
 
-* *Die Überschrift ist selbst geschrieben, kein Zitat.* Sie soll als Prompt taugen: imperativ,
-  eine Aufgabe, ohne Sonderzeichen, die AsciiDoc deuten könnte. Der Log darf beliebigen Text
-  zitieren, das Backlog nicht – es steht im Build.
+* *Der Eintrag ist selbst geschrieben, kein Zitat* – Überschrift *und* Rumpf. Beides soll als
+  Prompt taugen: imperativ, eine Aufgabe, ohne Sonderzeichen, die AsciiDoc deuten könnte. Der Log
+  darf beliebigen Text zitieren, das Backlog nicht – es steht im Build. Seit ADR 0056 trägt der
+  Rumpf dieselbe Verantwortung: Ein hingeschriebener Halbsatz, als Notiz harmlos, ist als Auftrag
+  falsch.
 * *Der Status steht nur an einer Stelle*, im Anfang der Überschrift. Keine zweite Liste, keine
   Statustabelle daneben.
 * *Reihenfolge ist Priorität.* Umsortieren ist die Priorisierung; eine eigene Prioritätsspalte

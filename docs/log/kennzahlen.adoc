@@ -20,6 +20,34 @@
 | Stand out / Token
 | Stand gesamt / Token
 
+| <<prompt-177,177>>
+|„commit"
+| –
+| 15 s
+| 19:54:47 h
+| 1.614
+| 4.998.063
+| 10.254
+| 31.353.876
+| 402.890
+| 9:26 min
+| 57.641
+| 5.372.436
+
+| <<prompt-176,176>>
+|„Aktuell ist die Überschrift im backlog ist der Prompt; ein Rumpftext darunter ist Notiz. Das soll geändert werden. Der Rumpftext soll teil des Promptes sein" (aus dem Backlog, `next`)
+| –
+| 7:42 min
+| 19:54:32 h
+| 50.428
+| 4.996.449
+| 170.372
+| 31.343.622
+| 4.205.619
+| 7:42 min
+| 50.428
+| 4.205.619
+
 | <<prompt-175,175>>
 |„commit"
 | <<commit-a6d2a78,a6d2a78>>

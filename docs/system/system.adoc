@@ -65,7 +65,9 @@ wählt danach den Ort:
 
 | `docs/backlog.adoc`
 | Was kommt als Nächstes?
-| Ein Prompt je Überschrift, von oben abzuarbeiten; der Status steht im Anfang der Überschrift
+| Ein Prompt je Eintrag, von oben abzuarbeiten – Überschrift *und* Rumpf sind der Prompt
+  (link:{adr}/0056-rumpftext-des-backlog-eintrags-als-teil-des-prompts{adrext}[ADR 0056]). Der
+  Status steht im Anfang der Überschrift
   (link:{adr}/0028-backlog-als-anhang-mit-status-im-titel{adrext}[ADR 0028]) und darf einen
   Branch nennen, an den der Eintrag gebunden ist
   (link:{adr}/0031-next-bevorzugt-branchgebundene-eintraege{adrext}[ADR 0031]). Eingebunden als
@@ -128,6 +130,7 @@ erste Zeile.
 |===
 | ADR | Thema
 
+| link:{adr}/0056-rumpftext-des-backlog-eintrags-als-teil-des-prompts{adrext}[0056] | Ein Backlog-Eintrag ist als Ganzes der Prompt: Überschrift *und* Rumpf werden als Aufgabe gelesen, die Überschrift bleibt die allein verständliche Kurzform mit dem Statuszeichen, und was nicht ausgeführt werden soll, wird AsciiDoc-Kommentar (ändert einen Punkt aus 0028)
 | link:{adr}/0055-anfangspopulation-des-gitdata-stores-aus-dem-seed-changeset{adrext}[0055] | Der git-Store bekommt beim Start dieselben sechs Rezepte wie die Datenbank – gelesen aus *einem* Seed-Changeset, ein Commit je Rezept, nur in einen noch nicht existierenden Branch; dazu `created_at` und `updated_at` im Dokument, gesetzt aus der Uhr der Anwendung (ergänzt 0053)
 | link:{adr}/0054-zweite-rest-front-auf-dem-gitdata-store{adrext}[0054] | Der git-Store bekommt eine Adresse: `+/api/gitdata/recipes+` mit denselben fünf Operationen, aus einer gemeinsamen Basisklasse; zwei Beans je Port, der relationale Weg bleibt `+@Primary+`, und alles ist über `recipes.gitdata.enabled` abschaltbar – Vorgabe aus (ergänzt 0053)
 | link:{adr}/0053-gitdata-adapter-rezepte-als-json-im-branch-data{adrext}[0053] | Zweiter Adapter am ausgehenden Port `RecipeRepository`: `gitdata` legt jede Zeile als eigene JSON-Datei unter `+database/entities/…+` in den wurzellosen Branch `data` und macht aus jeder Schreiboperation einen Commit – über JGit, ohne Arbeitsverzeichnis. Der jOOQ-Weg bleibt der aktive (ergänzt 0001, 0004)

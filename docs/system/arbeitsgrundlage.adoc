@@ -74,9 +74,11 @@ herein, also gibt es keine zweite Fassung, die veralten kann.
   <<kennzahlen>> eingebunden.
 
 | `docs/prompt/po.adoc`
-| Skill: Backlog `docs/backlog.adoc` – Statuszeichen im Anfang der Überschrift, Bindung eines
-  Eintrags an einen Branch, Ablauf des Befehls `next`, Umgang mit Erledigtem. Die Liste selbst
-  ist der Anhang <<backlog>>.
+| Skill: Backlog `docs/backlog.adoc` – Statuszeichen im Anfang der Überschrift, Überschrift und
+  Rumpf zusammen als Prompt
+  (link:{adr}/0056-rumpftext-des-backlog-eintrags-als-teil-des-prompts{adrext}[ADR 0056]),
+  Bindung eines Eintrags an einen Branch, Ablauf des Befehls `next`, Umgang mit Erledigtem. Die
+  Liste selbst ist der Anhang <<backlog>>.
 
 | `docs/prompt/develop.adoc`
 | Skill: Commit-Regeln – Definition of Done als Vorbedingung, Author, Freigabe im Befehl
