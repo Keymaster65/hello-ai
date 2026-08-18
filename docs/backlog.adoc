@@ -42,6 +42,8 @@ was getan wurde, steht im Session-Protokoll `docs/log/claudeLog.adoc` und in der
 `git`.
 
 
+== : Aktuell ist die Überschrift im backlog ist der Prompt; ein Rumpftext darunter ist Notiz. Das soll geändert werden. Der Rumpftext soll teil des Promptes sein
+
 == : Zieh ADR und Systemdokumentation zur Umstellung der SPA auf den gitdata-Store nach
 
 Die SPA spricht seit Protokolleintrag 174 den git-Store an: `+modules/frontend/src/api/recipes.ts+`
