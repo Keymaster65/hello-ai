@@ -14,6 +14,7 @@ Datum: 2026-07-19
 
 _Delta: 15 s · 1.614 Token out · 10.254 Token in (neu) · 402.890 Token gesamt_
 _Stand (Session, 4 Prompts): 9:26 min · 57.641 Token out · 5.372.436 Token gesamt_
+_Commit: <<commit-94ec492,94ec492>>_
 
 *Aktionen:*
 
@@ -24,8 +25,14 @@ _Stand (Session, 4 Prompts): 9:26 min · 57.641 Token out · 5.372.436 Token ges
 * Trailer `+Co-Authored-By: Claude Opus 5 (1M context)+` – der Develop-Skill nennt wörtlich
   „Opus 4.8"; eingetragen ist das *tatsächlich* arbeitende Modell. Der offene `+KI+`-Eintrag im
   Backlog, den Trailer modellunabhängig zu formulieren, bleibt damit gültig.
-* Arbeitsbranches nach dem Commit zusammengeführt (Develop-Skill, ADR 0032/0034) – Ergebnis
-  unten.
+* Arbeitsbranches nach dem Commit zusammengeführt (Develop-Skill, ADR 0032/0034): einmal
+  `+git fetch origin+`, dann `+origin/main+`, `+origin/sm+`, `+origin/doc+`, `+origin/po+` und der
+  aktuelle Branch – *alle* „Already up to date"; `dev` hat weder Remote- noch lokalen Ref und
+  wurde übergangen. Kein Merge-Commit, kein Konflikt.
+* Nebenbefund: Der Arbeitsbranch heißt seit einer Umbenennung von außen (`+git branch -m+` um
+  13:40 Ortszeit, im Reflog nachweisbar) `git-poChapter` statt `poChapter` – ohne Upstream, wie
+  vorher. Folgenlos für diesen Commit; für `+next+` heißt es: Eine Bindung müsste künftig auf den
+  *neuen* Namen zeigen.
 
 '''
 
